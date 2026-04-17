@@ -1,0 +1,3 @@
+{
+  "extends": "@sports-system/config/tsconfig.base.json"
+}
