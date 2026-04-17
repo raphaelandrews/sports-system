@@ -22,10 +22,11 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "concurrently -n web,api -c cyan,magenta \"turbo dev\" \"bun run dev:backend\"",
     "build": "turbo build",
     "check-types": "turbo check-types",
     "dev:web": "turbo -F web dev",
+    "dev:backend": "cd apps/api && uv run uvicorn app.main:app --reload --port 3000",
     "deploy": "turbo -F @sports-system/infra deploy",
     "destroy": "turbo -F @sports-system/infra destroy",
     "check": "oxlint && oxfmt --write"
@@ -38,6 +39,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20251213.0",
     "@sports-system/config": "workspace:*",
+    "concurrently": "^9.2.1",
     "oxfmt": "^0.26.0",
     "oxlint": "^1.41.0",
     "turbo": "^2.8.12",

@@ -12,14 +12,15 @@ A multi-sport competition management system designed for generic sporting events
 - **Athlete & coach management** — linked to delegations and modalities, with full transfer history
 - **Enrollment system** — per-event enrollment with automatic rule validation (weight category, gender, schedule conflicts, eligibility)
 - **Competition calendar** — weekly schedule with phases (groups, knockout), venues, and match times
-- **Live results & medal board** — real-time updates as results are entered
+- **Live results & medal board** — real-time updates via SSE; in showcase mode (`AUTO_SIMULATE=true`) matches start and finish automatically with generated results, events, and statistics
 - **Final report** — complete medal standings, per-sport classifications, records, and best marks
 - **AI generation** — delegations, athletes, calendar, results, and daily narrative generated via LLM
 
 ### Competition Cycle
 - Weekly format: 6 competition days (Tuesday–Sunday) + 1 transfer window (Monday)
-- Calendar is locked before the first event starts — no schedule changes mid-week
-- New teams and athletes registered after the lock-in are eligible from the next week
+- Transfer window opens **Monday 00:00** and closes **Tuesday 00:00** (UTC-3 / São Paulo) — automatic, no admin action required
+- Calendar locks **automatically** when the first event's start time passes — match schedule is generated from approved enrollments at that moment
+- New teams and athletes registered after lock-in are eligible from the next week
 - Historical records always reflect the delegation a player represented **at the time of the match**
 
 ### Users
@@ -49,16 +50,16 @@ A multi-sport competition management system designed for generic sporting events
 | [shadcn/ui](https://ui.shadcn.com) + [@base-ui/react](https://base-ui.com) | Component library |
 | [Cloudflare Workers](https://workers.cloudflare.com) | Edge deployment via [Alchemy](https://alchemy.run) |
 
-### Backend (`backend/` — coming soon)
+### Backend (`apps/api`)
 | Technology | Role |
 |---|---|
 | [FastAPI](https://fastapi.tiangolo.com) | Python REST API |
 | [SQLModel](https://sqlmodel.tiangolo.com) | ORM (SQLAlchemy + Pydantic) |
 | [Alembic](https://alembic.sqlalchemy.org) | Database migrations |
-| PostgreSQL | Primary database |
-| Redis | Cache + pub/sub for real-time updates |
+| PostgreSQL | Primary database + refresh token storage |
 | JWT | Authentication (access + refresh tokens) |
-| WebSocket / SSE | Live score updates |
+| SSE (Server-Sent Events) | Live score updates, medal board streaming |
+| APScheduler | Automatic week locking, match generation, notifications |
 
 ---
 
@@ -91,14 +92,14 @@ sports-system/
 │   ├── env/                    # Environment variable validation (t3-env)
 │   └── config/                 # Shared TypeScript config
 │
-├── backend/                    # FastAPI backend (coming soon)
-│   ├── app/
-│   │   ├── routers/            # Route handlers per domain
-│   │   ├── services/           # Business logic
-│   │   ├── repositories/       # Database queries
-│   │   ├── models/             # SQLModel database models
-│   │   └── schemas/            # Pydantic request/response schemas
-│   └── alembic/                # Database migrations
+│   └── api/                    # FastAPI backend
+│       ├── app/
+│       │   ├── routers/        # Route handlers per domain
+│       │   ├── services/       # Business logic
+│       │   ├── repositories/   # Database queries
+│       │   ├── models/         # SQLModel database models
+│       │   └── schemas/        # Pydantic request/response schemas
+│       └── alembic/            # Database migrations (coming soon)
 │
 ├── FEATURES.md                 # Full feature spec (PT-BR) with phased tasks
 ├── turbo.json                  # Turborepo pipeline
@@ -110,7 +111,8 @@ sports-system/
 ## Prerequisites
 
 - [Bun](https://bun.sh) >= 1.3.1
-- [Python](https://python.org) >= 3.12 (for backend — when added)
+- [Python](https://python.org) >= 3.12
+- [uv](https://docs.astral.sh/uv/) (Python package manager)
 - [Cloudflare account](https://dash.cloudflare.com) (for deployment)
 
 ---
@@ -130,38 +132,33 @@ bun install
 
 ## Environment Variables
 
-### `apps/web/.env`
-```env
-VITE_SERVER_URL=http://localhost:3000   # FastAPI backend URL
-CORS_ORIGIN=http://localhost:3001       # Frontend URL (for backend CORS)
+All variables documented in `.env.example` at the repo root, grouped by app.
+
+```bash
+cp .env.example .env
 ```
 
-### `packages/infra/.env`
-```env
-ALCHEMY_PASSWORD=your-password          # Alchemy state encryption
-CLOUDFLARE_API_TOKEN=your-cf-token      # Cloudflare deployment token
-```
+Each app reads its own subset:
 
-### `backend/.env` (when added)
-```env
-DATABASE_URL=postgresql://user:pass@localhost:5432/sports
-REDIS_URL=redis://localhost:6379
-SECRET_KEY=your-jwt-secret
-LLM_API_KEY=your-llm-api-key
-FRONTEND_URL=http://localhost:3001
-```
+| App | Variables |
+|-----|-----------|
+| `apps/web` | `VITE_SERVER_URL`, `CORS_ORIGIN`, `VITE_TIMEZONE` |
+| `apps/api` | `DATABASE_URL`, `SECRET_KEY`, `FRONTEND_URL`, `PORT`, `LLM_API_KEY`, `TIMEZONE`, `AUTO_SIMULATE` |
+| `packages/infra` | `ALCHEMY_PASSWORD`, `CLOUDFLARE_API_TOKEN` |
 
 ---
 
 ## Development
 
 ```bash
-# Start frontend (no Cloudflare Workers — faster for dev)
+# Start everything (frontend + backend + infra watcher)
+bun dev
+
+# Start frontend only
 bun run dev:web
 
-# Start full stack with infra watcher
-# Requires Cloudflare credentials in packages/infra/.env
-bun run dev
+# Start backend only (port 3000)
+bun run dev:backend
 
 # Type checking across all packages
 bun run check-types
@@ -170,15 +167,21 @@ bun run check-types
 bun run check
 ```
 
-Frontend runs at `http://localhost:3001`.
+Frontend: `http://localhost:3001` · Backend: `http://localhost:3000` · Docs: `http://localhost:3000/docs`
 
-> **Backend not yet implemented.** The frontend connects to `VITE_SERVER_URL`. All API calls fail gracefully until the FastAPI server is running.
+> `bun dev` requires Cloudflare credentials (`CLOUDFLARE_API_TOKEN`) for the infra watcher. Use `bun run dev:web` + `bun run dev:backend` without them.
 
-### Backend dev (port 3000) — coming soon
+**First-time setup:**
 ```bash
-cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 3000
+# JS dependencies
+bun install
+
+# Backend dependencies
+cd apps/api && uv sync
+
+# Environment variables
+cp .env.example .env
+# Edit .env — at minimum set SECRET_KEY and FRONTEND_URL
 ```
 
 ---
@@ -203,8 +206,9 @@ Infra config: `packages/infra/alchemy.run.ts`. Reads `VITE_SERVER_URL` and `CORS
 
 | Script | Description |
 |--------|-------------|
-| `bun run dev` | Start all apps (Turbo) |
+| `bun dev` | Start frontend + backend + infra watcher |
 | `bun run dev:web` | Start frontend only |
+| `bun run dev:backend` | Start FastAPI backend only |
 | `bun run build` | Build all apps |
 | `bun run check-types` | TypeScript check across workspace |
 | `bun run check` | Lint (oxlint) + format (oxfmt) |
@@ -246,6 +250,4 @@ import { Button } from "@sports-system/ui/components/button";
 | Karate (Karatê) | Individual | 1 |
 
 Each sport has custom statistics, tiebreak rules, and competition phases. See [FEATURES.md](./FEATURES.md) for full rules.
-
----
 

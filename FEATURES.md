@@ -12,14 +12,15 @@ A competição é estruturada em **semanas**:
 
 | Dia | Atividade |
 |-----|-----------|
-| Segunda-feira | Janela de transferências — atletas podem trocar de delegação |
+| Segunda-feira (00h00–23h59, UTC-3) | Janela de transferências — atletas podem trocar de delegação |
 | Terça a Domingo | 6 dias de eventos esportivos |
 
 **Regras do ciclo:**
-- O calendário de uma semana é definido e **travado** pelo admin antes do início do primeiro evento
+- O calendário de uma semana é montado pelo admin e **travado automaticamente** quando o horário do primeiro evento passa
 - Uma vez travada, nenhuma alteração de escala é permitida na semana atual
+- Ao travar, o sistema **gera automaticamente** as partidas e o chaveamento com base nas inscrições aprovadas
 - Novas delegações, atletas e técnicos podem ser cadastrados a qualquer momento, mas **só participam a partir da próxima semana**
-- Transferências entre delegações só ocorrem às **segundas-feiras** (entre eventos)
+- Janela de transferências abre às **00h00 de segunda-feira** e fecha às **00h00 de terça-feira** (UTC-3) — **verificação automática**, sem intervenção do admin
 - Resultados de partidas registram a **delegação do atleta no momento da partida** — mudanças futuras não afetam o histórico
 
 **Estados de uma semana de competição:**
@@ -28,7 +29,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ```
 - `RASCUNHO`: admin está montando o calendário
 - `AGENDADA`: calendário publicado, visível aos usuários
-- `TRAVADA`: primeiro evento iniciado — sem alterações de escala
+- `TRAVADA`: horário do primeiro evento passou — travamento e geração de partidas automáticos via scheduler
 - `ATIVA`: eventos em andamento
 - `CONCLUÍDA`: todos os eventos encerrados, resultados finalizados
 
@@ -75,7 +76,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - Convite para delegação: chefe envia convite pelo sistema → usuário recebe **notificação in-app** → aceita ou recusa
 - Usuário pode recusar convite; chefe pode revogar convite pendente
 - Ao aceitar convite, vínculo anterior é mantido no histórico; novo vínculo inicia
-- Transferências só válidas na janela de segunda-feira — tentativas fora do período são bloqueadas
+- Transferências só válidas na janela de segunda-feira (00h00–23h59, UTC-3) — verificação automática via backend, tentativas fora do período retornam erro com horário da próxima janela
 - Histórico de delegações: `(atleta, delegação, data_entrada, data_saída)` — `data_saída` nulo se ativo
 
 ### Integridade Histórica de Partidas
@@ -90,7 +91,10 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - Atleta pode competir em modalidades diferentes na mesma semana se não houver conflito de horário
 
 ### Partidas e Resultados
-- Placar ao vivo atualizado pelo admin durante o evento
+- Com `AUTO_SIMULATE=true` (modo showcase): partidas iniciam automaticamente no horário agendado e finalizam 5 minutos depois com resultados, estatísticas e eventos gerados automaticamente
+- Com `AUTO_SIMULATE=false` (modo real): admin controla início, placar ao vivo e encerramento manualmente
+- Placar ao vivo atualizado via timeline de eventos (gol ao minuto X, cartão, ponto marcado) — seja pelo admin ou pelo simulador
+- Eventos da partida transmitidos em tempo real via SSE para todos os espectadores
 - Resultado final gera estatísticas individuais e coletivas
 - Estatísticas são específicas por esporte (ver tabela abaixo)
 - Após resultado registrado: quadro de medalhas e classificações atualizados em tempo real
@@ -258,11 +262,13 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 ## Tecnologias
 - Python 3.12+, FastAPI, SQLModel (SQLAlchemy + Pydantic), Alembic
-- PostgreSQL (banco principal), Redis (cache + pub/sub para tempo real)
-- JWT + refresh tokens (autenticação)
-- WebSocket / Server-Sent Events (atualizações em tempo real)
-- LLM via API (geração de conteúdo IA)
-- Cloudflare Workers (deploy via Alchemy) ou servidor dedicado
+- PostgreSQL (banco principal + tabela `refresh_tokens` para invalidação de JWT)
+- JWT + refresh tokens (autenticação) — SSE usa `asyncio.Queue` in-process
+- SSE — Server-Sent Events (atualizações em tempo real, unidirecional servidor→cliente)
+- APScheduler (automação: travamento de semanas, notificações, geração de partidas)
+- LLM via API (geração de conteúdo IA, com modo mock para demos)
+- Servidor dedicado
+- Todos os timestamps armazenados em UTC; lógica de negócio usa `TIMEZONE=America/Sao_Paulo` (configurável)
 
 ## Boas Práticas
 - Separação em camadas: `router → service → repository → model`
@@ -276,16 +282,25 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 ## Fase 1 — Infraestrutura e Configuração
 
-- [ ] Configurar projeto FastAPI com estrutura de pastas (`app/`, `routers/`, `services/`, `models/`, `schemas/`, `repositories/`)
+- [x] Configurar projeto FastAPI com estrutura de pastas (`app/`, `routers/`, `services/`, `models/`, `schemas/`, `repositories/`)
 - [ ] Configurar banco de dados PostgreSQL com SQLModel + Alembic
 - [ ] Criar migrações iniciais (tabelas base)
-- [ ] Configurar variáveis de ambiente (pydantic-settings)
-- [ ] Configurar CORS para o frontend
+- [x] Configurar variáveis de ambiente (pydantic-settings) — `.env.example` na raiz do repo
+- [x] Configurar CORS para o frontend
+- [ ] Adicionar `TIMEZONE=America/Sao_Paulo` à configuração — usado em toda lógica de data/hora
+- [ ] Adicionar `AUTO_SIMULATE=true` à configuração — modo showcase: partidas iniciam e finalizam automaticamente com resultados gerados
 - [ ] Implementar sistema de autenticação JWT (access + refresh tokens)
 - [ ] Implementar middleware de autenticação e autorização por role
-- [ ] Criar endpoint de health check (`GET /health`)
+- [x] Criar endpoint de health check (`GET /health`)
 - [ ] Configurar logging estruturado
-- [ ] Criar tabela `users` com campos: id, email, name, password_hash, role, created_at
+- [ ] Definir envelope padrão de resposta: listas `{ data: [], meta: { total, page, per_page } }`, erros `{ error, detail, code }`
+- [ ] Configurar APScheduler com os seguintes jobs:
+  - [ ] A cada 5min: auto-travar semanas quando `primeiro_evento.start_time < utcnow()`
+  - [ ] A cada 1min (se `AUTO_SIMULATE=true`): iniciar partidas cujo `start_time` passou e `status == SCHEDULED`
+  - [ ] A cada 1min (se `AUTO_SIMULATE=true`): finalizar partidas onde `started_at + 5min < utcnow()` → gera resultados e eventos automaticamente
+  - [ ] Diariamente à meia-noite (UTC-3): enviar notificações de lembrete 24h antes de partidas
+- [ ] Criar endpoint `POST /admin/demo-seed` — gera semana completa com delegações, atletas, inscrições e resultados (para showcase)
+- [ ] Criar tabela `users` com campos: id, email, name, password_hash, role, created_at, is_active
 - [ ] Criar tabela `notifications` com campos: id, user_id, type, payload (JSON), read, created_at
 - [ ] Criar tabela `delegation_invites` com campos: id, delegation_id, user_id, status (PENDING/ACCEPTED/REFUSED), created_at
 - [ ] Criar tabela `chief_requests` com campos: id, user_id, delegation_name, message, status, reviewed_by, created_at
@@ -320,8 +335,8 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - [ ] `DELETE /delegations/{id}/invites/{invite_id}` — revogar convite (chefe)
 - [ ] `POST /invites/{invite_id}/accept` — aceitar convite (usuário notificado)
 - [ ] `POST /invites/{invite_id}/refuse` — recusar convite (usuário notificado)
-- [ ] `POST /delegations/{id}/transfer/{user_id}` — solicitar transferência (chefe destino — só segundas)
-- [ ] Validação de janela de transferência (bloquear fora das segundas-feiras)
+- [ ] `POST /delegations/{id}/transfer/{user_id}` — solicitar transferência (chefe destino)
+- [ ] Validação automática de janela de transferência: verifica `datetime.now(ZoneInfo(settings.TIMEZONE)).weekday() == 0` — bloqueia fora de segunda-feira, retorna `{ next_window: "<ISO datetime>" }` no erro
 - [ ] Serviço de snapshot: registrar `delegation_na_epoca` ao registrar participação em partida
 - [ ] `GET /delegations/{id}/history` — histórico de membros com datas
 - [ ] `POST /delegations/ai-generate` — gerar delegações fictícias com IA (admin)
@@ -364,10 +379,12 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - [ ] `POST /weeks` — criar semana (admin)
 - [ ] `PATCH /weeks/{id}` — editar semana (admin — proibido se LOCKED ou posterior)
 - [ ] `POST /weeks/{id}/publish` — publicar calendário (DRAFT → SCHEDULED)
-- [ ] `POST /weeks/{id}/lock` — travar semana no início do primeiro evento (SCHEDULED → LOCKED)
+- [ ] `POST /weeks/{id}/lock` — travar manualmente (SCHEDULED → LOCKED) + dispara geração de partidas
+- [ ] Travamento automático via APScheduler: a cada 5min verifica se `primeiro_evento.start_time < now(UTC)` e status ainda é SCHEDULED → auto-lock
 - [ ] `POST /weeks/{id}/activate` — ativar semana (LOCKED → ACTIVE)
 - [ ] `POST /weeks/{id}/complete` — encerrar semana (ACTIVE → COMPLETED)
-- [ ] Serviço: verificar se data é segunda-feira para janela de transferência
+- [ ] `POST /weeks/{id}/generate-schedule` — prévia da geração de partidas (admin, pré-lock, não persiste)
+- [ ] Serviço `transfer_window_service`: verifica `weekday() == 0` em UTC-3 — chamado por toda solicitação de transferência
 - [ ] Serviço: verificar elegibilidade de atleta/delegação para semana
 
 ## Fase 7 — Calendário e Partidas
@@ -375,17 +392,22 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - [ ] Criar tabela `events` com campos: id, week_id, modality_id, date, time, venue, phase (GROUPS/QUARTER/SEMI/FINAL/BRONZE), status (SCHEDULED/IN_PROGRESS/COMPLETED/CANCELLED)
 - [ ] Criar tabela `matches` com campos: id, event_id, team_a_delegation_id, team_b_delegation_id (ou athlete_a/b para individuais), score_a, score_b, winner_delegation_id, status, started_at, ended_at
 - [ ] Criar tabela `match_participants` com campos: id, match_id, athlete_id, delegation_id_at_time, role (PLAYER/CAPTAIN/SUBSTITUTE)
+- [ ] Criar tabela `match_events` com campos: id, match_id, minute, type (GOAL/CARD/POINT/PENALTY/SUBSTITUTION/etc.), athlete_id, delegation_id_at_time, value_json — timeline da partida
 - [ ] `GET /events` — calendário geral (público, filtros: semana, esporte, data)
 - [ ] `GET /events/{id}` — detalhe do evento com partidas
 - [ ] `POST /events` — criar evento (admin)
 - [ ] `PATCH /events/{id}` — editar (admin — proibido se semana LOCKED+)
 - [ ] `DELETE /events/{id}` — cancelar (admin)
-- [ ] `GET /matches/{id}` — detalhe da partida com participantes e placar
-- [ ] `PATCH /matches/{id}/score` — atualizar placar ao vivo (admin)
+- [ ] `GET /matches/{id}` — detalhe da partida com participantes, placar e eventos
+- [ ] `POST /matches/{id}/events` — registrar evento da partida (admin — gol, cartão, ponto, etc.) — mesma rota usada pelo `simulation_service`
+- [ ] `GET /matches/{id}/events` — listar timeline de eventos (público)
+- [ ] `GET /matches/{id}/stream` — SSE stream de eventos e placar ao vivo
 - [ ] `POST /matches/{id}/start` — iniciar partida
 - [ ] `POST /matches/{id}/finish` — encerrar partida e disparar cálculo de resultados
 - [ ] `POST /events/ai-generate` — gerar calendário com IA (admin)
-- [ ] Geração automática de chaveamento (mata-mata) após fase de grupos
+- [ ] Serviço `bracket_service`: gera pareamentos por modalidade a partir das inscrições aprovadas (round-robin para grupos, eliminatória para mata-mata)
+- [ ] Serviço `schedule_service`: distribui partidas geradas por slots de tempo (Ter–Dom), respeitando conflitos de atleta e capacidade de venue
+- [ ] Geração automática de chaveamento mata-mata após conclusão da fase de grupos
 
 ## Fase 8 — Inscrições
 
@@ -394,12 +416,13 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - [ ] `POST /enrollments` — inscrever atleta em evento (chefe)
 - [ ] `DELETE /enrollments/{id}` — cancelar inscrição (chefe — antes do travamento)
 - [ ] `PATCH /enrollments/{id}/review` — aprovar/rejeitar inscrição (admin)
-- [ ] Validação automática de regras por esporte:
-  - [ ] Categoria de peso (judô, karatê)
-  - [ ] Gênero da modalidade
-  - [ ] Número máximo de atletas por equipe
+- [ ] Motor de validação genérico: lê regras do `rules_json` da modalidade — sem hardcode por esporte
+  - [ ] Formato de `rules_json`: `{ "max_athletes": N, "gender": "M/F/MIXED", "weight_categories": [...], "schedule_conflict_check": bool }`
+  - [ ] Categoria de peso (lida de `weight_categories` no rules_json)
+  - [ ] Gênero da modalidade (lido de `gender` no rules_json)
+  - [ ] Número máximo de atletas por equipe (lido de `max_athletes`)
   - [ ] Conflito de horário (mesmo atleta em dois eventos simultâneos)
-  - [ ] Elegibilidade de semana (atleta cadastrado antes do travamento)
+  - [ ] Elegibilidade de semana (atleta cadastrado/transferido antes do travamento)
 - [ ] `POST /enrollments/ai-generate` — gerar inscrições com IA (admin)
 
 ## Fase 9 — Resultados e Quadro de Medalhas
@@ -417,8 +440,16 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - [ ] Serviço: atualizar quadro de medalhas após registro de resultado
 - [ ] Serviço: verificar e atualizar recordes (melhor marca por prova)
 - [ ] Serviço: calcular estatísticas individuais por esporte com regras específicas
-- [ ] WebSocket/SSE endpoint para atualização em tempo real do quadro de medalhas
-- [ ] `POST /results/ai-generate/{event_id}` — gerar resultados com IA (admin)
+- [ ] Serviço `simulation_service`: gera resultados, eventos e estatísticas realistas por esporte (chamado pelo scheduler quando `AUTO_SIMULATE=true` ou manualmente via `POST /admin/simulate/match/{id}`)
+  - Futebol: placar 0–4 × 0–4, eventos de gol (minuto aleatório), cartões ocasionais
+  - Judô/Karatê: ippon, waza-ari ou decisão por pontos com tempo simulado
+  - Atletismo/Natação: tempo cronometrado dentro de faixa realista por prova
+  - Vôlei/Basquete/Handebol: placar por sets/quartos dentro de faixa típica
+  - Gera `match_events` por cada ponto/gol/evento relevante
+  - Atualiza `athlete_statistics`, `results`, `records` após simular
+- [ ] `POST /admin/simulate/match/{id}` — simular partida específica manualmente (admin, qualquer `AUTO_SIMULATE`)
+- [ ] SSE endpoint para atualização em tempo real do quadro de medalhas (`GET /results/medal-board/stream`) — broadcasting via `asyncio.Queue` in-process
+- [ ] `POST /results/ai-generate/{event_id}` — gerar resultados com IA (admin) — substituto manual do `simulation_service`
 
 ## Fase 10 — Relatórios e IA
 
@@ -435,8 +466,8 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
   - [ ] Calendário otimizado por esporte e local
   - [ ] Resultados plausíveis com base nos esportes e regras
   - [ ] Narrativa contextualizada dos destaques do dia
-- [ ] `GET /report/export/pdf` — exportar relatório em PDF
-- [ ] `GET /report/export/csv` — exportar resultados em CSV
+- [ ] `GET /report/export/pdf` — exportar relatório em PDF *(opcional — pós-showcase)*
+- [ ] `GET /report/export/csv` — exportar resultados em CSV *(opcional — pós-showcase)*
 
 ---
 
@@ -459,7 +490,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 | `/`, `/login`, `/register` | SSR completo | SEO, primeira pintura rápida |
 | `/results`, `/calendar`, `/sports`, `/delegations/*` | SSR completo | Conteúdo público indexável |
 | `/dashboard`, áreas autenticadas | `ssr: 'data-only'` | Dados no servidor, componente no cliente (QueryClient/browser APIs) |
-| `/admin/ai`, match ao vivo | `ssr: false` | Streaming IA, WebSocket/SSE |
+| `/admin/ai`, match ao vivo | `ssr: false` | Streaming IA, SSE |
 
 ## Padrão de Autenticação
 
@@ -495,7 +526,9 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 - [ ] Criar `apps/web/src/queries/` — hooks por domínio (`delegations.ts`, `sports.ts`, etc.)
 - [ ] Criar componente `RouteErrorComponent` — trata `ApiError` com retry
 - [ ] Adicionar shadcn components em `packages/ui`: `table`, `badge`, `tabs`, `dialog`, `select`, `separator`, `tooltip`, `progress`, `scroll-area`, `avatar`, `popover`, `sheet`, `alert`, `form`
-- [ ] Atualizar `packages/env/src/web.ts` — validar `VITE_SERVER_URL` com Zod
+- [ ] Atualizar `packages/env/src/web.ts` — validar `VITE_SERVER_URL` e `VITE_TIMEZONE` com Zod
+- [ ] Criar utilitário `apps/web/src/lib/date.ts` — `formatEventDate(iso)` sempre formata em `VITE_TIMEZONE`, nunca timezone do navegador
+- [ ] Adicionar dark mode toggle no header (next-themes já instalado — 1 botão, ícone sol/lua)
 
 ## Fase 2 — Páginas Públicas (SSR)
 
@@ -522,6 +555,7 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 - [ ] `routes/_authenticated/dashboard/index.tsx` (`ssr: 'data-only'`)
   - [ ] **Admin**: total de delegações, atletas, status da semana, solicitações pendentes, atalhos de geração IA
+  - [ ] **Admin — gráficos**: progressão de medalhas por delegação, atletas por esporte (barra), taxa de partidas concluídas (gauge)
   - [ ] **Chefe**: minha delegação, próximas partidas, status de inscrições, avisos
   - [ ] **Atleta/Técnico**: minhas próximas partidas, meus resultados recentes
 
@@ -565,8 +599,9 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 - [ ] `routes/_authenticated/_admin/weeks/index.tsx` — lista das semanas com status visual
 - [ ] `routes/_authenticated/_admin/weeks/new.tsx` — criar semana
 - [ ] `routes/_authenticated/_admin/weeks/$weekId/index.tsx` — detalhe da semana: eventos, status, ações de transição
-- [ ] Controles de estado: Publicar → Travar → Ativar → Encerrar (com confirmação)
-- [ ] Indicador "Janela de transferência aberta" quando semana está CONCLUÍDA e próxima RASCUNHO
+- [ ] Controles de estado: Publicar → Travar → Ativar → Encerrar (com confirmação) — travar também disponível como ação manual além do automático
+- [ ] Indicador "Janela de transferência aberta" — visível quando dia atual é segunda-feira em UTC-3
+- [ ] Indicador de próxima janela de transferência com countdown quando fora de segunda
 
 ## Fase 10 — Calendário e Partidas
 
@@ -574,9 +609,12 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 - [ ] `routes/_authenticated/_admin/calendar/events/new.tsx` — criar evento
 - [ ] `routes/(public)/calendar/$weekId/index.tsx` — calendário público da semana (SSR)
 - [ ] `routes/_authenticated/matches/$matchId/index.tsx` (`ssr: false`) — partida ao vivo:
-  - [ ] Placar em tempo real (SSE polling)
+  - [ ] Placar em tempo real via SSE (`GET /matches/{id}/stream`)
+  - [ ] Feed de eventos da partida ao vivo (gols, cartões, pontos com minuto)
   - [ ] Lista de participantes com delegação na época
-  - [ ] Atualização de placar (admin)
+  - [ ] Formulário de registro de evento (admin — tipo, atleta, minuto)
+- [ ] Componente `BracketView` — visualização de chaveamento mata-mata por modalidade
+- [ ] `routes/(public)/sports/$sportId/bracket.tsx` — página pública de chaveamento (SSR)
 - [ ] Botão "Gerar Calendário com IA" (admin)
 
 ## Fase 11 — Inscrições
@@ -622,19 +660,19 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
   - [ ] Histórico de narrativas por dia
   - [ ] Botão "Gerar narrativa do dia" (admin)
   - [ ] Rendering de texto rico com destaques
-- [ ] Botão de exportação PDF (`/report/export/pdf`)
-- [ ] Botão de exportação CSV (`/report/export/csv`)
+- [ ] Botão de exportação PDF (`/report/export/pdf`) *(opcional — pós-showcase)*
+- [ ] Botão de exportação CSV (`/report/export/csv`) *(opcional — pós-showcase)*
 
 ---
 
 ## Features Adicionais Sugeridas
 
-- [ ] **Chaveamento automático**: gerar brackets de mata-mata após fase de grupos, com seeds por classificação
+- [x] **Chaveamento automático**: ~~gerar brackets~~ → movido para core (Fase 7 backend + Fase 10 frontend)
+- [x] **Dark/Light mode toggle**: ~~suportado por next-themes~~ → movido para core (Fase 1 frontend)
 - [ ] **Comparação de atletas**: tela side-by-side com estatísticas de dois atletas (head-to-head)
 - [ ] **Busca global**: buscar atletas, delegações, eventos por nome
 - [ ] **Filtros e ordenação**: tabelas com filtros persistidos na URL via TanStack Router search params
-- [ ] **Dark/Light mode toggle**: já suportado por `next-themes` instalado
 - [ ] **PWA**: adicionar suporte PWA para uso em dispositivos móveis no local do evento
 - [ ] **Feed de atividades**: timeline global de eventos da competição em tempo real
 - [ ] **Estatísticas de delegação**: página com todos os atletas, medalhas, e desempenho histórico por semana
-- [ ] **Regras editáveis**: admin pode editar as regras de cada esporte sem alterar código
+- [ ] **Regras editáveis**: admin pode editar as regras de cada esporte sem alterar código (edita `rules_json` via UI)
