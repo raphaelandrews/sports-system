@@ -99,7 +99,7 @@ sports-system/
 │       │   ├── repositories/   # Database queries
 │       │   ├── models/         # SQLModel database models
 │       │   └── schemas/        # Pydantic request/response schemas
-│       └── alembic/            # Database migrations (coming soon)
+│       └── alembic/            # Database migrations
 │
 ├── FEATURES.md                 # Full feature spec (PT-BR) with phased tasks
 ├── turbo.json                  # Turborepo pipeline
@@ -181,7 +181,10 @@ cd apps/api && uv sync
 
 # Environment variables
 cp .env.example .env
-# Edit .env — at minimum set SECRET_KEY and FRONTEND_URL
+# Edit .env — at minimum set DATABASE_URL, SECRET_KEY, FRONTEND_URL
+
+# Run database migrations
+bun run db:up
 ```
 
 ---
@@ -214,6 +217,9 @@ Infra config: `packages/infra/alchemy.run.ts`. Reads `VITE_SERVER_URL` and `CORS
 | `bun run check` | Lint (oxlint) + format (oxfmt) |
 | `bun run deploy` | Deploy to Cloudflare Workers |
 | `bun run destroy` | Destroy Cloudflare resources |
+| `bun run db:up` | Run database migrations (upgrade head) |
+| `bun run db:new "msg"` | Create new migration with autogenerate |
+| `bun run db:down` | Roll back last migration |
 
 ---
 

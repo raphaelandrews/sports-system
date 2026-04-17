@@ -283,11 +283,11 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ## Fase 1 — Infraestrutura e Configuração
 
 - [x] Configurar projeto FastAPI com estrutura de pastas (`app/`, `routers/`, `services/`, `models/`, `schemas/`, `repositories/`)
-- [ ] Configurar banco de dados PostgreSQL com SQLModel + Alembic
-- [ ] Criar migrações iniciais (tabelas base)
+- [x] Configurar banco de dados PostgreSQL com SQLModel + Alembic
+- [x] Criar migrações iniciais (tabelas base)
 - [x] Configurar variáveis de ambiente (pydantic-settings) — `.env.example` na raiz do repo
 - [x] Configurar CORS para o frontend
-- [ ] Adicionar `TIMEZONE=America/Sao_Paulo` à configuração — usado em toda lógica de data/hora
+- [x] Adicionar `TIMEZONE=America/Sao_Paulo` à configuração — usado em toda lógica de data/hora
 - [ ] Adicionar `AUTO_SIMULATE=true` à configuração — modo showcase: partidas iniciam e finalizam automaticamente com resultados gerados
 - [ ] Implementar sistema de autenticação JWT (access + refresh tokens)
 - [ ] Implementar middleware de autenticação e autorização por role
@@ -300,10 +300,10 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
   - [ ] A cada 1min (se `AUTO_SIMULATE=true`): finalizar partidas onde `started_at + 5min < utcnow()` → gera resultados e eventos automaticamente
   - [ ] Diariamente à meia-noite (UTC-3): enviar notificações de lembrete 24h antes de partidas
 - [ ] Criar endpoint `POST /admin/demo-seed` — gera semana completa com delegações, atletas, inscrições e resultados (para showcase)
-- [ ] Criar tabela `users` com campos: id, email, name, password_hash, role, created_at, is_active
-- [ ] Criar tabela `notifications` com campos: id, user_id, type, payload (JSON), read, created_at
-- [ ] Criar tabela `delegation_invites` com campos: id, delegation_id, user_id, status (PENDING/ACCEPTED/REFUSED), created_at
-- [ ] Criar tabela `chief_requests` com campos: id, user_id, delegation_name, message, status, reviewed_by, created_at
+- [x] Criar tabela `users` com campos: id, email, name, password_hash, role, created_at, is_active
+- [x] Criar tabela `notifications` com campos: id, user_id, type, payload (JSON), read, created_at
+- [x] Criar tabela `delegation_invites` com campos: id, delegation_id, user_id, status (PENDING/ACCEPTED/REFUSED), created_at
+- [x] Criar tabela `chief_requests` com campos: id, user_id, delegation_name, message, status, reviewed_by, created_at
 
 ## Fase 2 — Autenticação e Usuários
 
@@ -323,8 +323,8 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 ## Fase 3 — Delegações
 
-- [ ] Criar tabela `delegations` com campos: id, code, name, flag_url, chief_id, created_at
-- [ ] Criar tabela `delegation_members` com campos: id, delegation_id, user_id, role (CHIEF/ATHLETE/COACH), joined_at, left_at (null = ativo)
+- [x] Criar tabela `delegations` com campos: id, code, name, flag_url, chief_id, created_at
+- [x] Criar tabela `delegation_members` com campos: id, delegation_id, user_id, role (CHIEF/ATHLETE/COACH), joined_at, left_at (null = ativo)
 - [ ] `GET /delegations` — listar delegações (público)
 - [ ] `GET /delegations/{id}` — detalhe de delegação com membros atuais (público)
 - [ ] `POST /delegations` — criar delegação (admin)
@@ -343,8 +343,8 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 ## Fase 4 — Esportes e Modalidades
 
-- [ ] Criar tabela `sports` com campos: id, name, type (INDIVIDUAL/TEAM), description, rules_json, player_count, created_at
-- [ ] Criar tabela `modalities` com campos: id, sport_id, name, gender (M/F/MIXED), category (ex: peso no judô), rules_json
+- [x] Criar tabela `sports` com campos: id, name, type (INDIVIDUAL/TEAM), description, rules_json, player_count, created_at
+- [x] Criar tabela `modalities` com campos: id, sport_id, name, gender (M/F/MIXED), category (ex: peso no judô), rules_json
 - [ ] Criar tabela `sport_statistics_schema` — define campos de estatística por esporte (JSON Schema)
 - [ ] Popular banco com os 10 esportes e suas modalidades padrão (seed/migration)
 - [ ] `GET /sports` — listar esportes (público)
@@ -359,8 +359,8 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 ## Fase 5 — Atletas e Técnicos
 
-- [ ] Criar tabela `athletes` com campos: id, user_id (FK nullable — pode ser IA gerado), name, birthdate, code, created_at
-- [ ] Criar tabela `athlete_modalities` — vínculo atleta × modalidade (com categoria, se aplicável)
+- [x] Criar tabela `athletes` com campos: id, user_id (FK nullable — pode ser IA gerado), name, birthdate, code, created_at
+- [x] Criar tabela `athlete_modalities` — vínculo atleta × modalidade (com categoria, se aplicável)
 - [ ] `GET /athletes` — listar (admin: global; chefe: só da delegação)
 - [ ] `GET /athletes/{id}` — perfil do atleta com histórico de delegações e partidas
 - [ ] `POST /athletes` — cadastrar atleta (admin ou chefe)
@@ -373,7 +373,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 ## Fase 6 — Semanas de Competição
 
-- [ ] Criar tabela `competition_weeks` com campos: id, week_number, start_date, end_date, status (DRAFT/SCHEDULED/LOCKED/ACTIVE/COMPLETED), sport_focus (JSON array)
+- [x] Criar tabela `competition_weeks` com campos: id, week_number, start_date, end_date, status (DRAFT/SCHEDULED/LOCKED/ACTIVE/COMPLETED), sport_focus (JSON array)
 - [ ] `GET /weeks` — listar semanas
 - [ ] `GET /weeks/{id}` — detalhe da semana
 - [ ] `POST /weeks` — criar semana (admin)
@@ -389,10 +389,10 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 ## Fase 7 — Calendário e Partidas
 
-- [ ] Criar tabela `events` com campos: id, week_id, modality_id, date, time, venue, phase (GROUPS/QUARTER/SEMI/FINAL/BRONZE), status (SCHEDULED/IN_PROGRESS/COMPLETED/CANCELLED)
-- [ ] Criar tabela `matches` com campos: id, event_id, team_a_delegation_id, team_b_delegation_id (ou athlete_a/b para individuais), score_a, score_b, winner_delegation_id, status, started_at, ended_at
-- [ ] Criar tabela `match_participants` com campos: id, match_id, athlete_id, delegation_id_at_time, role (PLAYER/CAPTAIN/SUBSTITUTE)
-- [ ] Criar tabela `match_events` com campos: id, match_id, minute, type (GOAL/CARD/POINT/PENALTY/SUBSTITUTION/etc.), athlete_id, delegation_id_at_time, value_json — timeline da partida
+- [x] Criar tabela `events` com campos: id, week_id, modality_id, date, time, venue, phase (GROUPS/QUARTER/SEMI/FINAL/BRONZE), status (SCHEDULED/IN_PROGRESS/COMPLETED/CANCELLED)
+- [x] Criar tabela `matches` com campos: id, event_id, team_a_delegation_id, team_b_delegation_id (ou athlete_a/b para individuais), score_a, score_b, winner_delegation_id, status, started_at, ended_at
+- [x] Criar tabela `match_participants` com campos: id, match_id, athlete_id, delegation_id_at_time, role (PLAYER/CAPTAIN/SUBSTITUTE)
+- [x] Criar tabela `match_events` com campos: id, match_id, minute, type (GOAL/CARD/POINT/PENALTY/SUBSTITUTION/etc.), athlete_id, delegation_id_at_time, value_json — timeline da partida
 - [ ] `GET /events` — calendário geral (público, filtros: semana, esporte, data)
 - [ ] `GET /events/{id}` — detalhe do evento com partidas
 - [ ] `POST /events` — criar evento (admin)
@@ -411,7 +411,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 ## Fase 8 — Inscrições
 
-- [ ] Criar tabela `enrollments` com campos: id, athlete_id, event_id, delegation_id, status (PENDING/APPROVED/REJECTED), validation_message, created_at
+- [x] Criar tabela `enrollments` com campos: id, athlete_id, event_id, delegation_id, status (PENDING/APPROVED/REJECTED), validation_message, created_at
 - [ ] `GET /enrollments` — listar inscrições (admin: global; chefe: delegação)
 - [ ] `POST /enrollments` — inscrever atleta em evento (chefe)
 - [ ] `DELETE /enrollments/{id}` — cancelar inscrição (chefe — antes do travamento)
@@ -427,9 +427,9 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 ## Fase 9 — Resultados e Quadro de Medalhas
 
-- [ ] Criar tabela `results` com campos: id, match_id, athlete_id (ou delegation_id para coletivo), rank, medal (GOLD/SILVER/BRONZE/null), value (JSON — estatísticas específicas)
-- [ ] Criar tabela `athlete_statistics` com campos: id, athlete_id, sport_id, week_id, stats_json (dinâmico por esporte)
-- [ ] Criar tabela `records` com campos: id, modality_id, athlete_id, delegation_id_at_time, value, week_id, date
+- [x] Criar tabela `results` com campos: id, match_id, athlete_id (ou delegation_id para coletivo), rank, medal (GOLD/SILVER/BRONZE/null), value (JSON — estatísticas específicas)
+- [x] Criar tabela `athlete_statistics` com campos: id, athlete_id, sport_id, week_id, stats_json (dinâmico por esporte)
+- [x] Criar tabela `records` com campos: id, modality_id, athlete_id, delegation_id_at_time, value, week_id, date
 - [ ] `GET /results` — listar resultados (público, filtros: semana, esporte, delegação)
 - [ ] `GET /results/medal-board` — quadro de medalhas geral em tempo real (público)
 - [ ] `GET /results/medal-board/{sport_id}` — quadro por esporte (público)

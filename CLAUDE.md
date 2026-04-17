@@ -26,9 +26,12 @@ bun run dev:web      # frontend only (no Cloudflare creds needed)
 bun run dev:backend  # FastAPI only
 bun run check-types  # TypeScript across workspace
 bun run check        # oxlint + oxfmt
+bun run db:up        # run migrations (upgrade head)
+bun run db:new "msg" # new autogenerate migration
+bun run db:down      # rollback one migration
 ```
 
-First-time backend setup: `cd apps/api && uv sync`
+First-time backend setup: `cd apps/api && uv sync && bun run db:up`
 
 ## Tech Stack
 
@@ -42,7 +45,7 @@ First-time backend setup: `cd apps/api && uv sync`
 ### Backend (`apps/api`)
 - FastAPI + pydantic-settings
 - Layer order: `router → service → repository → model`
-- SQLModel + Alembic (coming in phase 2)
+- SQLModel + Alembic — configured; `apps/api/alembic/` has initial migration at head
 - PostgreSQL (refresh tokens table for JWT invalidation; SSE via asyncio.Queue)
 - JWT auth (coming in phase 2)
 - APScheduler: auto-lock weeks, auto-generate matches, 24h match notifications

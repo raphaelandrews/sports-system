@@ -27,6 +27,9 @@
     "check-types": "turbo check-types",
     "dev:web": "turbo -F web dev",
     "dev:backend": "cd apps/api && uv run uvicorn app.main:app --reload --port 3000",
+    "db:up": "cd apps/api && uv run python -m alembic upgrade head",
+    "db:new": "cd apps/api && uv run python -m alembic revision --autogenerate -m",
+    "db:down": "cd apps/api && uv run python -m alembic downgrade -1",
     "deploy": "turbo -F @sports-system/infra deploy",
     "destroy": "turbo -F @sports-system/infra destroy",
     "check": "oxlint && oxfmt --write"

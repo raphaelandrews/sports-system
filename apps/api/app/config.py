@@ -1,4 +1,8 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings
+
+_env_file = Path(__file__).resolve().parents[1] / ".env"
 
 
 class Settings(BaseSettings):
@@ -6,8 +10,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "change-me"
     FRONTEND_URL: str = "http://localhost:3001"
     PORT: int = 3000
+    TIMEZONE: str = "America/Sao_Paulo"
 
-    model_config = {"env_file": ".env"}
+    model_config = {"env_file": str(_env_file)}
 
 
 settings = Settings()
