@@ -307,19 +307,19 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 ## Fase 2 — Autenticação e Usuários
 
-- [ ] `POST /auth/register` — cadastro de usuário
-- [ ] `POST /auth/login` — login, retorna JWT
-- [ ] `POST /auth/refresh` — renovar access token
-- [ ] `POST /auth/logout` — invalidar refresh token
-- [ ] `GET /users/me` — perfil do usuário autenticado
-- [ ] `PATCH /users/me` — atualizar perfil
-- [ ] `POST /requests/chief` — solicitar ser chefe de delegação
-- [ ] `GET /admin/requests` — listar solicitações pendentes (admin)
-- [ ] `PATCH /admin/requests/{id}` — aprovar ou rejeitar solicitação (admin)
-- [ ] `GET /users/{id}/notifications` — listar notificações do usuário
-- [ ] `PATCH /users/notifications/{id}/read` — marcar notificação como lida
-- [ ] `PATCH /users/notifications/read-all` — marcar todas como lidas
-- [ ] Serviço de disparo de notificações in-app (chamado por outros serviços)
+- [x] `POST /auth/register` — cadastro de usuário
+- [x] `POST /auth/login` — login, retorna JWT
+- [x] `POST /auth/refresh` — renovar access token
+- [x] `POST /auth/logout` — invalidar refresh token
+- [x] `GET /users/me` — perfil do usuário autenticado
+- [x] `PATCH /users/me` — atualizar perfil
+- [x] `POST /requests/chief` — solicitar ser chefe de delegação
+- [x] `GET /admin/requests` — listar solicitações pendentes (admin)
+- [x] `PATCH /admin/requests/{id}` — aprovar ou rejeitar solicitação (admin)
+- [x] `GET /users/{id}/notifications` — listar notificações do usuário
+- [x] `PATCH /users/notifications/{id}/read` — marcar notificação como lida
+- [x] `PATCH /users/notifications/read-all` — marcar todas como lidas
+- [x] Serviço de disparo de notificações in-app (chamado por outros serviços)
 
 ## Fase 3 — Delegações
 

@@ -11,8 +11,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import settings
 from app.core.scheduler import setup_scheduler
-from app.routers import health
-from app.routers import admin
+from app.routers import admin, auth, health, users
 
 
 def _configure_logging() -> None:
@@ -101,6 +100,8 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 
 
 app.include_router(health.router)
+app.include_router(auth.router)
+app.include_router(users.router)
 app.include_router(admin.router)
 
 if __name__ == "__main__":
