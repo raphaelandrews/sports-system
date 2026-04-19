@@ -77,11 +77,12 @@ async def _auto_finish_matches() -> None:
         )
         matches = result.scalars().all()
         for match in matches:
-            match.status = MatchStatus.COMPLETED
-            match.ended_at = datetime.now(UTC).replace(tzinfo=None)
-            session.add(match)
-            logger.info("auto_finish_match match_id=%s", match.id)
-            # simulation_service.finish(match, session) — Phase 9
+            try:
+                from app.services import simulation_service
+                await simulation_service.simulate_match(session, match.id)
+                logger.info("auto_finish_match match_id=%s", match.id)
+            except Exception as exc:
+                logger.error("auto_finish_error match_id=%s error=%s", match.id, exc)
         await session.commit()
 
 

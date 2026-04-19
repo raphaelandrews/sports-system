@@ -430,44 +430,43 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - [x] Criar tabela `results` com campos: id, match_id, athlete_id (ou delegation_id para coletivo), rank, medal (GOLD/SILVER/BRONZE/null), value (JSON — estatísticas específicas)
 - [x] Criar tabela `athlete_statistics` com campos: id, athlete_id, sport_id, week_id, stats_json (dinâmico por esporte)
 - [x] Criar tabela `records` com campos: id, modality_id, athlete_id, delegation_id_at_time, value, week_id, date
-- [ ] `GET /results` — listar resultados (público, filtros: semana, esporte, delegação)
-- [ ] `GET /results/medal-board` — quadro de medalhas geral em tempo real (público)
-- [ ] `GET /results/medal-board/{sport_id}` — quadro por esporte (público)
-- [ ] `POST /results` — registrar resultado (admin)
-- [ ] `PATCH /results/{id}` — corrigir resultado (admin)
-- [ ] `GET /results/standings/{modality_id}` — classificação da modalidade
-- [ ] `GET /results/records` — recordes da competição
-- [ ] Serviço: atualizar quadro de medalhas após registro de resultado
-- [ ] Serviço: verificar e atualizar recordes (melhor marca por prova)
-- [ ] Serviço: calcular estatísticas individuais por esporte com regras específicas
-- [ ] Serviço `simulation_service`: gera resultados, eventos e estatísticas realistas por esporte (chamado pelo scheduler quando `AUTO_SIMULATE=true` ou manualmente via `POST /admin/simulate/match/{id}`)
-  - Futebol: placar 0–4 × 0–4, eventos de gol (minuto aleatório), cartões ocasionais
-  - Judô/Karatê: ippon, waza-ari ou decisão por pontos com tempo simulado
-  - Atletismo/Natação: tempo cronometrado dentro de faixa realista por prova
-  - Vôlei/Basquete/Handebol: placar por sets/quartos dentro de faixa típica
-  - Gera `match_events` por cada ponto/gol/evento relevante
-  - Atualiza `athlete_statistics`, `results`, `records` após simular
-- [ ] `POST /admin/simulate/match/{id}` — simular partida específica manualmente (admin, qualquer `AUTO_SIMULATE`)
-- [ ] SSE endpoint para atualização em tempo real do quadro de medalhas (`GET /results/medal-board/stream`) — broadcasting via `asyncio.Queue` in-process
-- [ ] `POST /results/ai-generate/{event_id}` — gerar resultados com IA (admin) — substituto manual do `simulation_service`
+- [x] `GET /results` — listar resultados (público, filtros: semana, esporte, delegação)
+- [x] `GET /results/medal-board` — quadro de medalhas geral em tempo real (público)
+- [x] `GET /results/medal-board/{sport_id}` — quadro por esporte (público)
+- [x] `POST /results` — registrar resultado (admin)
+- [x] `PATCH /results/{id}` — corrigir resultado (admin)
+- [x] `GET /results/standings/{modality_id}` — classificação da modalidade
+- [x] `GET /results/records` — recordes da competição
+- [x] Serviço: atualizar quadro de medalhas após registro de resultado
+- [x] Serviço: verificar e atualizar recordes (melhor marca por prova) — implementado em `simulation_service._check_and_update_record`
+- [x] Serviço: calcular estatísticas individuais por esporte (wins/losses/draws/matches_played por atleta)
+- [x] Serviço `simulation_service`: gera resultados, eventos e estatísticas realistas por esporte
+  - Futebol: placar 0–4 × 0–4, GOAL events com minuto aleatório
+  - Judô/Karatê: IPPON, WAZA_ARI ou decisão por pontos
+  - Atletismo/Natação: tempo em centésimos (lower wins)
+  - Vôlei/Basquete/Handebol: placar dentro de faixa típica
+  - Atualiza `athlete_statistics`, `results` após simular; SSE broadcast para match e medal board
+- [x] `POST /admin/simulate/match/{id}` — simular partida específica manualmente (admin)
+- [x] SSE endpoint para atualização em tempo real do quadro de medalhas (`GET /results/medal-board/stream`)
+- [x] `POST /results/ai-generate/{event_id}` — gerar resultados com IA (admin) — chama simulation_service para cada partida pendente do evento
 
 ## Fase 10 — Relatórios e IA
 
-- [ ] `GET /report/final` — relatório final: medalhas + classificações + recordes + melhores marcas
-- [ ] `GET /report/week/{week_id}` — relatório da semana
-- [ ] `GET /report/athlete/{athlete_id}` — relatório individual do atleta
-- [ ] `GET /narrative/today` — narrativa do dia (gerada ou em cache)
-- [ ] `GET /narrative/{date}` — narrativa de data específica
-- [ ] `POST /narrative/generate` — gerar narrativa com IA (admin)
-- [ ] `GET /ai/generation-history` — histórico de gerações por tipo (admin)
-- [ ] Serviço de IA: integração com LLM para geração de:
-  - [ ] Delegações fictícias com contexto
-  - [ ] Atletas com nomes, idades e perfis realistas
-  - [ ] Calendário otimizado por esporte e local
-  - [ ] Resultados plausíveis com base nos esportes e regras
-  - [ ] Narrativa contextualizada dos destaques do dia
-- [ ] `GET /report/export/pdf` — exportar relatório em PDF *(opcional — pós-showcase)*
-- [ ] `GET /report/export/csv` — exportar resultados em CSV *(opcional — pós-showcase)*
+- [x] `GET /report/final` — relatório final: medalhas + classificações + recordes + melhores marcas
+- [x] `GET /report/week/{week_id}` — relatório da semana
+- [x] `GET /report/athlete/{athlete_id}` — relatório individual do atleta
+- [x] `GET /narrative/today` — narrativa do dia (gerada ou em cache)
+- [x] `GET /narrative/{date}` — narrativa de data específica
+- [x] `POST /narrative/generate` — gerar narrativa com IA (admin)
+- [x] `GET /ai/generation-history` — histórico de gerações por tipo (admin)
+- [x] Serviço de IA: integração com LLM para geração de:
+  - [x] Delegações fictícias com contexto (via ai_generate em enrollments)
+  - [x] Atletas com nomes, idades e perfis realistas (via ai_generate em athletes)
+  - [x] Calendário otimizado por esporte e local (via ai_generate em events)
+  - [x] Resultados plausíveis com base nos esportes e regras (via simulation_service)
+  - [x] Narrativa contextualizada dos destaques do dia (via narrative_service)
+- [ ] `GET /report/export/pdf` — exportar relatório em PDF
+- [x] `GET /report/export/csv` — exportar resultados em CSV
 
 ---
 
@@ -672,7 +671,6 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 - [ ] **Comparação de atletas**: tela side-by-side com estatísticas de dois atletas (head-to-head)
 - [ ] **Busca global**: buscar atletas, delegações, eventos por nome
 - [ ] **Filtros e ordenação**: tabelas com filtros persistidos na URL via TanStack Router search params
-- [ ] **PWA**: adicionar suporte PWA para uso em dispositivos móveis no local do evento
 - [ ] **Feed de atividades**: timeline global de eventos da competição em tempo real
 - [ ] **Estatísticas de delegação**: página com todos os atletas, medalhas, e desempenho histórico por semana
 - [ ] **Regras editáveis**: admin pode editar as regras de cada esporte sem alterar código (edita `rules_json` via UI)

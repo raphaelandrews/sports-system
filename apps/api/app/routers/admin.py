@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.deps import require_admin
 from app.core.security import hash_password
 from app.database import get_session
+from app.services import simulation_service
 from app.models.athlete import Athlete, AthleteModality
 from app.models.delegation import Delegation, DelegationMember, DelegationMemberRole
 from app.models.event import Event, EventPhase, EventStatus, Match, MatchStatus
@@ -178,3 +179,17 @@ async def demo_seed(
         "week": week.week_number,
         "medals": medals_awarded,
     }
+
+
+@router.post("/simulate/match/{match_id}", status_code=status.HTTP_200_OK)
+async def simulate_match(
+    match_id: int,
+    session: AsyncSession = Depends(get_session),
+    _: User = Depends(require_admin),
+) -> dict[str, object]:
+    try:
+        await simulation_service.simulate_match(session, match_id)
+        await session.commit()
+        return {"simulated": True, "match_id": match_id}
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
