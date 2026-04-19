@@ -361,15 +361,15 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 - [x] Criar tabela `athletes` com campos: id, user_id (FK nullable — pode ser IA gerado), name, birthdate, code, created_at
 - [x] Criar tabela `athlete_modalities` — vínculo atleta × modalidade (com categoria, se aplicável)
-- [ ] `GET /athletes` — listar (admin: global; chefe: só da delegação)
-- [ ] `GET /athletes/{id}` — perfil do atleta com histórico de delegações e partidas
-- [ ] `POST /athletes` — cadastrar atleta (admin ou chefe)
-- [ ] `PATCH /athletes/{id}` — editar (admin ou chefe da delegação)
-- [ ] `DELETE /athletes/{id}` — arquivar (admin)
-- [ ] `GET /athletes/{id}/history` — histórico: delegações por período, partidas por delegação
-- [ ] `GET /athletes/{id}/statistics` — estatísticas por modalidade e temporada
-- [ ] `POST /athletes/ai-generate` — gerar atletas com IA (admin)
-- [ ] Validação de elegibilidade: atleta cadastrado/transferido após semana travada → só próxima semana
+- [x] `GET /athletes` — listar (admin: global; chefe: só da delegação)
+- [x] `GET /athletes/{id}` — perfil do atleta com histórico de delegações e partidas
+- [x] `POST /athletes` — cadastrar atleta (admin ou chefe)
+- [x] `PATCH /athletes/{id}` — editar (admin ou chefe da delegação)
+- [x] `DELETE /athletes/{id}` — arquivar (admin)
+- [x] `GET /athletes/{id}/history` — histórico: delegações por período, partidas por delegação
+- [x] `GET /athletes/{id}/statistics` — estatísticas por modalidade e temporada
+- [x] `POST /athletes/ai-generate` — gerar atletas com IA (admin)
+- [x] Validação de elegibilidade: atleta cadastrado/transferido após semana travada → só próxima semana
 
 ## Fase 6 — Semanas de Competição
 
