@@ -65,8 +65,8 @@ First-time backend setup: `cd apps/api && uv sync && bun run db:up`
 - Backend logic: `from zoneinfo import ZoneInfo` + `datetime.now(ZoneInfo(settings.TIMEZONE))`
 - Transfer window check: `datetime.now(ZoneInfo(settings.TIMEZONE)).weekday() == 0`
 - API responses: ISO 8601 with offset (`2025-01-06T09:00:00-03:00`)
-- Frontend: `formatEventDate(iso)` in `apps/web/src/lib/date.ts` — always uses `VITE_TIMEZONE`, never `Date.toLocaleDateString()` without timezone
-- Never use user's browser timezone for event times — all times are event-local (São Paulo)
+- Frontend: `formatEventDate(iso)` in `apps/web/src/lib/date.ts` — uses browser timezone (viewer's local time)
+- API responses include offset (`-03:00`) so browser can convert correctly to viewer's local time
 
 ## Automation Patterns
 - Transfer window: pure time check in service layer, no admin action, no state change
@@ -98,5 +98,5 @@ First-time backend setup: `cd apps/api && uv sync && bun run db:up`
 
 ## Environment
 - Each app has its own `.env.example`
-- Key vars: `TIMEZONE=America/Sao_Paulo` (api), `VITE_TIMEZONE=America/Sao_Paulo` (web)
+- Key vars: `TIMEZONE=America/Sao_Paulo` (api)
 - `packages/infra/.env` only needed for `bun run deploy`
