@@ -288,18 +288,18 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - [x] Configurar variáveis de ambiente (pydantic-settings) — `.env.example` na raiz do repo
 - [x] Configurar CORS para o frontend
 - [x] Adicionar `TIMEZONE=America/Sao_Paulo` à configuração — usado em toda lógica de data/hora
-- [ ] Adicionar `AUTO_SIMULATE=true` à configuração — modo showcase: partidas iniciam e finalizam automaticamente com resultados gerados
-- [ ] Implementar sistema de autenticação JWT (access + refresh tokens)
-- [ ] Implementar middleware de autenticação e autorização por role
+- [x] Adicionar `AUTO_SIMULATE=true` à configuração — modo showcase: partidas iniciam e finalizam automaticamente com resultados gerados
+- [x] Implementar sistema de autenticação JWT (access + refresh tokens)
+- [x] Implementar middleware de autenticação e autorização por role
 - [x] Criar endpoint de health check (`GET /health`)
-- [ ] Configurar logging estruturado
-- [ ] Definir envelope padrão de resposta: listas `{ data: [], meta: { total, page, per_page } }`, erros `{ error, detail, code }`
-- [ ] Configurar APScheduler com os seguintes jobs:
-  - [ ] A cada 5min: auto-travar semanas quando `primeiro_evento.start_time < utcnow()`
-  - [ ] A cada 1min (se `AUTO_SIMULATE=true`): iniciar partidas cujo `start_time` passou e `status == SCHEDULED`
-  - [ ] A cada 1min (se `AUTO_SIMULATE=true`): finalizar partidas onde `started_at + 5min < utcnow()` → gera resultados e eventos automaticamente
-  - [ ] Diariamente à meia-noite (UTC-3): enviar notificações de lembrete 24h antes de partidas
-- [ ] Criar endpoint `POST /admin/demo-seed` — gera semana completa com delegações, atletas, inscrições e resultados (para showcase)
+- [x] Configurar logging estruturado
+- [x] Definir envelope padrão de resposta: listas `{ data: [], meta: { total, page, per_page } }`, erros `{ error, detail, code }`
+- [x] Configurar APScheduler com os seguintes jobs:
+  - [x] A cada 5min: auto-travar semanas quando `primeiro_evento.start_time < utcnow()`
+  - [x] A cada 1min (se `AUTO_SIMULATE=true`): iniciar partidas cujo `start_time` passou e `status == SCHEDULED`
+  - [x] A cada 1min (se `AUTO_SIMULATE=true`): finalizar partidas onde `started_at + 5min < utcnow()` → gera resultados e eventos automaticamente
+  - [x] Diariamente à meia-noite (UTC-3): enviar notificações de lembrete 24h antes de partidas
+- [x] Criar endpoint `POST /admin/demo-seed` — gera semana completa com delegações, atletas, inscrições e resultados (para showcase)
 - [x] Criar tabela `users` com campos: id, email, name, password_hash, role, created_at, is_active
 - [x] Criar tabela `notifications` com campos: id, user_id, type, payload (JSON), read, created_at
 - [x] Criar tabela `delegation_invites` com campos: id, delegation_id, user_id, status (PENDING/ACCEPTED/REFUSED), created_at

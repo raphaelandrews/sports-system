@@ -11,6 +11,12 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:3001"
     PORT: int = 3000
     TIMEZONE: str = "America/Sao_Paulo"
+    AUTO_SIMULATE: bool = True
+    LLM_API_KEY: str = ""
+
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     model_config = {"env_file": str(_env_file)}
 
