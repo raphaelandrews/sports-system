@@ -49,7 +49,7 @@ async def refresh(session: AsyncSession, refresh_token_value: str) -> TokenRespo
 
     if stored is None or stored.revoked_at is not None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or revoked refresh token")
-    if stored.expires_at.replace(tzinfo=UTC) < datetime.now(UTC):
+    if stored.expires_at < datetime.now(UTC).replace(tzinfo=None):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token expired")
 
     user = await user_repository.get_by_id(session, stored.user_id)

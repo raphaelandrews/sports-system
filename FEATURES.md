@@ -374,18 +374,18 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ## Fase 6 — Semanas de Competição
 
 - [x] Criar tabela `competition_weeks` com campos: id, week_number, start_date, end_date, status (DRAFT/SCHEDULED/LOCKED/ACTIVE/COMPLETED), sport_focus (JSON array)
-- [ ] `GET /weeks` — listar semanas
-- [ ] `GET /weeks/{id}` — detalhe da semana
-- [ ] `POST /weeks` — criar semana (admin)
-- [ ] `PATCH /weeks/{id}` — editar semana (admin — proibido se LOCKED ou posterior)
-- [ ] `POST /weeks/{id}/publish` — publicar calendário (DRAFT → SCHEDULED)
-- [ ] `POST /weeks/{id}/lock` — travar manualmente (SCHEDULED → LOCKED) + dispara geração de partidas
-- [ ] Travamento automático via APScheduler: a cada 5min verifica se `primeiro_evento.start_time < now(UTC)` e status ainda é SCHEDULED → auto-lock
-- [ ] `POST /weeks/{id}/activate` — ativar semana (LOCKED → ACTIVE)
-- [ ] `POST /weeks/{id}/complete` — encerrar semana (ACTIVE → COMPLETED)
-- [ ] `POST /weeks/{id}/generate-schedule` — prévia da geração de partidas (admin, pré-lock, não persiste)
-- [ ] Serviço `transfer_window_service`: verifica `weekday() == 0` em UTC-3 — chamado por toda solicitação de transferência
-- [ ] Serviço: verificar elegibilidade de atleta/delegação para semana
+- [x] `GET /weeks` — listar semanas
+- [x] `GET /weeks/{id}` — detalhe da semana
+- [x] `POST /weeks` — criar semana (admin)
+- [x] `PATCH /weeks/{id}` — editar semana (admin — proibido se LOCKED ou posterior)
+- [x] `POST /weeks/{id}/publish` — publicar calendário (DRAFT → SCHEDULED)
+- [x] `POST /weeks/{id}/lock` — travar manualmente (SCHEDULED → LOCKED) + dispara geração de partidas
+- [x] Travamento automático via APScheduler: a cada 5min verifica se `primeiro_evento.start_time < now(UTC)` e status ainda é SCHEDULED → auto-lock
+- [x] `POST /weeks/{id}/activate` — ativar semana (LOCKED → ACTIVE)
+- [x] `POST /weeks/{id}/complete` — encerrar semana (ACTIVE → COMPLETED)
+- [x] `POST /weeks/{id}/generate-schedule` — prévia da geração de partidas (admin, pré-lock, não persiste)
+- [x] Serviço `transfer_window_service`: verifica `weekday() == 0` em UTC-3 — chamado por toda solicitação de transferência
+- [x] Serviço: verificar elegibilidade de atleta/delegação para semana
 
 ## Fase 7 — Calendário e Partidas
 

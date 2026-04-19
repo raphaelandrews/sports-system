@@ -15,6 +15,7 @@ from app.routers import admin, auth, health, users
 from app.routers.athletes import router as athletes_router
 from app.routers.delegations import invites_router, router as delegations_router
 from app.routers.sports import modalities_router, router as sports_router
+from app.routers.weeks import router as weeks_router
 from app.services.seed_service import seed_sports
 
 
@@ -112,6 +113,7 @@ app.include_router(invites_router)
 app.include_router(sports_router)
 app.include_router(modalities_router)
 app.include_router(athletes_router)
+app.include_router(weeks_router)
 app.include_router(admin.router)
 
 if __name__ == "__main__":

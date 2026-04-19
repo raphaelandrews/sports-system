@@ -35,4 +35,4 @@ def decode_access_token(token: str) -> dict[str, object]:
 
 
 def refresh_token_expiry() -> datetime:
-    return datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    return (datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)).replace(tzinfo=None)

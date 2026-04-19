@@ -20,6 +20,6 @@ async def get_by_hash(session: AsyncSession, token_hash: str) -> RefreshToken | 
 
 
 async def revoke(session: AsyncSession, token: RefreshToken) -> None:
-    token.revoked_at = datetime.now(UTC)
+    token.revoked_at = datetime.now(UTC).replace(tzinfo=None)
     session.add(token)
     await session.flush()

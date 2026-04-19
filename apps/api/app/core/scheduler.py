@@ -16,7 +16,7 @@ scheduler = AsyncIOScheduler(timezone="UTC")
 
 
 async def _auto_lock_weeks() -> None:
-    now_utc = datetime.now(UTC)
+    now_utc = datetime.now(UTC).replace(tzinfo=None)
     async with async_session_factory() as session:
         result = await session.execute(
             select(CompetitionWeek).where(CompetitionWeek.status == WeekStatus.SCHEDULED)
@@ -32,7 +32,7 @@ async def _auto_lock_weeks() -> None:
             event = first_event_result.scalar_one_or_none()
             if event is None:
                 continue
-            event_dt = datetime.combine(event.event_date, event.start_time, tzinfo=UTC)
+            event_dt = datetime.combine(event.event_date, event.start_time)
             if event_dt < now_utc:
                 week.status = WeekStatus.LOCKED
                 session.add(week)
@@ -44,7 +44,7 @@ async def _auto_lock_weeks() -> None:
 async def _auto_start_matches() -> None:
     if not settings.AUTO_SIMULATE:
         return
-    now_utc = datetime.now(UTC)
+    now_utc = datetime.now(UTC).replace(tzinfo=None)
     async with async_session_factory() as session:
         result = await session.execute(
             select(Match, Event)
@@ -53,10 +53,10 @@ async def _auto_start_matches() -> None:
         )
         rows = result.all()
         for match, event in rows:
-            event_dt = datetime.combine(event.event_date, event.start_time, tzinfo=UTC)
+            event_dt = datetime.combine(event.event_date, event.start_time)
             if event_dt <= now_utc:
                 match.status = MatchStatus.IN_PROGRESS
-                match.started_at = now_utc
+                match.started_at = now_utc  # already naive via .replace(tzinfo=None)
                 session.add(match)
                 logger.info("auto_start_match match_id=%s", match.id)
                 # simulation_service.start(match, session) — Phase 9
@@ -66,7 +66,7 @@ async def _auto_start_matches() -> None:
 async def _auto_finish_matches() -> None:
     if not settings.AUTO_SIMULATE:
         return
-    cutoff = datetime.now(UTC) - timedelta(minutes=5)
+    cutoff = datetime.now(UTC).replace(tzinfo=None) - timedelta(minutes=5)
     async with async_session_factory() as session:
         result = await session.execute(
             select(Match).where(
@@ -77,7 +77,7 @@ async def _auto_finish_matches() -> None:
         matches = result.scalars().all()
         for match in matches:
             match.status = MatchStatus.COMPLETED
-            match.ended_at = datetime.now(UTC)
+            match.ended_at = datetime.now(UTC).replace(tzinfo=None)
             session.add(match)
             logger.info("auto_finish_match match_id=%s", match.id)
             # simulation_service.finish(match, session) — Phase 9

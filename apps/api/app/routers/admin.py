@@ -1,4 +1,4 @@
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -148,7 +148,7 @@ async def demo_seed(
         del_b = delegations[(sport_idx + 1) % len(delegations)]
         del_bronze = delegations[(sport_idx + 2) % len(delegations)]
 
-        started = datetime.combine(event_dt.date(), event_dt.time(), tzinfo=UTC)
+        started = datetime.combine(event_dt.date(), event_dt.time())
         match = Match(
             event_id=event.id,
             team_a_delegation_id=del_a.id,

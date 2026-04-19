@@ -31,7 +31,7 @@ class Sport(SQLModel, table=True):
     rules_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
     player_count: Optional[int] = None
     is_active: bool = Field(default=True)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
 
 class Modality(SQLModel, table=True):

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -34,7 +34,7 @@ async def is_athlete_eligible_for_week(
     if first_event is None:
         return False, "No events scheduled for this week"
 
-    lock_dt = datetime.combine(first_event.event_date, first_event.start_time, tzinfo=timezone.utc)
+    lock_dt = datetime.combine(first_event.event_date, first_event.start_time)
 
     member_result = await session.execute(
         select(DelegationMember).where(

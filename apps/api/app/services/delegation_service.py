@@ -182,7 +182,7 @@ async def accept_invite(
     if invite.status != InviteStatus.PENDING:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Invite already resolved")
 
-    now = datetime.now(UTC)
+    now = datetime.now(UTC).replace(tzinfo=None)
 
     current = await delegation_repository.get_active_membership(session, user.id)
     if current is not None:

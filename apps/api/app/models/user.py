@@ -37,7 +37,7 @@ class User(SQLModel, table=True):
     password_hash: str
     role: UserRole
     is_active: bool = Field(default=True)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
 
 class RefreshToken(SQLModel, table=True):
@@ -48,7 +48,7 @@ class RefreshToken(SQLModel, table=True):
     token_hash: str = Field(unique=True)
     expires_at: datetime
     revoked_at: Optional[datetime] = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
 
 class ChiefRequest(SQLModel, table=True):
@@ -60,7 +60,7 @@ class ChiefRequest(SQLModel, table=True):
     message: Optional[str] = None
     status: ChiefRequestStatus = Field(default=ChiefRequestStatus.PENDING)
     reviewed_by: Optional[int] = Field(default=None, foreign_key="users.id")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
 
 class Notification(SQLModel, table=True):
@@ -74,4 +74,4 @@ class Notification(SQLModel, table=True):
     )
     payload: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
     read: bool = Field(default=False)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))

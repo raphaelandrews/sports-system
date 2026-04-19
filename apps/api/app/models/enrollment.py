@@ -20,4 +20,4 @@ class Enrollment(SQLModel, table=True):
     delegation_id: int = Field(foreign_key="delegations.id")
     status: EnrollmentStatus = Field(default=EnrollmentStatus.PENDING)
     validation_message: Optional[str] = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))

@@ -13,7 +13,7 @@ class Athlete(SQLModel, table=True):
     birthdate: Optional[date] = None
     code: str = Field(unique=True)
     is_active: bool = Field(default=True)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
 
 class AthleteModality(SQLModel, table=True):
