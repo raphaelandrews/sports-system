@@ -15,6 +15,7 @@ export const queryKeys = {
   weeks: {
     all: () => ["weeks"] as const,
     detail: (id: number) => ["weeks", id] as const,
+    report: (id: number) => ["weeks", id, "report"] as const,
   },
   events: {
     all: () => ["events"] as const,
@@ -30,6 +31,7 @@ export const queryKeys = {
     detail: (id: number) => ["athletes", id] as const,
     byDelegation: (delegationId: number) =>
       ["athletes", "delegation", delegationId] as const,
+    report: (id: number) => ["athletes", id, "report"] as const,
   },
   enrollments: {
     byEvent: (eventId: number) => ["enrollments", "event", eventId] as const,

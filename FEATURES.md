@@ -535,6 +535,8 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 - [ ] `routes/login.tsx` — formulário de login, redirect pós-login
 - [ ] `routes/register.tsx` — formulário de cadastro
 - [ ] `routes/request-chief.tsx` — formulário de solicitação de chefe
+- [x] `routes/(public)/weeks/index.tsx` — lista de semanas com status e período (SSR)
+- [x] `routes/(public)/weeks/$weekId/index.tsx` — detalhe da semana: quadro de medalhas + eventos agrupados por data com placar lazy (SSR)
 - [ ] `routes/(public)/results/index.tsx` — quadro de medalhas público (SSR + polling 30s)
 - [ ] `routes/(public)/calendar/index.tsx` — calendário público por semana/esporte
 - [ ] `routes/(public)/delegations/index.tsx` — lista de delegações
@@ -584,11 +586,11 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 - [ ] `routes/_authenticated/_admin/athletes/index.tsx` — lista global com filtros
 - [ ] `routes/_authenticated/_chief/athletes/index.tsx` — atletas da delegação
-- [ ] `routes/_authenticated/athletes/$athleteId/index.tsx` — perfil do atleta:
-  - [ ] Dados pessoais e modalidades
-  - [ ] Timeline de delegações (com datas)
-  - [ ] Histórico de partidas (com delegação na época)
-  - [ ] Estatísticas por esporte
+- [x] `routes/_authenticated/athletes/$athleteId/index.tsx` — perfil do atleta:
+  - [x] Dados pessoais e modalidades
+  - [x] Timeline de delegações (com datas)
+  - [x] Histórico de partidas (com delegação na época)
+  - [x] Estatísticas por esporte
 - [ ] `routes/_authenticated/_admin/athletes/new.tsx` — cadastrar atleta (admin)
 - [ ] `routes/_authenticated/_chief/athletes/new.tsx` — cadastrar atleta (chefe)
 - [ ] Botão "Gerar com IA" (admin)

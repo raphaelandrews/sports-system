@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
+import { Route as publicWeeksIndexRouteImport } from './routes/(public)/weeks/index'
+import { Route as AuthenticatedAthletesAthleteIdIndexRouteImport } from './routes/_authenticated/athletes/$athleteId/index'
+import { Route as publicWeeksWeekIdIndexRouteImport } from './routes/(public)/weeks/$weekId/index'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -28,32 +31,71 @@ const AuthenticatedDashboardIndexRoute =
     path: '/dashboard/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const publicWeeksIndexRoute = publicWeeksIndexRouteImport.update({
+  id: '/(public)/weeks/',
+  path: '/weeks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAthletesAthleteIdIndexRoute =
+  AuthenticatedAthletesAthleteIdIndexRouteImport.update({
+    id: '/athletes/$athleteId/',
+    path: '/athletes/$athleteId/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const publicWeeksWeekIdIndexRoute = publicWeeksWeekIdIndexRouteImport.update({
+  id: '/(public)/weeks/$weekId/',
+  path: '/weeks/$weekId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/weeks/': typeof publicWeeksIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/weeks/$weekId/': typeof publicWeeksWeekIdIndexRoute
+  '/athletes/$athleteId/': typeof AuthenticatedAthletesAthleteIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/weeks': typeof publicWeeksIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/weeks/$weekId': typeof publicWeeksWeekIdIndexRoute
+  '/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/(public)/weeks/': typeof publicWeeksIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/(public)/weeks/$weekId/': typeof publicWeeksWeekIdIndexRoute
+  '/_authenticated/athletes/$athleteId/': typeof AuthenticatedAthletesAthleteIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard/'
+  fullPaths:
+    | '/'
+    | '/weeks/'
+    | '/dashboard/'
+    | '/weeks/$weekId/'
+    | '/athletes/$athleteId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard'
-  id: '__root__' | '/' | '/_authenticated' | '/_authenticated/dashboard/'
+  to: '/' | '/weeks' | '/dashboard' | '/weeks/$weekId' | '/athletes/$athleteId'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/(public)/weeks/'
+    | '/_authenticated/dashboard/'
+    | '/(public)/weeks/$weekId/'
+    | '/_authenticated/athletes/$athleteId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  publicWeeksIndexRoute: typeof publicWeeksIndexRoute
+  publicWeeksWeekIdIndexRoute: typeof publicWeeksWeekIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -79,15 +121,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/(public)/weeks/': {
+      id: '/(public)/weeks/'
+      path: '/weeks'
+      fullPath: '/weeks/'
+      preLoaderRoute: typeof publicWeeksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/athletes/$athleteId/': {
+      id: '/_authenticated/athletes/$athleteId/'
+      path: '/athletes/$athleteId'
+      fullPath: '/athletes/$athleteId/'
+      preLoaderRoute: typeof AuthenticatedAthletesAthleteIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/(public)/weeks/$weekId/': {
+      id: '/(public)/weeks/$weekId/'
+      path: '/weeks/$weekId'
+      fullPath: '/weeks/$weekId/'
+      preLoaderRoute: typeof publicWeeksWeekIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+  AuthenticatedAthletesAthleteIdIndexRoute: typeof AuthenticatedAthletesAthleteIdIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+  AuthenticatedAthletesAthleteIdIndexRoute:
+    AuthenticatedAthletesAthleteIdIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -97,6 +163,8 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  publicWeeksIndexRoute: publicWeeksIndexRoute,
+  publicWeeksWeekIdIndexRoute: publicWeeksWeekIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -83,6 +83,8 @@ First-time backend setup: `cd apps/api && uv sync && bun run db:up`
 - Route guards: `_authenticated.tsx` → `_admin.tsx` / `_chief.tsx` via `beforeLoad`
 - SSR strategy per route: public pages full SSR, auth pages `data-only`, live/AI pages `ssr: false`
 - Shared UI components live in `packages/ui`, import as `@sports-system/ui/components/...`
+- `routeTree.gen.ts` is **auto-generated** by `@tanstack/router-plugin` on `vite dev` startup — never edit manually, never commit stale version
+- Route group folders `(public)/` are filesystem-only organization — no layout file needed or supported in this router version
 
 ## Deployment
 - Railway (backend): single uvicorn process — no `--workers` flag. `asyncio.Queue` is per-process; multiple workers = SSE clients miss events
