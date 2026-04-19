@@ -412,18 +412,18 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ## Fase 8 — Inscrições
 
 - [x] Criar tabela `enrollments` com campos: id, athlete_id, event_id, delegation_id, status (PENDING/APPROVED/REJECTED), validation_message, created_at
-- [ ] `GET /enrollments` — listar inscrições (admin: global; chefe: delegação)
-- [ ] `POST /enrollments` — inscrever atleta em evento (chefe)
-- [ ] `DELETE /enrollments/{id}` — cancelar inscrição (chefe — antes do travamento)
-- [ ] `PATCH /enrollments/{id}/review` — aprovar/rejeitar inscrição (admin)
-- [ ] Motor de validação genérico: lê regras do `rules_json` da modalidade — sem hardcode por esporte
-  - [ ] Formato de `rules_json`: `{ "max_athletes": N, "gender": "M/F/MIXED", "weight_categories": [...], "schedule_conflict_check": bool }`
-  - [ ] Categoria de peso (lida de `weight_categories` no rules_json)
-  - [ ] Gênero da modalidade (lido de `gender` no rules_json)
-  - [ ] Número máximo de atletas por equipe (lido de `max_athletes`)
-  - [ ] Conflito de horário (mesmo atleta em dois eventos simultâneos)
-  - [ ] Elegibilidade de semana (atleta cadastrado/transferido antes do travamento)
-- [ ] `POST /enrollments/ai-generate` — gerar inscrições com IA (admin)
+- [x] `GET /enrollments` — listar inscrições (admin: global; chefe: delegação)
+- [x] `POST /enrollments` — inscrever atleta em evento (chefe)
+- [x] `DELETE /enrollments/{id}` — cancelar inscrição (chefe — antes do travamento)
+- [x] `PATCH /enrollments/{id}/review` — aprovar/rejeitar inscrição (admin)
+- [x] Motor de validação genérico: lê regras do `rules_json` da modalidade — sem hardcode por esporte
+  - [x] Formato de `rules_json`: `{ "max_athletes": N, "gender": "M/F/MIXED", "weight_categories": [...], "schedule_conflict_check": bool }`
+  - [x] Categoria de peso (lida de `weight_category` no rules_json — via `AthleteModality.category`)
+  - [x] Gênero da modalidade (lido de `gender` no rules_json) — campo `gender` (M/F) adicionado ao modelo `Athlete`
+  - [x] Número máximo de atletas por equipe (lido de `max_athletes`)
+  - [x] Conflito de horário (mesmo atleta em dois eventos simultâneos)
+  - [x] Elegibilidade de semana (atleta cadastrado/transferido antes do travamento)
+- [x] `POST /enrollments/ai-generate` — gerar inscrições com IA (admin)
 
 ## Fase 9 — Resultados e Quadro de Medalhas
 

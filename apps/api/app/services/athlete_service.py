@@ -70,6 +70,7 @@ async def create_athlete(session: AsyncSession, data: AthleteCreate) -> AthleteR
     athlete = Athlete(
         name=data.name,
         code=data.code,
+        gender=data.gender,
         birthdate=data.birthdate,
         user_id=data.user_id,
     )
@@ -88,6 +89,8 @@ async def update_athlete(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Athlete not found")
     if data.name is not None:
         athlete.name = data.name
+    if data.gender is not None:
+        athlete.gender = data.gender
     if data.birthdate is not None:
         athlete.birthdate = data.birthdate
     if data.is_active is not None:
