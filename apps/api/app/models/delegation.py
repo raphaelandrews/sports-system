@@ -25,6 +25,7 @@ class Delegation(SQLModel, table=True):
     name: str
     flag_url: Optional[str] = None
     chief_id: Optional[int] = Field(default=None, foreign_key="users.id")
+    is_active: bool = Field(default=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 

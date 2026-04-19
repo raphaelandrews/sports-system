@@ -325,21 +325,21 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 - [x] Criar tabela `delegations` com campos: id, code, name, flag_url, chief_id, created_at
 - [x] Criar tabela `delegation_members` com campos: id, delegation_id, user_id, role (CHIEF/ATHLETE/COACH), joined_at, left_at (null = ativo)
-- [ ] `GET /delegations` — listar delegações (público)
-- [ ] `GET /delegations/{id}` — detalhe de delegação com membros atuais (público)
-- [ ] `POST /delegations` — criar delegação (admin)
-- [ ] `PATCH /delegations/{id}` — editar delegação (admin ou chefe)
-- [ ] `DELETE /delegations/{id}` — arquivar delegação (admin)
-- [ ] `POST /delegations/{id}/invite` — convidar usuário (chefe)
-- [ ] `GET /delegations/{id}/invites` — listar convites pendentes (chefe)
-- [ ] `DELETE /delegations/{id}/invites/{invite_id}` — revogar convite (chefe)
-- [ ] `POST /invites/{invite_id}/accept` — aceitar convite (usuário notificado)
-- [ ] `POST /invites/{invite_id}/refuse` — recusar convite (usuário notificado)
-- [ ] `POST /delegations/{id}/transfer/{user_id}` — solicitar transferência (chefe destino)
-- [ ] Validação automática de janela de transferência: verifica `datetime.now(ZoneInfo(settings.TIMEZONE)).weekday() == 0` — bloqueia fora de segunda-feira, retorna `{ next_window: "<ISO datetime>" }` no erro
-- [ ] Serviço de snapshot: registrar `delegation_na_epoca` ao registrar participação em partida
-- [ ] `GET /delegations/{id}/history` — histórico de membros com datas
-- [ ] `POST /delegations/ai-generate` — gerar delegações fictícias com IA (admin)
+- [x] `GET /delegations` — listar delegações (público)
+- [x] `GET /delegations/{id}` — detalhe de delegação com membros atuais (público)
+- [x] `POST /delegations` — criar delegação (admin)
+- [x] `PATCH /delegations/{id}` — editar delegação (admin ou chefe)
+- [x] `DELETE /delegations/{id}` — arquivar delegação (admin)
+- [x] `POST /delegations/{id}/invite` — convidar usuário (chefe)
+- [x] `GET /delegations/{id}/invites` — listar convites pendentes (chefe)
+- [x] `DELETE /delegations/{id}/invites/{invite_id}` — revogar convite (chefe)
+- [x] `POST /invites/{invite_id}/accept` — aceitar convite (usuário notificado)
+- [x] `POST /invites/{invite_id}/refuse` — recusar convite (usuário notificado)
+- [x] `POST /delegations/{id}/transfer/{user_id}` — solicitar transferência (chefe destino)
+- [x] Validação automática de janela de transferência: verifica `datetime.now(ZoneInfo(settings.TIMEZONE)).weekday() == 0` — bloqueia fora de segunda-feira, retorna `{ next_window: "<ISO datetime>" }` no erro
+- [x] Serviço de snapshot: registrar `delegation_na_epoca` ao registrar participação em partida
+- [x] `GET /delegations/{id}/history` — histórico de membros com datas
+- [x] `POST /delegations/ai-generate` — gerar delegações fictícias com IA (admin)
 
 ## Fase 4 — Esportes e Modalidades
 
