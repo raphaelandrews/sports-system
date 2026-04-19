@@ -393,21 +393,21 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - [x] Criar tabela `matches` com campos: id, event_id, team_a_delegation_id, team_b_delegation_id (ou athlete_a/b para individuais), score_a, score_b, winner_delegation_id, status, started_at, ended_at
 - [x] Criar tabela `match_participants` com campos: id, match_id, athlete_id, delegation_id_at_time, role (PLAYER/CAPTAIN/SUBSTITUTE)
 - [x] Criar tabela `match_events` com campos: id, match_id, minute, type (GOAL/CARD/POINT/PENALTY/SUBSTITUTION/etc.), athlete_id, delegation_id_at_time, value_json — timeline da partida
-- [ ] `GET /events` — calendário geral (público, filtros: semana, esporte, data)
-- [ ] `GET /events/{id}` — detalhe do evento com partidas
-- [ ] `POST /events` — criar evento (admin)
-- [ ] `PATCH /events/{id}` — editar (admin — proibido se semana LOCKED+)
-- [ ] `DELETE /events/{id}` — cancelar (admin)
-- [ ] `GET /matches/{id}` — detalhe da partida com participantes, placar e eventos
-- [ ] `POST /matches/{id}/events` — registrar evento da partida (admin — gol, cartão, ponto, etc.) — mesma rota usada pelo `simulation_service`
-- [ ] `GET /matches/{id}/events` — listar timeline de eventos (público)
-- [ ] `GET /matches/{id}/stream` — SSE stream de eventos e placar ao vivo
-- [ ] `POST /matches/{id}/start` — iniciar partida
-- [ ] `POST /matches/{id}/finish` — encerrar partida e disparar cálculo de resultados
-- [ ] `POST /events/ai-generate` — gerar calendário com IA (admin)
-- [ ] Serviço `bracket_service`: gera pareamentos por modalidade a partir das inscrições aprovadas (round-robin para grupos, eliminatória para mata-mata)
-- [ ] Serviço `schedule_service`: distribui partidas geradas por slots de tempo (Ter–Dom), respeitando conflitos de atleta e capacidade de venue
-- [ ] Geração automática de chaveamento mata-mata após conclusão da fase de grupos
+- [x] `GET /events` — calendário geral (público, filtros: semana, esporte, data)
+- [x] `GET /events/{id}` — detalhe do evento com partidas
+- [x] `POST /events` — criar evento (admin)
+- [x] `PATCH /events/{id}` — editar (admin — proibido se semana LOCKED+)
+- [x] `DELETE /events/{id}` — cancelar (admin)
+- [x] `GET /matches/{id}` — detalhe da partida com participantes, placar e eventos
+- [x] `POST /matches/{id}/events` — registrar evento da partida (admin — gol, cartão, ponto, etc.) — mesma rota usada pelo `simulation_service`
+- [x] `GET /matches/{id}/events` — listar timeline de eventos (público)
+- [x] `GET /matches/{id}/stream` — SSE stream de eventos e placar ao vivo
+- [x] `POST /matches/{id}/start` — iniciar partida
+- [x] `POST /matches/{id}/finish` — encerrar partida e disparar cálculo de resultados
+- [x] `POST /events/ai-generate` — gerar calendário com IA (admin)
+- [x] Serviço `bracket_service`: gera pareamentos por modalidade a partir das inscrições aprovadas (round-robin para grupos, eliminatória para mata-mata)
+- [x] Serviço `schedule_service`: distribui partidas geradas por slots de tempo (Ter–Dom), respeitando conflitos de atleta e capacidade de venue
+- [x] Geração automática de chaveamento mata-mata após conclusão da fase de grupos
 
 ## Fase 8 — Inscrições
 

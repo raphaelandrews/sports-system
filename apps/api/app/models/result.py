@@ -43,4 +43,4 @@ class Record(SQLModel, table=True):
     delegation_id_at_time: int = Field(foreign_key="delegations.id")
     value: str
     week_id: int = Field(foreign_key="competition_weeks.id")
-    set_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    set_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))

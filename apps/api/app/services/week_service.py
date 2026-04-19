@@ -99,7 +99,10 @@ async def publish_week(session: AsyncSession, week_id: int) -> WeekResponse:
 
 async def lock_week(session: AsyncSession, week_id: int) -> WeekResponse:
     result = await _transition(session, week_id, "lock")
-    # Phase 7: bracket_service.generate(week_id, session)
+    from app.services.event_service import lock_and_generate_bracket
+    matches_created = await lock_and_generate_bracket(session, week_id)
+    await session.commit()
+    logger.info("week_locked week_id=%s bracket_matches=%s", week_id, matches_created)
     return result
 
 

@@ -36,8 +36,9 @@ async def _auto_lock_weeks() -> None:
             if event_dt < now_utc:
                 week.status = WeekStatus.LOCKED
                 session.add(week)
-                logger.info("auto_lock_week week_id=%s", week.id)
-                # bracket_service.generate(week, session) — Phase 7
+                from app.services import bracket_service
+                matches = await bracket_service.generate(session, week.id)
+                logger.info("auto_lock_week week_id=%s bracket_matches=%s", week.id, matches)
         await session.commit()
 
 
