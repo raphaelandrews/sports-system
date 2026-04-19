@@ -345,17 +345,17 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 - [x] Criar tabela `sports` com campos: id, name, type (INDIVIDUAL/TEAM), description, rules_json, player_count, created_at
 - [x] Criar tabela `modalities` com campos: id, sport_id, name, gender (M/F/MIXED), category (ex: peso no judô), rules_json
-- [ ] Criar tabela `sport_statistics_schema` — define campos de estatística por esporte (JSON Schema)
-- [ ] Popular banco com os 10 esportes e suas modalidades padrão (seed/migration)
-- [ ] `GET /sports` — listar esportes (público)
-- [ ] `GET /sports/{id}` — detalhe com modalidades (público)
-- [ ] `POST /sports` — criar esporte (admin)
-- [ ] `PATCH /sports/{id}` — editar (admin)
-- [ ] `DELETE /sports/{id}` — arquivar (admin)
-- [ ] `POST /sports/{id}/modalities` — criar modalidade (admin)
-- [ ] `PATCH /modalities/{id}` — editar modalidade (admin)
-- [ ] `DELETE /modalities/{id}` — arquivar (admin)
-- [ ] `POST /sports/ai-generate` — gerar esportes/modalidades com IA (admin)
+- [x] Criar tabela `sport_statistics_schema` — define campos de estatística por esporte (JSON Schema)
+- [x] Popular banco com os 10 esportes e suas modalidades padrão (seed/migration)
+- [x] `GET /sports` — listar esportes (público)
+- [x] `GET /sports/{id}` — detalhe com modalidades (público)
+- [x] `POST /sports` — criar esporte (admin)
+- [x] `PATCH /sports/{id}` — editar (admin)
+- [x] `DELETE /sports/{id}` — arquivar (admin)
+- [x] `POST /sports/{id}/modalities` — criar modalidade (admin)
+- [x] `PATCH /modalities/{id}` — editar modalidade (admin)
+- [x] `DELETE /modalities/{id}` — arquivar (admin)
+- [x] `POST /sports/ai-generate` — gerar esportes/modalidades com IA (admin)
 
 ## Fase 5 — Atletas e Técnicos
 

@@ -13,6 +13,8 @@ from app.config import settings
 from app.core.scheduler import setup_scheduler
 from app.routers import admin, auth, health, users
 from app.routers.delegations import invites_router, router as delegations_router
+from app.routers.sports import modalities_router, router as sports_router
+from app.services.seed_service import seed_sports
 
 
 def _configure_logging() -> None:
@@ -44,6 +46,7 @@ def _configure_logging() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _configure_logging()
+    await seed_sports()
     sched = setup_scheduler()
     sched.start()
     logging.getLogger(__name__).info("scheduler_started")
@@ -105,6 +108,8 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(delegations_router)
 app.include_router(invites_router)
+app.include_router(sports_router)
+app.include_router(modalities_router)
 app.include_router(admin.router)
 
 if __name__ == "__main__":

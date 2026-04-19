@@ -30,6 +30,7 @@ class Sport(SQLModel, table=True):
     description: Optional[str] = None
     rules_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
     player_count: Optional[int] = None
+    is_active: bool = Field(default=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -42,3 +43,14 @@ class Modality(SQLModel, table=True):
     gender: Gender
     category: Optional[str] = None
     rules_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
+    is_active: bool = Field(default=True)
+
+
+class SportStatisticsSchema(SQLModel, table=True):
+    __tablename__ = "sport_statistics_schemas"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    sport_id: int = Field(foreign_key="sports.id", unique=True)
+    stats_schema: dict[str, Any] = Field(
+        default_factory=dict, sa_column=Column("schema_json", JSON, nullable=False)
+    )

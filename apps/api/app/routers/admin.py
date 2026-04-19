@@ -11,7 +11,7 @@ from app.models.athlete import Athlete, AthleteModality
 from app.models.delegation import Delegation, DelegationMember, DelegationMemberRole
 from app.models.event import Event, EventPhase, EventStatus, Match, MatchStatus
 from app.models.result import Medal, Result
-from app.models.sport import Gender, Modality, Sport, SportType
+from app.models.sport import Modality, Sport
 from app.models.user import User, UserRole
 from app.models.week import CompetitionWeek, WeekStatus
 
@@ -33,19 +33,6 @@ _ATHLETES: list[tuple[str, str]] = [
     ("Felipe Rocha", "M"),
 ]
 
-_SPORTS: list[tuple[str, SportType, str, int]] = [
-    ("Futebol", SportType.TEAM, "Futebol de campo", 11),
-    ("Vôlei", SportType.TEAM, "Vôlei indoor", 6),
-    ("Basquete", SportType.TEAM, "Basquete 5x5", 5),
-    ("Handebol", SportType.TEAM, "Handebol indoor", 7),
-    ("Natação", SportType.INDIVIDUAL, "Natação de piscina", 1),
-    ("Atletismo", SportType.INDIVIDUAL, "Atletismo de pista e campo", 1),
-    ("Judô", SportType.INDIVIDUAL, "Judô olímpico", 1),
-    ("Karatê", SportType.INDIVIDUAL, "Karatê WKF", 1),
-    ("Tênis de Mesa", SportType.INDIVIDUAL, "Tênis de mesa", 1),
-    ("Vôlei de Praia", SportType.TEAM, "Vôlei de praia em dupla", 2),
-]
-
 
 @router.post("/demo-seed", status_code=status.HTTP_201_CREATED)
 async def demo_seed(
@@ -63,33 +50,32 @@ async def demo_seed(
     week_start = today - timedelta(days=today.weekday())  # last Monday
 
     # --- Admin user ---
-    admin = User(
+    admin_user = User(
         email="admin@sports.local",
         name="Admin",
         password_hash=hash_password("admin123"),
         role=UserRole.ADMIN,
     )
-    session.add(admin)
+    session.add(admin_user)
     await session.flush()
 
-    # --- Sports & modalities ---
-    sports: list[Sport] = []
-    modalities: list[Modality] = []
-    for sport_name, sport_type, desc, player_count in _SPORTS:
-        sport = Sport(name=sport_name, sport_type=sport_type, description=desc, player_count=player_count)
-        session.add(sport)
-        await session.flush()
-        sports.append(sport)
+    # --- Use sports already seeded by seed_service (startup) ---
+    sports_result = await session.execute(select(Sport).where(Sport.is_active == True).order_by(Sport.id).limit(10))  # noqa: E712
+    sports = list(sports_result.scalars().all())
+    if not sports:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Sports not seeded. Restart the server to trigger the startup seed.",
+        )
 
-        for gender in (Gender.M, Gender.F):
-            rules: dict[str, object] = {
-                "max_athletes": player_count,
-                "gender": gender.value,
-                "schedule_conflict_check": True,
-            }
-            mod = Modality(sport_id=sport.id, name=f"{sport_name} {gender.value}", gender=gender, rules_json=rules)
-            session.add(mod)
-            await session.flush()
+    # pick first modality of each sport (masculine when available)
+    modalities: list[Modality] = []
+    for sport in sports:
+        mod_result = await session.execute(
+            select(Modality).where(Modality.sport_id == sport.id, Modality.is_active == True).limit(1)  # noqa: E712
+        )
+        mod = mod_result.scalar_one_or_none()
+        if mod:
             modalities.append(mod)
 
     # --- Delegations, chiefs, athletes ---
@@ -111,14 +97,9 @@ async def demo_seed(
         await session.flush()
         delegations.append(delegation)
 
-        member_chief = DelegationMember(
-            delegation_id=delegation.id,
-            user_id=chief_user.id,
-            role=DelegationMemberRole.CHIEF,
-        )
-        session.add(member_chief)
+        session.add(DelegationMember(delegation_id=delegation.id, user_id=chief_user.id, role=DelegationMemberRole.CHIEF))
 
-        for j, (athlete_name, sex) in enumerate(_ATHLETES):
+        for j, (athlete_name, _sex) in enumerate(_ATHLETES):
             athlete = Athlete(
                 name=f"{athlete_name} ({code})",
                 code=f"ATL-{code}-{j + 1:03d}",
@@ -128,18 +109,13 @@ async def demo_seed(
             await session.flush()
             all_athletes.append(athlete)
 
-            member_athlete = DelegationMember(
-                delegation_id=delegation.id,
-                user_id=chief_user.id,  # linked to chief user for simplicity
-                role=DelegationMemberRole.ATHLETE,
-            )
-            session.add(member_athlete)
+            session.add(DelegationMember(delegation_id=delegation.id, user_id=chief_user.id, role=DelegationMemberRole.ATHLETE))
 
-            # Enroll each athlete in 2 modalities
-            mod_a = modalities[(i * 2) % len(modalities)]
-            mod_b = modalities[(i * 2 + 1) % len(modalities)]
-            session.add(AthleteModality(athlete_id=athlete.id, modality_id=mod_a.id))
-            session.add(AthleteModality(athlete_id=athlete.id, modality_id=mod_b.id))
+            if modalities:
+                mod_a = modalities[(i * 2) % len(modalities)]
+                mod_b = modalities[(i * 2 + 1) % len(modalities)]
+                session.add(AthleteModality(athlete_id=athlete.id, modality_id=mod_a.id))
+                session.add(AthleteModality(athlete_id=athlete.id, modality_id=mod_b.id))
 
     # --- Competition week ---
     week = CompetitionWeek(
@@ -152,12 +128,9 @@ async def demo_seed(
     session.add(week)
     await session.flush()
 
-    # --- Events & matches for 5 sports ---
+    # --- Events & matches for up to 5 sports ---
     medals_awarded: list[dict[str, object]] = []
-    for sport_idx in range(5):
-        sport = sports[sport_idx]
-        mod = modalities[sport_idx * 2]  # masculine modality
-
+    for sport_idx, (sport, mod) in enumerate(zip(sports[:5], modalities[:5])):
         event_dt = datetime.combine(week_start + timedelta(days=sport_idx + 1), time(10, 0))
         event = Event(
             week_id=week.id,
@@ -171,7 +144,6 @@ async def demo_seed(
         session.add(event)
         await session.flush()
 
-        # Team sports: delegations A vs B
         del_a = delegations[sport_idx % len(delegations)]
         del_b = delegations[(sport_idx + 1) % len(delegations)]
         del_bronze = delegations[(sport_idx + 2) % len(delegations)]
@@ -202,8 +174,7 @@ async def demo_seed(
         "seeded": True,
         "delegations": len(delegations),
         "athletes": len(all_athletes),
-        "sports": len(sports),
-        "modalities": len(modalities),
+        "sports_referenced": len(sports),
         "week": week.week_number,
         "medals": medals_awarded,
     }
