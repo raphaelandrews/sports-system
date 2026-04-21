@@ -1,9 +1,12 @@
 import logging
 import logging.config
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any, AsyncGenerator
 
 import uvicorn
+from alembic import command as alembic_command
+from alembic.config import Config as AlembicConfig
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,9 +53,16 @@ def _configure_logging() -> None:
     )
 
 
+def _run_migrations() -> None:
+    alembic_ini = Path(__file__).resolve().parents[1] / "alembic.ini"
+    cfg = AlembicConfig(str(alembic_ini))
+    alembic_command.upgrade(cfg, "head")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _configure_logging()
+    _run_migrations()
     await seed_sports()
     sched = setup_scheduler()
     sched.start()
