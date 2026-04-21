@@ -676,3 +676,4 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 - [ ] **Feed de atividades**: timeline global de eventos da competição em tempo real
 - [ ] **Estatísticas de delegação**: página com todos os atletas, medalhas, e desempenho histórico por semana
 - [ ] **Regras editáveis**: admin pode editar as regras de cada esporte sem alterar código (edita `rules_json` via UI)
+- [ ] **OAuth — Google e GitHub**: autenticação via provedor externo nas páginas de login e cadastro (botões já presentes na UI, aguardando configuração do backend)

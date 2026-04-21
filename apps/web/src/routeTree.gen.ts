@@ -15,6 +15,8 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRequestChiefRouteImport } from './routes/_authenticated/request-chief'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as publicTermsRouteImport } from './routes/(public)/terms'
+import { Route as publicPrivacyRouteImport } from './routes/(public)/privacy'
 import { Route as publicWeeksIndexRouteImport } from './routes/(public)/weeks/index'
 import { Route as publicSportsIndexRouteImport } from './routes/(public)/sports/index'
 import { Route as publicResultsIndexRouteImport } from './routes/(public)/results/index'
@@ -54,6 +56,16 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const publicTermsRoute = publicTermsRouteImport.update({
+  id: '/(public)/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicPrivacyRoute = publicPrivacyRouteImport.update({
+  id: '/(public)/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const publicWeeksIndexRoute = publicWeeksIndexRouteImport.update({
   id: '/(public)/weeks/',
@@ -107,6 +119,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/privacy': typeof publicPrivacyRoute
+  '/terms': typeof publicTermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/request-chief': typeof AuthenticatedRequestChiefRoute
   '/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
@@ -123,6 +137,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/privacy': typeof publicPrivacyRoute
+  '/terms': typeof publicTermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/request-chief': typeof AuthenticatedRequestChiefRoute
   '/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
@@ -141,6 +157,8 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/(public)/privacy': typeof publicPrivacyRoute
+  '/(public)/terms': typeof publicTermsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/request-chief': typeof AuthenticatedRequestChiefRoute
   '/(public)/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
@@ -159,6 +177,8 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/privacy'
+    | '/terms'
     | '/dashboard'
     | '/request-chief'
     | '/delegations/$delegationId'
@@ -175,6 +195,8 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/privacy'
+    | '/terms'
     | '/dashboard'
     | '/request-chief'
     | '/delegations/$delegationId'
@@ -192,6 +214,8 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/login'
     | '/register'
+    | '/(public)/privacy'
+    | '/(public)/terms'
     | '/_authenticated/dashboard'
     | '/_authenticated/request-chief'
     | '/(public)/delegations/$delegationId'
@@ -210,6 +234,8 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  publicPrivacyRoute: typeof publicPrivacyRoute
+  publicTermsRoute: typeof publicTermsRoute
   publicDelegationsDelegationIdRoute: typeof publicDelegationsDelegationIdRoute
   publicSportsSportIdRoute: typeof publicSportsSportIdRoute
   publicWeeksWeekIdRoute: typeof publicWeeksWeekIdRoute
@@ -263,6 +289,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/(public)/terms': {
+      id: '/(public)/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof publicTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/privacy': {
+      id: '/(public)/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof publicPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(public)/weeks/': {
       id: '/(public)/weeks/'
@@ -351,6 +391,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  publicPrivacyRoute: publicPrivacyRoute,
+  publicTermsRoute: publicTermsRoute,
   publicDelegationsDelegationIdRoute: publicDelegationsDelegationIdRoute,
   publicSportsSportIdRoute: publicSportsSportIdRoute,
   publicWeeksWeekIdRoute: publicWeeksWeekIdRoute,

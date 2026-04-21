@@ -6,6 +6,7 @@ import {
   Outlet,
   Scripts,
   createRootRouteWithContext,
+  useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "next-themes";
@@ -14,6 +15,8 @@ import Header from "@/components/layout/header";
 import { getSessionFn } from "@/server/auth";
 
 import appCss from "@/index.css?url";
+
+const AUTH_PATHS = ["/login", "/register"];
 
 export interface RouterAppContext {
   queryClient: QueryClient;
@@ -38,6 +41,10 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 });
 
 function RootDocument() {
+  const isAuthPage = useRouterState({
+    select: (s) => AUTH_PATHS.includes(s.location.pathname),
+  });
+
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
@@ -45,10 +52,14 @@ function RootDocument() {
       </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
-          <div className="grid h-svh grid-rows-[auto_1fr]">
-            <Header />
+          {isAuthPage ? (
             <Outlet />
-          </div>
+          ) : (
+            <div className="grid h-svh grid-rows-[auto_1fr]">
+              <Header />
+              <Outlet />
+            </div>
+          )}
           <Toaster richColors />
           <ReactQueryDevtools buttonPosition="bottom-right" />
           <TanStackRouterDevtools position="bottom-left" />

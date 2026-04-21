@@ -11,7 +11,6 @@ import {
   TooltipTrigger,
 } from "@sports-system/ui/components/tooltip"
 
-
 interface AnimatedThemeTogglerProps extends React.ComponentPropsWithoutRef<"button"> {
   duration?: number
 }
