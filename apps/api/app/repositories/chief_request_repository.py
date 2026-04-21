@@ -32,6 +32,16 @@ async def list_pending(
     return result.scalars().all(), total  # type: ignore[return-value]
 
 
+async def get_by_user_id(session: AsyncSession, user_id: int) -> ChiefRequest | None:
+    result = await session.execute(
+        select(ChiefRequest)
+        .where(ChiefRequest.user_id == user_id)
+        .order_by(ChiefRequest.created_at.desc())
+        .limit(1)
+    )
+    return result.scalar_one_or_none()
+
+
 async def save(session: AsyncSession, req: ChiefRequest) -> ChiefRequest:
     session.add(req)
     await session.flush()

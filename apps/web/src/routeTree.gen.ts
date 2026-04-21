@@ -17,11 +17,13 @@ import { Route as AuthenticatedRequestChiefRouteImport } from './routes/_authent
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as publicTermsRouteImport } from './routes/(public)/terms'
 import { Route as publicPrivacyRouteImport } from './routes/(public)/privacy'
+import { Route as AuthenticatedRequestChiefIndexRouteImport } from './routes/_authenticated/request-chief/index'
 import { Route as publicWeeksIndexRouteImport } from './routes/(public)/weeks/index'
 import { Route as publicSportsIndexRouteImport } from './routes/(public)/sports/index'
 import { Route as publicResultsIndexRouteImport } from './routes/(public)/results/index'
 import { Route as publicDelegationsIndexRouteImport } from './routes/(public)/delegations/index'
 import { Route as publicCalendarIndexRouteImport } from './routes/(public)/calendar/index'
+import { Route as AuthenticatedRequestChiefStatusRouteImport } from './routes/_authenticated/request-chief/status'
 import { Route as AuthenticatedAthletesAthleteIdRouteImport } from './routes/_authenticated/athletes/$athleteId'
 import { Route as publicWeeksWeekIdRouteImport } from './routes/(public)/weeks/$weekId'
 import { Route as publicSportsSportIdRouteImport } from './routes/(public)/sports/$sportId'
@@ -67,6 +69,12 @@ const publicPrivacyRoute = publicPrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRequestChiefIndexRoute =
+  AuthenticatedRequestChiefIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedRequestChiefRoute,
+  } as any)
 const publicWeeksIndexRoute = publicWeeksIndexRouteImport.update({
   id: '/(public)/weeks/',
   path: '/weeks/',
@@ -92,6 +100,12 @@ const publicCalendarIndexRoute = publicCalendarIndexRouteImport.update({
   path: '/calendar/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRequestChiefStatusRoute =
+  AuthenticatedRequestChiefStatusRouteImport.update({
+    id: '/status',
+    path: '/status',
+    getParentRoute: () => AuthenticatedRequestChiefRoute,
+  } as any)
 const AuthenticatedAthletesAthleteIdRoute =
   AuthenticatedAthletesAthleteIdRouteImport.update({
     id: '/athletes/$athleteId',
@@ -122,16 +136,18 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof publicPrivacyRoute
   '/terms': typeof publicTermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/request-chief': typeof AuthenticatedRequestChiefRoute
+  '/request-chief': typeof AuthenticatedRequestChiefRouteWithChildren
   '/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
   '/sports/$sportId': typeof publicSportsSportIdRoute
   '/weeks/$weekId': typeof publicWeeksWeekIdRoute
   '/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
+  '/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
   '/calendar/': typeof publicCalendarIndexRoute
   '/delegations/': typeof publicDelegationsIndexRoute
   '/results/': typeof publicResultsIndexRoute
   '/sports/': typeof publicSportsIndexRoute
   '/weeks/': typeof publicWeeksIndexRoute
+  '/request-chief/': typeof AuthenticatedRequestChiefIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -140,16 +156,17 @@ export interface FileRoutesByTo {
   '/privacy': typeof publicPrivacyRoute
   '/terms': typeof publicTermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/request-chief': typeof AuthenticatedRequestChiefRoute
   '/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
   '/sports/$sportId': typeof publicSportsSportIdRoute
   '/weeks/$weekId': typeof publicWeeksWeekIdRoute
   '/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
+  '/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
   '/calendar': typeof publicCalendarIndexRoute
   '/delegations': typeof publicDelegationsIndexRoute
   '/results': typeof publicResultsIndexRoute
   '/sports': typeof publicSportsIndexRoute
   '/weeks': typeof publicWeeksIndexRoute
+  '/request-chief': typeof AuthenticatedRequestChiefIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -160,16 +177,18 @@ export interface FileRoutesById {
   '/(public)/privacy': typeof publicPrivacyRoute
   '/(public)/terms': typeof publicTermsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/request-chief': typeof AuthenticatedRequestChiefRoute
+  '/_authenticated/request-chief': typeof AuthenticatedRequestChiefRouteWithChildren
   '/(public)/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
   '/(public)/sports/$sportId': typeof publicSportsSportIdRoute
   '/(public)/weeks/$weekId': typeof publicWeeksWeekIdRoute
   '/_authenticated/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
+  '/_authenticated/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
   '/(public)/calendar/': typeof publicCalendarIndexRoute
   '/(public)/delegations/': typeof publicDelegationsIndexRoute
   '/(public)/results/': typeof publicResultsIndexRoute
   '/(public)/sports/': typeof publicSportsIndexRoute
   '/(public)/weeks/': typeof publicWeeksIndexRoute
+  '/_authenticated/request-chief/': typeof AuthenticatedRequestChiefIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -185,11 +204,13 @@ export interface FileRouteTypes {
     | '/sports/$sportId'
     | '/weeks/$weekId'
     | '/athletes/$athleteId'
+    | '/request-chief/status'
     | '/calendar/'
     | '/delegations/'
     | '/results/'
     | '/sports/'
     | '/weeks/'
+    | '/request-chief/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -198,16 +219,17 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/dashboard'
-    | '/request-chief'
     | '/delegations/$delegationId'
     | '/sports/$sportId'
     | '/weeks/$weekId'
     | '/athletes/$athleteId'
+    | '/request-chief/status'
     | '/calendar'
     | '/delegations'
     | '/results'
     | '/sports'
     | '/weeks'
+    | '/request-chief'
   id:
     | '__root__'
     | '/'
@@ -222,11 +244,13 @@ export interface FileRouteTypes {
     | '/(public)/sports/$sportId'
     | '/(public)/weeks/$weekId'
     | '/_authenticated/athletes/$athleteId'
+    | '/_authenticated/request-chief/status'
     | '/(public)/calendar/'
     | '/(public)/delegations/'
     | '/(public)/results/'
     | '/(public)/sports/'
     | '/(public)/weeks/'
+    | '/_authenticated/request-chief/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -304,6 +328,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicPrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/request-chief/': {
+      id: '/_authenticated/request-chief/'
+      path: '/'
+      fullPath: '/request-chief/'
+      preLoaderRoute: typeof AuthenticatedRequestChiefIndexRouteImport
+      parentRoute: typeof AuthenticatedRequestChiefRoute
+    }
     '/(public)/weeks/': {
       id: '/(public)/weeks/'
       path: '/weeks'
@@ -339,6 +370,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicCalendarIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/request-chief/status': {
+      id: '/_authenticated/request-chief/status'
+      path: '/status'
+      fullPath: '/request-chief/status'
+      preLoaderRoute: typeof AuthenticatedRequestChiefStatusRouteImport
+      parentRoute: typeof AuthenticatedRequestChiefRoute
+    }
     '/_authenticated/athletes/$athleteId': {
       id: '/_authenticated/athletes/$athleteId'
       path: '/athletes/$athleteId'
@@ -370,15 +408,31 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRequestChiefRouteChildren {
+  AuthenticatedRequestChiefStatusRoute: typeof AuthenticatedRequestChiefStatusRoute
+  AuthenticatedRequestChiefIndexRoute: typeof AuthenticatedRequestChiefIndexRoute
+}
+
+const AuthenticatedRequestChiefRouteChildren: AuthenticatedRequestChiefRouteChildren =
+  {
+    AuthenticatedRequestChiefStatusRoute: AuthenticatedRequestChiefStatusRoute,
+    AuthenticatedRequestChiefIndexRoute: AuthenticatedRequestChiefIndexRoute,
+  }
+
+const AuthenticatedRequestChiefRouteWithChildren =
+  AuthenticatedRequestChiefRoute._addFileChildren(
+    AuthenticatedRequestChiefRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedRequestChiefRoute: typeof AuthenticatedRequestChiefRoute
+  AuthenticatedRequestChiefRoute: typeof AuthenticatedRequestChiefRouteWithChildren
   AuthenticatedAthletesAthleteIdRoute: typeof AuthenticatedAthletesAthleteIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedRequestChiefRoute: AuthenticatedRequestChiefRoute,
+  AuthenticatedRequestChiefRoute: AuthenticatedRequestChiefRouteWithChildren,
   AuthenticatedAthletesAthleteIdRoute: AuthenticatedAthletesAthleteIdRoute,
 }
 

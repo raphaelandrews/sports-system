@@ -27,6 +27,10 @@ async def request_chief(session: AsyncSession, user: User, data: ChiefRequestCre
     return await chief_request_repository.create(session, req)
 
 
+async def get_my_request(session: AsyncSession, user_id: int) -> ChiefRequest | None:
+    return await chief_request_repository.get_by_user_id(session, user_id)
+
+
 async def list_pending_requests(
     session: AsyncSession, page: int, per_page: int
 ) -> tuple[list[ChiefRequest], int]:

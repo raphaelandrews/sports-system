@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user, require_admin
@@ -32,6 +32,17 @@ async def update_me(
     user = await user_service.update_me(session, current_user, data)
     await session.commit()
     return user
+
+
+@router.get("/requests/chief/me", response_model=ChiefRequestResponse)
+async def get_my_chief_request(
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+) -> object:
+    req = await user_service.get_my_request(session, current_user.id)
+    if req is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No chief request found")
+    return req
 
 
 @router.post("/requests/chief", response_model=ChiefRequestResponse, status_code=status.HTTP_201_CREATED)

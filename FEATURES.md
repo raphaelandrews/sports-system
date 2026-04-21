@@ -549,11 +549,11 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 3 — Notificações e Onboarding
 
-- [ ] Componente `NotificationBell` no header — badge de não lidas + dropdown
-- [ ] `NotificationItem` — renderiza por tipo (convite, aprovação, lembrete, resultado)
-- [ ] Fluxo de aceitar/recusar convite de delegação direto da notificação
-- [ ] Página de status da solicitação de chefe (`/request-chief/status`)
-- [ ] Indicador de janela de transferência ativa no header (segunda-feira)
+- [x] Componente `NotificationBell` no header — badge de não lidas + dropdown
+- [x] `NotificationItem` — renderiza por tipo (convite, aprovação, lembrete, resultado)
+- [x] Fluxo de aceitar/recusar convite de delegação direto da notificação
+- [x] Página de status da solicitação de chefe (`/request-chief/status`)
+- [x] Indicador de janela de transferência ativa no header (segunda-feira)
 
 ## Fase 4 — Dashboard
 
