@@ -57,8 +57,10 @@ A multi-sport competition management system designed for generic sporting events
 | [SQLModel](https://sqlmodel.tiangolo.com) | ORM (SQLAlchemy + Pydantic) |
 | [Alembic](https://alembic.sqlalchemy.org) | Database migrations |
 | PostgreSQL | Primary database + refresh token storage |
-| JWT | Authentication (access + refresh tokens) |
-| SSE (Server-Sent Events) | Live score updates, medal board streaming |
+| JWT + FastAPI Users | Auth (access + refresh tokens, Argon2id hashing, OAuth-ready) |
+| sse-starlette | Server-Sent Events — live scores, medal board streaming |
+| slowapi | Rate limiting on auth endpoints (per IP) |
+| orjson | High-performance JSON serialization |
 | APScheduler | Automatic week locking, match generation, notifications |
 
 ---
@@ -135,19 +137,21 @@ bun install
 
 ## Environment Variables
 
-All variables documented in `.env.example` at the repo root, grouped by app.
+Each app has its own `.env.example` — copy and fill in the values:
 
 ```bash
-cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+cp apps/web/.env.production.example apps/web/.env.production  # prod URLs for deploy
+cp packages/infra/.env.example packages/infra/.env            # only needed for deploy
 ```
 
-Each app reads its own subset:
-
-| App | Variables |
-|-----|-----------|
-| `apps/web` | `VITE_SERVER_URL`, `CORS_ORIGIN`, `VITE_TIMEZONE` |
-| `apps/api` | `DATABASE_URL`, `SECRET_KEY`, `FRONTEND_URL`, `PORT`, `LLM_API_KEY`, `TIMEZONE`, `AUTO_SIMULATE` |
-| `packages/infra` | `ALCHEMY_PASSWORD`, `CLOUDFLARE_API_TOKEN` |
+| File | Used when | Variables |
+|------|-----------|-----------|
+| `apps/api/.env` | always | `DATABASE_URL`, `SECRET_KEY`, `FRONTEND_URL`, `PORT`, `TIMEZONE`, `AUTO_SIMULATE`, `LLM_API_KEY` |
+| `apps/web/.env` | dev | `VITE_SERVER_URL` (localhost), `VITE_TIMEZONE`, `CORS_ORIGIN` (localhost) |
+| `apps/web/.env.production` | deploy (`NODE_ENV=production`) | `VITE_SERVER_URL` (Railway), `CORS_ORIGIN` (Workers domain) |
+| `packages/infra/.env` | deploy | `ALCHEMY_PASSWORD`, `CLOUDFLARE_API_TOKEN` |
 
 ---
 
@@ -183,8 +187,9 @@ bun install
 cd apps/api && uv sync
 
 # Environment variables
-cp .env.example .env
-# Edit .env — at minimum set DATABASE_URL, SECRET_KEY, FRONTEND_URL
+cp apps/api/.env.example apps/api/.env
+# Edit apps/api/.env — at minimum set DATABASE_URL, SECRET_KEY, FRONTEND_URL
+cp apps/web/.env.example apps/web/.env
 
 # Run database migrations
 bun run db:up
@@ -204,7 +209,7 @@ bun run deploy
 bun run destroy
 ```
 
-Infra config: `packages/infra/alchemy.run.ts`. Reads `VITE_SERVER_URL` and `CORS_ORIGIN` from env files.
+Infra config: `packages/infra/alchemy.run.ts`. `bun run deploy` sets `NODE_ENV=production` → `alchemy.run.ts` loads `apps/web/.env.production` (Railway URLs). In dev, no `NODE_ENV` → loads `apps/web/.env` (localhost URLs). `packages/infra/.env` only needs `ALCHEMY_PASSWORD` and `CLOUDFLARE_API_TOKEN`.
 
 ---
 

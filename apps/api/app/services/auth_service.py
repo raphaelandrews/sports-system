@@ -24,7 +24,7 @@ async def register(session: AsyncSession, data: RegisterRequest) -> tuple[User, 
     user = User(
         email=data.email,
         name=data.name,
-        password_hash=hash_password(data.password),
+        hashed_password=hash_password(data.password),
         role=UserRole.ATHLETE,
     )
     await user_repository.create(session, user)
@@ -34,7 +34,7 @@ async def register(session: AsyncSession, data: RegisterRequest) -> tuple[User, 
 
 async def login(session: AsyncSession, email: str, password: str) -> tuple[User, TokenResponse]:
     user = await user_repository.get_by_email(session, email)
-    if user is None or not verify_password(password, user.password_hash):
+    if user is None or not verify_password(password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account deactivated")

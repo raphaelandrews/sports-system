@@ -3,7 +3,7 @@ import { TanStackStart } from "alchemy/cloudflare";
 import { config } from "dotenv";
 
 config({ path: "./.env" });
-config({ path: "../../apps/web/.env" });
+config({ path: process.env.NODE_ENV === "production" ? "../../apps/web/.env.production" : "../../apps/web/.env" });
 
 const app = await alchemy("sports-system");
 

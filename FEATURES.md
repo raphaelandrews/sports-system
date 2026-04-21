@@ -263,8 +263,11 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ## Tecnologias
 - Python 3.12+, FastAPI, SQLModel (SQLAlchemy + Pydantic), Alembic
 - PostgreSQL (banco principal + tabela `refresh_tokens` para invalidação de JWT)
+- FastAPI Users — gerenciamento de usuários, hashing Argon2id (pwdlib), base para OAuth futuro
 - JWT + refresh tokens (autenticação) — SSE usa `asyncio.Queue` in-process
-- SSE — Server-Sent Events (atualizações em tempo real, unidirecional servidor→cliente)
+- SSE — Server-Sent Events via `sse-starlette` (`EventSourceResponse`, heartbeat automático)
+- slowapi — rate limiting por IP nos endpoints de autenticação
+- orjson — serialização JSON de alta performance (default response class)
 - APScheduler (automação: travamento de semanas, notificações, geração de partidas)
 - LLM via API (geração de conteúdo IA, com modo mock para demos)
 - Servidor dedicado
@@ -285,7 +288,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - [x] Configurar projeto FastAPI com estrutura de pastas (`app/`, `routers/`, `services/`, `models/`, `schemas/`, `repositories/`)
 - [x] Configurar banco de dados PostgreSQL com SQLModel + Alembic
 - [x] Criar migrações iniciais (tabelas base)
-- [x] Configurar variáveis de ambiente (pydantic-settings) — `.env.example` na raiz do repo
+- [x] Configurar variáveis de ambiente (pydantic-settings) — `apps/api/.env.example`
 - [x] Configurar CORS para o frontend
 - [x] Adicionar `TIMEZONE=America/Sao_Paulo` à configuração — usado em toda lógica de data/hora
 - [x] Adicionar `AUTO_SIMULATE=true` à configuração — modo showcase: partidas iniciam e finalizam automaticamente com resultados gerados
@@ -300,7 +303,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
   - [x] A cada 1min (se `AUTO_SIMULATE=true`): finalizar partidas onde `started_at + 5min < utcnow()` → gera resultados e eventos automaticamente
   - [x] Diariamente à meia-noite (UTC-3): enviar notificações de lembrete 24h antes de partidas
 - [x] Criar endpoint `POST /admin/demo-seed` — gera semana completa com delegações, atletas, inscrições e resultados (para showcase)
-- [x] Criar tabela `users` com campos: id, email, name, password_hash, role, created_at, is_active
+- [x] Criar tabela `users` com campos: id, email, name, hashed_password, role, created_at, is_active, is_superuser, is_verified
 - [x] Criar tabela `notifications` com campos: id, user_id, type, payload (JSON), read, created_at
 - [x] Criar tabela `delegation_invites` com campos: id, delegation_id, user_id, status (PENDING/ACCEPTED/REFUSED), created_at
 - [x] Criar tabela `chief_requests` com campos: id, user_id, delegation_name, message, status, reviewed_by, created_at

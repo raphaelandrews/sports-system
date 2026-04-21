@@ -49,7 +49,6 @@ function LoginPage() {
     <AuthLayout
       title="Entrar"
       subtitle="Acesse sua conta para continuar."
-      quote="Gerencie competições, acompanhe resultados e celebre campeões em um só lugar."
       switchText="Não tem conta?"
       switchLabel="Cadastre-se"
       switchTo="/register"

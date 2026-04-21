@@ -10,9 +10,13 @@ from alembic.config import Config as AlembicConfig
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import ORJSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.config import settings
+from app.core.limiter import limiter
 from app.core.scheduler import setup_scheduler
 from app.routers import admin, auth, health, users
 from app.routers.athletes import router as athletes_router
@@ -72,8 +76,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logging.getLogger(__name__).info("scheduler_stopped")
 
 
-app = FastAPI(title="Sports System API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Sports System API", version="0.1.0", lifespan=lifespan, default_response_class=ORJSONResponse)
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.FRONTEND_URL],
@@ -84,8 +91,8 @@ app.add_middleware(
 
 
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
-    return JSONResponse(
+async def http_exception_handler(request: Request, exc: HTTPException) -> ORJSONResponse:
+    return ORJSONResponse(
         status_code=exc.status_code,
         content={
             "error": exc.__class__.__name__,
@@ -96,8 +103,8 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
-    return JSONResponse(
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> ORJSONResponse:
+    return ORJSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
             "error": "ValidationError",
@@ -108,9 +115,9 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 @app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+async def unhandled_exception_handler(request: Request, exc: Exception) -> ORJSONResponse:
     logging.getLogger(__name__).exception("unhandled_error path=%s", request.url.path)
-    return JSONResponse(
+    return ORJSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "error": "InternalServerError",

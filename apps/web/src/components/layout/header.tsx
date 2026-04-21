@@ -17,9 +17,12 @@ export default function Header() {
   const { session } = useRouteContext({ from: "__root__" });
 
   async function handleLogout() {
-    await logoutFn();
-    await router.invalidate();
-    await router.navigate({ to: "/" });
+    try {
+      await logoutFn();
+    } finally {
+      await router.navigate({ to: "/" });
+      await router.invalidate();
+    }
   }
 
   return (

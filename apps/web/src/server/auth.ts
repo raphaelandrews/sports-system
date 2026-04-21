@@ -80,7 +80,7 @@ export const registerFn = createServerFn({ method: "POST" })
     setAuthCookies(tokens);
   });
 
-export const logoutFn = createServerFn().handler(async () => {
+export const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
   const refreshToken = getCookie("refresh_token");
   if (refreshToken) {
     await fetch(`${SERVER_URL}/auth/logout`, {

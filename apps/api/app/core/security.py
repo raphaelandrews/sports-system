@@ -2,18 +2,21 @@ import hashlib
 import secrets
 from datetime import UTC, datetime, timedelta
 
-import bcrypt
 import jwt
+from fastapi_users.password import PasswordHelper
 
 from app.config import settings
 
+_password_helper = PasswordHelper()
+
 
 def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    return _password_helper.hash(password)
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return bcrypt.checkpw(plain.encode(), hashed.encode())
+    verified, _ = _password_helper.verify_and_update(plain, hashed)
+    return verified
 
 
 def create_access_token(user_id: int, role: str) -> str:

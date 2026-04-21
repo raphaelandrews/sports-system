@@ -30,7 +30,7 @@
     "db:up": "cd apps/api && uv run python -m alembic upgrade head",
     "db:new": "cd apps/api && uv run python -m alembic revision --autogenerate -m",
     "db:down": "cd apps/api && uv run python -m alembic downgrade -1",
-    "deploy": "turbo -F @sports-system/infra deploy",
+    "deploy": "NODE_ENV=production turbo -F @sports-system/infra deploy",
     "destroy": "turbo -F @sports-system/infra destroy",
     "check": "oxlint && oxfmt --write"
   },

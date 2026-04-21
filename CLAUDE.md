@@ -45,11 +45,13 @@ First-time backend setup: `cd apps/api && uv sync && bun run db:up`
 ### Backend (`apps/api`)
 - FastAPI + pydantic-settings
 - Layer order: `router → service → repository → model`
-- SQLModel + Alembic — configured; `apps/api/alembic/` has initial migration at head
+- SQLModel + Alembic — configured; `apps/api/alembic/` has migrations at head
 - PostgreSQL (refresh tokens table for JWT invalidation; SSE via asyncio.Queue)
-- JWT auth (coming in phase 2)
+- JWT auth — custom access + refresh tokens; FastAPI Users for user management (Argon2id hashing via pwdlib), OAuth-ready via `app/core/auth.py`
 - APScheduler: auto-lock weeks, auto-generate matches, 24h match notifications
-- SSE only for real-time (no WebSocket) — `StreamingResponse` / `EventSourceResponse`
+- SSE via `sse-starlette` — `EventSourceResponse(generator, ping=20)`, no manual heartbeat needed
+- slowapi rate limiting — `app/core/limiter.py` singleton; apply with `@limiter.limit("N/minute")` + `request: Request` as first param
+- orjson — `default_response_class=ORJSONResponse` on the app; all exception handlers return `ORJSONResponse`
 - All timestamps stored UTC; business logic uses `ZoneInfo(settings.TIMEZONE)`
 
 ## Code Style
@@ -108,6 +110,9 @@ First-time backend setup: `cd apps/api && uv sync && bun run db:up`
 - `background_tasks` for async ops (AI generation, notifications)
 
 ## Environment
-- Each app has its own `.env.example`
+- Each app has its own `.env.example`: `apps/api/.env.example`, `apps/web/.env.example`, `packages/infra/.env.example`
 - Key vars: `TIMEZONE=America/Sao_Paulo` (api)
-- `packages/infra/.env` only needed for `bun run deploy`
+- `packages/infra/.env` only needed for `bun run deploy` — contains `ALCHEMY_PASSWORD` and `CLOUDFLARE_API_TOKEN`
+- `apps/web/.env` — dev URLs (`VITE_SERVER_URL=http://localhost:3000`, `CORS_ORIGIN=http://localhost:3001`)
+- `apps/web/.env.production` — prod URLs (Railway API, Cloudflare Workers domain); loaded automatically by `alchemy.run.ts` when `NODE_ENV=production`
+- `bun run deploy` sets `NODE_ENV=production` — no manual env switching needed

@@ -1,9 +1,9 @@
 import asyncio
 from typing import AsyncGenerator, Optional
 
-from fastapi import APIRouter, Depends, Query, status
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sse_starlette.sse import EventSourceResponse
 
 from app.core import sse
 from app.core.deps import require_admin
@@ -43,22 +43,19 @@ async def get_medal_board(
 
 
 @router.get("/medal-board/stream")
-async def stream_medal_board() -> StreamingResponse:
+async def stream_medal_board(request: Request) -> EventSourceResponse:
     async def generator() -> AsyncGenerator[str, None]:
         q = sse.subscribe_medal_board()
         try:
             while True:
-                try:
-                    data = await asyncio.wait_for(q.get(), timeout=20.0)
-                    yield f"data: {data}\n\n"
-                except asyncio.TimeoutError:
-                    yield ": ping\n\n"
+                data = await q.get()
+                yield data
         except asyncio.CancelledError:
             pass
         finally:
             sse.unsubscribe_medal_board(q)
 
-    return StreamingResponse(generator(), media_type="text/event-stream")
+    return EventSourceResponse(generator(), ping=20)
 
 
 @router.get("/medal-board/{sport_id}", response_model=list[MedalBoardEntry])
