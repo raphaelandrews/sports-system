@@ -1,14 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { apiFetch } from "../lib/api";
-import { queryKeys } from "../lib/queryKeys";
-
-export interface Session {
-  id: number;
-  email: string;
-  name: string;
-  role: "admin" | "chief" | "athlete" | "coach";
-}
+import { apiFetch } from "@/lib/api";
+import type { Session } from "@/types/auth";
+import { queryKeys } from "@/queries/keys";
 
 export const sessionQueryOptions = () =>
   queryOptions({

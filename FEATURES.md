@@ -513,36 +513,36 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 1 — Infraestrutura Frontend
 
-- [ ] Configurar `QueryClient` com `staleTime`/`gcTime` padrão no `router.tsx`
-- [ ] Integrar `routerWithQueryClient` do `@tanstack/react-router-with-query`
-- [ ] Adicionar `queryClient: QueryClient` ao `RouterAppContext` em `__root.tsx`
-- [ ] Criar server function de sessão no `__root.tsx` (carrega sessão do cookie JWT)
-- [ ] Criar `_authenticated.tsx` — layout guard com `beforeLoad` → redirect `/login`
-- [ ] Criar `_admin.tsx` — guard de role admin (nested em `_authenticated`)
-- [ ] Criar `_chief.tsx` — guard de role chefe/admin (nested em `_authenticated`)
-- [ ] Criar `apps/web/src/lib/api.ts` — cliente tipado para FastAPI (`apiFetch`, `ApiError`)
-- [ ] Criar `apps/web/src/lib/queryKeys.ts` — factories de query keys por domínio
-- [ ] Criar `apps/web/src/queries/` — hooks por domínio (`delegations.ts`, `sports.ts`, etc.)
-- [ ] Criar componente `RouteErrorComponent` — trata `ApiError` com retry
-- [ ] Adicionar shadcn components em `packages/ui`: `table`, `badge`, `tabs`, `dialog`, `select`, `separator`, `tooltip`, `progress`, `scroll-area`, `avatar`, `popover`, `sheet`, `alert`, `form`
-- [ ] Atualizar `packages/env/src/web.ts` — validar `VITE_SERVER_URL` e `VITE_TIMEZONE` com Zod
-- [ ] Criar utilitário `apps/web/src/lib/date.ts` — `formatEventDate(iso)` sempre formata em `VITE_TIMEZONE`, nunca timezone do navegador
-- [ ] Adicionar dark mode toggle no header (next-themes já instalado — 1 botão, ícone sol/lua)
+- [x] Configurar `QueryClient` com `staleTime`/`gcTime` padrão no `router.tsx`
+- [x] Integrar `routerWithQueryClient` do `@tanstack/react-router-with-query`
+- [x] Adicionar `queryClient: QueryClient` ao `RouterAppContext` em `__root.tsx`
+- [x] Criar server function de sessão em `server/auth.ts` — importada no `__root.tsx` (carrega sessão do cookie JWT)
+- [x] Criar `_authenticated.tsx` — layout guard com `beforeLoad` → redirect `/login`
+- [x] Criar `_admin.tsx` — guard de role admin (nested em `_authenticated`)
+- [x] Criar `_chief.tsx` — guard de role chefe/admin (nested em `_authenticated`)
+- [x] Criar `apps/web/src/lib/api.ts` — cliente tipado para FastAPI (`apiFetch`, `ApiError`)
+- [x] Criar `apps/web/src/queries/keys.ts` — factories de query keys por domínio
+- [x] Criar `apps/web/src/queries/` — hooks por domínio (`delegations.ts`, `sports.ts`, etc.)
+- [x] Criar componente `RouteErrorComponent` — trata `ApiError` com retry
+- [x] Adicionar shadcn components em `packages/ui`: `table`, `badge`, `tabs`, `dialog`, `select`, `separator`, `tooltip`, `progress`, `scroll-area`, `avatar`, `popover`, `sheet`, `alert`, `form`
+- [x] Atualizar `packages/env/src/web.ts` — validar `VITE_SERVER_URL` e `VITE_TIMEZONE` com Zod
+- [x] Criar utilitário `apps/web/src/lib/date.ts` — `formatEventDate(iso)` sempre formata em `VITE_TIMEZONE`, nunca timezone do navegador
+- [x] Adicionar dark mode toggle no header (next-themes já instalado — 1 botão, ícone sol/lua)
 
 ## Fase 2 — Páginas Públicas (SSR)
 
-- [ ] Atualizar `routes/index.tsx` — landing page: resumo da competição, quadro de medalhas ao vivo, próximos eventos, destaque do dia
-- [ ] `routes/login.tsx` — formulário de login, redirect pós-login
-- [ ] `routes/register.tsx` — formulário de cadastro
-- [ ] `routes/request-chief.tsx` — formulário de solicitação de chefe
+- [x] Atualizar `routes/index.tsx` — landing page: resumo da competição, quadro de medalhas ao vivo, próximos eventos, destaque do dia
+- [x] `routes/login.tsx` — formulário de login, redirect pós-login
+- [x] `routes/register.tsx` — formulário de cadastro
+- [x] `routes/_authenticated/request-chief.tsx` — formulário de solicitação de chefe
 - [x] `routes/(public)/weeks/index.tsx` — lista de semanas com status e período (SSR)
-- [x] `routes/(public)/weeks/$weekId/index.tsx` — detalhe da semana: quadro de medalhas + eventos agrupados por data com placar lazy (SSR)
-- [ ] `routes/(public)/results/index.tsx` — quadro de medalhas público (SSR + polling 30s)
-- [ ] `routes/(public)/calendar/index.tsx` — calendário público por semana/esporte
-- [ ] `routes/(public)/delegations/index.tsx` — lista de delegações
-- [ ] `routes/(public)/delegations/$delegationId/index.tsx` — perfil público da delegação
-- [ ] `routes/(public)/sports/index.tsx` — visão geral dos 10 esportes
-- [ ] `routes/(public)/sports/$sportId/index.tsx` — detalhe do esporte + classificação
+- [x] `routes/(public)/weeks/$weekId.tsx` — detalhe da semana: quadro de medalhas + eventos agrupados por data com placar lazy (SSR)
+- [x] `routes/(public)/results/index.tsx` — quadro de medalhas público (SSR + polling 30s)
+- [x] `routes/(public)/calendar/index.tsx` — calendário público por semana/esporte
+- [x] `routes/(public)/delegations/index.tsx` — lista de delegações
+- [x] `routes/(public)/delegations/$delegationId.tsx` — perfil público da delegação
+- [x] `routes/(public)/sports/index.tsx` — visão geral dos 10 esportes
+- [x] `routes/(public)/sports/$sportId.tsx` — detalhe do esporte + classificação
 
 ## Fase 3 — Notificações e Onboarding
 
@@ -586,7 +586,7 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 - [ ] `routes/_authenticated/_admin/athletes/index.tsx` — lista global com filtros
 - [ ] `routes/_authenticated/_chief/athletes/index.tsx` — atletas da delegação
-- [x] `routes/_authenticated/athletes/$athleteId/index.tsx` — perfil do atleta:
+- [x] `routes/_authenticated/athletes/$athleteId.tsx` — perfil do atleta:
   - [x] Dados pessoais e modalidades
   - [x] Timeline de delegações (com datas)
   - [x] Histórico de partidas (com delegação na época)

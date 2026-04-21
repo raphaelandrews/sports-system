@@ -14,18 +14,17 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Suspense, useState } from "react";
 
-import { formatDate, formatTime } from "../../../../lib/date";
-import { delegationListQueryOptions, type DelegationSummary } from "../../../../queries/delegations";
+import { formatDate, formatTime } from "@/lib/date";
+import { delegationListQueryOptions } from "@/queries/delegations";
 import {
   eventDetailQueryOptions,
   weekEventsQueryOptions,
-  type EventResponse,
-  type EventStatus,
-  type MatchResponse,
-} from "../../../../queries/events";
-import { weekReportQueryOptions } from "../../../../queries/weeks";
+} from "@/queries/events";
+import { weekReportQueryOptions } from "@/queries/weeks";
+import type { DelegationSummary } from "@/types/delegations";
+import type { EventResponse, EventStatus, MatchResponse } from "@/types/events";
 
-export const Route = createFileRoute("/(public)/weeks/$weekId/")({
+export const Route = createFileRoute("/(public)/weeks/$weekId")({
   loader: async ({ context: { queryClient }, params: { weekId } }) => {
     const id = Number(weekId);
     await Promise.all([

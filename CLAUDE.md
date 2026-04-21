@@ -77,12 +77,21 @@ First-time backend setup: `cd apps/api && uv sync && bun run db:up`
 - `POST /admin/simulate/match/{id}`: manual trigger for any match regardless of `AUTO_SIMULATE`
 - Enrollment validation: generic engine reads `modality.rules_json`, no per-sport hardcoding
 
+## Library-First Rule
+- **TanStack**: if a TanStack lib covers the use case (routing, data fetching, forms, tables, virtualizing lists), use it — don't reach for a third-party alternative
+- **shadcn/ui**: if a component exists in `packages/ui/src/components/`, use it — don't build a duplicate from scratch. Add missing shadcn components to the shared package before creating custom ones
+- **TanStack Devtools** (dev-only, all wired in `__root.tsx`):
+  - Router → `TanStackRouterDevtools` (bottom-left) ✓
+  - Query → `ReactQueryDevtools` (bottom-right) ✓
+  - Form → `@tanstack/react-form-devtools` installed; wire per-form when building form pages
+
 ## Frontend Patterns
 - `queryOptions()` factory shared between route loader and `useSuspenseQuery`
 - `staleTime` by data type: lists 2min, medal board 30s, AI responses 10min
 - Route guards: `_authenticated.tsx` → `_admin.tsx` / `_chief.tsx` via `beforeLoad`
 - SSR strategy per route: public pages full SSR, auth pages `data-only`, live/AI pages `ssr: false`
 - Shared UI components live in `packages/ui`, import as `@sports-system/ui/components/...`
+- All imports within `apps/web/src/` must use the `@/` alias (e.g. `@/lib/api`, `@/queries/weeks`) — no relative `../` paths. Exception: auto-generated `routeTree.gen.ts` (never edit manually)
 - `routeTree.gen.ts` is **auto-generated** by `@tanstack/router-plugin` on `vite dev` startup — never edit manually, never commit stale version
 - Route group folders `(public)/` are filesystem-only organization — no layout file needed or supported in this router version
 

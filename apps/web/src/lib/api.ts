@@ -33,10 +33,21 @@ export async function apiFetch<T>(
     if (qs) url = `${url}?${qs}`;
   }
 
+  let authHeader: Record<string, string> = {};
+  if (typeof document !== "undefined") {
+    const match = document.cookie
+      .split("; ")
+      .find((c) => c.startsWith("access_token="));
+    if (match) {
+      authHeader = { Authorization: `Bearer ${match.split("=")[1]}` };
+    }
+  }
+
   const res = await fetch(url, {
     credentials: "include",
     headers: {
       ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+      ...authHeader,
       ...(headers as Record<string, string> | undefined),
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -49,7 +60,8 @@ export async function apiFetch<T>(
     try {
       const json = await res.json();
       code = json.code ?? code;
-      detail = json.detail ?? detail;
+      const raw = json.detail ?? detail;
+      detail = typeof raw === "string" ? raw : JSON.stringify(raw);
     } catch {
       // ignore parse error
     }

@@ -10,8 +10,9 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
-import { formatDate } from "../../../lib/date";
-import { weekListQueryOptions, type WeekStatus } from "../../../queries/weeks";
+import { formatDate } from "@/lib/date";
+import { weekListQueryOptions } from "@/queries/weeks";
+import type { WeekStatus } from "@/types/weeks";
 
 export const Route = createFileRoute("/(public)/weeks/")({
   loader: ({ context: { queryClient } }) =>

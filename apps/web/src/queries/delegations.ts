@@ -1,20 +1,25 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { apiFetch } from "../lib/api";
-import { queryKeys } from "../lib/queryKeys";
-
-export interface DelegationSummary {
-  id: number;
-  name: string;
-  code: string;
-}
+import { apiFetch } from "@/lib/api";
+import type {
+  DelegationDetailResponse,
+  DelegationSummary,
+} from "@/types/delegations";
+import { queryKeys } from "@/queries/keys";
 
 export const delegationListQueryOptions = () =>
   queryOptions({
     queryKey: queryKeys.delegations.all(),
     queryFn: () =>
       apiFetch<{ data: DelegationSummary[] }>("/delegations", {
-        params: { per_page: 200 },
+        params: { per_page: 100 },
       }),
     staleTime: 5 * 60 * 1000,
+  });
+
+export const delegationDetailQueryOptions = (id: number) =>
+  queryOptions({
+    queryKey: queryKeys.delegations.detail(id),
+    queryFn: () => apiFetch<DelegationDetailResponse>(`/delegations/${id}`),
+    staleTime: 2 * 60 * 1000,
   });

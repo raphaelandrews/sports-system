@@ -16,13 +16,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sports-system/ui/comp
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { formatDate } from "../../../../lib/date";
-import {
-  athleteReportQueryOptions,
-  type Medal,
-} from "../../../../queries/athletes";
+import { formatDate } from "@/lib/date";
+import { athleteReportQueryOptions } from "@/queries/athletes";
+import type { Medal } from "@/types/athletes";
 
-export const Route = createFileRoute("/_authenticated/athletes/$athleteId/")({
+export const Route = createFileRoute("/_authenticated/athletes/$athleteId")({
   ssr: false,
   loader: ({ context: { queryClient }, params: { athleteId } }) =>
     queryClient.ensureQueryData(athleteReportQueryOptions(Number(athleteId))),

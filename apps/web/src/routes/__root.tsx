@@ -1,5 +1,6 @@
 import { Toaster } from "@sports-system/ui/components/sonner";
 import type { QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   HeadContent,
   Outlet,
@@ -9,15 +10,21 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "next-themes";
 
-import Header from "../components/header";
+import Header from "@/components/layout/header";
+import { getSessionFn } from "@/server/auth";
 
-import appCss from "../index.css?url";
+import appCss from "@/index.css?url";
 
 export interface RouterAppContext {
   queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
+  beforeLoad: async () => {
+    const session = await getSessionFn();
+    return { session };
+  },
+
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -43,6 +50,7 @@ function RootDocument() {
             <Outlet />
           </div>
           <Toaster richColors />
+          <ReactQueryDevtools buttonPosition="bottom-right" />
           <TanStackRouterDevtools position="bottom-left" />
         </ThemeProvider>
         <Scripts />

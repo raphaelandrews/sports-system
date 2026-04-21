@@ -1,7 +1,7 @@
 import { Button } from "@sports-system/ui/components/button";
 import { useRouter } from "@tanstack/react-router";
 
-import { ApiError } from "../lib/api";
+import { ApiError } from "@/lib/api";
 
 interface RouteErrorComponentProps {
   error: unknown;

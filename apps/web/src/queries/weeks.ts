@@ -1,42 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { apiFetch } from "../lib/api";
-import { queryKeys } from "../lib/queryKeys";
-
-export type WeekStatus = "DRAFT" | "SCHEDULED" | "LOCKED" | "ACTIVE" | "COMPLETED";
-
-export interface WeekResponse {
-  id: number;
-  week_number: number;
-  start_date: string;
-  end_date: string;
-  status: WeekStatus;
-  sport_focus: number[];
-}
-
-export interface MedalBoardEntry {
-  delegation_id: number;
-  delegation_name: string;
-  delegation_code: string;
-  gold: number;
-  silver: number;
-  bronze: number;
-  total: number;
-}
-
-export interface WeekReportResponse {
-  week_id: number;
-  week_number: number;
-  status: string;
-  start_date: string;
-  end_date: string;
-  medal_board: MedalBoardEntry[];
-  summary: {
-    total_events: number;
-    total_matches: number;
-    completed_matches: number;
-  };
-}
+import { apiFetch } from "@/lib/api";
+import type { WeekReportResponse, WeekResponse } from "@/types/weeks";
+import { queryKeys } from "@/queries/keys";
 
 export const weekListQueryOptions = () =>
   queryOptions({
