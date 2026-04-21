@@ -17,6 +17,7 @@ import { getSessionFn } from "@/server/auth";
 import appCss from "@/index.css?url";
 
 const AUTH_PATHS = ["/login", "/register"];
+const FULL_PAGE_PREFIXES = ["/dashboard"];
 
 export interface RouterAppContext {
   queryClient: QueryClient;
@@ -41,9 +42,10 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 });
 
 function RootDocument() {
-  const isAuthPage = useRouterState({
-    select: (s) => AUTH_PATHS.includes(s.location.pathname),
-  });
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isAuthPage = AUTH_PATHS.includes(pathname);
+  const isFullPage =
+    isAuthPage || FULL_PAGE_PREFIXES.some((p) => pathname.startsWith(p));
 
   return (
     <html lang="pt-BR" suppressHydrationWarning>
@@ -52,7 +54,7 @@ function RootDocument() {
       </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
-          {isAuthPage ? (
+          {isFullPage ? (
             <Outlet />
           ) : (
             <div className="grid h-svh grid-rows-[auto_1fr]">

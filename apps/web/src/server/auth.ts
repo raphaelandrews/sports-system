@@ -60,6 +60,7 @@ export const loginFn = createServerFn({ method: "POST" })
     }
     const tokens = (await res.json()) as TokenResponse;
     setAuthCookies(tokens);
+    return tokens;
   });
 
 export const registerFn = createServerFn({ method: "POST" })
@@ -78,6 +79,7 @@ export const registerFn = createServerFn({ method: "POST" })
     }
     const tokens = (await res.json()) as TokenResponse;
     setAuthCookies(tokens);
+    return tokens;
   });
 
 export const logoutFn = createServerFn({ method: "POST" }).handler(async () => {

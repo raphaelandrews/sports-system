@@ -1,4 +1,16 @@
+import re
+
 from pydantic import BaseModel, field_validator
+
+
+def validate_password_strength(password: str) -> str:
+    if len(password) < 8:
+        raise ValueError("Password must be at least 8 characters")
+    if not re.search(r"[A-Z]", password):
+        raise ValueError("Password must contain at least one uppercase letter")
+    if not re.search(r"[^a-zA-Z0-9]", password):
+        raise ValueError("Password must contain at least one symbol")
+    return password
 
 
 class RegisterRequest(BaseModel):
@@ -16,10 +28,8 @@ class RegisterRequest(BaseModel):
 
     @field_validator("password")
     @classmethod
-    def password_min_length(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters")
-        return v
+    def validate_password(cls, v: str) -> str:
+        return validate_password_strength(v)
 
     @field_validator("name")
     @classmethod

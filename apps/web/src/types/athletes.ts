@@ -8,6 +8,7 @@ export interface AthleteResponse {
   birthdate: string | null;
   is_active: boolean;
   user_id: number | null;
+  created_at: string;
 }
 
 export interface DelegationHistoryItem {

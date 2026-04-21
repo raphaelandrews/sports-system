@@ -557,19 +557,19 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 4 — Dashboard
 
-- [ ] `routes/_authenticated/dashboard/index.tsx` (`ssr: 'data-only'`)
-  - [ ] **Admin**: total de delegações, atletas, status da semana, solicitações pendentes, atalhos de geração IA
-  - [ ] **Admin — gráficos**: progressão de medalhas por delegação, atletas por esporte (barra), taxa de partidas concluídas (gauge)
-  - [ ] **Chefe**: minha delegação, próximas partidas, status de inscrições, avisos
-  - [ ] **Atleta/Técnico**: minhas próximas partidas, meus resultados recentes
+- [x] `routes/_authenticated/dashboard/index.tsx` (`ssr: 'data-only'`)
+  - [x] **Admin**: total de delegações, atletas, status da semana, solicitações pendentes, atalhos de geração IA
+  - [x] **Admin — gráficos**: progressão de medalhas por delegação, atletas por esporte (barra), taxa de partidas concluídas (gauge)
+  - [x] **Chefe**: minha delegação, próximas partidas, status de inscrições, avisos
+  - [x] **Atleta/Técnico**: minhas próximas partidas, meus resultados recentes
 
 ## Fase 5 — Gestão de Delegações (Admin)
 
-- [ ] `routes/_authenticated/_admin/delegations/index.tsx` — lista com filtros, paginação, ação de gerar IA
-- [ ] `routes/_authenticated/_admin/delegations/new.tsx` — formulário de criação
-- [ ] `routes/_authenticated/_admin/delegations/$delegationId/index.tsx` — detalhe: membros, histórico, partidas
-- [ ] `routes/_authenticated/_admin/delegations/$delegationId/edit.tsx` — edição
-- [ ] Botão "Gerar com IA" com feedback de loading + toast de sucesso
+- [x] `routes/_authenticated/_admin/delegations/index.tsx` — lista com filtros, paginação, ação de gerar IA
+- [x] `routes/_authenticated/_admin/delegations/new.tsx` — formulário de criação
+- [x] `routes/_authenticated/_admin/delegations/$delegationId/index.tsx` — detalhe: membros, histórico, partidas
+- [x] `routes/_authenticated/_admin/delegations/$delegationId/edit.tsx` — edição
+- [x] Botão "Gerar com IA" com feedback de loading + toast de sucesso
 
 ## Fase 6 — Minha Delegação (Chefe)
 
@@ -664,8 +664,8 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
   - [ ] Histórico de narrativas por dia
   - [ ] Botão "Gerar narrativa do dia" (admin)
   - [ ] Rendering de texto rico com destaques
-- [ ] Botão de exportação PDF (`/report/export/pdf`) *(opcional — pós-showcase)*
-- [ ] Botão de exportação CSV (`/report/export/csv`) *(opcional — pós-showcase)*
+- [ ] Botão de exportação PDF (`/report/export/pdf`) *(opcional)*
+- [ ] Botão de exportação CSV (`/report/export/csv`) *(opcional)*
 
 ---
 

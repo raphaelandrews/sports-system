@@ -6,6 +6,7 @@ export const queryKeys = {
     all: () => ["delegations"] as const,
     detail: (id: number) => ["delegations", id] as const,
     members: (id: number) => ["delegations", id, "members"] as const,
+    history: (id: number) => ["delegations", id, "history"] as const,
     invites: (id: number) => ["delegations", id, "invites"] as const,
   },
   sports: {

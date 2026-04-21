@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.athlete import Athlete
+from app.models.athlete import AthleteModality
 from app.models.delegation import Delegation
 from app.models.event import Event, Match, MatchStatus
 from app.models.result import AthleteStatistic, Result
@@ -35,6 +36,19 @@ async def get_final_report(session: AsyncSession) -> FinalReportResponse:
     total_events = (await session.execute(select(func.count()).select_from(Event))).scalar_one()
     total_matches = (await session.execute(select(func.count()).select_from(Match))).scalar_one()
     completed_matches = (await session.execute(select(func.count()).select_from(Match).where(Match.status == MatchStatus.COMPLETED))).scalar_one()
+    athletes_by_sport_result = await session.execute(
+        select(
+            Sport.id,
+            Sport.name,
+            func.count(func.distinct(AthleteModality.athlete_id)).label("athlete_count"),
+        )
+        .select_from(Sport)
+        .join(Modality, Modality.sport_id == Sport.id, isouter=True)
+        .join(AthleteModality, AthleteModality.modality_id == Modality.id, isouter=True)
+        .where(Sport.is_active == True)  # noqa: E712
+        .group_by(Sport.id, Sport.name)
+        .order_by(func.count(func.distinct(AthleteModality.athlete_id)).desc(), Sport.name)
+    )
 
     return FinalReportResponse(
         medal_board=medal_board,
@@ -47,6 +61,10 @@ async def get_final_report(session: AsyncSession) -> FinalReportResponse:
             total_matches=total_matches,
             completed_matches=completed_matches,
         ),
+        athletes_by_sport=[
+            {"sport_id": sport_id, "sport_name": sport_name, "athlete_count": athlete_count}
+            for sport_id, sport_name, athlete_count in athletes_by_sport_result.all()
+        ],
     )
 
 

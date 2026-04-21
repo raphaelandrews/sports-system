@@ -18,16 +18,22 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as publicTermsRouteImport } from './routes/(public)/terms'
 import { Route as publicPrivacyRouteImport } from './routes/(public)/privacy'
 import { Route as AuthenticatedRequestChiefIndexRouteImport } from './routes/_authenticated/request-chief/index'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as publicWeeksIndexRouteImport } from './routes/(public)/weeks/index'
 import { Route as publicSportsIndexRouteImport } from './routes/(public)/sports/index'
 import { Route as publicResultsIndexRouteImport } from './routes/(public)/results/index'
 import { Route as publicDelegationsIndexRouteImport } from './routes/(public)/delegations/index'
 import { Route as publicCalendarIndexRouteImport } from './routes/(public)/calendar/index'
 import { Route as AuthenticatedRequestChiefStatusRouteImport } from './routes/_authenticated/request-chief/status'
+import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard/_admin'
 import { Route as AuthenticatedAthletesAthleteIdRouteImport } from './routes/_authenticated/athletes/$athleteId'
 import { Route as publicWeeksWeekIdRouteImport } from './routes/(public)/weeks/$weekId'
 import { Route as publicSportsSportIdRouteImport } from './routes/(public)/sports/$sportId'
 import { Route as publicDelegationsDelegationIdRouteImport } from './routes/(public)/delegations/$delegationId'
+import { Route as AuthenticatedDashboardAdminDelegationsIndexRouteImport } from './routes/_authenticated/dashboard/_admin/delegations/index'
+import { Route as AuthenticatedDashboardAdminDelegationsNewRouteImport } from './routes/_authenticated/dashboard/_admin/delegations/new'
+import { Route as AuthenticatedDashboardAdminDelegationsDelegationIdIndexRouteImport } from './routes/_authenticated/dashboard/_admin/delegations/$delegationId/index'
+import { Route as AuthenticatedDashboardAdminDelegationsDelegationIdEditRouteImport } from './routes/_authenticated/dashboard/_admin/delegations/$delegationId/edit'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -75,6 +81,12 @@ const AuthenticatedRequestChiefIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedRequestChiefRoute,
   } as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const publicWeeksIndexRoute = publicWeeksIndexRouteImport.update({
   id: '/(public)/weeks/',
   path: '/weeks/',
@@ -106,6 +118,11 @@ const AuthenticatedRequestChiefStatusRoute =
     path: '/status',
     getParentRoute: () => AuthenticatedRequestChiefRoute,
   } as any)
+const AuthenticatedDashboardAdminRoute =
+  AuthenticatedDashboardAdminRouteImport.update({
+    id: '/_admin',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedAthletesAthleteIdRoute =
   AuthenticatedAthletesAthleteIdRouteImport.update({
     id: '/athletes/$athleteId',
@@ -128,6 +145,30 @@ const publicDelegationsDelegationIdRoute =
     path: '/delegations/$delegationId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedDashboardAdminDelegationsIndexRoute =
+  AuthenticatedDashboardAdminDelegationsIndexRouteImport.update({
+    id: '/delegations/',
+    path: '/delegations/',
+    getParentRoute: () => AuthenticatedDashboardAdminRoute,
+  } as any)
+const AuthenticatedDashboardAdminDelegationsNewRoute =
+  AuthenticatedDashboardAdminDelegationsNewRouteImport.update({
+    id: '/delegations/new',
+    path: '/delegations/new',
+    getParentRoute: () => AuthenticatedDashboardAdminRoute,
+  } as any)
+const AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute =
+  AuthenticatedDashboardAdminDelegationsDelegationIdIndexRouteImport.update({
+    id: '/delegations/$delegationId/',
+    path: '/delegations/$delegationId/',
+    getParentRoute: () => AuthenticatedDashboardAdminRoute,
+  } as any)
+const AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute =
+  AuthenticatedDashboardAdminDelegationsDelegationIdEditRouteImport.update({
+    id: '/delegations/$delegationId/edit',
+    path: '/delegations/$delegationId/edit',
+    getParentRoute: () => AuthenticatedDashboardAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -135,7 +176,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/privacy': typeof publicPrivacyRoute
   '/terms': typeof publicTermsRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/dashboard': typeof AuthenticatedDashboardAdminRouteWithChildren
   '/request-chief': typeof AuthenticatedRequestChiefRouteWithChildren
   '/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
   '/sports/$sportId': typeof publicSportsSportIdRoute
@@ -147,7 +188,12 @@ export interface FileRoutesByFullPath {
   '/results/': typeof publicResultsIndexRoute
   '/sports/': typeof publicSportsIndexRoute
   '/weeks/': typeof publicWeeksIndexRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/request-chief/': typeof AuthenticatedRequestChiefIndexRoute
+  '/dashboard/delegations/new': typeof AuthenticatedDashboardAdminDelegationsNewRoute
+  '/dashboard/delegations/': typeof AuthenticatedDashboardAdminDelegationsIndexRoute
+  '/dashboard/delegations/$delegationId/edit': typeof AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute
+  '/dashboard/delegations/$delegationId/': typeof AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -155,11 +201,11 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/privacy': typeof publicPrivacyRoute
   '/terms': typeof publicTermsRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
   '/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
   '/sports/$sportId': typeof publicSportsSportIdRoute
   '/weeks/$weekId': typeof publicWeeksWeekIdRoute
   '/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
   '/calendar': typeof publicCalendarIndexRoute
   '/delegations': typeof publicDelegationsIndexRoute
@@ -167,6 +213,10 @@ export interface FileRoutesByTo {
   '/sports': typeof publicSportsIndexRoute
   '/weeks': typeof publicWeeksIndexRoute
   '/request-chief': typeof AuthenticatedRequestChiefIndexRoute
+  '/dashboard/delegations/new': typeof AuthenticatedDashboardAdminDelegationsNewRoute
+  '/dashboard/delegations': typeof AuthenticatedDashboardAdminDelegationsIndexRoute
+  '/dashboard/delegations/$delegationId/edit': typeof AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute
+  '/dashboard/delegations/$delegationId': typeof AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -176,19 +226,25 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/(public)/privacy': typeof publicPrivacyRoute
   '/(public)/terms': typeof publicTermsRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_authenticated/request-chief': typeof AuthenticatedRequestChiefRouteWithChildren
   '/(public)/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
   '/(public)/sports/$sportId': typeof publicSportsSportIdRoute
   '/(public)/weeks/$weekId': typeof publicWeeksWeekIdRoute
   '/_authenticated/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
+  '/_authenticated/dashboard/_admin': typeof AuthenticatedDashboardAdminRouteWithChildren
   '/_authenticated/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
   '/(public)/calendar/': typeof publicCalendarIndexRoute
   '/(public)/delegations/': typeof publicDelegationsIndexRoute
   '/(public)/results/': typeof publicResultsIndexRoute
   '/(public)/sports/': typeof publicSportsIndexRoute
   '/(public)/weeks/': typeof publicWeeksIndexRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/request-chief/': typeof AuthenticatedRequestChiefIndexRoute
+  '/_authenticated/dashboard/_admin/delegations/new': typeof AuthenticatedDashboardAdminDelegationsNewRoute
+  '/_authenticated/dashboard/_admin/delegations/': typeof AuthenticatedDashboardAdminDelegationsIndexRoute
+  '/_authenticated/dashboard/_admin/delegations/$delegationId/edit': typeof AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute
+  '/_authenticated/dashboard/_admin/delegations/$delegationId/': typeof AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -210,7 +266,12 @@ export interface FileRouteTypes {
     | '/results/'
     | '/sports/'
     | '/weeks/'
+    | '/dashboard/'
     | '/request-chief/'
+    | '/dashboard/delegations/new'
+    | '/dashboard/delegations/'
+    | '/dashboard/delegations/$delegationId/edit'
+    | '/dashboard/delegations/$delegationId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -218,11 +279,11 @@ export interface FileRouteTypes {
     | '/register'
     | '/privacy'
     | '/terms'
-    | '/dashboard'
     | '/delegations/$delegationId'
     | '/sports/$sportId'
     | '/weeks/$weekId'
     | '/athletes/$athleteId'
+    | '/dashboard'
     | '/request-chief/status'
     | '/calendar'
     | '/delegations'
@@ -230,6 +291,10 @@ export interface FileRouteTypes {
     | '/sports'
     | '/weeks'
     | '/request-chief'
+    | '/dashboard/delegations/new'
+    | '/dashboard/delegations'
+    | '/dashboard/delegations/$delegationId/edit'
+    | '/dashboard/delegations/$delegationId'
   id:
     | '__root__'
     | '/'
@@ -244,13 +309,19 @@ export interface FileRouteTypes {
     | '/(public)/sports/$sportId'
     | '/(public)/weeks/$weekId'
     | '/_authenticated/athletes/$athleteId'
+    | '/_authenticated/dashboard/_admin'
     | '/_authenticated/request-chief/status'
     | '/(public)/calendar/'
     | '/(public)/delegations/'
     | '/(public)/results/'
     | '/(public)/sports/'
     | '/(public)/weeks/'
+    | '/_authenticated/dashboard/'
     | '/_authenticated/request-chief/'
+    | '/_authenticated/dashboard/_admin/delegations/new'
+    | '/_authenticated/dashboard/_admin/delegations/'
+    | '/_authenticated/dashboard/_admin/delegations/$delegationId/edit'
+    | '/_authenticated/dashboard/_admin/delegations/$delegationId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -335,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRequestChiefIndexRouteImport
       parentRoute: typeof AuthenticatedRequestChiefRoute
     }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/(public)/weeks/': {
       id: '/(public)/weeks/'
       path: '/weeks'
@@ -377,6 +455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRequestChiefStatusRouteImport
       parentRoute: typeof AuthenticatedRequestChiefRoute
     }
+    '/_authenticated/dashboard/_admin': {
+      id: '/_authenticated/dashboard/_admin'
+      path: ''
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardAdminRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/athletes/$athleteId': {
       id: '/_authenticated/athletes/$athleteId'
       path: '/athletes/$athleteId'
@@ -405,8 +490,77 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicDelegationsDelegationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard/_admin/delegations/': {
+      id: '/_authenticated/dashboard/_admin/delegations/'
+      path: '/delegations'
+      fullPath: '/dashboard/delegations/'
+      preLoaderRoute: typeof AuthenticatedDashboardAdminDelegationsIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardAdminRoute
+    }
+    '/_authenticated/dashboard/_admin/delegations/new': {
+      id: '/_authenticated/dashboard/_admin/delegations/new'
+      path: '/delegations/new'
+      fullPath: '/dashboard/delegations/new'
+      preLoaderRoute: typeof AuthenticatedDashboardAdminDelegationsNewRouteImport
+      parentRoute: typeof AuthenticatedDashboardAdminRoute
+    }
+    '/_authenticated/dashboard/_admin/delegations/$delegationId/': {
+      id: '/_authenticated/dashboard/_admin/delegations/$delegationId/'
+      path: '/delegations/$delegationId'
+      fullPath: '/dashboard/delegations/$delegationId/'
+      preLoaderRoute: typeof AuthenticatedDashboardAdminDelegationsDelegationIdIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardAdminRoute
+    }
+    '/_authenticated/dashboard/_admin/delegations/$delegationId/edit': {
+      id: '/_authenticated/dashboard/_admin/delegations/$delegationId/edit'
+      path: '/delegations/$delegationId/edit'
+      fullPath: '/dashboard/delegations/$delegationId/edit'
+      preLoaderRoute: typeof AuthenticatedDashboardAdminDelegationsDelegationIdEditRouteImport
+      parentRoute: typeof AuthenticatedDashboardAdminRoute
+    }
   }
 }
+
+interface AuthenticatedDashboardAdminRouteChildren {
+  AuthenticatedDashboardAdminDelegationsNewRoute: typeof AuthenticatedDashboardAdminDelegationsNewRoute
+  AuthenticatedDashboardAdminDelegationsIndexRoute: typeof AuthenticatedDashboardAdminDelegationsIndexRoute
+  AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute: typeof AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute
+  AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute: typeof AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute
+}
+
+const AuthenticatedDashboardAdminRouteChildren: AuthenticatedDashboardAdminRouteChildren =
+  {
+    AuthenticatedDashboardAdminDelegationsNewRoute:
+      AuthenticatedDashboardAdminDelegationsNewRoute,
+    AuthenticatedDashboardAdminDelegationsIndexRoute:
+      AuthenticatedDashboardAdminDelegationsIndexRoute,
+    AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute:
+      AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute,
+    AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute:
+      AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute,
+  }
+
+const AuthenticatedDashboardAdminRouteWithChildren =
+  AuthenticatedDashboardAdminRoute._addFileChildren(
+    AuthenticatedDashboardAdminRouteChildren,
+  )
+
+interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardAdminRoute: typeof AuthenticatedDashboardAdminRouteWithChildren
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+}
+
+const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
+  {
+    AuthenticatedDashboardAdminRoute:
+      AuthenticatedDashboardAdminRouteWithChildren,
+    AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+  }
+
+const AuthenticatedDashboardRouteWithChildren =
+  AuthenticatedDashboardRoute._addFileChildren(
+    AuthenticatedDashboardRouteChildren,
+  )
 
 interface AuthenticatedRequestChiefRouteChildren {
   AuthenticatedRequestChiefStatusRoute: typeof AuthenticatedRequestChiefStatusRoute
@@ -425,13 +579,13 @@ const AuthenticatedRequestChiefRouteWithChildren =
   )
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedRequestChiefRoute: typeof AuthenticatedRequestChiefRouteWithChildren
   AuthenticatedAthletesAthleteIdRoute: typeof AuthenticatedAthletesAthleteIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedRequestChiefRoute: AuthenticatedRequestChiefRouteWithChildren,
   AuthenticatedAthletesAthleteIdRoute: AuthenticatedAthletesAthleteIdRoute,
 }
