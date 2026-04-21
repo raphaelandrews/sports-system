@@ -101,4 +101,4 @@ class MatchEvent(SQLModel, table=True):
     athlete_id: Optional[int] = Field(default=None, foreign_key="athletes.id")
     delegation_id_at_time: Optional[int] = Field(default=None, foreign_key="delegations.id")
     value_json: Optional[dict[str, Any]] = Field(default=None, sa_column=Column(JSON))
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))

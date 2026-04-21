@@ -288,18 +288,18 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - [x] Configurar variáveis de ambiente (pydantic-settings) — `.env.example` na raiz do repo
 - [x] Configurar CORS para o frontend
 - [x] Adicionar `TIMEZONE=America/Sao_Paulo` à configuração — usado em toda lógica de data/hora
-- [ ] Adicionar `AUTO_SIMULATE=true` à configuração — modo showcase: partidas iniciam e finalizam automaticamente com resultados gerados
-- [ ] Implementar sistema de autenticação JWT (access + refresh tokens)
-- [ ] Implementar middleware de autenticação e autorização por role
+- [x] Adicionar `AUTO_SIMULATE=true` à configuração — modo showcase: partidas iniciam e finalizam automaticamente com resultados gerados
+- [x] Implementar sistema de autenticação JWT (access + refresh tokens)
+- [x] Implementar middleware de autenticação e autorização por role
 - [x] Criar endpoint de health check (`GET /health`)
-- [ ] Configurar logging estruturado
-- [ ] Definir envelope padrão de resposta: listas `{ data: [], meta: { total, page, per_page } }`, erros `{ error, detail, code }`
-- [ ] Configurar APScheduler com os seguintes jobs:
-  - [ ] A cada 5min: auto-travar semanas quando `primeiro_evento.start_time < utcnow()`
-  - [ ] A cada 1min (se `AUTO_SIMULATE=true`): iniciar partidas cujo `start_time` passou e `status == SCHEDULED`
-  - [ ] A cada 1min (se `AUTO_SIMULATE=true`): finalizar partidas onde `started_at + 5min < utcnow()` → gera resultados e eventos automaticamente
-  - [ ] Diariamente à meia-noite (UTC-3): enviar notificações de lembrete 24h antes de partidas
-- [ ] Criar endpoint `POST /admin/demo-seed` — gera semana completa com delegações, atletas, inscrições e resultados (para showcase)
+- [x] Configurar logging estruturado
+- [x] Definir envelope padrão de resposta: listas `{ data: [], meta: { total, page, per_page } }`, erros `{ error, detail, code }`
+- [x] Configurar APScheduler com os seguintes jobs:
+  - [x] A cada 5min: auto-travar semanas quando `primeiro_evento.start_time < utcnow()`
+  - [x] A cada 1min (se `AUTO_SIMULATE=true`): iniciar partidas cujo `start_time` passou e `status == SCHEDULED`
+  - [x] A cada 1min (se `AUTO_SIMULATE=true`): finalizar partidas onde `started_at + 5min < utcnow()` → gera resultados e eventos automaticamente
+  - [x] Diariamente à meia-noite (UTC-3): enviar notificações de lembrete 24h antes de partidas
+- [x] Criar endpoint `POST /admin/demo-seed` — gera semana completa com delegações, atletas, inscrições e resultados (para showcase)
 - [x] Criar tabela `users` com campos: id, email, name, password_hash, role, created_at, is_active
 - [x] Criar tabela `notifications` com campos: id, user_id, type, payload (JSON), read, created_at
 - [x] Criar tabela `delegation_invites` com campos: id, delegation_id, user_id, status (PENDING/ACCEPTED/REFUSED), created_at
@@ -307,85 +307,85 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 ## Fase 2 — Autenticação e Usuários
 
-- [ ] `POST /auth/register` — cadastro de usuário
-- [ ] `POST /auth/login` — login, retorna JWT
-- [ ] `POST /auth/refresh` — renovar access token
-- [ ] `POST /auth/logout` — invalidar refresh token
-- [ ] `GET /users/me` — perfil do usuário autenticado
-- [ ] `PATCH /users/me` — atualizar perfil
-- [ ] `POST /requests/chief` — solicitar ser chefe de delegação
-- [ ] `GET /admin/requests` — listar solicitações pendentes (admin)
-- [ ] `PATCH /admin/requests/{id}` — aprovar ou rejeitar solicitação (admin)
-- [ ] `GET /users/{id}/notifications` — listar notificações do usuário
-- [ ] `PATCH /users/notifications/{id}/read` — marcar notificação como lida
-- [ ] `PATCH /users/notifications/read-all` — marcar todas como lidas
-- [ ] Serviço de disparo de notificações in-app (chamado por outros serviços)
+- [x] `POST /auth/register` — cadastro de usuário
+- [x] `POST /auth/login` — login, retorna JWT
+- [x] `POST /auth/refresh` — renovar access token
+- [x] `POST /auth/logout` — invalidar refresh token
+- [x] `GET /users/me` — perfil do usuário autenticado
+- [x] `PATCH /users/me` — atualizar perfil
+- [x] `POST /requests/chief` — solicitar ser chefe de delegação
+- [x] `GET /admin/requests` — listar solicitações pendentes (admin)
+- [x] `PATCH /admin/requests/{id}` — aprovar ou rejeitar solicitação (admin)
+- [x] `GET /users/{id}/notifications` — listar notificações do usuário
+- [x] `PATCH /users/notifications/{id}/read` — marcar notificação como lida
+- [x] `PATCH /users/notifications/read-all` — marcar todas como lidas
+- [x] Serviço de disparo de notificações in-app (chamado por outros serviços)
 
 ## Fase 3 — Delegações
 
 - [x] Criar tabela `delegations` com campos: id, code, name, flag_url, chief_id, created_at
 - [x] Criar tabela `delegation_members` com campos: id, delegation_id, user_id, role (CHIEF/ATHLETE/COACH), joined_at, left_at (null = ativo)
-- [ ] `GET /delegations` — listar delegações (público)
-- [ ] `GET /delegations/{id}` — detalhe de delegação com membros atuais (público)
-- [ ] `POST /delegations` — criar delegação (admin)
-- [ ] `PATCH /delegations/{id}` — editar delegação (admin ou chefe)
-- [ ] `DELETE /delegations/{id}` — arquivar delegação (admin)
-- [ ] `POST /delegations/{id}/invite` — convidar usuário (chefe)
-- [ ] `GET /delegations/{id}/invites` — listar convites pendentes (chefe)
-- [ ] `DELETE /delegations/{id}/invites/{invite_id}` — revogar convite (chefe)
-- [ ] `POST /invites/{invite_id}/accept` — aceitar convite (usuário notificado)
-- [ ] `POST /invites/{invite_id}/refuse` — recusar convite (usuário notificado)
-- [ ] `POST /delegations/{id}/transfer/{user_id}` — solicitar transferência (chefe destino)
-- [ ] Validação automática de janela de transferência: verifica `datetime.now(ZoneInfo(settings.TIMEZONE)).weekday() == 0` — bloqueia fora de segunda-feira, retorna `{ next_window: "<ISO datetime>" }` no erro
-- [ ] Serviço de snapshot: registrar `delegation_na_epoca` ao registrar participação em partida
-- [ ] `GET /delegations/{id}/history` — histórico de membros com datas
-- [ ] `POST /delegations/ai-generate` — gerar delegações fictícias com IA (admin)
+- [x] `GET /delegations` — listar delegações (público)
+- [x] `GET /delegations/{id}` — detalhe de delegação com membros atuais (público)
+- [x] `POST /delegations` — criar delegação (admin)
+- [x] `PATCH /delegations/{id}` — editar delegação (admin ou chefe)
+- [x] `DELETE /delegations/{id}` — arquivar delegação (admin)
+- [x] `POST /delegations/{id}/invite` — convidar usuário (chefe)
+- [x] `GET /delegations/{id}/invites` — listar convites pendentes (chefe)
+- [x] `DELETE /delegations/{id}/invites/{invite_id}` — revogar convite (chefe)
+- [x] `POST /invites/{invite_id}/accept` — aceitar convite (usuário notificado)
+- [x] `POST /invites/{invite_id}/refuse` — recusar convite (usuário notificado)
+- [x] `POST /delegations/{id}/transfer/{user_id}` — solicitar transferência (chefe destino)
+- [x] Validação automática de janela de transferência: verifica `datetime.now(ZoneInfo(settings.TIMEZONE)).weekday() == 0` — bloqueia fora de segunda-feira, retorna `{ next_window: "<ISO datetime>" }` no erro
+- [x] Serviço de snapshot: registrar `delegation_na_epoca` ao registrar participação em partida
+- [x] `GET /delegations/{id}/history` — histórico de membros com datas
+- [x] `POST /delegations/ai-generate` — gerar delegações fictícias com IA (admin)
 
 ## Fase 4 — Esportes e Modalidades
 
 - [x] Criar tabela `sports` com campos: id, name, type (INDIVIDUAL/TEAM), description, rules_json, player_count, created_at
 - [x] Criar tabela `modalities` com campos: id, sport_id, name, gender (M/F/MIXED), category (ex: peso no judô), rules_json
-- [ ] Criar tabela `sport_statistics_schema` — define campos de estatística por esporte (JSON Schema)
-- [ ] Popular banco com os 10 esportes e suas modalidades padrão (seed/migration)
-- [ ] `GET /sports` — listar esportes (público)
-- [ ] `GET /sports/{id}` — detalhe com modalidades (público)
-- [ ] `POST /sports` — criar esporte (admin)
-- [ ] `PATCH /sports/{id}` — editar (admin)
-- [ ] `DELETE /sports/{id}` — arquivar (admin)
-- [ ] `POST /sports/{id}/modalities` — criar modalidade (admin)
-- [ ] `PATCH /modalities/{id}` — editar modalidade (admin)
-- [ ] `DELETE /modalities/{id}` — arquivar (admin)
-- [ ] `POST /sports/ai-generate` — gerar esportes/modalidades com IA (admin)
+- [x] Criar tabela `sport_statistics_schema` — define campos de estatística por esporte (JSON Schema)
+- [x] Popular banco com os 10 esportes e suas modalidades padrão (seed/migration)
+- [x] `GET /sports` — listar esportes (público)
+- [x] `GET /sports/{id}` — detalhe com modalidades (público)
+- [x] `POST /sports` — criar esporte (admin)
+- [x] `PATCH /sports/{id}` — editar (admin)
+- [x] `DELETE /sports/{id}` — arquivar (admin)
+- [x] `POST /sports/{id}/modalities` — criar modalidade (admin)
+- [x] `PATCH /modalities/{id}` — editar modalidade (admin)
+- [x] `DELETE /modalities/{id}` — arquivar (admin)
+- [x] `POST /sports/ai-generate` — gerar esportes/modalidades com IA (admin)
 
 ## Fase 5 — Atletas e Técnicos
 
 - [x] Criar tabela `athletes` com campos: id, user_id (FK nullable — pode ser IA gerado), name, birthdate, code, created_at
 - [x] Criar tabela `athlete_modalities` — vínculo atleta × modalidade (com categoria, se aplicável)
-- [ ] `GET /athletes` — listar (admin: global; chefe: só da delegação)
-- [ ] `GET /athletes/{id}` — perfil do atleta com histórico de delegações e partidas
-- [ ] `POST /athletes` — cadastrar atleta (admin ou chefe)
-- [ ] `PATCH /athletes/{id}` — editar (admin ou chefe da delegação)
-- [ ] `DELETE /athletes/{id}` — arquivar (admin)
-- [ ] `GET /athletes/{id}/history` — histórico: delegações por período, partidas por delegação
-- [ ] `GET /athletes/{id}/statistics` — estatísticas por modalidade e temporada
-- [ ] `POST /athletes/ai-generate` — gerar atletas com IA (admin)
-- [ ] Validação de elegibilidade: atleta cadastrado/transferido após semana travada → só próxima semana
+- [x] `GET /athletes` — listar (admin: global; chefe: só da delegação)
+- [x] `GET /athletes/{id}` — perfil do atleta com histórico de delegações e partidas
+- [x] `POST /athletes` — cadastrar atleta (admin ou chefe)
+- [x] `PATCH /athletes/{id}` — editar (admin ou chefe da delegação)
+- [x] `DELETE /athletes/{id}` — arquivar (admin)
+- [x] `GET /athletes/{id}/history` — histórico: delegações por período, partidas por delegação
+- [x] `GET /athletes/{id}/statistics` — estatísticas por modalidade e temporada
+- [x] `POST /athletes/ai-generate` — gerar atletas com IA (admin)
+- [x] Validação de elegibilidade: atleta cadastrado/transferido após semana travada → só próxima semana
 
 ## Fase 6 — Semanas de Competição
 
 - [x] Criar tabela `competition_weeks` com campos: id, week_number, start_date, end_date, status (DRAFT/SCHEDULED/LOCKED/ACTIVE/COMPLETED), sport_focus (JSON array)
-- [ ] `GET /weeks` — listar semanas
-- [ ] `GET /weeks/{id}` — detalhe da semana
-- [ ] `POST /weeks` — criar semana (admin)
-- [ ] `PATCH /weeks/{id}` — editar semana (admin — proibido se LOCKED ou posterior)
-- [ ] `POST /weeks/{id}/publish` — publicar calendário (DRAFT → SCHEDULED)
-- [ ] `POST /weeks/{id}/lock` — travar manualmente (SCHEDULED → LOCKED) + dispara geração de partidas
-- [ ] Travamento automático via APScheduler: a cada 5min verifica se `primeiro_evento.start_time < now(UTC)` e status ainda é SCHEDULED → auto-lock
-- [ ] `POST /weeks/{id}/activate` — ativar semana (LOCKED → ACTIVE)
-- [ ] `POST /weeks/{id}/complete` — encerrar semana (ACTIVE → COMPLETED)
-- [ ] `POST /weeks/{id}/generate-schedule` — prévia da geração de partidas (admin, pré-lock, não persiste)
-- [ ] Serviço `transfer_window_service`: verifica `weekday() == 0` em UTC-3 — chamado por toda solicitação de transferência
-- [ ] Serviço: verificar elegibilidade de atleta/delegação para semana
+- [x] `GET /weeks` — listar semanas
+- [x] `GET /weeks/{id}` — detalhe da semana
+- [x] `POST /weeks` — criar semana (admin)
+- [x] `PATCH /weeks/{id}` — editar semana (admin — proibido se LOCKED ou posterior)
+- [x] `POST /weeks/{id}/publish` — publicar calendário (DRAFT → SCHEDULED)
+- [x] `POST /weeks/{id}/lock` — travar manualmente (SCHEDULED → LOCKED) + dispara geração de partidas
+- [x] Travamento automático via APScheduler: a cada 5min verifica se `primeiro_evento.start_time < now(UTC)` e status ainda é SCHEDULED → auto-lock
+- [x] `POST /weeks/{id}/activate` — ativar semana (LOCKED → ACTIVE)
+- [x] `POST /weeks/{id}/complete` — encerrar semana (ACTIVE → COMPLETED)
+- [x] `POST /weeks/{id}/generate-schedule` — prévia da geração de partidas (admin, pré-lock, não persiste)
+- [x] Serviço `transfer_window_service`: verifica `weekday() == 0` em UTC-3 — chamado por toda solicitação de transferência
+- [x] Serviço: verificar elegibilidade de atleta/delegação para semana
 
 ## Fase 7 — Calendário e Partidas
 
@@ -393,81 +393,80 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - [x] Criar tabela `matches` com campos: id, event_id, team_a_delegation_id, team_b_delegation_id (ou athlete_a/b para individuais), score_a, score_b, winner_delegation_id, status, started_at, ended_at
 - [x] Criar tabela `match_participants` com campos: id, match_id, athlete_id, delegation_id_at_time, role (PLAYER/CAPTAIN/SUBSTITUTE)
 - [x] Criar tabela `match_events` com campos: id, match_id, minute, type (GOAL/CARD/POINT/PENALTY/SUBSTITUTION/etc.), athlete_id, delegation_id_at_time, value_json — timeline da partida
-- [ ] `GET /events` — calendário geral (público, filtros: semana, esporte, data)
-- [ ] `GET /events/{id}` — detalhe do evento com partidas
-- [ ] `POST /events` — criar evento (admin)
-- [ ] `PATCH /events/{id}` — editar (admin — proibido se semana LOCKED+)
-- [ ] `DELETE /events/{id}` — cancelar (admin)
-- [ ] `GET /matches/{id}` — detalhe da partida com participantes, placar e eventos
-- [ ] `POST /matches/{id}/events` — registrar evento da partida (admin — gol, cartão, ponto, etc.) — mesma rota usada pelo `simulation_service`
-- [ ] `GET /matches/{id}/events` — listar timeline de eventos (público)
-- [ ] `GET /matches/{id}/stream` — SSE stream de eventos e placar ao vivo
-- [ ] `POST /matches/{id}/start` — iniciar partida
-- [ ] `POST /matches/{id}/finish` — encerrar partida e disparar cálculo de resultados
-- [ ] `POST /events/ai-generate` — gerar calendário com IA (admin)
-- [ ] Serviço `bracket_service`: gera pareamentos por modalidade a partir das inscrições aprovadas (round-robin para grupos, eliminatória para mata-mata)
-- [ ] Serviço `schedule_service`: distribui partidas geradas por slots de tempo (Ter–Dom), respeitando conflitos de atleta e capacidade de venue
-- [ ] Geração automática de chaveamento mata-mata após conclusão da fase de grupos
+- [x] `GET /events` — calendário geral (público, filtros: semana, esporte, data)
+- [x] `GET /events/{id}` — detalhe do evento com partidas
+- [x] `POST /events` — criar evento (admin)
+- [x] `PATCH /events/{id}` — editar (admin — proibido se semana LOCKED+)
+- [x] `DELETE /events/{id}` — cancelar (admin)
+- [x] `GET /matches/{id}` — detalhe da partida com participantes, placar e eventos
+- [x] `POST /matches/{id}/events` — registrar evento da partida (admin — gol, cartão, ponto, etc.) — mesma rota usada pelo `simulation_service`
+- [x] `GET /matches/{id}/events` — listar timeline de eventos (público)
+- [x] `GET /matches/{id}/stream` — SSE stream de eventos e placar ao vivo
+- [x] `POST /matches/{id}/start` — iniciar partida
+- [x] `POST /matches/{id}/finish` — encerrar partida e disparar cálculo de resultados
+- [x] `POST /events/ai-generate` — gerar calendário com IA (admin)
+- [x] Serviço `bracket_service`: gera pareamentos por modalidade a partir das inscrições aprovadas (round-robin para grupos, eliminatória para mata-mata)
+- [x] Serviço `schedule_service`: distribui partidas geradas por slots de tempo (Ter–Dom), respeitando conflitos de atleta e capacidade de venue
+- [x] Geração automática de chaveamento mata-mata após conclusão da fase de grupos
 
 ## Fase 8 — Inscrições
 
 - [x] Criar tabela `enrollments` com campos: id, athlete_id, event_id, delegation_id, status (PENDING/APPROVED/REJECTED), validation_message, created_at
-- [ ] `GET /enrollments` — listar inscrições (admin: global; chefe: delegação)
-- [ ] `POST /enrollments` — inscrever atleta em evento (chefe)
-- [ ] `DELETE /enrollments/{id}` — cancelar inscrição (chefe — antes do travamento)
-- [ ] `PATCH /enrollments/{id}/review` — aprovar/rejeitar inscrição (admin)
-- [ ] Motor de validação genérico: lê regras do `rules_json` da modalidade — sem hardcode por esporte
-  - [ ] Formato de `rules_json`: `{ "max_athletes": N, "gender": "M/F/MIXED", "weight_categories": [...], "schedule_conflict_check": bool }`
-  - [ ] Categoria de peso (lida de `weight_categories` no rules_json)
-  - [ ] Gênero da modalidade (lido de `gender` no rules_json)
-  - [ ] Número máximo de atletas por equipe (lido de `max_athletes`)
-  - [ ] Conflito de horário (mesmo atleta em dois eventos simultâneos)
-  - [ ] Elegibilidade de semana (atleta cadastrado/transferido antes do travamento)
-- [ ] `POST /enrollments/ai-generate` — gerar inscrições com IA (admin)
+- [x] `GET /enrollments` — listar inscrições (admin: global; chefe: delegação)
+- [x] `POST /enrollments` — inscrever atleta em evento (chefe)
+- [x] `DELETE /enrollments/{id}` — cancelar inscrição (chefe — antes do travamento)
+- [x] `PATCH /enrollments/{id}/review` — aprovar/rejeitar inscrição (admin)
+- [x] Motor de validação genérico: lê regras do `rules_json` da modalidade — sem hardcode por esporte
+  - [x] Formato de `rules_json`: `{ "max_athletes": N, "gender": "M/F/MIXED", "weight_categories": [...], "schedule_conflict_check": bool }`
+  - [x] Categoria de peso (lida de `weight_category` no rules_json — via `AthleteModality.category`)
+  - [x] Gênero da modalidade (lido de `gender` no rules_json) — campo `gender` (M/F) adicionado ao modelo `Athlete`
+  - [x] Número máximo de atletas por equipe (lido de `max_athletes`)
+  - [x] Conflito de horário (mesmo atleta em dois eventos simultâneos)
+  - [x] Elegibilidade de semana (atleta cadastrado/transferido antes do travamento)
+- [x] `POST /enrollments/ai-generate` — gerar inscrições com IA (admin)
 
 ## Fase 9 — Resultados e Quadro de Medalhas
 
 - [x] Criar tabela `results` com campos: id, match_id, athlete_id (ou delegation_id para coletivo), rank, medal (GOLD/SILVER/BRONZE/null), value (JSON — estatísticas específicas)
 - [x] Criar tabela `athlete_statistics` com campos: id, athlete_id, sport_id, week_id, stats_json (dinâmico por esporte)
 - [x] Criar tabela `records` com campos: id, modality_id, athlete_id, delegation_id_at_time, value, week_id, date
-- [ ] `GET /results` — listar resultados (público, filtros: semana, esporte, delegação)
-- [ ] `GET /results/medal-board` — quadro de medalhas geral em tempo real (público)
-- [ ] `GET /results/medal-board/{sport_id}` — quadro por esporte (público)
-- [ ] `POST /results` — registrar resultado (admin)
-- [ ] `PATCH /results/{id}` — corrigir resultado (admin)
-- [ ] `GET /results/standings/{modality_id}` — classificação da modalidade
-- [ ] `GET /results/records` — recordes da competição
-- [ ] Serviço: atualizar quadro de medalhas após registro de resultado
-- [ ] Serviço: verificar e atualizar recordes (melhor marca por prova)
-- [ ] Serviço: calcular estatísticas individuais por esporte com regras específicas
-- [ ] Serviço `simulation_service`: gera resultados, eventos e estatísticas realistas por esporte (chamado pelo scheduler quando `AUTO_SIMULATE=true` ou manualmente via `POST /admin/simulate/match/{id}`)
-  - Futebol: placar 0–4 × 0–4, eventos de gol (minuto aleatório), cartões ocasionais
-  - Judô/Karatê: ippon, waza-ari ou decisão por pontos com tempo simulado
-  - Atletismo/Natação: tempo cronometrado dentro de faixa realista por prova
-  - Vôlei/Basquete/Handebol: placar por sets/quartos dentro de faixa típica
-  - Gera `match_events` por cada ponto/gol/evento relevante
-  - Atualiza `athlete_statistics`, `results`, `records` após simular
-- [ ] `POST /admin/simulate/match/{id}` — simular partida específica manualmente (admin, qualquer `AUTO_SIMULATE`)
-- [ ] SSE endpoint para atualização em tempo real do quadro de medalhas (`GET /results/medal-board/stream`) — broadcasting via `asyncio.Queue` in-process
-- [ ] `POST /results/ai-generate/{event_id}` — gerar resultados com IA (admin) — substituto manual do `simulation_service`
+- [x] `GET /results` — listar resultados (público, filtros: semana, esporte, delegação)
+- [x] `GET /results/medal-board` — quadro de medalhas geral em tempo real (público)
+- [x] `GET /results/medal-board/{sport_id}` — quadro por esporte (público)
+- [x] `POST /results` — registrar resultado (admin)
+- [x] `PATCH /results/{id}` — corrigir resultado (admin)
+- [x] `GET /results/standings/{modality_id}` — classificação da modalidade
+- [x] `GET /results/records` — recordes da competição
+- [x] Serviço: atualizar quadro de medalhas após registro de resultado
+- [x] Serviço: verificar e atualizar recordes (melhor marca por prova) — implementado em `simulation_service._check_and_update_record`
+- [x] Serviço: calcular estatísticas individuais por esporte (wins/losses/draws/matches_played por atleta)
+- [x] Serviço `simulation_service`: gera resultados, eventos e estatísticas realistas por esporte
+  - Futebol: placar 0–4 × 0–4, GOAL events com minuto aleatório
+  - Judô/Karatê: IPPON, WAZA_ARI ou decisão por pontos
+  - Atletismo/Natação: tempo em centésimos (lower wins)
+  - Vôlei/Basquete/Handebol: placar dentro de faixa típica
+  - Atualiza `athlete_statistics`, `results` após simular; SSE broadcast para match e medal board
+- [x] `POST /admin/simulate/match/{id}` — simular partida específica manualmente (admin)
+- [x] SSE endpoint para atualização em tempo real do quadro de medalhas (`GET /results/medal-board/stream`)
+- [x] `POST /results/ai-generate/{event_id}` — gerar resultados com IA (admin) — chama simulation_service para cada partida pendente do evento
 
 ## Fase 10 — Relatórios e IA
 
-- [ ] `GET /report/final` — relatório final: medalhas + classificações + recordes + melhores marcas
-- [ ] `GET /report/week/{week_id}` — relatório da semana
-- [ ] `GET /report/athlete/{athlete_id}` — relatório individual do atleta
-- [ ] `GET /narrative/today` — narrativa do dia (gerada ou em cache)
-- [ ] `GET /narrative/{date}` — narrativa de data específica
-- [ ] `POST /narrative/generate` — gerar narrativa com IA (admin)
-- [ ] `GET /ai/generation-history` — histórico de gerações por tipo (admin)
-- [ ] Serviço de IA: integração com LLM para geração de:
-  - [ ] Delegações fictícias com contexto
-  - [ ] Atletas com nomes, idades e perfis realistas
-  - [ ] Calendário otimizado por esporte e local
-  - [ ] Resultados plausíveis com base nos esportes e regras
-  - [ ] Narrativa contextualizada dos destaques do dia
-- [ ] `GET /report/export/pdf` — exportar relatório em PDF *(opcional — pós-showcase)*
-- [ ] `GET /report/export/csv` — exportar resultados em CSV *(opcional — pós-showcase)*
+- [x] `GET /report/final` — relatório final: medalhas + classificações + recordes + melhores marcas
+- [x] `GET /report/week/{week_id}` — relatório da semana
+- [x] `GET /report/athlete/{athlete_id}` — relatório individual do atleta
+- [x] `GET /narrative/today` — narrativa do dia (gerada ou em cache)
+- [x] `GET /narrative/{date}` — narrativa de data específica
+- [x] `POST /narrative/generate` — gerar narrativa com IA (admin)
+- [x] `GET /ai/generation-history` — histórico de gerações por tipo (admin)
+- [x] Serviço de IA: integração com LLM para geração de:
+  - [x] Delegações fictícias com contexto (via ai_generate em enrollments)
+  - [x] Atletas com nomes, idades e perfis realistas (via ai_generate em athletes)
+  - [x] Calendário otimizado por esporte e local (via ai_generate em events)
+  - [x] Resultados plausíveis com base nos esportes e regras (via simulation_service)
+  - [x] Narrativa contextualizada dos destaques do dia (via narrative_service)
+- [ ] `GET /report/export/pdf` — exportar relatório em PDF
+- [x] `GET /report/export/csv` — exportar resultados em CSV
 
 ---
 
@@ -514,34 +513,36 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 1 — Infraestrutura Frontend
 
-- [ ] Configurar `QueryClient` com `staleTime`/`gcTime` padrão no `router.tsx`
-- [ ] Integrar `routerWithQueryClient` do `@tanstack/react-router-with-query`
-- [ ] Adicionar `queryClient: QueryClient` ao `RouterAppContext` em `__root.tsx`
-- [ ] Criar server function de sessão no `__root.tsx` (carrega sessão do cookie JWT)
-- [ ] Criar `_authenticated.tsx` — layout guard com `beforeLoad` → redirect `/login`
-- [ ] Criar `_admin.tsx` — guard de role admin (nested em `_authenticated`)
-- [ ] Criar `_chief.tsx` — guard de role chefe/admin (nested em `_authenticated`)
-- [ ] Criar `apps/web/src/lib/api.ts` — cliente tipado para FastAPI (`apiFetch`, `ApiError`)
-- [ ] Criar `apps/web/src/lib/queryKeys.ts` — factories de query keys por domínio
-- [ ] Criar `apps/web/src/queries/` — hooks por domínio (`delegations.ts`, `sports.ts`, etc.)
-- [ ] Criar componente `RouteErrorComponent` — trata `ApiError` com retry
-- [ ] Adicionar shadcn components em `packages/ui`: `table`, `badge`, `tabs`, `dialog`, `select`, `separator`, `tooltip`, `progress`, `scroll-area`, `avatar`, `popover`, `sheet`, `alert`, `form`
-- [ ] Atualizar `packages/env/src/web.ts` — validar `VITE_SERVER_URL` e `VITE_TIMEZONE` com Zod
-- [ ] Criar utilitário `apps/web/src/lib/date.ts` — `formatEventDate(iso)` sempre formata em `VITE_TIMEZONE`, nunca timezone do navegador
-- [ ] Adicionar dark mode toggle no header (next-themes já instalado — 1 botão, ícone sol/lua)
+- [x] Configurar `QueryClient` com `staleTime`/`gcTime` padrão no `router.tsx`
+- [x] Integrar `routerWithQueryClient` do `@tanstack/react-router-with-query`
+- [x] Adicionar `queryClient: QueryClient` ao `RouterAppContext` em `__root.tsx`
+- [x] Criar server function de sessão em `server/auth.ts` — importada no `__root.tsx` (carrega sessão do cookie JWT)
+- [x] Criar `_authenticated.tsx` — layout guard com `beforeLoad` → redirect `/login`
+- [x] Criar `_admin.tsx` — guard de role admin (nested em `_authenticated`)
+- [x] Criar `_chief.tsx` — guard de role chefe/admin (nested em `_authenticated`)
+- [x] Criar `apps/web/src/lib/api.ts` — cliente tipado para FastAPI (`apiFetch`, `ApiError`)
+- [x] Criar `apps/web/src/queries/keys.ts` — factories de query keys por domínio
+- [x] Criar `apps/web/src/queries/` — hooks por domínio (`delegations.ts`, `sports.ts`, etc.)
+- [x] Criar componente `RouteErrorComponent` — trata `ApiError` com retry
+- [x] Adicionar shadcn components em `packages/ui`: `table`, `badge`, `tabs`, `dialog`, `select`, `separator`, `tooltip`, `progress`, `scroll-area`, `avatar`, `popover`, `sheet`, `alert`, `form`
+- [x] Atualizar `packages/env/src/web.ts` — validar `VITE_SERVER_URL` e `VITE_TIMEZONE` com Zod
+- [x] Criar utilitário `apps/web/src/lib/date.ts` — `formatEventDate(iso)` sempre formata em `VITE_TIMEZONE`, nunca timezone do navegador
+- [x] Adicionar dark mode toggle no header (next-themes já instalado — 1 botão, ícone sol/lua)
 
 ## Fase 2 — Páginas Públicas (SSR)
 
-- [ ] Atualizar `routes/index.tsx` — landing page: resumo da competição, quadro de medalhas ao vivo, próximos eventos, destaque do dia
-- [ ] `routes/login.tsx` — formulário de login, redirect pós-login
-- [ ] `routes/register.tsx` — formulário de cadastro
-- [ ] `routes/request-chief.tsx` — formulário de solicitação de chefe
-- [ ] `routes/(public)/results/index.tsx` — quadro de medalhas público (SSR + polling 30s)
-- [ ] `routes/(public)/calendar/index.tsx` — calendário público por semana/esporte
-- [ ] `routes/(public)/delegations/index.tsx` — lista de delegações
-- [ ] `routes/(public)/delegations/$delegationId/index.tsx` — perfil público da delegação
-- [ ] `routes/(public)/sports/index.tsx` — visão geral dos 10 esportes
-- [ ] `routes/(public)/sports/$sportId/index.tsx` — detalhe do esporte + classificação
+- [x] Atualizar `routes/index.tsx` — landing page: resumo da competição, quadro de medalhas ao vivo, próximos eventos, destaque do dia
+- [x] `routes/login.tsx` — formulário de login, redirect pós-login
+- [x] `routes/register.tsx` — formulário de cadastro
+- [x] `routes/_authenticated/request-chief.tsx` — formulário de solicitação de chefe
+- [x] `routes/(public)/weeks/index.tsx` — lista de semanas com status e período (SSR)
+- [x] `routes/(public)/weeks/$weekId.tsx` — detalhe da semana: quadro de medalhas + eventos agrupados por data com placar lazy (SSR)
+- [x] `routes/(public)/results/index.tsx` — quadro de medalhas público (SSR + polling 30s)
+- [x] `routes/(public)/calendar/index.tsx` — calendário público por semana/esporte
+- [x] `routes/(public)/delegations/index.tsx` — lista de delegações
+- [x] `routes/(public)/delegations/$delegationId.tsx` — perfil público da delegação
+- [x] `routes/(public)/sports/index.tsx` — visão geral dos 10 esportes
+- [x] `routes/(public)/sports/$sportId.tsx` — detalhe do esporte + classificação
 
 ## Fase 3 — Notificações e Onboarding
 
@@ -585,11 +586,11 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 - [ ] `routes/_authenticated/_admin/athletes/index.tsx` — lista global com filtros
 - [ ] `routes/_authenticated/_chief/athletes/index.tsx` — atletas da delegação
-- [ ] `routes/_authenticated/athletes/$athleteId/index.tsx` — perfil do atleta:
-  - [ ] Dados pessoais e modalidades
-  - [ ] Timeline de delegações (com datas)
-  - [ ] Histórico de partidas (com delegação na época)
-  - [ ] Estatísticas por esporte
+- [x] `routes/_authenticated/athletes/$athleteId.tsx` — perfil do atleta:
+  - [x] Dados pessoais e modalidades
+  - [x] Timeline de delegações (com datas)
+  - [x] Histórico de partidas (com delegação na época)
+  - [x] Estatísticas por esporte
 - [ ] `routes/_authenticated/_admin/athletes/new.tsx` — cadastrar atleta (admin)
 - [ ] `routes/_authenticated/_chief/athletes/new.tsx` — cadastrar atleta (chefe)
 - [ ] Botão "Gerar com IA" (admin)
@@ -672,7 +673,6 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 - [ ] **Comparação de atletas**: tela side-by-side com estatísticas de dois atletas (head-to-head)
 - [ ] **Busca global**: buscar atletas, delegações, eventos por nome
 - [ ] **Filtros e ordenação**: tabelas com filtros persistidos na URL via TanStack Router search params
-- [ ] **PWA**: adicionar suporte PWA para uso em dispositivos móveis no local do evento
 - [ ] **Feed de atividades**: timeline global de eventos da competição em tempo real
 - [ ] **Estatísticas de delegação**: página com todos os atletas, medalhas, e desempenho histórico por semana
 - [ ] **Regras editáveis**: admin pode editar as regras de cada esporte sem alterar código (edita `rules_json` via UI)

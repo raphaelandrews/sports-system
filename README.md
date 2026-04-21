@@ -79,11 +79,14 @@ sports-system/
 │       │   │   └── _authenticated/     # Auth-guarded routes
 │       │   │       ├── _admin/         # Admin-only routes
 │       │   │       └── _chief/         # Chief/admin routes
-│       │   ├── components/     # Shared UI components
+│       │   ├── components/
+│       │   │   ├── layout/     # Structural layout pieces
+│       │   │   └── ui/         # Generic app-level UI primitives
 │       │   ├── lib/
-│       │   │   ├── api.ts      # Typed FastAPI client
-│       │   │   └── queryKeys.ts
-│       │   └── queries/        # TanStack Query hooks per domain
+│       │   │   └── api.ts      # Typed FastAPI client
+│       │   ├── queries/        # TanStack Query options + key factory per domain
+│       │   ├── server/         # Server functions (createServerFn)
+│       │   └── types/          # Shared TypeScript response types per domain
 │       ├── vite.config.ts
 │       └── package.json
 │

@@ -9,38 +9,240 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRequestChiefRouteImport } from './routes/_authenticated/request-chief'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as publicWeeksIndexRouteImport } from './routes/(public)/weeks/index'
+import { Route as publicSportsIndexRouteImport } from './routes/(public)/sports/index'
+import { Route as publicResultsIndexRouteImport } from './routes/(public)/results/index'
+import { Route as publicDelegationsIndexRouteImport } from './routes/(public)/delegations/index'
+import { Route as publicCalendarIndexRouteImport } from './routes/(public)/calendar/index'
+import { Route as AuthenticatedAthletesAthleteIdRouteImport } from './routes/_authenticated/athletes/$athleteId'
+import { Route as publicWeeksWeekIdRouteImport } from './routes/(public)/weeks/$weekId'
+import { Route as publicSportsSportIdRouteImport } from './routes/(public)/sports/$sportId'
+import { Route as publicDelegationsDelegationIdRouteImport } from './routes/(public)/delegations/$delegationId'
 
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRequestChiefRoute =
+  AuthenticatedRequestChiefRouteImport.update({
+    id: '/request-chief',
+    path: '/request-chief',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const publicWeeksIndexRoute = publicWeeksIndexRouteImport.update({
+  id: '/(public)/weeks/',
+  path: '/weeks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicSportsIndexRoute = publicSportsIndexRouteImport.update({
+  id: '/(public)/sports/',
+  path: '/sports/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicResultsIndexRoute = publicResultsIndexRouteImport.update({
+  id: '/(public)/results/',
+  path: '/results/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicDelegationsIndexRoute = publicDelegationsIndexRouteImport.update({
+  id: '/(public)/delegations/',
+  path: '/delegations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicCalendarIndexRoute = publicCalendarIndexRouteImport.update({
+  id: '/(public)/calendar/',
+  path: '/calendar/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAthletesAthleteIdRoute =
+  AuthenticatedAthletesAthleteIdRouteImport.update({
+    id: '/athletes/$athleteId',
+    path: '/athletes/$athleteId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const publicWeeksWeekIdRoute = publicWeeksWeekIdRouteImport.update({
+  id: '/(public)/weeks/$weekId',
+  path: '/weeks/$weekId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicSportsSportIdRoute = publicSportsSportIdRouteImport.update({
+  id: '/(public)/sports/$sportId',
+  path: '/sports/$sportId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicDelegationsDelegationIdRoute =
+  publicDelegationsDelegationIdRouteImport.update({
+    id: '/(public)/delegations/$delegationId',
+    path: '/delegations/$delegationId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/request-chief': typeof AuthenticatedRequestChiefRoute
+  '/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
+  '/sports/$sportId': typeof publicSportsSportIdRoute
+  '/weeks/$weekId': typeof publicWeeksWeekIdRoute
+  '/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
+  '/calendar/': typeof publicCalendarIndexRoute
+  '/delegations/': typeof publicDelegationsIndexRoute
+  '/results/': typeof publicResultsIndexRoute
+  '/sports/': typeof publicSportsIndexRoute
+  '/weeks/': typeof publicWeeksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/request-chief': typeof AuthenticatedRequestChiefRoute
+  '/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
+  '/sports/$sportId': typeof publicSportsSportIdRoute
+  '/weeks/$weekId': typeof publicWeeksWeekIdRoute
+  '/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
+  '/calendar': typeof publicCalendarIndexRoute
+  '/delegations': typeof publicDelegationsIndexRoute
+  '/results': typeof publicResultsIndexRoute
+  '/sports': typeof publicSportsIndexRoute
+  '/weeks': typeof publicWeeksIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/request-chief': typeof AuthenticatedRequestChiefRoute
+  '/(public)/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
+  '/(public)/sports/$sportId': typeof publicSportsSportIdRoute
+  '/(public)/weeks/$weekId': typeof publicWeeksWeekIdRoute
+  '/_authenticated/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
+  '/(public)/calendar/': typeof publicCalendarIndexRoute
+  '/(public)/delegations/': typeof publicDelegationsIndexRoute
+  '/(public)/results/': typeof publicResultsIndexRoute
+  '/(public)/sports/': typeof publicSportsIndexRoute
+  '/(public)/weeks/': typeof publicWeeksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/dashboard'
+    | '/request-chief'
+    | '/delegations/$delegationId'
+    | '/sports/$sportId'
+    | '/weeks/$weekId'
+    | '/athletes/$athleteId'
+    | '/calendar/'
+    | '/delegations/'
+    | '/results/'
+    | '/sports/'
+    | '/weeks/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/dashboard'
+    | '/request-chief'
+    | '/delegations/$delegationId'
+    | '/sports/$sportId'
+    | '/weeks/$weekId'
+    | '/athletes/$athleteId'
+    | '/calendar'
+    | '/delegations'
+    | '/results'
+    | '/sports'
+    | '/weeks'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/login'
+    | '/register'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/request-chief'
+    | '/(public)/delegations/$delegationId'
+    | '/(public)/sports/$sportId'
+    | '/(public)/weeks/$weekId'
+    | '/_authenticated/athletes/$athleteId'
+    | '/(public)/calendar/'
+    | '/(public)/delegations/'
+    | '/(public)/results/'
+    | '/(public)/sports/'
+    | '/(public)/weeks/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
+  publicDelegationsDelegationIdRoute: typeof publicDelegationsDelegationIdRoute
+  publicSportsSportIdRoute: typeof publicSportsSportIdRoute
+  publicWeeksWeekIdRoute: typeof publicWeeksWeekIdRoute
+  publicCalendarIndexRoute: typeof publicCalendarIndexRoute
+  publicDelegationsIndexRoute: typeof publicDelegationsIndexRoute
+  publicResultsIndexRoute: typeof publicResultsIndexRoute
+  publicSportsIndexRoute: typeof publicSportsIndexRoute
+  publicWeeksIndexRoute: typeof publicWeeksIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +250,115 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/request-chief': {
+      id: '/_authenticated/request-chief'
+      path: '/request-chief'
+      fullPath: '/request-chief'
+      preLoaderRoute: typeof AuthenticatedRequestChiefRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/(public)/weeks/': {
+      id: '/(public)/weeks/'
+      path: '/weeks'
+      fullPath: '/weeks/'
+      preLoaderRoute: typeof publicWeeksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/sports/': {
+      id: '/(public)/sports/'
+      path: '/sports'
+      fullPath: '/sports/'
+      preLoaderRoute: typeof publicSportsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/results/': {
+      id: '/(public)/results/'
+      path: '/results'
+      fullPath: '/results/'
+      preLoaderRoute: typeof publicResultsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/delegations/': {
+      id: '/(public)/delegations/'
+      path: '/delegations'
+      fullPath: '/delegations/'
+      preLoaderRoute: typeof publicDelegationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/calendar/': {
+      id: '/(public)/calendar/'
+      path: '/calendar'
+      fullPath: '/calendar/'
+      preLoaderRoute: typeof publicCalendarIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/athletes/$athleteId': {
+      id: '/_authenticated/athletes/$athleteId'
+      path: '/athletes/$athleteId'
+      fullPath: '/athletes/$athleteId'
+      preLoaderRoute: typeof AuthenticatedAthletesAthleteIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/(public)/weeks/$weekId': {
+      id: '/(public)/weeks/$weekId'
+      path: '/weeks/$weekId'
+      fullPath: '/weeks/$weekId'
+      preLoaderRoute: typeof publicWeeksWeekIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/sports/$sportId': {
+      id: '/(public)/sports/$sportId'
+      path: '/sports/$sportId'
+      fullPath: '/sports/$sportId'
+      preLoaderRoute: typeof publicSportsSportIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/delegations/$delegationId': {
+      id: '/(public)/delegations/$delegationId'
+      path: '/delegations/$delegationId'
+      fullPath: '/delegations/$delegationId'
+      preLoaderRoute: typeof publicDelegationsDelegationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedRequestChiefRoute: typeof AuthenticatedRequestChiefRoute
+  AuthenticatedAthletesAthleteIdRoute: typeof AuthenticatedAthletesAthleteIdRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedRequestChiefRoute: AuthenticatedRequestChiefRoute,
+  AuthenticatedAthletesAthleteIdRoute: AuthenticatedAthletesAthleteIdRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
+  publicDelegationsDelegationIdRoute: publicDelegationsDelegationIdRoute,
+  publicSportsSportIdRoute: publicSportsSportIdRoute,
+  publicWeeksWeekIdRoute: publicWeeksWeekIdRoute,
+  publicCalendarIndexRoute: publicCalendarIndexRoute,
+  publicDelegationsIndexRoute: publicDelegationsIndexRoute,
+  publicResultsIndexRoute: publicResultsIndexRoute,
+  publicSportsIndexRoute: publicSportsIndexRoute,
+  publicWeeksIndexRoute: publicWeeksIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

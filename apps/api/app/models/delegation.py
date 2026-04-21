@@ -25,7 +25,8 @@ class Delegation(SQLModel, table=True):
     name: str
     flag_url: Optional[str] = None
     chief_id: Optional[int] = Field(default=None, foreign_key="users.id")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = Field(default=True)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
 
 class DelegationMember(SQLModel, table=True):
@@ -35,7 +36,7 @@ class DelegationMember(SQLModel, table=True):
     delegation_id: int = Field(foreign_key="delegations.id")
     user_id: int = Field(foreign_key="users.id")
     role: DelegationMemberRole
-    joined_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    joined_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     left_at: Optional[datetime] = None
 
 
@@ -46,4 +47,4 @@ class DelegationInvite(SQLModel, table=True):
     delegation_id: int = Field(foreign_key="delegations.id")
     user_id: int = Field(foreign_key="users.id")
     status: InviteStatus = Field(default=InviteStatus.PENDING)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
