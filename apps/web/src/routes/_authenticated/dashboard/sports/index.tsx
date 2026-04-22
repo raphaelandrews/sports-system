@@ -25,15 +25,17 @@ import { Search, Trophy, Users } from "lucide-react";
 import { formatEventDate } from "@/lib/date";
 import { sportListQueryOptions } from "@/queries/sports";
 
-export const Route = createFileRoute("/_authenticated/dashboard/_admin/sports/")({
+export const Route = createFileRoute("/_authenticated/dashboard/sports/")({
   ssr: false,
   loader: ({ context: { queryClient } }) => {
     void queryClient.prefetchQuery(sportListQueryOptions())
   },
-  component: AdminSportsPage,
+  component: SportsPage,
 });
 
-function AdminSportsPage() {
+function SportsPage() {
+  const { session } = Route.useRouteContext();
+  const isAdmin = session.role === "ADMIN";
   const { data } = useSuspenseQuery(sportListQueryOptions());
   const [search, setSearch] = useState("");
 
@@ -50,11 +52,13 @@ function AdminSportsPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(160deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
           <CardHeader className="gap-3">
             <Badge variant="outline" className="w-fit">
-              Fase 7
+              Esportes
             </Badge>
             <CardTitle className="text-2xl">Esportes e modalidades</CardTitle>
             <CardDescription className="max-w-2xl">
-              Painel administrativo para acompanhar os esportes ativos, revisar status e entrar nas modalidades configuradas.
+              {isAdmin
+                ? "Painel administrativo para acompanhar os esportes ativos, revisar status e entrar nas modalidades configuradas."
+                : "Esportes e modalidades disponíveis na competição."}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
@@ -73,12 +77,16 @@ function AdminSportsPage() {
           <CardHeader>
             <CardTitle>Status rapido</CardTitle>
             <CardDescription>
-              Cada esporte leva para uma tela com modalidades, regras e estatisticas-schema.
+              {isAdmin
+                ? "Cada esporte leva para uma tela com modalidades, regras e estatisticas-schema."
+                : "Consulte as modalidades de cada esporte."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
             <p>Use a busca para localizar rapidamente um esporte pelo nome.</p>
-            <p>O cadastro de modalidades acontece dentro da tela de detalhe de cada esporte.</p>
+            {isAdmin ? (
+              <p>O cadastro de modalidades acontece dentro da tela de detalhe de cada esporte.</p>
+            ) : null}
           </CardContent>
         </Card>
       </section>
@@ -88,7 +96,9 @@ function AdminSportsPage() {
           <div>
             <CardTitle>Lista dos esportes</CardTitle>
             <CardDescription>
-              Acesse o detalhe para editar modalidades e revisar as regras JSON.
+              {isAdmin
+                ? "Acesse o detalhe para editar modalidades e revisar as regras JSON."
+                : "Consulte os esportes e suas modalidades."}
             </CardDescription>
           </div>
           <div className="relative max-w-md">
@@ -110,7 +120,7 @@ function AdminSportsPage() {
                 <TableHead>Jogadores</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Criado em</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                {isAdmin ? <TableHead className="text-right">Ações</TableHead> : null}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -129,20 +139,22 @@ function AdminSportsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>{formatEventDate(sport.created_at, { dateStyle: "medium" })}</TableCell>
-                  <TableCell className="text-right">
-                    <Link
-                      to="/dashboard/sports/$sportId"
-                      params={{ sportId: String(sport.id) }}
-                      className={cn(buttonVariants({ variant: "outline" }))}
-                    >
-                      Abrir detalhe
-                    </Link>
-                  </TableCell>
+                  {isAdmin ? (
+                    <TableCell className="text-right">
+                      <Link
+                        to="/dashboard/sports/$sportId"
+                        params={{ sportId: String(sport.id) }}
+                        className={cn(buttonVariants({ variant: "outline" }))}
+                      >
+                        Abrir detalhe
+                      </Link>
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               ))}
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                  <TableCell colSpan={isAdmin ? 6 : 5} className="py-8 text-center text-muted-foreground">
                     Nenhum esporte encontrado.
                   </TableCell>
                 </TableRow>

@@ -29,12 +29,12 @@ import { weekListQueryOptions } from "@/queries/weeks";
 import type { EventStatus } from "@/types/events";
 import type { WeekResponse } from "@/types/weeks";
 
-export const Route = createFileRoute("/_authenticated/dashboard/_admin/calendar/")({
+export const Route = createFileRoute("/_authenticated/dashboard/calendar/")({
   ssr: false,
   loader: ({ context: { queryClient } }) => {
     void queryClient.prefetchQuery(weekListQueryOptions())
   },
-  component: AdminCalendarPage,
+  component: CalendarPage,
 });
 
 const statusLabel: Record<EventStatus, string> = {
@@ -52,7 +52,9 @@ const phaseLabel: Record<string, string> = {
   BRONZE: "Bronze",
 };
 
-function AdminCalendarPage() {
+function CalendarPage() {
+  const { session } = Route.useRouteContext();
+  const isAdmin = session.role === "ADMIN";
   const queryClient = useQueryClient();
   const { data: weeksData } = useSuspenseQuery(weekListQueryOptions());
   const weeks = orderWeeks(weeksData.data);
@@ -101,12 +103,12 @@ function AdminCalendarPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_38%),linear-gradient(165deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.2))]">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Fase 10</Badge>
+              <Badge variant="outline">Calendário</Badge>
               {activeWeek ? <Badge variant="secondary">Semana {activeWeek.week_number}</Badge> : null}
             </div>
-            <CardTitle className="text-2xl">Administracao do calendario</CardTitle>
+            <CardTitle className="text-2xl">Calendário de eventos</CardTitle>
             <CardDescription className="max-w-2xl">
-              Operacao de agenda, criacao manual de eventos e disparo da geracao automatica.
+              Acompanhe os eventos agendados por semana e fase da competição.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
@@ -129,7 +131,9 @@ function AdminCalendarPage() {
         <Card className="border border-border/70">
           <CardHeader>
             <CardTitle>Controles</CardTitle>
-            <CardDescription>Semana, criacao manual e IA.</CardDescription>
+            <CardDescription>
+              {isAdmin ? "Semana, criacao manual e IA." : "Selecione a semana para visualizar."}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Select
@@ -148,13 +152,28 @@ function AdminCalendarPage() {
               </SelectContent>
             </Select>
 
-            <Link
-              to="/dashboard/calendar/events/new"
-              className={cn(buttonVariants({ variant: "default" }), "w-full justify-start")}
-            >
-              <CalendarPlus2 className="mr-2 size-4" />
-              Criar evento
-            </Link>
+            {isAdmin ? (
+              <>
+                <Link
+                  to="/dashboard/calendar/events/new"
+                  className={cn(buttonVariants({ variant: "default" }), "w-full justify-start")}
+                >
+                  <CalendarPlus2 className="mr-2 size-4" />
+                  Criar evento
+                </Link>
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-full justify-start"
+                  disabled={generateMutation.isPending || !selectedWeekId}
+                  onClick={() => generateMutation.mutate()}
+                >
+                  <Sparkles className="mr-2 size-4" />
+                  {generateMutation.isPending ? "Gerando..." : "Gerar Calendario com IA"}
+                </Button>
+              </>
+            ) : null}
 
             {activeWeek ? (
               <Link
@@ -166,17 +185,6 @@ function AdminCalendarPage() {
                 Ver calendario publico
               </Link>
             ) : null}
-
-            <Button
-              type="button"
-              variant="secondary"
-              className="w-full justify-start"
-              disabled={generateMutation.isPending || !selectedWeekId}
-              onClick={() => generateMutation.mutate()}
-            >
-              <Sparkles className="mr-2 size-4" />
-              {generateMutation.isPending ? "Gerando..." : "Gerar Calendario com IA"}
-            </Button>
           </CardContent>
         </Card>
       </section>
@@ -185,7 +193,7 @@ function AdminCalendarPage() {
         <CardHeader>
           <CardTitle>Grade da semana</CardTitle>
           <CardDescription>
-            Eventos agrupados por data. Foco operacional rapido.
+            Eventos agrupados por data.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -242,14 +250,16 @@ function AdminCalendarPage() {
                         {event.venue ? ` · ${event.venue}` : ""}
                       </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Link
-                        to="/dashboard/calendar/events/new"
-                        className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
-                      >
-                        Duplicar base
-                      </Link>
-                    </div>
+                    {isAdmin ? (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                          to="/dashboard/calendar/events/new"
+                          className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+                        >
+                          Duplicar base
+                        </Link>
+                      </div>
+                    ) : null}
                   </div>
                 ))}
               </div>

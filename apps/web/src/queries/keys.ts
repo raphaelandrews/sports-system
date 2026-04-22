@@ -42,7 +42,12 @@ export const queryKeys = {
       ["enrollments", "delegation", delegationId] as const,
   },
   results: {
+    all: () => ["results"] as const,
+    list: (params?: Record<string, unknown>) => ["results", params ?? {}] as const,
     medalBoard: () => ["results", "medal-board"] as const,
+    medalBoardSport: (sportId: number) => ["results", "medal-board", "sport", sportId] as const,
+    records: (modalityId?: number) => ["results", "records", modalityId ?? "all"] as const,
+    standings: (modalityId: number) => ["results", "standings", modalityId] as const,
     byWeek: (weekId: number) => ["results", "week", weekId] as const,
   },
   notifications: {

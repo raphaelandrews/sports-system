@@ -29,10 +29,10 @@ import type { Session } from "@/types/auth"
 
 const commonNav: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Calendário", url: "/calendar", icon: CalendarDays },
-  { title: "Resultados", url: "/results", icon: Medal },
-  { title: "Delegações", url: "/delegations", icon: Flag },
-  { title: "Esportes", url: "/sports", icon: Trophy },
+  { title: "Calendário", url: "/dashboard/calendar", icon: CalendarDays },
+  { title: "Resultados", url: "/dashboard/results", icon: Medal },
+  { title: "Delegações", url: "/dashboard/delegations", icon: Flag },
+  { title: "Esportes", url: "/dashboard/sports", icon: Trophy },
 ]
 
 const adminNav: NavItem[] = [
@@ -53,7 +53,7 @@ const adminNav: NavItem[] = [
     ],
   },
   { title: "Geração IA", url: "/dashboard/ai", icon: Sparkles },
-  { title: "Relatórios", url: "/dashboard/reports", icon: BarChart3 },
+  { title: "Relatório Final", url: "/report", icon: BarChart3 },
 ]
 
 const chiefNav: NavItem[] = [
@@ -80,19 +80,19 @@ const athleteNav: NavItem[] = [
 
 const supportNav: Record<Session["role"], NavItem[]> = {
   ADMIN: [
-    { title: "Centro analítico", url: "/dashboard/reports", icon: ChartColumn },
+    { title: "Centro analítico", url: "/report", icon: ChartColumn },
     { title: "Automação IA", url: "/dashboard/ai", icon: Sparkles },
   ],
   CHIEF: [
-    { title: "Resultados da delegação", url: "/results", icon: Trophy },
+    { title: "Resultados da delegação", url: "/dashboard/results", icon: Trophy },
     { title: "Área protegida", url: "/dashboard", icon: Shield },
   ],
   ATHLETE: [
-    { title: "Calendário oficial", url: "/calendar", icon: CalendarDays },
+    { title: "Calendário oficial", url: "/dashboard/calendar", icon: CalendarDays },
     { title: "Meu painel", url: "/dashboard", icon: Shield },
   ],
   COACH: [
-    { title: "Agenda da equipe", url: "/calendar", icon: CalendarDays },
+    { title: "Agenda da equipe", url: "/dashboard/calendar", icon: CalendarDays },
     { title: "Área protegida", url: "/dashboard", icon: Shield },
   ],
 }

@@ -71,3 +71,36 @@ export async function apiFetch<T>(
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
+
+export async function apiFetchBlob(path: string): Promise<Blob> {
+  let authHeader: Record<string, string> = {};
+  if (typeof document !== "undefined") {
+    const match = document.cookie
+      .split("; ")
+      .find((c) => c.startsWith("access_token="));
+    if (match) {
+      authHeader = { Authorization: `Bearer ${match.split("=")[1]}` };
+    }
+  }
+
+  const res = await fetch(`${env.VITE_SERVER_URL}${path}`, {
+    credentials: "include",
+    headers: authHeader,
+  });
+
+  if (!res.ok) {
+    let code = "UNKNOWN";
+    let detail = res.statusText;
+    try {
+      const json = await res.json();
+      code = json.code ?? code;
+      const raw = json.detail ?? detail;
+      detail = typeof raw === "string" ? raw : JSON.stringify(raw);
+    } catch {
+      // ignore parse error
+    }
+    throw new ApiError(res.status, code, detail);
+  }
+
+  return res.blob();
+}

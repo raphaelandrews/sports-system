@@ -39,15 +39,17 @@ import type { DelegationResponse } from "@/types/delegations";
 
 const PAGE_SIZE = 8;
 
-export const Route = createFileRoute("/_authenticated/dashboard/_admin/delegations/")({
+export const Route = createFileRoute("/_authenticated/dashboard/delegations/")({
   ssr: false,
   loader: ({ context: { queryClient } }) => {
     void queryClient.prefetchQuery(delegationListQueryOptions())
   },
-  component: AdminDelegationsPage,
+  component: DelegationsPage,
 });
 
-function AdminDelegationsPage() {
+function DelegationsPage() {
+  const { session } = Route.useRouteContext();
+  const isAdmin = session.role === "ADMIN";
   const queryClient = useQueryClient();
   const { data } = useSuspenseQuery(delegationListQueryOptions());
 
@@ -107,11 +109,15 @@ function AdminDelegationsPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_46%),linear-gradient(135deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.28))]">
           <CardHeader className="gap-3">
             <Badge variant="outline" className="w-fit">
-              Fase 5
+              Delegações
             </Badge>
-            <CardTitle className="text-2xl">Gestão de delegações</CardTitle>
+            <CardTitle className="text-2xl">
+              {isAdmin ? "Gestão de delegações" : "Delegações"}
+            </CardTitle>
             <CardDescription className="max-w-2xl">
-              Organize a base competitiva, filtre status, abra cadastros manuais e acelere a criação inicial com geração por IA.
+              {isAdmin
+                ? "Organize a base competitiva, filtre status, abra cadastros manuais e acelere a criação inicial com geração por IA."
+                : "Acompanhe as delegações participantes da competição."}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
@@ -136,41 +142,43 @@ function AdminDelegationsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border border-border/70">
-          <CardHeader>
-            <CardTitle>Geração rápida com IA</CardTitle>
-            <CardDescription>
-              Crie blocos de delegações para ambiente demo ou povoamento inicial.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Select value={aiCount} onValueChange={(value) => setAiCount(value ?? "5")}>
-                <SelectTrigger className="w-28">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {["3", "5", "8", "10", "15"].map((value) => (
-                    <SelectItem key={value} value={value}>
-                      {value} itens
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                type="button"
-                onClick={() => aiMutation.mutate()}
-                disabled={aiMutation.isPending}
-              >
-                <Bot className="size-4" />
-                {aiMutation.isPending ? "Gerando..." : "Gerar com IA"}
-              </Button>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Cada execução cria novas delegações. Revise nomes e bandeiras depois do preenchimento automático.
-            </p>
-          </CardContent>
-        </Card>
+        {isAdmin ? (
+          <Card className="border border-border/70">
+            <CardHeader>
+              <CardTitle>Geração rápida com IA</CardTitle>
+              <CardDescription>
+                Crie blocos de delegações para ambiente demo ou povoamento inicial.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Select value={aiCount} onValueChange={(value) => setAiCount(value ?? "5")}>
+                  <SelectTrigger className="w-28">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["3", "5", "8", "10", "15"].map((value) => (
+                      <SelectItem key={value} value={value}>
+                        {value} itens
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  onClick={() => aiMutation.mutate()}
+                  disabled={aiMutation.isPending}
+                >
+                  <Bot className="size-4" />
+                  {aiMutation.isPending ? "Gerando..." : "Gerar com IA"}
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Cada execução cria novas delegações. Revise nomes e bandeiras depois do preenchimento automático.
+              </p>
+            </CardContent>
+          </Card>
+        ) : null}
       </section>
 
       <Card className="border border-border/70">
@@ -182,13 +190,15 @@ function AdminDelegationsPage() {
                 Filtre por nome, código e status para localizar delegações rapidamente.
               </CardDescription>
             </div>
-            <Link
-              to="/dashboard/delegations/new"
-              className={buttonVariants({ variant: "default" })}
-            >
-              <Plus className="size-4" />
-              Nova delegação
-            </Link>
+            {isAdmin ? (
+              <Link
+                to="/dashboard/delegations/new"
+                className={buttonVariants({ variant: "default" })}
+              >
+                <Plus className="size-4" />
+                Nova delegação
+              </Link>
+            ) : null}
           </div>
 
           <div className="grid gap-3 md:grid-cols-[1fr_220px]">
@@ -255,17 +265,21 @@ function AdminDelegationsPage() {
                     {formatEventDate(delegation.created_at, { dateStyle: "medium" })}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Link
-                      to="/dashboard/delegations/$delegationId"
-                      params={{ delegationId: String(delegation.id) }}
-                      className={cn(
-                        buttonVariants({ variant: "ghost", size: "sm" }),
-                        "ml-auto",
-                      )}
-                    >
-                      Abrir
-                      <ArrowRight className="size-4" />
-                    </Link>
+                    {isAdmin ? (
+                      <Link
+                        to="/dashboard/delegations/$delegationId"
+                        params={{ delegationId: String(delegation.id) }}
+                        className={cn(
+                          buttonVariants({ variant: "ghost", size: "sm" }),
+                          "ml-auto",
+                        )}
+                      >
+                        Abrir
+                        <ArrowRight className="size-4" />
+                      </Link>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

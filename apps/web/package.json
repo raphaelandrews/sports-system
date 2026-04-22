@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "build": "WRANGLER_LOG_PATH=/tmp/wrangler.log vite build",
     "serve": "vite preview",
     "dev:bare": "vite dev",
     "gen:types": "openapi-typescript http://localhost:3000/openapi.json -o src/types/api.gen.ts"

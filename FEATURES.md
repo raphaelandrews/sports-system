@@ -468,8 +468,8 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
   - [x] Calendário otimizado por esporte e local (via ai_generate em events)
   - [x] Resultados plausíveis com base nos esportes e regras (via simulation_service)
   - [x] Narrativa contextualizada dos destaques do dia (via narrative_service)
-- [ ] `GET /report/export/pdf` — exportar relatório em PDF
 - [x] `GET /report/export/csv` — exportar resultados em CSV
+- [x] `GET /report/export/xlsx` — exportar resultados em XLSX
 
 ---
 
@@ -565,7 +565,7 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 5 — Gestão de Delegações (Admin)
 
-- [x] `routes/_authenticated/_admin/delegations/index.tsx` — lista com filtros, paginação, ação de gerar IA
+- [x] `routes/_authenticated/dashboard/delegations/index.tsx` — lista com filtros, paginação, ação de gerar IA *(rota compartilhada; admin vê botões de criação/edição, demais roles vêem lista somente-leitura)*
 - [x] `routes/_authenticated/_admin/delegations/new.tsx` — formulário de criação
 - [x] `routes/_authenticated/_admin/delegations/$delegationId/index.tsx` — detalhe: membros, histórico, partidas
 - [x] `routes/_authenticated/_admin/delegations/$delegationId/edit.tsx` — edição
@@ -580,7 +580,7 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 7 — Esportes e Modalidades (Admin)
 
-- [x] `routes/_authenticated/_admin/sports/index.tsx` — lista os 10 esportes + status
+- [x] `routes/_authenticated/dashboard/sports/index.tsx` — lista os 10 esportes + status *(rota compartilhada; admin vê coluna de ações, demais roles vêem lista somente-leitura)*
 - [x] `routes/_authenticated/_admin/sports/$sportId/index.tsx` — detalhe: modalidades, regras, estatísticas-schema
 - [x] `routes/_authenticated/_admin/sports/$sportId/modalities/new.tsx` — criar modalidade
 - [x] `routes/_authenticated/_admin/sports/$sportId/modalities/$modalityId/edit.tsx` — editar regras
@@ -609,7 +609,7 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 10 — Calendário e Partidas
 
-- [x] `routes/_authenticated/_admin/calendar/index.tsx` — administração do calendário da semana
+- [x] `routes/_authenticated/dashboard/calendar/index.tsx` — calendário da semana *(rota compartilhada; admin vê criação de evento, geração IA e ações por linha; demais roles vêem grade somente-leitura)*
 - [x] `routes/_authenticated/_admin/calendar/events/new.tsx` — criar evento
 - [x] `routes/(public)/calendar/$weekId/index.tsx` — calendário público da semana (SSR)
 - [x] `routes/_authenticated/matches/$matchId/index.tsx` (`ssr: false`) — partida ao vivo:
@@ -635,37 +635,38 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 12 — Resultados e Quadro de Medalhas
 
-- [ ] `routes/(public)/results/index.tsx` — quadro de medalhas ao vivo (SSR + refetch 30s)
-- [ ] `routes/(public)/results/sports/$sportId/index.tsx` — classificação por esporte
-- [ ] `routes/_authenticated/_admin/results/index.tsx` — painel de entrada de resultados
-- [ ] `routes/_authenticated/_admin/results/$matchId/new.tsx` — registrar resultado com campos específicos por esporte
-- [ ] `routes/(public)/results/records/index.tsx` — recordes e melhores marcas da competição
-- [ ] Componente `MedalBoard` — tabela com ouro/prata/bronze animado
-- [ ] Componente `SportStandings` — tabela de classificação por esporte com critérios de desempate
-- [ ] Botão "Gerar Resultados com IA" (admin)
+- [x] `routes/(public)/results/index.tsx` — quadro de medalhas ao vivo (SSR + refetch 30s) *(implementado na Fase 3)*
+- [x] `routes/_authenticated/dashboard/results/index.tsx` — quadro de medalhas no dashboard (refetch 30s, sem layout público)
+- [x] `routes/(public)/results/sports/$sportId/index.tsx` — classificação por esporte
+- [x] `routes/_authenticated/dashboard/results/index.tsx` — painel de entrada de resultados *(implementado em rota compartilhada do dashboard)*
+- [x] `routes/_authenticated/dashboard/results/$matchId/new.tsx` — registrar resultado com campos específicos por esporte *(implementado em rota compartilhada do dashboard)*
+- [x] `routes/(public)/results/records/index.tsx` — recordes e melhores marcas da competição
+- [x] Componente `MedalBoard` — tabela com ouro/prata/bronze animado
+- [x] Componente `SportStandings` — tabela de classificação por esporte com critérios de desempate
+- [x] Botão "Gerar Resultados com IA" (admin)
 
 ## Fase 13 — Painel de IA (Admin)
 
-- [ ] `routes/_authenticated/_admin/ai/index.tsx` (`ssr: false`) — painel central de geração:
-  - [ ] Card por categoria: Delegações, Esportes, Atletas, Calendário, Inscrições, Resultados, Narrativa
-  - [ ] Botão "Gerar" por categoria com indicador de progresso
-  - [ ] Histórico das últimas gerações com timestamp e quantidade
-  - [ ] Preview do conteúdo gerado antes de confirmar
-- [ ] Componente `AiGenerateButton` — reutilizável, loading state + toast
+- [x] `routes/_authenticated/dashboard/ai/index.tsx` (`ssr: false`) — painel central de geração *(implementado em rota compartilhada do dashboard)*:
+  - [x] Card por categoria: Delegações, Esportes, Atletas, Calendário, Inscrições, Resultados, Narrativa
+  - [x] Botão "Gerar" por categoria com indicador de progresso
+  - [x] Histórico das últimas gerações com timestamp e quantidade
+  - [x] Preview do conteúdo gerado antes de confirmar
+- [x] Componente `AiGenerateButton` — reutilizável, loading state + toast
 
 ## Fase 14 — Relatórios e Exportação
 
-- [ ] `routes/(public)/report/index.tsx` — relatório final público (SSR)
-  - [ ] Quadro de medalhas completo
-  - [ ] Classificação por modalidade
-  - [ ] Recordes e melhores marcas
-  - [ ] Destaque de atletas
-- [ ] `routes/_authenticated/narrative/index.tsx` (`ssr: false`) — narrativa gerada por IA:
-  - [ ] Histórico de narrativas por dia
-  - [ ] Botão "Gerar narrativa do dia" (admin)
-  - [ ] Rendering de texto rico com destaques
-- [ ] Botão de exportação PDF (`/report/export/pdf`) *(opcional)*
-- [ ] Botão de exportação CSV (`/report/export/csv`) *(opcional)*
+- [x] `routes/(public)/report/index.tsx` — relatório final público (SSR)
+  - [x] Quadro de medalhas completo
+  - [x] Classificação por modalidade
+  - [x] Recordes e melhores marcas
+  - [x] Destaque de atletas
+- [x] `routes/_authenticated/narrative/index.tsx` (`ssr: false`) — narrativa gerada por IA:
+  - [x] Histórico de narrativas por dia
+  - [x] Botão "Gerar narrativa do dia" (admin)
+  - [x] Rendering de texto rico com destaques
+- [x] Botão de exportação CSV (`/report/export/csv`) — presente em `/report` e `/dashboard/results`
+- [x] Botão de exportação XLSX (`/report/export/xlsx`) — presente em `/report` e `/dashboard/results`
 
 ---
 
