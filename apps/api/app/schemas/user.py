@@ -17,6 +17,16 @@ class UserResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class UserSearchResponse(BaseModel):
+    id: int
+    email: str
+    name: str
+    role: UserRole
+    is_active: bool
+
+    model_config = {"from_attributes": True}
+
+
 class UserUpdate(BaseModel):
     name: Optional[str] = None
 

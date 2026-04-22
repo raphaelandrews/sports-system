@@ -6,6 +6,7 @@ export interface SportResponse {
   name: string;
   sport_type: SportType;
   description: string | null;
+  rules_json: Record<string, unknown>;
   player_count: number | null;
   is_active: boolean;
   created_at: string;

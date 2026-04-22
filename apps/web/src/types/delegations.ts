@@ -34,6 +34,16 @@ export interface MemberHistoryItem {
   left_at: string | null;
 }
 
+export type InviteStatus = "PENDING" | "ACCEPTED" | "REFUSED";
+
+export interface DelegationInviteResponse {
+  id: number;
+  delegation_id: number;
+  user_id: number;
+  status: InviteStatus;
+  created_at: string;
+}
+
 export interface DelegationCreateInput {
   name: string;
   code?: string;

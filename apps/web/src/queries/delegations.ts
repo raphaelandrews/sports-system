@@ -2,6 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 
 import { apiFetch } from "@/lib/api";
 import type {
+  DelegationInviteResponse,
   MemberHistoryItem,
   DelegationDetailResponse,
   DelegationSummary,
@@ -30,4 +31,11 @@ export const delegationHistoryQueryOptions = (id: number) =>
     queryKey: queryKeys.delegations.history(id),
     queryFn: () => apiFetch<MemberHistoryItem[]>(`/delegations/${id}/history`),
     staleTime: 2 * 60 * 1000,
+  });
+
+export const delegationInvitesQueryOptions = (id: number) =>
+  queryOptions({
+    queryKey: queryKeys.delegations.invites(id),
+    queryFn: () => apiFetch<DelegationInviteResponse[]>(`/delegations/${id}/invites`),
+    staleTime: 30 * 1000,
   });

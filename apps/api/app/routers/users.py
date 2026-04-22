@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_current_user, require_admin
+from app.core.deps import get_current_user, require_admin, require_chief_or_admin
 from app.database import get_session
 from app.models.user import User, UserRole
 from app.schemas.common import Meta, PaginatedResponse
@@ -10,6 +10,7 @@ from app.schemas.user import (
     ChiefRequestCreate,
     ChiefRequestResponse,
     ChiefRequestReview,
+    UserSearchResponse,
     UserResponse,
     UserUpdate,
 )
@@ -32,6 +33,17 @@ async def update_me(
     user = await user_service.update_me(session, current_user, data)
     await session.commit()
     return user
+
+
+@router.get("/users/search", response_model=list[UserSearchResponse])
+async def search_users(
+    q: str = Query(..., min_length=2),
+    limit: int = Query(10, ge=1, le=20),
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(require_chief_or_admin),
+) -> list[UserSearchResponse]:
+    users = await user_service.search_users(session, current_user, q, limit)
+    return [UserSearchResponse.model_validate(user) for user in users]
 
 
 @router.get("/requests/chief/me", response_model=ChiefRequestResponse)

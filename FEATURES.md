@@ -573,30 +573,30 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 6 — Minha Delegação (Chefe)
 
-- [ ] `routes/_authenticated/_chief/my-delegation/index.tsx` — overview da delegação
-- [ ] `routes/_authenticated/_chief/my-delegation/members.tsx` — lista membros, convites pendentes, ações
-- [ ] `routes/_authenticated/_chief/my-delegation/invite.tsx` — buscar usuário + enviar convite
-- [ ] `routes/_authenticated/_chief/my-delegation/transfers.tsx` — painel de transferências (ativo só na segunda)
+- [x] `routes/_authenticated/_chief/my-delegation/index.tsx` — overview da delegação
+- [x] `routes/_authenticated/_chief/my-delegation/members.tsx` — lista membros, convites pendentes, ações
+- [x] `routes/_authenticated/_chief/my-delegation/invite.tsx` — buscar usuário + enviar convite
+- [x] `routes/_authenticated/_chief/my-delegation/transfers.tsx` — painel de transferências (ativo só na segunda)
 
 ## Fase 7 — Esportes e Modalidades (Admin)
 
-- [ ] `routes/_authenticated/_admin/sports/index.tsx` — lista os 10 esportes + status
-- [ ] `routes/_authenticated/_admin/sports/$sportId/index.tsx` — detalhe: modalidades, regras, estatísticas-schema
-- [ ] `routes/_authenticated/_admin/sports/$sportId/modalities/new.tsx` — criar modalidade
-- [ ] `routes/_authenticated/_admin/sports/$sportId/modalities/$modalityId/edit.tsx` — editar regras
+- [x] `routes/_authenticated/_admin/sports/index.tsx` — lista os 10 esportes + status
+- [x] `routes/_authenticated/_admin/sports/$sportId/index.tsx` — detalhe: modalidades, regras, estatísticas-schema
+- [x] `routes/_authenticated/_admin/sports/$sportId/modalities/new.tsx` — criar modalidade
+- [x] `routes/_authenticated/_admin/sports/$sportId/modalities/$modalityId/edit.tsx` — editar regras
 
 ## Fase 8 — Atletas e Técnicos
 
-- [ ] `routes/_authenticated/_admin/athletes/index.tsx` — lista global com filtros
-- [ ] `routes/_authenticated/_chief/athletes/index.tsx` — atletas da delegação
+- [x] `routes/_authenticated/_admin/athletes/index.tsx` — lista global com filtros *(implementado via rota compartilhada `/dashboard/athletes` com comportamento por role)*
+- [x] `routes/_authenticated/_chief/athletes/index.tsx` — atletas da delegação *(implementado via rota compartilhada `/dashboard/athletes` com comportamento por role)*
 - [x] `routes/_authenticated/athletes/$athleteId.tsx` — perfil do atleta:
   - [x] Dados pessoais e modalidades
   - [x] Timeline de delegações (com datas)
   - [x] Histórico de partidas (com delegação na época)
   - [x] Estatísticas por esporte
-- [ ] `routes/_authenticated/_admin/athletes/new.tsx` — cadastrar atleta (admin)
-- [ ] `routes/_authenticated/_chief/athletes/new.tsx` — cadastrar atleta (chefe)
-- [ ] Botão "Gerar com IA" (admin)
+- [x] `routes/_authenticated/_admin/athletes/new.tsx` — cadastrar atleta (admin) *(implementado via rota compartilhada `/dashboard/athletes/new` com comportamento por role)*
+- [x] `routes/_authenticated/_chief/athletes/new.tsx` — cadastrar atleta (chefe) *(implementado via rota compartilhada `/dashboard/athletes/new` com comportamento por role)*
+- [x] Botão "Gerar com IA" (admin)
 
 ## Fase 9 — Semanas de Competição (Admin)
 

@@ -46,6 +46,9 @@ export const queryKeys = {
   notifications: {
     list: (userId: number) => ["notifications", userId] as const,
   },
+  users: {
+    search: (query: string) => ["users", "search", query] as const,
+  },
   requests: {
     all: () => ["requests"] as const,
     chief: () => ["requests", "chief"] as const,

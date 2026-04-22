@@ -45,6 +45,7 @@ const adminNav: NavItem[] = [
     items: [
       { title: "Semanas", url: "/dashboard/weeks" },
       { title: "Delegações", url: "/dashboard/delegations" },
+      { title: "Esportes", url: "/dashboard/sports" },
       { title: "Atletas", url: "/dashboard/athletes" },
       { title: "Inscrições", url: "/dashboard/enrollments" },
       { title: "Resultados", url: "/dashboard/results" },

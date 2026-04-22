@@ -25,15 +25,26 @@ import { Route as publicResultsIndexRouteImport } from './routes/(public)/result
 import { Route as publicDelegationsIndexRouteImport } from './routes/(public)/delegations/index'
 import { Route as publicCalendarIndexRouteImport } from './routes/(public)/calendar/index'
 import { Route as AuthenticatedRequestChiefStatusRouteImport } from './routes/_authenticated/request-chief/status'
+import { Route as AuthenticatedDashboardChiefRouteImport } from './routes/_authenticated/dashboard/_chief'
 import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard/_admin'
 import { Route as AuthenticatedAthletesAthleteIdRouteImport } from './routes/_authenticated/athletes/$athleteId'
 import { Route as publicWeeksWeekIdRouteImport } from './routes/(public)/weeks/$weekId'
 import { Route as publicSportsSportIdRouteImport } from './routes/(public)/sports/$sportId'
 import { Route as publicDelegationsDelegationIdRouteImport } from './routes/(public)/delegations/$delegationId'
+import { Route as AuthenticatedDashboardAthletesIndexRouteImport } from './routes/_authenticated/dashboard/athletes/index'
+import { Route as AuthenticatedDashboardAthletesNewRouteImport } from './routes/_authenticated/dashboard/athletes/new'
+import { Route as AuthenticatedDashboardChiefMyDelegationIndexRouteImport } from './routes/_authenticated/dashboard/_chief/my-delegation/index'
+import { Route as AuthenticatedDashboardAdminSportsIndexRouteImport } from './routes/_authenticated/dashboard/_admin/sports/index'
 import { Route as AuthenticatedDashboardAdminDelegationsIndexRouteImport } from './routes/_authenticated/dashboard/_admin/delegations/index'
+import { Route as AuthenticatedDashboardChiefMyDelegationTransfersRouteImport } from './routes/_authenticated/dashboard/_chief/my-delegation/transfers'
+import { Route as AuthenticatedDashboardChiefMyDelegationMembersRouteImport } from './routes/_authenticated/dashboard/_chief/my-delegation/members'
+import { Route as AuthenticatedDashboardChiefMyDelegationInviteRouteImport } from './routes/_authenticated/dashboard/_chief/my-delegation/invite'
 import { Route as AuthenticatedDashboardAdminDelegationsNewRouteImport } from './routes/_authenticated/dashboard/_admin/delegations/new'
+import { Route as AuthenticatedDashboardAdminSportsSportIdIndexRouteImport } from './routes/_authenticated/dashboard/_admin/sports/$sportId/index'
 import { Route as AuthenticatedDashboardAdminDelegationsDelegationIdIndexRouteImport } from './routes/_authenticated/dashboard/_admin/delegations/$delegationId/index'
 import { Route as AuthenticatedDashboardAdminDelegationsDelegationIdEditRouteImport } from './routes/_authenticated/dashboard/_admin/delegations/$delegationId/edit'
+import { Route as AuthenticatedDashboardAdminSportsSportIdModalitiesNewRouteImport } from './routes/_authenticated/dashboard/_admin/sports/$sportId/modalities/new'
+import { Route as AuthenticatedDashboardAdminSportsSportIdModalitiesModalityIdEditRouteImport } from './routes/_authenticated/dashboard/_admin/sports/$sportId/modalities/$modalityId/edit'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -118,6 +129,11 @@ const AuthenticatedRequestChiefStatusRoute =
     path: '/status',
     getParentRoute: () => AuthenticatedRequestChiefRoute,
   } as any)
+const AuthenticatedDashboardChiefRoute =
+  AuthenticatedDashboardChiefRouteImport.update({
+    id: '/_chief',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardAdminRoute =
   AuthenticatedDashboardAdminRouteImport.update({
     id: '/_admin',
@@ -145,16 +161,64 @@ const publicDelegationsDelegationIdRoute =
     path: '/delegations/$delegationId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedDashboardAthletesIndexRoute =
+  AuthenticatedDashboardAthletesIndexRouteImport.update({
+    id: '/athletes/',
+    path: '/athletes/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardAthletesNewRoute =
+  AuthenticatedDashboardAthletesNewRouteImport.update({
+    id: '/athletes/new',
+    path: '/athletes/new',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardChiefMyDelegationIndexRoute =
+  AuthenticatedDashboardChiefMyDelegationIndexRouteImport.update({
+    id: '/my-delegation/',
+    path: '/my-delegation/',
+    getParentRoute: () => AuthenticatedDashboardChiefRoute,
+  } as any)
+const AuthenticatedDashboardAdminSportsIndexRoute =
+  AuthenticatedDashboardAdminSportsIndexRouteImport.update({
+    id: '/sports/',
+    path: '/sports/',
+    getParentRoute: () => AuthenticatedDashboardAdminRoute,
+  } as any)
 const AuthenticatedDashboardAdminDelegationsIndexRoute =
   AuthenticatedDashboardAdminDelegationsIndexRouteImport.update({
     id: '/delegations/',
     path: '/delegations/',
     getParentRoute: () => AuthenticatedDashboardAdminRoute,
   } as any)
+const AuthenticatedDashboardChiefMyDelegationTransfersRoute =
+  AuthenticatedDashboardChiefMyDelegationTransfersRouteImport.update({
+    id: '/my-delegation/transfers',
+    path: '/my-delegation/transfers',
+    getParentRoute: () => AuthenticatedDashboardChiefRoute,
+  } as any)
+const AuthenticatedDashboardChiefMyDelegationMembersRoute =
+  AuthenticatedDashboardChiefMyDelegationMembersRouteImport.update({
+    id: '/my-delegation/members',
+    path: '/my-delegation/members',
+    getParentRoute: () => AuthenticatedDashboardChiefRoute,
+  } as any)
+const AuthenticatedDashboardChiefMyDelegationInviteRoute =
+  AuthenticatedDashboardChiefMyDelegationInviteRouteImport.update({
+    id: '/my-delegation/invite',
+    path: '/my-delegation/invite',
+    getParentRoute: () => AuthenticatedDashboardChiefRoute,
+  } as any)
 const AuthenticatedDashboardAdminDelegationsNewRoute =
   AuthenticatedDashboardAdminDelegationsNewRouteImport.update({
     id: '/delegations/new',
     path: '/delegations/new',
+    getParentRoute: () => AuthenticatedDashboardAdminRoute,
+  } as any)
+const AuthenticatedDashboardAdminSportsSportIdIndexRoute =
+  AuthenticatedDashboardAdminSportsSportIdIndexRouteImport.update({
+    id: '/sports/$sportId/',
+    path: '/sports/$sportId/',
     getParentRoute: () => AuthenticatedDashboardAdminRoute,
   } as any)
 const AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute =
@@ -169,6 +233,20 @@ const AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute =
     path: '/delegations/$delegationId/edit',
     getParentRoute: () => AuthenticatedDashboardAdminRoute,
   } as any)
+const AuthenticatedDashboardAdminSportsSportIdModalitiesNewRoute =
+  AuthenticatedDashboardAdminSportsSportIdModalitiesNewRouteImport.update({
+    id: '/sports/$sportId/modalities/new',
+    path: '/sports/$sportId/modalities/new',
+    getParentRoute: () => AuthenticatedDashboardAdminRoute,
+  } as any)
+const AuthenticatedDashboardAdminSportsSportIdModalitiesModalityIdEditRoute =
+  AuthenticatedDashboardAdminSportsSportIdModalitiesModalityIdEditRouteImport.update(
+    {
+      id: '/sports/$sportId/modalities/$modalityId/edit',
+      path: '/sports/$sportId/modalities/$modalityId/edit',
+      getParentRoute: () => AuthenticatedDashboardAdminRoute,
+    } as any,
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -176,7 +254,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/privacy': typeof publicPrivacyRoute
   '/terms': typeof publicTermsRoute
-  '/dashboard': typeof AuthenticatedDashboardAdminRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardChiefRouteWithChildren
   '/request-chief': typeof AuthenticatedRequestChiefRouteWithChildren
   '/delegations/$delegationId': typeof publicDelegationsDelegationIdRoute
   '/sports/$sportId': typeof publicSportsSportIdRoute
@@ -190,10 +268,20 @@ export interface FileRoutesByFullPath {
   '/weeks/': typeof publicWeeksIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/request-chief/': typeof AuthenticatedRequestChiefIndexRoute
+  '/dashboard/athletes/new': typeof AuthenticatedDashboardAthletesNewRoute
+  '/dashboard/athletes/': typeof AuthenticatedDashboardAthletesIndexRoute
   '/dashboard/delegations/new': typeof AuthenticatedDashboardAdminDelegationsNewRoute
+  '/dashboard/my-delegation/invite': typeof AuthenticatedDashboardChiefMyDelegationInviteRoute
+  '/dashboard/my-delegation/members': typeof AuthenticatedDashboardChiefMyDelegationMembersRoute
+  '/dashboard/my-delegation/transfers': typeof AuthenticatedDashboardChiefMyDelegationTransfersRoute
   '/dashboard/delegations/': typeof AuthenticatedDashboardAdminDelegationsIndexRoute
+  '/dashboard/sports/': typeof AuthenticatedDashboardAdminSportsIndexRoute
+  '/dashboard/my-delegation/': typeof AuthenticatedDashboardChiefMyDelegationIndexRoute
   '/dashboard/delegations/$delegationId/edit': typeof AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute
   '/dashboard/delegations/$delegationId/': typeof AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute
+  '/dashboard/sports/$sportId/': typeof AuthenticatedDashboardAdminSportsSportIdIndexRoute
+  '/dashboard/sports/$sportId/modalities/new': typeof AuthenticatedDashboardAdminSportsSportIdModalitiesNewRoute
+  '/dashboard/sports/$sportId/modalities/$modalityId/edit': typeof AuthenticatedDashboardAdminSportsSportIdModalitiesModalityIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -213,10 +301,20 @@ export interface FileRoutesByTo {
   '/sports': typeof publicSportsIndexRoute
   '/weeks': typeof publicWeeksIndexRoute
   '/request-chief': typeof AuthenticatedRequestChiefIndexRoute
+  '/dashboard/athletes/new': typeof AuthenticatedDashboardAthletesNewRoute
+  '/dashboard/athletes': typeof AuthenticatedDashboardAthletesIndexRoute
   '/dashboard/delegations/new': typeof AuthenticatedDashboardAdminDelegationsNewRoute
+  '/dashboard/my-delegation/invite': typeof AuthenticatedDashboardChiefMyDelegationInviteRoute
+  '/dashboard/my-delegation/members': typeof AuthenticatedDashboardChiefMyDelegationMembersRoute
+  '/dashboard/my-delegation/transfers': typeof AuthenticatedDashboardChiefMyDelegationTransfersRoute
   '/dashboard/delegations': typeof AuthenticatedDashboardAdminDelegationsIndexRoute
+  '/dashboard/sports': typeof AuthenticatedDashboardAdminSportsIndexRoute
+  '/dashboard/my-delegation': typeof AuthenticatedDashboardChiefMyDelegationIndexRoute
   '/dashboard/delegations/$delegationId/edit': typeof AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute
   '/dashboard/delegations/$delegationId': typeof AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute
+  '/dashboard/sports/$sportId': typeof AuthenticatedDashboardAdminSportsSportIdIndexRoute
+  '/dashboard/sports/$sportId/modalities/new': typeof AuthenticatedDashboardAdminSportsSportIdModalitiesNewRoute
+  '/dashboard/sports/$sportId/modalities/$modalityId/edit': typeof AuthenticatedDashboardAdminSportsSportIdModalitiesModalityIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -233,6 +331,7 @@ export interface FileRoutesById {
   '/(public)/weeks/$weekId': typeof publicWeeksWeekIdRoute
   '/_authenticated/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
   '/_authenticated/dashboard/_admin': typeof AuthenticatedDashboardAdminRouteWithChildren
+  '/_authenticated/dashboard/_chief': typeof AuthenticatedDashboardChiefRouteWithChildren
   '/_authenticated/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
   '/(public)/calendar/': typeof publicCalendarIndexRoute
   '/(public)/delegations/': typeof publicDelegationsIndexRoute
@@ -241,10 +340,20 @@ export interface FileRoutesById {
   '/(public)/weeks/': typeof publicWeeksIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/request-chief/': typeof AuthenticatedRequestChiefIndexRoute
+  '/_authenticated/dashboard/athletes/new': typeof AuthenticatedDashboardAthletesNewRoute
+  '/_authenticated/dashboard/athletes/': typeof AuthenticatedDashboardAthletesIndexRoute
   '/_authenticated/dashboard/_admin/delegations/new': typeof AuthenticatedDashboardAdminDelegationsNewRoute
+  '/_authenticated/dashboard/_chief/my-delegation/invite': typeof AuthenticatedDashboardChiefMyDelegationInviteRoute
+  '/_authenticated/dashboard/_chief/my-delegation/members': typeof AuthenticatedDashboardChiefMyDelegationMembersRoute
+  '/_authenticated/dashboard/_chief/my-delegation/transfers': typeof AuthenticatedDashboardChiefMyDelegationTransfersRoute
   '/_authenticated/dashboard/_admin/delegations/': typeof AuthenticatedDashboardAdminDelegationsIndexRoute
+  '/_authenticated/dashboard/_admin/sports/': typeof AuthenticatedDashboardAdminSportsIndexRoute
+  '/_authenticated/dashboard/_chief/my-delegation/': typeof AuthenticatedDashboardChiefMyDelegationIndexRoute
   '/_authenticated/dashboard/_admin/delegations/$delegationId/edit': typeof AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute
   '/_authenticated/dashboard/_admin/delegations/$delegationId/': typeof AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute
+  '/_authenticated/dashboard/_admin/sports/$sportId/': typeof AuthenticatedDashboardAdminSportsSportIdIndexRoute
+  '/_authenticated/dashboard/_admin/sports/$sportId/modalities/new': typeof AuthenticatedDashboardAdminSportsSportIdModalitiesNewRoute
+  '/_authenticated/dashboard/_admin/sports/$sportId/modalities/$modalityId/edit': typeof AuthenticatedDashboardAdminSportsSportIdModalitiesModalityIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -268,10 +377,20 @@ export interface FileRouteTypes {
     | '/weeks/'
     | '/dashboard/'
     | '/request-chief/'
+    | '/dashboard/athletes/new'
+    | '/dashboard/athletes/'
     | '/dashboard/delegations/new'
+    | '/dashboard/my-delegation/invite'
+    | '/dashboard/my-delegation/members'
+    | '/dashboard/my-delegation/transfers'
     | '/dashboard/delegations/'
+    | '/dashboard/sports/'
+    | '/dashboard/my-delegation/'
     | '/dashboard/delegations/$delegationId/edit'
     | '/dashboard/delegations/$delegationId/'
+    | '/dashboard/sports/$sportId/'
+    | '/dashboard/sports/$sportId/modalities/new'
+    | '/dashboard/sports/$sportId/modalities/$modalityId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -291,10 +410,20 @@ export interface FileRouteTypes {
     | '/sports'
     | '/weeks'
     | '/request-chief'
+    | '/dashboard/athletes/new'
+    | '/dashboard/athletes'
     | '/dashboard/delegations/new'
+    | '/dashboard/my-delegation/invite'
+    | '/dashboard/my-delegation/members'
+    | '/dashboard/my-delegation/transfers'
     | '/dashboard/delegations'
+    | '/dashboard/sports'
+    | '/dashboard/my-delegation'
     | '/dashboard/delegations/$delegationId/edit'
     | '/dashboard/delegations/$delegationId'
+    | '/dashboard/sports/$sportId'
+    | '/dashboard/sports/$sportId/modalities/new'
+    | '/dashboard/sports/$sportId/modalities/$modalityId/edit'
   id:
     | '__root__'
     | '/'
@@ -310,6 +439,7 @@ export interface FileRouteTypes {
     | '/(public)/weeks/$weekId'
     | '/_authenticated/athletes/$athleteId'
     | '/_authenticated/dashboard/_admin'
+    | '/_authenticated/dashboard/_chief'
     | '/_authenticated/request-chief/status'
     | '/(public)/calendar/'
     | '/(public)/delegations/'
@@ -318,10 +448,20 @@ export interface FileRouteTypes {
     | '/(public)/weeks/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/request-chief/'
+    | '/_authenticated/dashboard/athletes/new'
+    | '/_authenticated/dashboard/athletes/'
     | '/_authenticated/dashboard/_admin/delegations/new'
+    | '/_authenticated/dashboard/_chief/my-delegation/invite'
+    | '/_authenticated/dashboard/_chief/my-delegation/members'
+    | '/_authenticated/dashboard/_chief/my-delegation/transfers'
     | '/_authenticated/dashboard/_admin/delegations/'
+    | '/_authenticated/dashboard/_admin/sports/'
+    | '/_authenticated/dashboard/_chief/my-delegation/'
     | '/_authenticated/dashboard/_admin/delegations/$delegationId/edit'
     | '/_authenticated/dashboard/_admin/delegations/$delegationId/'
+    | '/_authenticated/dashboard/_admin/sports/$sportId/'
+    | '/_authenticated/dashboard/_admin/sports/$sportId/modalities/new'
+    | '/_authenticated/dashboard/_admin/sports/$sportId/modalities/$modalityId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -455,6 +595,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRequestChiefStatusRouteImport
       parentRoute: typeof AuthenticatedRequestChiefRoute
     }
+    '/_authenticated/dashboard/_chief': {
+      id: '/_authenticated/dashboard/_chief'
+      path: ''
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardChiefRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/_admin': {
       id: '/_authenticated/dashboard/_admin'
       path: ''
@@ -490,6 +637,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicDelegationsDelegationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard/athletes/': {
+      id: '/_authenticated/dashboard/athletes/'
+      path: '/athletes'
+      fullPath: '/dashboard/athletes/'
+      preLoaderRoute: typeof AuthenticatedDashboardAthletesIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/athletes/new': {
+      id: '/_authenticated/dashboard/athletes/new'
+      path: '/athletes/new'
+      fullPath: '/dashboard/athletes/new'
+      preLoaderRoute: typeof AuthenticatedDashboardAthletesNewRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/_chief/my-delegation/': {
+      id: '/_authenticated/dashboard/_chief/my-delegation/'
+      path: '/my-delegation'
+      fullPath: '/dashboard/my-delegation/'
+      preLoaderRoute: typeof AuthenticatedDashboardChiefMyDelegationIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardChiefRoute
+    }
+    '/_authenticated/dashboard/_admin/sports/': {
+      id: '/_authenticated/dashboard/_admin/sports/'
+      path: '/sports'
+      fullPath: '/dashboard/sports/'
+      preLoaderRoute: typeof AuthenticatedDashboardAdminSportsIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardAdminRoute
+    }
     '/_authenticated/dashboard/_admin/delegations/': {
       id: '/_authenticated/dashboard/_admin/delegations/'
       path: '/delegations'
@@ -497,11 +672,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAdminDelegationsIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardAdminRoute
     }
+    '/_authenticated/dashboard/_chief/my-delegation/transfers': {
+      id: '/_authenticated/dashboard/_chief/my-delegation/transfers'
+      path: '/my-delegation/transfers'
+      fullPath: '/dashboard/my-delegation/transfers'
+      preLoaderRoute: typeof AuthenticatedDashboardChiefMyDelegationTransfersRouteImport
+      parentRoute: typeof AuthenticatedDashboardChiefRoute
+    }
+    '/_authenticated/dashboard/_chief/my-delegation/members': {
+      id: '/_authenticated/dashboard/_chief/my-delegation/members'
+      path: '/my-delegation/members'
+      fullPath: '/dashboard/my-delegation/members'
+      preLoaderRoute: typeof AuthenticatedDashboardChiefMyDelegationMembersRouteImport
+      parentRoute: typeof AuthenticatedDashboardChiefRoute
+    }
+    '/_authenticated/dashboard/_chief/my-delegation/invite': {
+      id: '/_authenticated/dashboard/_chief/my-delegation/invite'
+      path: '/my-delegation/invite'
+      fullPath: '/dashboard/my-delegation/invite'
+      preLoaderRoute: typeof AuthenticatedDashboardChiefMyDelegationInviteRouteImport
+      parentRoute: typeof AuthenticatedDashboardChiefRoute
+    }
     '/_authenticated/dashboard/_admin/delegations/new': {
       id: '/_authenticated/dashboard/_admin/delegations/new'
       path: '/delegations/new'
       fullPath: '/dashboard/delegations/new'
       preLoaderRoute: typeof AuthenticatedDashboardAdminDelegationsNewRouteImport
+      parentRoute: typeof AuthenticatedDashboardAdminRoute
+    }
+    '/_authenticated/dashboard/_admin/sports/$sportId/': {
+      id: '/_authenticated/dashboard/_admin/sports/$sportId/'
+      path: '/sports/$sportId'
+      fullPath: '/dashboard/sports/$sportId/'
+      preLoaderRoute: typeof AuthenticatedDashboardAdminSportsSportIdIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardAdminRoute
     }
     '/_authenticated/dashboard/_admin/delegations/$delegationId/': {
@@ -518,14 +721,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAdminDelegationsDelegationIdEditRouteImport
       parentRoute: typeof AuthenticatedDashboardAdminRoute
     }
+    '/_authenticated/dashboard/_admin/sports/$sportId/modalities/new': {
+      id: '/_authenticated/dashboard/_admin/sports/$sportId/modalities/new'
+      path: '/sports/$sportId/modalities/new'
+      fullPath: '/dashboard/sports/$sportId/modalities/new'
+      preLoaderRoute: typeof AuthenticatedDashboardAdminSportsSportIdModalitiesNewRouteImport
+      parentRoute: typeof AuthenticatedDashboardAdminRoute
+    }
+    '/_authenticated/dashboard/_admin/sports/$sportId/modalities/$modalityId/edit': {
+      id: '/_authenticated/dashboard/_admin/sports/$sportId/modalities/$modalityId/edit'
+      path: '/sports/$sportId/modalities/$modalityId/edit'
+      fullPath: '/dashboard/sports/$sportId/modalities/$modalityId/edit'
+      preLoaderRoute: typeof AuthenticatedDashboardAdminSportsSportIdModalitiesModalityIdEditRouteImport
+      parentRoute: typeof AuthenticatedDashboardAdminRoute
+    }
   }
 }
 
 interface AuthenticatedDashboardAdminRouteChildren {
   AuthenticatedDashboardAdminDelegationsNewRoute: typeof AuthenticatedDashboardAdminDelegationsNewRoute
   AuthenticatedDashboardAdminDelegationsIndexRoute: typeof AuthenticatedDashboardAdminDelegationsIndexRoute
+  AuthenticatedDashboardAdminSportsIndexRoute: typeof AuthenticatedDashboardAdminSportsIndexRoute
   AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute: typeof AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute
   AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute: typeof AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute
+  AuthenticatedDashboardAdminSportsSportIdIndexRoute: typeof AuthenticatedDashboardAdminSportsSportIdIndexRoute
+  AuthenticatedDashboardAdminSportsSportIdModalitiesNewRoute: typeof AuthenticatedDashboardAdminSportsSportIdModalitiesNewRoute
+  AuthenticatedDashboardAdminSportsSportIdModalitiesModalityIdEditRoute: typeof AuthenticatedDashboardAdminSportsSportIdModalitiesModalityIdEditRoute
 }
 
 const AuthenticatedDashboardAdminRouteChildren: AuthenticatedDashboardAdminRouteChildren =
@@ -534,10 +755,18 @@ const AuthenticatedDashboardAdminRouteChildren: AuthenticatedDashboardAdminRoute
       AuthenticatedDashboardAdminDelegationsNewRoute,
     AuthenticatedDashboardAdminDelegationsIndexRoute:
       AuthenticatedDashboardAdminDelegationsIndexRoute,
+    AuthenticatedDashboardAdminSportsIndexRoute:
+      AuthenticatedDashboardAdminSportsIndexRoute,
     AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute:
       AuthenticatedDashboardAdminDelegationsDelegationIdEditRoute,
     AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute:
       AuthenticatedDashboardAdminDelegationsDelegationIdIndexRoute,
+    AuthenticatedDashboardAdminSportsSportIdIndexRoute:
+      AuthenticatedDashboardAdminSportsSportIdIndexRoute,
+    AuthenticatedDashboardAdminSportsSportIdModalitiesNewRoute:
+      AuthenticatedDashboardAdminSportsSportIdModalitiesNewRoute,
+    AuthenticatedDashboardAdminSportsSportIdModalitiesModalityIdEditRoute:
+      AuthenticatedDashboardAdminSportsSportIdModalitiesModalityIdEditRoute,
   }
 
 const AuthenticatedDashboardAdminRouteWithChildren =
@@ -545,16 +774,49 @@ const AuthenticatedDashboardAdminRouteWithChildren =
     AuthenticatedDashboardAdminRouteChildren,
   )
 
+interface AuthenticatedDashboardChiefRouteChildren {
+  AuthenticatedDashboardChiefMyDelegationInviteRoute: typeof AuthenticatedDashboardChiefMyDelegationInviteRoute
+  AuthenticatedDashboardChiefMyDelegationMembersRoute: typeof AuthenticatedDashboardChiefMyDelegationMembersRoute
+  AuthenticatedDashboardChiefMyDelegationTransfersRoute: typeof AuthenticatedDashboardChiefMyDelegationTransfersRoute
+  AuthenticatedDashboardChiefMyDelegationIndexRoute: typeof AuthenticatedDashboardChiefMyDelegationIndexRoute
+}
+
+const AuthenticatedDashboardChiefRouteChildren: AuthenticatedDashboardChiefRouteChildren =
+  {
+    AuthenticatedDashboardChiefMyDelegationInviteRoute:
+      AuthenticatedDashboardChiefMyDelegationInviteRoute,
+    AuthenticatedDashboardChiefMyDelegationMembersRoute:
+      AuthenticatedDashboardChiefMyDelegationMembersRoute,
+    AuthenticatedDashboardChiefMyDelegationTransfersRoute:
+      AuthenticatedDashboardChiefMyDelegationTransfersRoute,
+    AuthenticatedDashboardChiefMyDelegationIndexRoute:
+      AuthenticatedDashboardChiefMyDelegationIndexRoute,
+  }
+
+const AuthenticatedDashboardChiefRouteWithChildren =
+  AuthenticatedDashboardChiefRoute._addFileChildren(
+    AuthenticatedDashboardChiefRouteChildren,
+  )
+
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAdminRoute: typeof AuthenticatedDashboardAdminRouteWithChildren
+  AuthenticatedDashboardChiefRoute: typeof AuthenticatedDashboardChiefRouteWithChildren
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+  AuthenticatedDashboardAthletesNewRoute: typeof AuthenticatedDashboardAthletesNewRoute
+  AuthenticatedDashboardAthletesIndexRoute: typeof AuthenticatedDashboardAthletesIndexRoute
 }
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
     AuthenticatedDashboardAdminRoute:
       AuthenticatedDashboardAdminRouteWithChildren,
+    AuthenticatedDashboardChiefRoute:
+      AuthenticatedDashboardChiefRouteWithChildren,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+    AuthenticatedDashboardAthletesNewRoute:
+      AuthenticatedDashboardAthletesNewRoute,
+    AuthenticatedDashboardAthletesIndexRoute:
+      AuthenticatedDashboardAthletesIndexRoute,
   }
 
 const AuthenticatedDashboardRouteWithChildren =
