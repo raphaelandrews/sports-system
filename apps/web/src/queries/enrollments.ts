@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query"
 
 import { apiFetch } from "@/lib/api"
+import { queryKeys } from "@/queries/keys"
 import type { EnrollmentResponse, EnrollmentStatus } from "@/types/enrollments"
 
 interface PaginatedResponse<T> {
@@ -16,7 +17,7 @@ export const enrollmentListQueryOptions = (params?: {
   status?: EnrollmentStatus
 }) =>
   queryOptions({
-    queryKey: ["enrollments", params ?? {}],
+    queryKey: queryKeys.enrollments.list(params),
     queryFn: () =>
       apiFetch<PaginatedResponse<EnrollmentResponse>>("/enrollments", {
         params: { page: 1, per_page: 50, ...params },

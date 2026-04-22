@@ -13,8 +13,9 @@ export const Route = createFileRoute(
   "/_authenticated/dashboard/_admin/sports/$sportId/modalities/$modalityId/edit",
 )({
   ssr: false,
-  loader: ({ context: { queryClient }, params }) =>
-    queryClient.ensureQueryData(sportDetailQueryOptions(Number(params.sportId))),
+  loader: ({ context: { queryClient }, params }) => {
+    void queryClient.prefetchQuery(sportDetailQueryOptions(Number(params.sportId)))
+  },
   component: EditModalityPage,
 });
 
@@ -66,7 +67,9 @@ function EditModalityPage() {
       defaultValues={modality}
       isSubmitting={mutation.isPending}
       errorMessage={mutation.error instanceof ApiError ? mutation.error.message : null}
-      onSubmit={mutation.mutateAsync}
+      onSubmit={async (value) => {
+        await mutation.mutateAsync(value);
+      }}
     />
   );
 }

@@ -36,7 +36,7 @@ async def list_events(
     sport_id: Optional[int] = Query(None),
     event_date: Optional[date] = Query(None),
     page: int = Query(1, ge=1),
-    per_page: int = Query(20, ge=1, le=100),
+    per_page: int = Query(20, ge=1, le=500),
     session: AsyncSession = Depends(get_session),
 ) -> PaginatedResponse[EventResponse]:
     return await event_service.list_events(session, week_id, sport_id, event_date, page, per_page)

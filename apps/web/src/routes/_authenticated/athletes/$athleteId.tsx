@@ -185,7 +185,7 @@ function AthleteProfilePage() {
                   <Card key={key}>
                     <CardHeader className="pb-1 text-sm font-medium">{label}</CardHeader>
                     <CardContent className="space-y-1">
-                      {Object.entries(stats).map(([k, v]) => (
+                      {Object.entries(stats as Record<string, unknown>).map(([k, v]) => (
                         <div key={k} className="flex justify-between text-sm">
                           <span className="text-muted-foreground capitalize">
                             {k.replace(/_/g, " ")}

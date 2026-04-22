@@ -1,9 +1,5 @@
-import type { Session } from "@/types/auth";
+import type { ApiSchemas } from "@/types/api.gen";
 
-export interface UserSearchResponse {
-  id: number;
-  email: string;
-  name: string;
-  role: Session["role"];
-  is_active: boolean;
-}
+export type UserResponse = ApiSchemas["UserResponse"];
+export type UserSearchResponse = ApiSchemas["UserSearchResponse"];
+export type UserUpdate = ApiSchemas["UserUpdate"];

@@ -36,8 +36,9 @@ export const Route = createFileRoute("/_authenticated/dashboard/athletes/")({
       throw redirect({ to: "/dashboard" });
     }
   },
-  loader: ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(athleteListQueryOptions({ per_page: 100 })),
+  loader: ({ context: { queryClient } }) => {
+    void queryClient.prefetchQuery(athleteListQueryOptions({ per_page: 100 }))
+  },
   component: AthletesPage,
 });
 
@@ -113,7 +114,7 @@ function AthletesPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Acoes</CardTitle>
+            <CardTitle>Ações</CardTitle>
             <CardDescription>
               Cadastre manualmente e, no admin, acelere o povoamento com IA.
             </CardDescription>

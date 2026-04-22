@@ -1,5 +1,6 @@
 import * as React from "react"
 import { useRouterState } from "@tanstack/react-router"
+import { Skeleton } from "@sports-system/ui/components/skeleton"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,12 +19,30 @@ import {
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import type { Session } from "@/types/auth"
 
+function ContentSkeleton() {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-9 w-28" />
+      </div>
+      <Skeleton className="h-10 w-full" />
+      <div className="flex flex-col gap-2">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-14 w-full" />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function useBreadcrumbs() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const segments = pathname.replace(/^\/dashboard\/?/, "").split("/").filter(Boolean)
 
   const labels: Record<string, string> = {
     weeks: "Semanas",
+    calendar: "Calendário",
     delegations: "Delegações",
     athletes: "Atletas",
     enrollments: "Inscrições",
@@ -31,6 +50,9 @@ function useBreadcrumbs() {
     requests: "Solicitações",
     ai: "Geração IA",
     reports: "Relatórios",
+    events: "Eventos",
+    new: "Novo",
+    matches: "Partidas",
     "my-delegation": "Minha Delegação",
     members: "Membros",
     invite: "Convidar",
@@ -67,7 +89,7 @@ export function DashboardLayout({
               <SidebarTrigger className="-ml-1" />
               <Separator
                 orientation="vertical"
-                className="mr-2 data-[orientation=vertical]:h-4"
+                className="mr-2 h-4 data-vertical:self-center"
               />
               <Breadcrumb>
                 <BreadcrumbList>
@@ -87,7 +109,9 @@ export function DashboardLayout({
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
-          {children}
+          <React.Suspense fallback={<ContentSkeleton />}>
+            {children}
+          </React.Suspense>
         </div>
       </SidebarInset>
     </SidebarProvider>

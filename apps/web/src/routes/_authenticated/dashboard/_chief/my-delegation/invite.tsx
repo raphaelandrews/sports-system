@@ -51,7 +51,7 @@ export const Route = createFileRoute(
       return { delegationId: null };
     }
 
-    await queryClient.ensureQueryData(delegationInvitesQueryOptions(managed.id));
+    void queryClient.prefetchQuery(delegationInvitesQueryOptions(managed.id))
     return { delegationId: managed.id };
   },
   component: InviteUserPage,

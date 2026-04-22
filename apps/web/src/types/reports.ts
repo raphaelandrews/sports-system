@@ -1,21 +1,10 @@
-export interface AthleteBySportEntry {
-  sport_id: number
-  sport_name: string
-  athlete_count: number
-}
+import type { ApiSchemas } from "@/types/api.gen";
 
-export interface CompetitionSummary {
-  total_delegations: number
-  total_athletes: number
-  total_weeks: number
-  total_events: number
-  total_matches: number
-  completed_matches: number
-}
-
-export interface FinalReportResponse {
-  medal_board: import("./results").MedalBoardEntry[]
-  records: import("./results").RecordResponse[]
-  summary: CompetitionSummary
-  athletes_by_sport: AthleteBySportEntry[]
-}
+export type CompetitionSummary = ApiSchemas["CompetitionSummary"];
+export type AthleteBySportEntry = ApiSchemas["AthleteBySportEntry"];
+export type WeekSummary = ApiSchemas["WeekSummary"];
+export type WeekReportResponse = ApiSchemas["WeekReportResponse"];
+export type FinalReportResponse = ApiSchemas["FinalReportResponse"];
+export type AthleteReportResponse = ApiSchemas["AthleteReportResponse"];
+export type NarrativeResponse = ApiSchemas["NarrativeResponse"];
+export type AIGenerationResponse = ApiSchemas["AIGenerationResponse"];

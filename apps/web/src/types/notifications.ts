@@ -1,9 +1,7 @@
-export type NotificationType =
-  | "INVITE"
-  | "REQUEST_REVIEWED"
-  | "MATCH_REMINDER"
-  | "RESULT"
-  | "TRANSFER";
+import type { ApiSchemas } from "@/types/api.gen";
+
+export type NotificationType = ApiSchemas["NotificationType"];
+export type NotificationResponse = ApiSchemas["NotificationResponse"];
 
 export interface InvitePayload {
   delegation_id: number;
@@ -30,13 +28,4 @@ export interface ResultPayload {
 export interface TransferPayload {
   status: string;
   delegation_name: string;
-}
-
-export interface NotificationResponse {
-  id: number;
-  user_id: number;
-  notification_type: NotificationType;
-  payload: Record<string, unknown>;
-  read: boolean;
-  created_at: string;
 }

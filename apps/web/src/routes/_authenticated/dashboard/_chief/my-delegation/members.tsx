@@ -46,12 +46,9 @@ export const Route = createFileRoute(
       return { delegationId: null };
     }
 
-    await Promise.all([
-      queryClient.ensureQueryData(delegationDetailQueryOptions(managed.id)),
-      queryClient.ensureQueryData(delegationHistoryQueryOptions(managed.id)),
-      queryClient.ensureQueryData(delegationInvitesQueryOptions(managed.id)),
-    ]);
-
+    void queryClient.prefetchQuery(delegationDetailQueryOptions(managed.id))
+    void queryClient.prefetchQuery(delegationHistoryQueryOptions(managed.id))
+    void queryClient.prefetchQuery(delegationInvitesQueryOptions(managed.id))
     return { delegationId: managed.id };
   },
   component: DelegationMembersPage,

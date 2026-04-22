@@ -46,7 +46,9 @@ function NewAthletePage() {
       roleScope={session.role === "ADMIN" ? "admin" : "chief"}
       isSubmitting={mutation.isPending}
       errorMessage={mutation.error instanceof ApiError ? mutation.error.message : null}
-      onSubmit={mutation.mutateAsync}
+      onSubmit={async (value) => {
+        await mutation.mutateAsync(value);
+      }}
     />
   );
 }

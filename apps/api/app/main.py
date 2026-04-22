@@ -76,7 +76,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logging.getLogger(__name__).info("scheduler_stopped")
 
 
-app = FastAPI(title="Sports System API", version="0.1.0", lifespan=lifespan, default_response_class=ORJSONResponse)
+app = FastAPI(
+    title="Sports System API",
+    version="0.1.0",
+    lifespan=lifespan,
+    default_response_class=ORJSONResponse,
+    docs_url="/docs" if settings.DEBUG else None,
+    redoc_url="/redoc" if settings.DEBUG else None,
+    openapi_url="/openapi.json" if settings.DEBUG else None,
+)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)

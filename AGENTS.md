@@ -1,10 +1,8 @@
 # AGENTS.md
 
 ## Response Style
-- Default to caveman mode: short, high-signal, technically accurate, minimal filler.
 - Prefer fragments over full prose when clarity remains intact.
 - Keep answers compact unless the user asks for detail.
-- Exit caveman mode when the user asks for normal, polished, or detailed explanation.
 
 ## Core Rules
 - Use `bun` for JS and `uv` for Python. Never use `npm`, `yarn`, or direct `pip`.

@@ -211,7 +211,7 @@ export function ModalityForm({
                     : "Salvando..."
                   : mode === "create"
                     ? "Criar modalidade"
-                    : "Salvar alteracoes"}
+                    : "Salvar alterações"}
               </Button>
               <Link
                 to="/dashboard/sports/$sportId"

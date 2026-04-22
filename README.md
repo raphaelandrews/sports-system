@@ -174,7 +174,9 @@ bun run check-types
 bun run check
 ```
 
-Frontend: `http://localhost:3001` · Backend: `http://localhost:3000` · Docs: `http://localhost:3000/docs`
+Frontend: `http://localhost:3001` · Backend: `http://localhost:3000` · Swagger UI: `http://localhost:3000/docs` · ReDoc: `http://localhost:3000/redoc`
+
+> Swagger UI and ReDoc are only served when `DEBUG=true` (default in dev). Set `DEBUG=false` in production env vars to disable.
 
 > `bun dev` requires Cloudflare credentials (`CLOUDFLARE_API_TOKEN`) for the infra watcher. Use `bun run dev:web` + `bun run dev:backend` without them.
 
@@ -228,6 +230,35 @@ Infra config: `packages/infra/alchemy.run.ts`. `bun run deploy` sets `NODE_ENV=p
 | `bun run db:up` | Run database migrations (upgrade head) |
 | `bun run db:new "msg"` | Create new migration with autogenerate |
 | `bun run db:down` | Roll back last migration |
+| `bun run --cwd apps/web gen:types` | Regenerate frontend types from OpenAPI schema |
+
+---
+
+## API Types
+
+Frontend types in `apps/web/src/types/` are generated from the FastAPI OpenAPI schema. The source of truth is `apps/web/src/types/api.gen.ts` — never edit it manually.
+
+**Regenerate after changing a Pydantic schema:**
+
+```bash
+# Backend must be running on localhost:3000
+bun run dev:backend   # in one terminal
+
+# In another terminal
+bun run --cwd apps/web gen:types
+```
+
+All domain type files (`weeks.ts`, `athletes.ts`, etc.) re-export from `api.gen.ts`, so existing imports throughout the codebase remain unchanged after regeneration.
+
+**Using the types:**
+
+```ts
+import type { WeekResponse, WeekStatus } from "@/types/weeks";
+
+// or directly from the generated file:
+import type { ApiSchemas } from "@/types/api.gen";
+type WeekResponse = ApiSchemas["WeekResponse"];
+```
 
 ---
 

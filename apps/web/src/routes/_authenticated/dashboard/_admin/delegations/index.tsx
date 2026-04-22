@@ -41,8 +41,9 @@ const PAGE_SIZE = 8;
 
 export const Route = createFileRoute("/_authenticated/dashboard/_admin/delegations/")({
   ssr: false,
-  loader: ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(delegationListQueryOptions()),
+  loader: ({ context: { queryClient } }) => {
+    void queryClient.prefetchQuery(delegationListQueryOptions())
+  },
   component: AdminDelegationsPage,
 });
 
@@ -144,7 +145,7 @@ function AdminDelegationsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
-              <Select value={aiCount} onValueChange={setAiCount}>
+              <Select value={aiCount} onValueChange={(value) => setAiCount(value ?? "5")}>
                 <SelectTrigger className="w-28">
                   <SelectValue />
                 </SelectTrigger>
@@ -207,7 +208,7 @@ function AdminDelegationsPage() {
             <Select
               value={statusFilter}
               onValueChange={(value) => {
-                setStatusFilter(value as typeof statusFilter);
+                setStatusFilter((value as typeof statusFilter | null) ?? "ALL");
                 setPage(1);
               }}
             >

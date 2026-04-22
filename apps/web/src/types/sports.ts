@@ -1,28 +1,12 @@
-export type SportType = "INDIVIDUAL" | "TEAM";
-export type Gender = "M" | "F" | "MIXED";
+import type { ApiSchemas } from "@/types/api.gen";
 
-export interface SportResponse {
-  id: number;
-  name: string;
-  sport_type: SportType;
-  description: string | null;
-  rules_json: Record<string, unknown>;
-  player_count: number | null;
-  is_active: boolean;
-  created_at: string;
-}
+export type SportType = ApiSchemas["SportType"];
+export type Gender = ApiSchemas["Gender"];
 
-export interface ModalityResponse {
-  id: number;
-  sport_id: number;
-  name: string;
-  gender: Gender;
-  category: string | null;
-  rules_json: Record<string, unknown>;
-  is_active: boolean;
-}
-
-export interface SportDetailResponse extends SportResponse {
-  modalities: ModalityResponse[];
-  stats_schema: Record<string, unknown> | null;
-}
+export type SportResponse = ApiSchemas["SportResponse"];
+export type SportDetailResponse = ApiSchemas["SportDetailResponse"];
+export type SportCreate = ApiSchemas["SportCreate"];
+export type SportUpdate = ApiSchemas["SportUpdate"];
+export type ModalityResponse = ApiSchemas["ModalityResponse"];
+export type ModalityCreate = ApiSchemas["ModalityCreate"];
+export type ModalityUpdate = ApiSchemas["ModalityUpdate"];

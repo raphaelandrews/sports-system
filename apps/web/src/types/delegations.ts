@@ -1,56 +1,14 @@
-export interface DelegationResponse {
-  id: number;
-  code: string;
-  name: string;
-  flag_url: string | null;
-  chief_id: number | null;
-  is_active: boolean;
-  created_at: string;
-}
+import type { ApiSchemas } from "@/types/api.gen";
 
-export type DelegationSummary = DelegationResponse
+export type DelegationMemberRole = ApiSchemas["DelegationMemberRole"];
+export type InviteStatus = ApiSchemas["InviteStatus"];
 
-export type DelegationMemberRole = "CHIEF" | "ATHLETE" | "COACH";
-
-export interface MemberInfo {
-  id: number;
-  user_id: number;
-  user_name: string;
-  role: DelegationMemberRole;
-  joined_at: string;
-  left_at: string | null;
-}
-
-export interface DelegationDetailResponse extends DelegationResponse {
-  members: MemberInfo[];
-}
-
-export interface MemberHistoryItem {
-  id: number;
-  user_id: number;
-  user_name: string;
-  role: DelegationMemberRole;
-  joined_at: string;
-  left_at: string | null;
-}
-
-export type InviteStatus = "PENDING" | "ACCEPTED" | "REFUSED";
-
-export interface DelegationInviteResponse {
-  id: number;
-  delegation_id: number;
-  user_id: number;
-  status: InviteStatus;
-  created_at: string;
-}
-
-export interface DelegationCreateInput {
-  name: string;
-  code?: string;
-  flag_url?: string;
-}
-
-export interface DelegationUpdateInput {
-  name?: string;
-  flag_url?: string;
-}
+export type DelegationResponse = ApiSchemas["DelegationResponse"];
+export type DelegationSummary = ApiSchemas["DelegationResponse"];
+export type DelegationDetailResponse = ApiSchemas["DelegationDetailResponse"];
+export type MemberInfo = ApiSchemas["MemberInfo"];
+export type MemberHistoryItem = ApiSchemas["MemberHistoryItem"];
+export type DelegationInviteResponse = ApiSchemas["InviteResponse"];
+export type DelegationCreateInput = ApiSchemas["DelegationCreate"];
+export type DelegationUpdateInput = ApiSchemas["DelegationUpdate"];
+export type InviteCreate = ApiSchemas["InviteCreate"];

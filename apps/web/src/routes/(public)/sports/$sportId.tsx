@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { sportDetailQueryOptions } from "@/queries/sports";
 import type { Gender, SportType } from "@/types/sports";
@@ -55,6 +55,13 @@ function SportDetailPage() {
               : "jogador(es) por time"}
           </p>
         )}
+        <Link
+          to="/sports/$sportId/bracket"
+          params={{ sportId }}
+          className="mt-4 inline-flex text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          Ver chaveamento
+        </Link>
       </div>
 
       <div>

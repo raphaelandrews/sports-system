@@ -21,7 +21,7 @@ router = APIRouter(prefix="/athletes", tags=["athletes"])
 @router.get("", response_model=PaginatedResponse[AthleteResponse])
 async def list_athletes(
     page: int = Query(1, ge=1),
-    per_page: int = Query(20, ge=1, le=100),
+    per_page: int = Query(20, ge=1, le=500),
     session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ) -> PaginatedResponse[AthleteResponse]:

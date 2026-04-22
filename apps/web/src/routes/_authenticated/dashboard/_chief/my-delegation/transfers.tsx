@@ -51,11 +51,8 @@ export const Route = createFileRoute(
       return { delegationId: null };
     }
 
-    await Promise.all([
-      queryClient.ensureQueryData(delegationInvitesQueryOptions(managed.id)),
-      queryClient.ensureQueryData(delegationHistoryQueryOptions(managed.id)),
-    ]);
-
+    void queryClient.prefetchQuery(delegationInvitesQueryOptions(managed.id))
+    void queryClient.prefetchQuery(delegationHistoryQueryOptions(managed.id))
     return { delegationId: managed.id };
   },
   component: TransferPanelPage,
@@ -191,9 +188,9 @@ function TransferPanelPage() {
 
       <Card className="border border-border/70">
         <CardHeader>
-          <CardTitle>Historico util para auditoria</CardTitle>
+          <CardTitle>Historico útil para auditoria</CardTitle>
           <CardDescription>
-            Consulte a linha do tempo recente da delegacao antes de abrir novas movimentacoes.
+            Consulte a linha do tempo recente da delegacao antes de abrir novas movimentações.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">

@@ -1,11 +1,7 @@
-export type EnrollmentStatus = "PENDING" | "APPROVED" | "REJECTED"
+import type { ApiSchemas } from "@/types/api.gen";
 
-export interface EnrollmentResponse {
-  id: number
-  athlete_id: number
-  event_id: number
-  delegation_id: number
-  status: EnrollmentStatus
-  validation_message: string | null
-  created_at: string
-}
+export type EnrollmentStatus = ApiSchemas["EnrollmentStatus"];
+
+export type EnrollmentCreate = ApiSchemas["EnrollmentCreate"];
+export type EnrollmentReview = ApiSchemas["EnrollmentReview"];
+export type EnrollmentResponse = ApiSchemas["EnrollmentResponse"];

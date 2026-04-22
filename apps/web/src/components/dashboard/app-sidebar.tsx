@@ -24,7 +24,6 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-  SidebarSeparator,
 } from "@sports-system/ui/components/sidebar"
 import type { Session } from "@/types/auth"
 
@@ -44,6 +43,7 @@ const adminNav: NavItem[] = [
     isActive: false,
     items: [
       { title: "Semanas", url: "/dashboard/weeks" },
+      { title: "Calendário", url: "/dashboard/calendar" },
       { title: "Delegações", url: "/dashboard/delegations" },
       { title: "Esportes", url: "/dashboard/sports" },
       { title: "Atletas", url: "/dashboard/athletes" },

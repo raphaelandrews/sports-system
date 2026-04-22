@@ -35,6 +35,8 @@ export const queryKeys = {
     report: (id: number) => ["athletes", id, "report"] as const,
   },
   enrollments: {
+    all: () => ["enrollments"] as const,
+    list: (params?: Record<string, unknown>) => ["enrollments", params ?? {}] as const,
     byEvent: (eventId: number) => ["enrollments", "event", eventId] as const,
     byDelegation: (delegationId: number) =>
       ["enrollments", "delegation", delegationId] as const,

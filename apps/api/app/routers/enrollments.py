@@ -16,7 +16,7 @@ router = APIRouter(prefix="/enrollments", tags=["enrollments"])
 @router.get("", response_model=PaginatedResponse[EnrollmentResponse])
 async def list_enrollments(
     page: int = Query(1, ge=1),
-    per_page: int = Query(20, ge=1, le=100),
+    per_page: int = Query(20, ge=1, le=500),
     event_id: int | None = Query(None),
     delegation_id: int | None = Query(None),
     enrollment_status: EnrollmentStatus | None = Query(None, alias="status"),

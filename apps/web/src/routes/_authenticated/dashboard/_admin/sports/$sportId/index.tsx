@@ -25,8 +25,9 @@ export const Route = createFileRoute(
   "/_authenticated/dashboard/_admin/sports/$sportId/",
 )({
   ssr: false,
-  loader: ({ context: { queryClient }, params }) =>
-    queryClient.ensureQueryData(sportDetailQueryOptions(Number(params.sportId))),
+  loader: ({ context: { queryClient }, params }) => {
+    void queryClient.prefetchQuery(sportDetailQueryOptions(Number(params.sportId)))
+  },
   component: SportDetailPage,
 });
 
@@ -59,7 +60,7 @@ function SportDetailPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Acoes</CardTitle>
+            <CardTitle>Ações</CardTitle>
             <CardDescription>
               Entre no fluxo de criacao ou ajuste de modalidades deste esporte.
             </CardDescription>
@@ -98,7 +99,7 @@ function SportDetailPage() {
                   <TableHead>Genero</TableHead>
                   <TableHead>Categoria</TableHead>
                   <TableHead>Rules</TableHead>
-                  <TableHead className="text-right">Acoes</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

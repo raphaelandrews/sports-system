@@ -33,16 +33,14 @@ export const Route = createFileRoute(
     const delegations = await queryClient.ensureQueryData(delegationListQueryOptions());
     const managed = findManagedDelegation(delegations.data, session);
 
+    void queryClient.prefetchQuery(weekListQueryOptions())
+
     if (!managed) {
-      await queryClient.ensureQueryData(weekListQueryOptions());
       return { delegationId: null };
     }
 
-    await Promise.all([
-      queryClient.ensureQueryData(delegationDetailQueryOptions(managed.id)),
-      queryClient.ensureQueryData(delegationInvitesQueryOptions(managed.id)),
-      queryClient.ensureQueryData(weekListQueryOptions()),
-    ]);
+    void queryClient.prefetchQuery(delegationDetailQueryOptions(managed.id))
+    void queryClient.prefetchQuery(delegationInvitesQueryOptions(managed.id))
 
     return { delegationId: managed.id };
   },

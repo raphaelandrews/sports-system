@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { formatDate, formatTime } from "@/lib/date";
@@ -99,7 +99,18 @@ function CalendarPage() {
       <div className="space-y-8">
         {sortedDays.map((day) => (
           <div key={day}>
-            <h2 className="mb-3 text-lg font-medium">{formatDate(day)}</h2>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-lg font-medium">{formatDate(day)}</h2>
+              {selectedWeekId !== "all" ? (
+                <Link
+                  to="/calendar/$weekId"
+                  params={{ weekId: selectedWeekId }}
+                  className="text-sm text-muted-foreground hover:text-foreground hover:underline"
+                >
+                  Ver semana
+                </Link>
+              ) : null}
+            </div>
             <Table>
               <TableHeader>
                 <TableRow>

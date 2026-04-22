@@ -600,38 +600,38 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 9 — Semanas de Competição (Admin)
 
-- [ ] `routes/_authenticated/_admin/weeks/index.tsx` — lista das semanas com status visual
-- [ ] `routes/_authenticated/_admin/weeks/new.tsx` — criar semana
-- [ ] `routes/_authenticated/_admin/weeks/$weekId/index.tsx` — detalhe da semana: eventos, status, ações de transição
-- [ ] Controles de estado: Publicar → Travar → Ativar → Encerrar (com confirmação) — travar também disponível como ação manual além do automático
-- [ ] Indicador "Janela de transferência aberta" — visível quando dia atual é segunda-feira em UTC-3
-- [ ] Indicador de próxima janela de transferência com countdown quando fora de segunda
+- [x] `routes/_authenticated/_admin/weeks/index.tsx` — lista das semanas com status visual
+- [x] `routes/_authenticated/_admin/weeks/new.tsx` — criar semana
+- [x] `routes/_authenticated/_admin/weeks/$weekId/index.tsx` — detalhe da semana: eventos, status, ações de transição
+- [x] Controles de estado: Publicar → Travar → Ativar → Encerrar (com confirmação) — travar também disponível como ação manual além do automático
+- [x] Indicador "Janela de transferência aberta" — visível quando dia atual é segunda-feira em UTC-3
+- [x] Indicador de próxima janela de transferência com countdown quando fora de segunda
 
 ## Fase 10 — Calendário e Partidas
 
-- [ ] `routes/_authenticated/_admin/calendar/index.tsx` — administração do calendário da semana
-- [ ] `routes/_authenticated/_admin/calendar/events/new.tsx` — criar evento
-- [ ] `routes/(public)/calendar/$weekId/index.tsx` — calendário público da semana (SSR)
-- [ ] `routes/_authenticated/matches/$matchId/index.tsx` (`ssr: false`) — partida ao vivo:
-  - [ ] Placar em tempo real via SSE (`GET /matches/{id}/stream`)
-  - [ ] Feed de eventos da partida ao vivo (gols, cartões, pontos com minuto)
-  - [ ] Lista de participantes com delegação na época
-  - [ ] Formulário de registro de evento (admin — tipo, atleta, minuto)
-- [ ] Componente `BracketView` — visualização de chaveamento mata-mata por modalidade
-- [ ] `routes/(public)/sports/$sportId/bracket.tsx` — página pública de chaveamento (SSR)
-- [ ] Botão "Gerar Calendário com IA" (admin)
+- [x] `routes/_authenticated/_admin/calendar/index.tsx` — administração do calendário da semana
+- [x] `routes/_authenticated/_admin/calendar/events/new.tsx` — criar evento
+- [x] `routes/(public)/calendar/$weekId/index.tsx` — calendário público da semana (SSR)
+- [x] `routes/_authenticated/matches/$matchId/index.tsx` (`ssr: false`) — partida ao vivo:
+  - [x] Placar em tempo real via SSE (`GET /matches/{id}/stream`)
+  - [x] Feed de eventos da partida ao vivo (gols, cartões, pontos com minuto)
+  - [x] Lista de participantes com delegação na época
+  - [x] Formulário de registro de evento (admin — tipo, atleta, minuto)
+- [x] Componente `BracketView` — visualização de chaveamento mata-mata por modalidade
+- [x] `routes/(public)/sports/$sportId/bracket.tsx` — página pública de chaveamento (SSR)
+- [x] Botão "Gerar Calendário com IA" (admin)
 
 ## Fase 11 — Inscrições
 
-- [ ] `routes/_authenticated/_admin/enrollments/index.tsx` — todas inscrições com filtros + revisão
-- [ ] `routes/_authenticated/_chief/enrollments/index.tsx` — inscrições da delegação
-- [ ] `routes/_authenticated/_chief/enrollments/new.tsx` — inscrever atleta em evento:
-  - [ ] Seletor de evento (filtrado por semana/esporte)
-  - [ ] Seletor de atleta (filtrado por elegibilidade)
-  - [ ] Validação em tempo real das regras do esporte
-- [ ] Badge de status de inscrição (PENDING/APPROVED/REJECTED) com mensagem de validação
-- [ ] Bloqueio visual de inscrições quando semana está TRAVADA
-- [ ] Botão "Gerar Inscrições com IA" (admin)
+- [x] `routes/_authenticated/_admin/enrollments/index.tsx` — todas inscrições com filtros + revisão *(implementado via rota compartilhada `/dashboard/enrollments` com comportamento por role)*
+- [x] `routes/_authenticated/_chief/enrollments/index.tsx` — inscrições da delegação *(implementado via rota compartilhada `/dashboard/enrollments` com comportamento por role)*
+- [x] `routes/_authenticated/_chief/enrollments/new.tsx` — inscrever atleta em evento *(implementado via rota compartilhada `/dashboard/enrollments/new` com comportamento por role)*:
+  - [x] Seletor de evento (filtrado por semana/esporte)
+  - [x] Seletor de atleta (filtrado por elegibilidade)
+  - [x] Validação em tempo real das regras do esporte
+- [x] Badge de status de inscrição (PENDING/APPROVED/REJECTED) com mensagem de validação
+- [x] Bloqueio visual de inscrições quando semana está TRAVADA
+- [x] Botão "Gerar Inscrições com IA" (admin)
 
 ## Fase 12 — Resultados e Quadro de Medalhas
 

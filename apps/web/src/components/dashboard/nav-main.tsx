@@ -1,12 +1,7 @@
 import { ChevronRight, type LucideIcon } from "lucide-react"
-import { useRouterState } from "@tanstack/react-router"
+import { Link, useRouterState } from "@tanstack/react-router"
+import { useState } from "react"
 import { cn } from "@/lib/utils"
-
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@sports-system/ui/components/collapsible"
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -35,52 +30,15 @@ export function NavMain({ items, label }: { items: NavItem[]; label?: string }) 
       <SidebarMenu>
         {items.map((item) =>
           item.items && item.items.length > 0 ? (
-            <Collapsible
+            <ExpandableNavItem
               key={item.title}
-              asChild
-              defaultOpen={
-                item.isActive ||
-                item.items.some((subItem) => pathname === subItem.url || pathname.startsWith(`${subItem.url}/`))
-              }
-              className="group/collapsible"
-            >
-              <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton
-                    tooltip={item.title}
-                    className={cn(
-                      (pathname === item.url || item.items.some((subItem) => pathname === subItem.url || pathname.startsWith(`${subItem.url}/`))) &&
-                        "bg-sidebar-accent text-sidebar-accent-foreground"
-                    )}
-                  >
-                    {item.icon && <item.icon />}
-                    <span>{item.title}</span>
-                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {item.items.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton
-                          render={<a href={subItem.url} />}
-                          className={cn(
-                            (pathname === subItem.url || pathname.startsWith(`${subItem.url}/`)) &&
-                              "bg-sidebar-accent/70 text-sidebar-accent-foreground"
-                          )}
-                        >
-                          <span>{subItem.title}</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </SidebarMenuItem>
-            </Collapsible>
+              item={item as NavItem & { items: { title: string; url: string }[] }}
+              pathname={pathname}
+            />
           ) : (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
-                render={<a href={item.url} />}
+                render={<Link to={item.url} />}
                 tooltip={item.title}
                 className={cn(
                   (pathname === item.url || pathname.startsWith(`${item.url}/`)) &&
@@ -95,5 +53,54 @@ export function NavMain({ items, label }: { items: NavItem[]; label?: string }) 
         )}
       </SidebarMenu>
     </SidebarGroup>
+  )
+}
+
+function ExpandableNavItem({
+  item,
+  pathname,
+}: {
+  item: NavItem & { items: { title: string; url: string }[] }
+  pathname: string
+}) {
+  const isActive =
+    pathname === item.url ||
+    item.items.some(
+      (subItem) => pathname === subItem.url || pathname.startsWith(`${subItem.url}/`)
+    )
+  const [open, setOpen] = useState(isActive || item.isActive)
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton
+        type="button"
+        tooltip={item.title}
+        isActive={isActive}
+        onClick={() => setOpen((current) => !current)}
+      >
+        {item.icon && <item.icon />}
+        <span>{item.title}</span>
+        <ChevronRight
+          className={cn("ml-auto transition-transform duration-200", open && "rotate-90")}
+        />
+      </SidebarMenuButton>
+      {open ? (
+        <SidebarMenuSub>
+          {item.items.map((subItem) => (
+            <SidebarMenuSubItem key={subItem.title}>
+              <SidebarMenuSubButton
+                render={<Link to={subItem.url} />}
+                className={cn(
+                  (pathname === subItem.url || pathname.startsWith(`${subItem.url}/`)) &&
+                    "bg-sidebar-accent/70 text-sidebar-accent-foreground"
+                )}
+              >
+                <span>{subItem.title}</span>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          ))}
+        </SidebarMenuSub>
+      ) : null}
+    </SidebarMenuItem>
   )
 }

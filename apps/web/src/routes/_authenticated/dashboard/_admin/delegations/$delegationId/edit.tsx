@@ -12,10 +12,9 @@ export const Route = createFileRoute(
   "/_authenticated/dashboard/_admin/delegations/$delegationId/edit",
 )({
   ssr: false,
-  loader: ({ context: { queryClient }, params }) =>
-    queryClient.ensureQueryData(
-      delegationDetailQueryOptions(Number(params.delegationId)),
-    ),
+  loader: ({ context: { queryClient }, params }) => {
+    void queryClient.prefetchQuery(delegationDetailQueryOptions(Number(params.delegationId)))
+  },
   component: EditDelegationPage,
 });
 

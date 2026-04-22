@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:3001"
     PORT: int = 3000
     TIMEZONE: str = "America/Sao_Paulo"
+    DEBUG: bool = True
     AUTO_SIMULATE: bool = True
     LLM_API_KEY: str = ""
 

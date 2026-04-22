@@ -33,13 +33,11 @@ export const Route = createFileRoute(
   "/_authenticated/dashboard/_admin/delegations/$delegationId/",
 )({
   ssr: false,
-  loader: async ({ context: { queryClient }, params }) => {
+  loader: ({ context: { queryClient }, params }) => {
     const delegationId = Number(params.delegationId);
-    await Promise.all([
-      queryClient.ensureQueryData(delegationDetailQueryOptions(delegationId)),
-      queryClient.ensureQueryData(delegationHistoryQueryOptions(delegationId)),
-      queryClient.ensureQueryData(allEventsQueryOptions({ per_page: 24 })),
-    ]);
+    void queryClient.prefetchQuery(delegationDetailQueryOptions(delegationId))
+    void queryClient.prefetchQuery(delegationHistoryQueryOptions(delegationId))
+    void queryClient.prefetchQuery(allEventsQueryOptions({ per_page: 24 }))
   },
   component: DelegationDetailPage,
 });

@@ -27,8 +27,9 @@ import { sportListQueryOptions } from "@/queries/sports";
 
 export const Route = createFileRoute("/_authenticated/dashboard/_admin/sports/")({
   ssr: false,
-  loader: ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(sportListQueryOptions()),
+  loader: ({ context: { queryClient } }) => {
+    void queryClient.prefetchQuery(sportListQueryOptions())
+  },
   component: AdminSportsPage,
 });
 
@@ -109,7 +110,7 @@ function AdminSportsPage() {
                 <TableHead>Jogadores</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Criado em</TableHead>
-                <TableHead className="text-right">Acoes</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
