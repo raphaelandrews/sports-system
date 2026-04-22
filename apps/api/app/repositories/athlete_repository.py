@@ -146,3 +146,21 @@ async def get_statistics(
         "modalities": modalities,
         "raw": [],
     }
+
+
+async def search(
+    session: AsyncSession,
+    query: str,
+    limit: int = 8,
+) -> list[Athlete]:
+    pattern = f"%{query.strip()}%"
+    result = await session.execute(
+        select(Athlete)
+        .where(
+            Athlete.is_active == True,  # noqa: E712
+            ((Athlete.name.ilike(pattern)) | (Athlete.code.ilike(pattern))),
+        )
+        .order_by(Athlete.name.asc())
+        .limit(limit)
+    )
+    return list(result.scalars().all())

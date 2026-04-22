@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { Link, createFileRoute, redirect } from "@tanstack/react-router";
+import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { z } from "zod";
 import { Badge } from "@sports-system/ui/components/badge";
 import { buttonVariants } from "@sports-system/ui/components/button";
 import {
@@ -12,6 +13,13 @@ import {
   CardTitle,
 } from "@sports-system/ui/components/card";
 import { Input } from "@sports-system/ui/components/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@sports-system/ui/components/select";
 import {
   Table,
   TableBody,
@@ -29,8 +37,16 @@ import { athleteListQueryOptions } from "@/queries/athletes";
 import { queryKeys } from "@/queries/keys";
 import type { AthleteResponse } from "@/types/athletes";
 
+const athletesSearchSchema = z.object({
+  q: z.string().optional(),
+  linked: z.enum(["all", "linked", "unlinked"]).catch("all").optional(),
+  sort: z.enum(["name", "code", "birthdate"]).catch("name").optional(),
+  dir: z.enum(["asc", "desc"]).catch("asc").optional(),
+});
+
 export const Route = createFileRoute("/_authenticated/dashboard/athletes/")({
   ssr: false,
+  validateSearch: athletesSearchSchema,
   beforeLoad: ({ context }) => {
     if (context.session.role !== "ADMIN" && context.session.role !== "CHIEF") {
       throw redirect({ to: "/dashboard" });
@@ -44,10 +60,15 @@ export const Route = createFileRoute("/_authenticated/dashboard/athletes/")({
 
 function AthletesPage() {
   const { session } = Route.useRouteContext();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const searchState = Route.useSearch();
   const queryClient = useQueryClient();
   const { data } = useSuspenseQuery(athleteListQueryOptions({ per_page: 100 }));
-  const [search, setSearch] = useState("");
   const isAdmin = session.role === "ADMIN";
+  const search = searchState.q?.trim() ?? "";
+  const linkedFilter = searchState.linked ?? "all";
+  const sort = searchState.sort ?? "name";
+  const dir = searchState.dir ?? "asc";
 
   const aiMutation = useMutation({
     mutationFn: async () => apiFetch<AthleteResponse>("/athletes/ai-generate", { method: "POST" }),
@@ -62,15 +83,30 @@ function AthletesPage() {
 
   const filtered = useMemo(() => {
     const normalized = search.trim().toLowerCase();
-    return data.data.filter((athlete) => {
-      if (!normalized) return true;
-      return (
-        athlete.name.toLowerCase().includes(normalized) ||
-        athlete.code.toLowerCase().includes(normalized) ||
-        String(athlete.user_id ?? "").includes(normalized)
-      );
-    });
-  }, [data.data, search]);
+    return [...data.data]
+      .filter((athlete) => {
+        const matchesSearch =
+          !normalized ||
+          athlete.name.toLowerCase().includes(normalized) ||
+          athlete.code.toLowerCase().includes(normalized) ||
+          String(athlete.user_id ?? "").includes(normalized);
+        const matchesLinked =
+          linkedFilter === "all" ||
+          (linkedFilter === "linked" && athlete.user_id != null) ||
+          (linkedFilter === "unlinked" && athlete.user_id == null);
+        return matchesSearch && matchesLinked;
+      })
+      .sort((left, right) => {
+        const multiplier = dir === "asc" ? 1 : -1;
+        if (sort === "code") {
+          return left.code.localeCompare(right.code) * multiplier;
+        }
+        if (sort === "birthdate") {
+          return (left.birthdate ?? "").localeCompare(right.birthdate ?? "") * multiplier;
+        }
+        return left.name.localeCompare(right.name) * multiplier;
+      });
+  }, [data.data, dir, linkedFilter, search, sort]);
 
   return (
     <div className="space-y-6">
@@ -157,14 +193,82 @@ function AthletesPage() {
               {isAdmin ? "Filtre por nome, codigo ou usuario vinculado." : "Busca simples por nome ou codigo."}
             </CardDescription>
           </div>
-          <div className="relative max-w-md">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="pl-9"
-              placeholder="Buscar atleta"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
+          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_200px_200px_180px]">
+            <div className="relative">
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="pl-9"
+                placeholder="Buscar atleta"
+                value={search}
+                onChange={(event) =>
+                  void navigate({
+                    search: (prev) => ({
+                      ...prev,
+                      q: event.target.value || undefined,
+                    }),
+                  })
+                }
+              />
+            </div>
+            <Select
+              value={linkedFilter}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    linked: value as "all" | "linked" | "unlinked",
+                  }),
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos vínculos</SelectItem>
+                <SelectItem value="linked">Com usuário</SelectItem>
+                <SelectItem value="unlinked">Sem usuário</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={sort}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    sort: value as "name" | "code" | "birthdate",
+                  }),
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Ordenar por nome</SelectItem>
+                <SelectItem value="code">Ordenar por código</SelectItem>
+                <SelectItem value="birthdate">Ordenar por nascimento</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={dir}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    dir: value as "asc" | "desc",
+                  }),
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="asc">Ascendente</SelectItem>
+                <SelectItem value="desc">Descendente</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
         <CardContent>

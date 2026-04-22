@@ -5,6 +5,7 @@ export const queryKeys = {
   delegations: {
     all: () => ["delegations"] as const,
     detail: (id: number) => ["delegations", id] as const,
+    statistics: (id: number) => ["delegations", id, "statistics"] as const,
     members: (id: number) => ["delegations", id, "members"] as const,
     history: (id: number) => ["delegations", id, "history"] as const,
     invites: (id: number) => ["delegations", id, "invites"] as const,
@@ -55,6 +56,9 @@ export const queryKeys = {
   },
   users: {
     search: (query: string) => ["users", "search", query] as const,
+  },
+  search: {
+    global: (query: string) => ["search", "global", query] as const,
   },
   requests: {
     all: () => ["requests"] as const,

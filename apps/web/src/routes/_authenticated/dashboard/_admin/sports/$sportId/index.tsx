@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Badge } from "@sports-system/ui/components/badge";
 import { buttonVariants } from "@sports-system/ui/components/button";
 import {
@@ -18,8 +18,12 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 import { cn } from "@sports-system/ui/lib/utils";
+import { toast } from "sonner";
 
+import { SportRulesForm } from "@/components/sports/sport-rules-form";
+import { ApiError, apiFetch } from "@/lib/api";
 import { resolveRosterSize } from "@/lib/sports";
+import { queryKeys } from "@/queries/keys";
 import { sportDetailQueryOptions } from "@/queries/sports";
 
 export const Route = createFileRoute(
@@ -33,8 +37,24 @@ export const Route = createFileRoute(
 });
 
 function SportDetailPage() {
+  const queryClient = useQueryClient();
   const { sportId } = Route.useParams();
-  const { data: sport } = useSuspenseQuery(sportDetailQueryOptions(Number(sportId)));
+  const sportNumber = Number(sportId);
+  const { data: sport } = useSuspenseQuery(sportDetailQueryOptions(sportNumber));
+
+  const rulesMutation = useMutation({
+    mutationFn: (payload: { rules_json: Record<string, unknown> }) =>
+      apiFetch(`/sports/${sportNumber}`, {
+        method: "PATCH",
+        body: payload,
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.sports.detail(sportNumber),
+      });
+      toast.success("Regras do esporte atualizadas.");
+    },
+  });
 
   return (
     <div className="space-y-6">
@@ -146,10 +166,15 @@ function SportDetailPage() {
         </Card>
 
         <div className="space-y-6">
-          <JsonCard
-            title="Regras do esporte"
-            description="Regras gerais persistidas no nivel do esporte."
-            value={sport.rules_json}
+          <SportRulesForm
+            defaultRules={sport.rules_json}
+            isSubmitting={rulesMutation.isPending}
+            errorMessage={
+              rulesMutation.error instanceof ApiError ? rulesMutation.error.message : null
+            }
+            onSubmit={async (value) => {
+              await rulesMutation.mutateAsync(value);
+            }}
           />
           <JsonCard
             title="Estatisticas-schema"

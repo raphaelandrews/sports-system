@@ -25,11 +25,12 @@ import {
 } from "@sports-system/ui/components/table";
 import { cn } from "@sports-system/ui/lib/utils";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import { ArrowRight, Bot, Plus, Search, ShieldCheck, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { formatEventDate } from "@/lib/date";
 import { apiFetch, ApiError } from "@/lib/api";
@@ -38,9 +39,17 @@ import { queryKeys } from "@/queries/keys";
 import type { DelegationResponse } from "@/types/delegations";
 
 const PAGE_SIZE = 8;
+const delegationsSearchSchema = z.object({
+  q: z.string().optional(),
+  status: z.enum(["all", "active", "inactive"]).catch("all").optional(),
+  sort: z.enum(["name", "code", "created_at"]).catch("name").optional(),
+  dir: z.enum(["asc", "desc"]).catch("asc").optional(),
+  page: z.coerce.number().int().min(1).catch(1).optional(),
+});
 
 export const Route = createFileRoute("/_authenticated/dashboard/delegations/")({
   ssr: false,
+  validateSearch: delegationsSearchSchema,
   loader: ({ context: { queryClient } }) => {
     void queryClient.prefetchQuery(delegationListQueryOptions())
   },
@@ -49,14 +58,18 @@ export const Route = createFileRoute("/_authenticated/dashboard/delegations/")({
 
 function DelegationsPage() {
   const { session } = Route.useRouteContext();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const searchState = Route.useSearch();
   const isAdmin = session.role === "ADMIN";
   const queryClient = useQueryClient();
   const { data } = useSuspenseQuery(delegationListQueryOptions());
 
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ALL");
-  const [page, setPage] = useState(1);
   const [aiCount, setAiCount] = useState("5");
+  const search = searchState.q?.trim() ?? "";
+  const statusFilter = searchState.status ?? "all";
+  const sort = searchState.sort ?? "name";
+  const dir = searchState.dir ?? "asc";
+  const page = searchState.page ?? 1;
 
   const aiMutation = useMutation({
     mutationFn: async () =>
@@ -83,19 +96,30 @@ function DelegationsPage() {
 
   const filtered = useMemo(() => {
     const normalized = search.trim().toLowerCase();
-    return data.data.filter((delegation) => {
-      const matchesSearch =
-        !normalized ||
-        delegation.name.toLowerCase().includes(normalized) ||
-        delegation.code.toLowerCase().includes(normalized);
-      const matchesStatus =
-        statusFilter === "ALL" ||
-        (statusFilter === "ACTIVE" && delegation.is_active) ||
-        (statusFilter === "INACTIVE" && !delegation.is_active);
+    return [...data.data]
+      .filter((delegation) => {
+        const matchesSearch =
+          !normalized ||
+          delegation.name.toLowerCase().includes(normalized) ||
+          delegation.code.toLowerCase().includes(normalized);
+        const matchesStatus =
+          statusFilter === "all" ||
+          (statusFilter === "active" && delegation.is_active) ||
+          (statusFilter === "inactive" && !delegation.is_active);
 
-      return matchesSearch && matchesStatus;
-    });
-  }, [data.data, search, statusFilter]);
+        return matchesSearch && matchesStatus;
+      })
+      .sort((left, right) => {
+        const multiplier = dir === "asc" ? 1 : -1;
+        if (sort === "code") {
+          return left.code.localeCompare(right.code) * multiplier;
+        }
+        if (sort === "created_at") {
+          return left.created_at.localeCompare(right.created_at) * multiplier;
+        }
+        return left.name.localeCompare(right.name) * multiplier;
+      });
+  }, [data.data, dir, search, sort, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -201,34 +225,85 @@ function DelegationsPage() {
             ) : null}
           </div>
 
-          <div className="grid gap-3 md:grid-cols-[1fr_220px]">
+          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_220px_220px_180px]">
             <div className="relative">
               <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="pl-9"
                 placeholder="Buscar por nome ou código"
                 value={search}
-                onChange={(event) => {
-                  setSearch(event.target.value);
-                  setPage(1);
-                }}
+                onChange={(event) =>
+                  void navigate({
+                    search: (prev) => ({
+                      ...prev,
+                      q: event.target.value || undefined,
+                      page: 1,
+                    }),
+                  })
+                }
               />
             </div>
 
             <Select
               value={statusFilter}
-              onValueChange={(value) => {
-                setStatusFilter((value as typeof statusFilter | null) ?? "ALL");
-                setPage(1);
-              }}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    status: (value as "all" | "active" | "inactive" | null) ?? "all",
+                    page: 1,
+                  }),
+                })
+              }
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Todos os status</SelectItem>
-                <SelectItem value="ACTIVE">Somente ativas</SelectItem>
-                <SelectItem value="INACTIVE">Somente inativas</SelectItem>
+                <SelectItem value="all">Todos os status</SelectItem>
+                <SelectItem value="active">Somente ativas</SelectItem>
+                <SelectItem value="inactive">Somente inativas</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={sort}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    sort: value as "name" | "code" | "created_at",
+                  }),
+                })
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Ordenar por nome</SelectItem>
+                <SelectItem value="code">Ordenar por código</SelectItem>
+                <SelectItem value="created_at">Ordenar por criação</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={dir}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    dir: value as "asc" | "desc",
+                  }),
+                })
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="asc">Ascendente</SelectItem>
+                <SelectItem value="desc">Descendente</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -302,7 +377,14 @@ function DelegationsPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                onClick={() =>
+                  void navigate({
+                    search: (prev) => ({
+                      ...prev,
+                      page: Math.max(1, currentPage - 1),
+                    }),
+                  })
+                }
                 disabled={currentPage === 1}
               >
                 Anterior
@@ -313,7 +395,14 @@ function DelegationsPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                onClick={() =>
+                  void navigate({
+                    search: (prev) => ({
+                      ...prev,
+                      page: Math.min(totalPages, currentPage + 1),
+                    }),
+                  })
+                }
                 disabled={currentPage === totalPages}
               >
                 Próxima

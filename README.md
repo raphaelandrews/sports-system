@@ -137,21 +137,66 @@ bun install
 
 ## Environment Variables
 
-Each app has its own `.env.example` — copy and fill in the values:
+There is **no root `.env` or `.env.example`** in this repo.
+
+Environment files live only in:
+- `apps/api`
+- `apps/web`
+- `packages/infra`
+
+Initial setup:
 
 ```bash
 cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env
-cp apps/web/.env.production.example apps/web/.env.production  # prod URLs for deploy
-cp packages/infra/.env.example packages/infra/.env            # only needed for deploy
+cp packages/infra/.env.example packages/infra/.env
 ```
 
-| File | Used when | Variables |
-|------|-----------|-----------|
-| `apps/api/.env` | always | `DATABASE_URL`, `SECRET_KEY`, `FRONTEND_URL`, `PORT`, `TIMEZONE`, `AUTO_SIMULATE`, `LLM_API_KEY` |
-| `apps/web/.env` | dev | `VITE_SERVER_URL` (localhost), `VITE_TIMEZONE`, `CORS_ORIGIN` (localhost) |
-| `apps/web/.env.production` | deploy (`NODE_ENV=production`) | `VITE_SERVER_URL` (Railway), `CORS_ORIGIN` (Workers domain) |
-| `packages/infra/.env` | deploy | `ALCHEMY_PASSWORD`, `CLOUDFLARE_API_TOKEN` |
+### API env
+
+`apps/api/.env` is the backend source of truth.
+
+Important variables:
+- `DATABASE_URL`
+- `SECRET_KEY`
+- `FRONTEND_URL`
+- `BACKEND_PUBLIC_URL`
+- `PORT`
+- `TIMEZONE`
+- `DEBUG`
+- `AUTO_SIMULATE`
+- `LLM_API_KEY`
+- `GOOGLE_OAUTH_CLIENT_ID`
+- `GOOGLE_OAUTH_CLIENT_SECRET`
+- `GITHUB_OAUTH_CLIENT_ID`
+- `GITHUB_OAUTH_CLIENT_SECRET`
+
+### Web env
+
+`apps/web/.env` is the **base web env** and should contain shared/default values:
+- `VITE_SERVER_URL`
+- `VITE_TIMEZONE`
+- `CORS_ORIGIN`
+
+There is only one web env example now:
+- `apps/web/.env.example`
+
+Current load order in infra is:
+1. `packages/infra/.env`
+2. `apps/web/.env`
+
+This means:
+- `apps/web/.env` is enough for local frontend development
+- deploy-only overrides such as `VITE_SERVER_URL` and `CORS_ORIGIN` can live in `packages/infra/.env` or the shell/CI environment
+- `apps/web/.env.production` is no longer part of the documented flow
+
+### Infra env
+
+`packages/infra/.env` is only for Alchemy / Cloudflare infra values:
+- `ALCHEMY_PASSWORD`
+- `CLOUDFLARE_API_TOKEN`
+- `VITE_SERVER_URL` optional deploy override
+- `CORS_ORIGIN` optional deploy override
 
 ---
 
@@ -190,8 +235,12 @@ cd apps/api && uv sync
 
 # Environment variables
 cp apps/api/.env.example apps/api/.env
-# Edit apps/api/.env — at minimum set DATABASE_URL, SECRET_KEY, FRONTEND_URL
 cp apps/web/.env.example apps/web/.env
+cp packages/infra/.env.example packages/infra/.env
+
+# Edit apps/api/.env — at minimum set DATABASE_URL, SECRET_KEY, FRONTEND_URL, BACKEND_PUBLIC_URL
+# Edit apps/web/.env — set VITE_SERVER_URL, VITE_TIMEZONE, CORS_ORIGIN
+# Edit packages/infra/.env only if deploy needs overrides or Cloudflare credentials
 
 # Run database migrations
 bun run db:up
@@ -211,7 +260,7 @@ bun run deploy
 bun run destroy
 ```
 
-Infra config: `packages/infra/alchemy.run.ts`. `bun run deploy` sets `NODE_ENV=production` → `alchemy.run.ts` loads `apps/web/.env.production` (Railway URLs). In dev, no `NODE_ENV` → loads `apps/web/.env` (localhost URLs). `packages/infra/.env` only needs `ALCHEMY_PASSWORD` and `CLOUDFLARE_API_TOKEN`.
+Infra config: `packages/infra/alchemy.run.ts`. It loads `packages/infra/.env` first and then `apps/web/.env`. Because `dotenv` does not override existing variables by default, deploy-specific values can be set in `packages/infra/.env` while `apps/web/.env` remains the default local source.
 
 ---
 
@@ -295,4 +344,3 @@ import { Button } from "@sports-system/ui/components/button";
 | Karate (Karatê) | Individual | 1 |
 
 Each sport has custom statistics, tiebreak rules, and competition phases. See [FEATURES.md](./FEATURES.md) for full rules.
-

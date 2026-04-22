@@ -1,8 +1,16 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
 import { Badge } from "@sports-system/ui/components/badge";
 import { buttonVariants } from "@sports-system/ui/components/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@sports-system/ui/components/select";
 import {
   Card,
   CardContent,
@@ -26,8 +34,16 @@ import { formatEventDate } from "@/lib/date";
 import { resolveRosterSize } from "@/lib/sports";
 import { sportListQueryOptions } from "@/queries/sports";
 
+const sportsSearchSchema = z.object({
+  q: z.string().optional(),
+  type: z.enum(["all", "team", "individual"]).catch("all").optional(),
+  sort: z.enum(["name", "created_at"]).catch("name").optional(),
+  dir: z.enum(["asc", "desc"]).catch("asc").optional(),
+});
+
 export const Route = createFileRoute("/_authenticated/dashboard/sports/")({
   ssr: false,
+  validateSearch: sportsSearchSchema,
   loader: ({ context: { queryClient } }) => {
     void queryClient.prefetchQuery(sportListQueryOptions())
   },
@@ -36,14 +52,34 @@ export const Route = createFileRoute("/_authenticated/dashboard/sports/")({
 
 function SportsPage() {
   const { session } = Route.useRouteContext();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const searchState = Route.useSearch();
   const isAdmin = session.role === "ADMIN";
   const { data } = useSuspenseQuery(sportListQueryOptions());
-  const [search, setSearch] = useState("");
+  const search = searchState.q?.trim() ?? "";
+  const typeFilter = searchState.type ?? "all";
+  const sort = searchState.sort ?? "name";
+  const dir = searchState.dir ?? "asc";
 
   const filtered = useMemo(() => {
     const normalized = search.trim().toLowerCase();
-    return data.data.filter((sport) => !normalized || sport.name.toLowerCase().includes(normalized));
-  }, [data.data, search]);
+    return [...data.data]
+      .filter((sport) => {
+        const matchesSearch = !normalized || sport.name.toLowerCase().includes(normalized);
+        const matchesType =
+          typeFilter === "all" ||
+          (typeFilter === "team" && sport.sport_type === "TEAM") ||
+          (typeFilter === "individual" && sport.sport_type === "INDIVIDUAL");
+        return matchesSearch && matchesType;
+      })
+      .sort((left, right) => {
+        const multiplier = dir === "asc" ? 1 : -1;
+        if (sort === "created_at") {
+          return left.created_at.localeCompare(right.created_at) * multiplier;
+        }
+        return left.name.localeCompare(right.name) * multiplier;
+      });
+  }, [data.data, dir, search, sort, typeFilter]);
 
   const teamSports = data.data.filter((sport) => sport.sport_type === "TEAM").length;
 
@@ -102,14 +138,81 @@ function SportsPage() {
                 : "Consulte os esportes e suas modalidades."}
             </CardDescription>
           </div>
-          <div className="relative max-w-md">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="pl-9"
-              placeholder="Buscar esporte"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
+          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_200px_220px_180px]">
+            <div className="relative">
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="pl-9"
+                placeholder="Buscar esporte"
+                value={search}
+                onChange={(event) =>
+                  void navigate({
+                    search: (prev) => ({
+                      ...prev,
+                      q: event.target.value || undefined,
+                    }),
+                  })
+                }
+              />
+            </div>
+            <Select
+              value={typeFilter}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    type: value as "all" | "team" | "individual",
+                  }),
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os tipos</SelectItem>
+                <SelectItem value="team">Somente coletivos</SelectItem>
+                <SelectItem value="individual">Somente individuais</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={sort}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    sort: value as "name" | "created_at",
+                  }),
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Ordenar por nome</SelectItem>
+                <SelectItem value="created_at">Ordenar por criação</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={dir}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    dir: value as "asc" | "desc",
+                  }),
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="asc">Ascendente</SelectItem>
+                <SelectItem value="desc">Descendente</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
         <CardContent>

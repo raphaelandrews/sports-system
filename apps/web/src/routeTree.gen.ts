@@ -29,6 +29,7 @@ import { Route as publicDelegationsIndexRouteImport } from './routes/(public)/de
 import { Route as publicCalendarIndexRouteImport } from './routes/(public)/calendar/index'
 import { Route as AuthOauthCallbackRouteImport } from './routes/auth/oauth/callback'
 import { Route as AuthenticatedRequestChiefStatusRouteImport } from './routes/_authenticated/request-chief/status'
+import { Route as AuthenticatedDashboardSearchRouteImport } from './routes/_authenticated/dashboard/search'
 import { Route as AuthenticatedDashboardChiefRouteImport } from './routes/_authenticated/dashboard/_chief'
 import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard/_admin'
 import { Route as AuthenticatedAthletesCompareRouteImport } from './routes/_authenticated/athletes/compare'
@@ -169,6 +170,12 @@ const AuthenticatedRequestChiefStatusRoute =
     id: '/status',
     path: '/status',
     getParentRoute: () => AuthenticatedRequestChiefRoute,
+  } as any)
+const AuthenticatedDashboardSearchRoute =
+  AuthenticatedDashboardSearchRouteImport.update({
+    id: '/search',
+    path: '/search',
+    getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardChiefRoute =
   AuthenticatedDashboardChiefRouteImport.update({
@@ -398,6 +405,7 @@ export interface FileRoutesByFullPath {
   '/weeks/$weekId': typeof publicWeeksWeekIdRoute
   '/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
   '/athletes/compare': typeof AuthenticatedAthletesCompareRoute
+  '/dashboard/search': typeof AuthenticatedDashboardSearchRoute
   '/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
   '/auth/oauth/callback': typeof AuthOauthCallbackRoute
   '/calendar/': typeof publicCalendarIndexRoute
@@ -452,6 +460,7 @@ export interface FileRoutesByTo {
   '/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
   '/athletes/compare': typeof AuthenticatedAthletesCompareRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/search': typeof AuthenticatedDashboardSearchRoute
   '/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
   '/auth/oauth/callback': typeof AuthOauthCallbackRoute
   '/calendar': typeof publicCalendarIndexRoute
@@ -510,6 +519,7 @@ export interface FileRoutesById {
   '/_authenticated/athletes/compare': typeof AuthenticatedAthletesCompareRoute
   '/_authenticated/dashboard/_admin': typeof AuthenticatedDashboardAdminRouteWithChildren
   '/_authenticated/dashboard/_chief': typeof AuthenticatedDashboardChiefRouteWithChildren
+  '/_authenticated/dashboard/search': typeof AuthenticatedDashboardSearchRoute
   '/_authenticated/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
   '/auth/oauth/callback': typeof AuthOauthCallbackRoute
   '/(public)/calendar/': typeof publicCalendarIndexRoute
@@ -567,6 +577,7 @@ export interface FileRouteTypes {
     | '/weeks/$weekId'
     | '/athletes/$athleteId'
     | '/athletes/compare'
+    | '/dashboard/search'
     | '/request-chief/status'
     | '/auth/oauth/callback'
     | '/calendar/'
@@ -621,6 +632,7 @@ export interface FileRouteTypes {
     | '/athletes/$athleteId'
     | '/athletes/compare'
     | '/dashboard'
+    | '/dashboard/search'
     | '/request-chief/status'
     | '/auth/oauth/callback'
     | '/calendar'
@@ -678,6 +690,7 @@ export interface FileRouteTypes {
     | '/_authenticated/athletes/compare'
     | '/_authenticated/dashboard/_admin'
     | '/_authenticated/dashboard/_chief'
+    | '/_authenticated/dashboard/search'
     | '/_authenticated/request-chief/status'
     | '/auth/oauth/callback'
     | '/(public)/calendar/'
@@ -885,6 +898,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/request-chief/status'
       preLoaderRoute: typeof AuthenticatedRequestChiefStatusRouteImport
       parentRoute: typeof AuthenticatedRequestChiefRoute
+    }
+    '/_authenticated/dashboard/search': {
+      id: '/_authenticated/dashboard/search'
+      path: '/search'
+      fullPath: '/dashboard/search'
+      preLoaderRoute: typeof AuthenticatedDashboardSearchRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/_chief': {
       id: '/_authenticated/dashboard/_chief'
@@ -1210,6 +1230,7 @@ const AuthenticatedDashboardChiefRouteWithChildren =
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAdminRoute: typeof AuthenticatedDashboardAdminRouteWithChildren
   AuthenticatedDashboardChiefRoute: typeof AuthenticatedDashboardChiefRouteWithChildren
+  AuthenticatedDashboardSearchRoute: typeof AuthenticatedDashboardSearchRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedDashboardAthletesNewRoute: typeof AuthenticatedDashboardAthletesNewRoute
   AuthenticatedDashboardEnrollmentsNewRoute: typeof AuthenticatedDashboardEnrollmentsNewRoute
@@ -1229,6 +1250,7 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardAdminRouteWithChildren,
     AuthenticatedDashboardChiefRoute:
       AuthenticatedDashboardChiefRouteWithChildren,
+    AuthenticatedDashboardSearchRoute: AuthenticatedDashboardSearchRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
     AuthenticatedDashboardAthletesNewRoute:
       AuthenticatedDashboardAthletesNewRoute,

@@ -9,6 +9,7 @@ from app.schemas.delegation import (
     DelegationCreate,
     DelegationDetailResponse,
     DelegationResponse,
+    DelegationStatisticsResponse,
     DelegationUpdate,
     InviteCreate,
     InviteResponse,
@@ -63,6 +64,14 @@ async def get_delegation(
     session: AsyncSession = Depends(get_session),
 ) -> DelegationDetailResponse:
     return await delegation_service.get_delegation_detail(session, delegation_id)
+
+
+@router.get("/{delegation_id}/statistics", response_model=DelegationStatisticsResponse)
+async def get_delegation_statistics(
+    delegation_id: int,
+    session: AsyncSession = Depends(get_session),
+) -> DelegationStatisticsResponse:
+    return await delegation_service.get_delegation_statistics(session, delegation_id)
 
 
 @router.patch("/{delegation_id}", response_model=DelegationResponse)

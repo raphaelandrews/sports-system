@@ -18,7 +18,11 @@ from app.repositories import delegation_repository, user_repository
 from app.schemas.delegation import (
     DelegationCreate,
     DelegationDetailResponse,
+    DelegationStatisticsResponse,
     DelegationResponse,
+    DelegationAthleteStatisticsItem,
+    DelegationMedalItem,
+    DelegationWeekPerformanceItem,
     DelegationUpdate,
     InviteResponse,
     MemberHistoryItem,
@@ -95,6 +99,72 @@ async def get_delegation_detail(
         for m, u in rows
     ]
     return DelegationDetailResponse(**DelegationResponse.model_validate(delegation).model_dump(), members=members)
+
+
+async def get_delegation_statistics(
+    session: AsyncSession, delegation_id: int
+) -> DelegationStatisticsResponse:
+    delegation = await get_delegation(session, delegation_id)
+    athlete_rows = await delegation_repository.get_athlete_statistics(session, delegation_id)
+    medal_rows = await delegation_repository.get_medal_entries(session, delegation_id)
+    weekly_rows = await delegation_repository.get_weekly_performance(session, delegation_id)
+
+    athletes = [
+        DelegationAthleteStatisticsItem(
+            athlete_id=row["athlete_id"],
+            athlete_name=row["athlete_name"],
+            athlete_code=row["athlete_code"],
+            is_active=row["is_active"],
+            is_current_member=row["is_current_member"],
+            joined_at=row["joined_at"],
+            left_at=row["left_at"],
+            total_matches=row["total_matches"],
+            gold=row["gold"],
+            silver=row["silver"],
+            bronze=row["bronze"],
+            total_medals=row["gold"] + row["silver"] + row["bronze"],
+        )
+        for row in athlete_rows
+    ]
+    medals = [DelegationMedalItem(**row) for row in medal_rows]
+    weekly_performance = [
+        DelegationWeekPerformanceItem(
+            week_id=row["week_id"],
+            week_number=row["week_number"],
+            status=row["status"],
+            start_date=row["start_date"],
+            end_date=row["end_date"],
+            matches_played=row["matches_played"],
+            matches_completed=row["matches_completed"],
+            wins=row["wins"],
+            gold=row["gold"],
+            silver=row["silver"],
+            bronze=row["bronze"],
+            total_medals=row["gold"] + row["silver"] + row["bronze"],
+        )
+        for row in weekly_rows
+    ]
+
+    total_matches = sum(item.matches_played for item in weekly_performance)
+    total_wins = sum(item.wins for item in weekly_performance)
+    gold = sum(item.gold for item in weekly_performance)
+    silver = sum(item.silver for item in weekly_performance)
+    bronze = sum(item.bronze for item in weekly_performance)
+
+    return DelegationStatisticsResponse(
+        delegation=DelegationResponse.model_validate(delegation),
+        athlete_count=len(athletes),
+        active_athlete_count=sum(1 for item in athletes if item.is_current_member and item.is_active),
+        total_matches=total_matches,
+        total_wins=total_wins,
+        gold=gold,
+        silver=silver,
+        bronze=bronze,
+        total_medals=gold + silver + bronze,
+        athletes=athletes,
+        medals=medals,
+        weekly_performance=weekly_performance,
+    )
 
 
 async def create_delegation(session: AsyncSession, data: DelegationCreate, admin: User) -> Delegation:

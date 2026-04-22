@@ -6,6 +6,7 @@ import {
   Flag,
   Home,
   Medal,
+  Search,
   Shield,
   Settings,
   Sparkles,
@@ -29,6 +30,7 @@ import type { Session } from "@/types/auth"
 
 const commonNav: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Busca", url: "/dashboard/search", icon: Search },
   { title: "Calendário", url: "/dashboard/calendar", icon: CalendarDays },
   { title: "Resultados", url: "/dashboard/results", icon: Medal },
   { title: "Delegações", url: "/dashboard/delegations", icon: Flag },

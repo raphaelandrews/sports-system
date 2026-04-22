@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient, useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Bot, Check, Plus, Search, Trash2, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 import { Badge } from "@sports-system/ui/components/badge";
 import { Button, buttonVariants } from "@sports-system/ui/components/button";
 import {
@@ -44,8 +45,17 @@ import { weekListQueryOptions } from "@/queries/weeks";
 import type { EnrollmentReview, EnrollmentStatus, EnrollmentResponse } from "@/types/enrollments";
 import type { WeekResponse } from "@/types/weeks";
 
+const enrollmentsSearchSchema = z.object({
+  q: z.string().optional(),
+  status: z.enum(["ALL", "PENDING", "APPROVED", "REJECTED"]).catch("ALL").optional(),
+  week: z.string().catch("ALL").optional(),
+  sort: z.enum(["athlete", "status", "week"]).catch("week").optional(),
+  dir: z.enum(["asc", "desc"]).catch("desc").optional(),
+});
+
 export const Route = createFileRoute("/_authenticated/dashboard/enrollments/")({
   ssr: false,
+  validateSearch: enrollmentsSearchSchema,
   loader: ({ context: { queryClient } }) => {
     void queryClient.prefetchQuery(enrollmentListQueryOptions())
     void queryClient.prefetchQuery(athleteListQueryOptions({ per_page: 500 }))
@@ -59,11 +69,15 @@ export const Route = createFileRoute("/_authenticated/dashboard/enrollments/")({
 
 function EnrollmentsPage() {
   const { session } = Route.useRouteContext();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const searchState = Route.useSearch();
   const queryClient = useQueryClient();
   const isAdmin = session.role === "ADMIN";
-  const [statusFilter, setStatusFilter] = useState<EnrollmentStatus | "ALL">("ALL");
-  const [weekFilter, setWeekFilter] = useState<string>("ALL");
-  const [search, setSearch] = useState("");
+  const statusFilter = (searchState.status ?? "ALL") as EnrollmentStatus | "ALL";
+  const weekFilter = searchState.week ?? "ALL";
+  const search = searchState.q?.trim() ?? "";
+  const sort = searchState.sort ?? "week";
+  const dir = searchState.dir ?? "desc";
 
   const { data: enrollmentsData } = useSuspenseQuery(enrollmentListQueryOptions({ per_page: 200 }));
   const { data: athletesData } = useSuspenseQuery(athleteListQueryOptions({ per_page: 500 }));
@@ -114,34 +128,54 @@ function EnrollmentsPage() {
   const filtered = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
 
-    return enrollmentsData.data.filter((enrollment) => {
-      const event = eventById.get(enrollment.event_id);
-      const athlete = athleteById.get(enrollment.athlete_id);
-      const delegation = delegationById.get(enrollment.delegation_id);
-      const modality = event ? modalityById.get(event.modality_id) : null;
-      const sport = event ? sportByModalityId.get(event.modality_id) : null;
-      const week = event ? weekById.get(event.week_id) : null;
+    return [...enrollmentsData.data]
+      .filter((enrollment) => {
+        const event = eventById.get(enrollment.event_id);
+        const athlete = athleteById.get(enrollment.athlete_id);
+        const delegation = delegationById.get(enrollment.delegation_id);
+        const modality = event ? modalityById.get(event.modality_id) : null;
+        const sport = event ? sportByModalityId.get(event.modality_id) : null;
+        const week = event ? weekById.get(event.week_id) : null;
 
-      const matchesStatus = statusFilter === "ALL" || enrollment.status === statusFilter;
-      const matchesWeek = weekFilter === "ALL" || event?.week_id === Number(weekFilter);
-      const matchesSearch =
-        !normalizedSearch ||
-        athlete?.name.toLowerCase().includes(normalizedSearch) ||
-        delegation?.name.toLowerCase().includes(normalizedSearch) ||
-        modality?.name.toLowerCase().includes(normalizedSearch) ||
-        sport?.name.toLowerCase().includes(normalizedSearch) ||
-        week?.week_number.toString().includes(normalizedSearch) ||
-        enrollment.validation_message?.toLowerCase().includes(normalizedSearch);
+        const matchesStatus = statusFilter === "ALL" || enrollment.status === statusFilter;
+        const matchesWeek = weekFilter === "ALL" || event?.week_id === Number(weekFilter);
+        const matchesSearch =
+          !normalizedSearch ||
+          athlete?.name.toLowerCase().includes(normalizedSearch) ||
+          delegation?.name.toLowerCase().includes(normalizedSearch) ||
+          modality?.name.toLowerCase().includes(normalizedSearch) ||
+          sport?.name.toLowerCase().includes(normalizedSearch) ||
+          week?.week_number.toString().includes(normalizedSearch) ||
+          enrollment.validation_message?.toLowerCase().includes(normalizedSearch);
 
-      return matchesStatus && matchesWeek && Boolean(matchesSearch);
-    });
+        return matchesStatus && matchesWeek && Boolean(matchesSearch);
+      })
+      .sort((left, right) => {
+        const leftEvent = eventById.get(left.event_id);
+        const rightEvent = eventById.get(right.event_id);
+        const leftAthlete = athleteById.get(left.athlete_id);
+        const rightAthlete = athleteById.get(right.athlete_id);
+        const leftWeek = leftEvent ? weekById.get(leftEvent.week_id) : null;
+        const rightWeek = rightEvent ? weekById.get(rightEvent.week_id) : null;
+        const multiplier = dir === "asc" ? 1 : -1;
+
+        if (sort === "athlete") {
+          return (leftAthlete?.name ?? "").localeCompare(rightAthlete?.name ?? "") * multiplier;
+        }
+        if (sort === "status") {
+          return left.status.localeCompare(right.status) * multiplier;
+        }
+        return ((leftWeek?.week_number ?? 0) - (rightWeek?.week_number ?? 0)) * multiplier;
+      });
   }, [
     athleteById,
     delegationById,
+    dir,
     enrollmentsData.data,
     eventById,
     modalityById,
     search,
+    sort,
     sportByModalityId,
     statusFilter,
     weekById,
@@ -313,20 +347,34 @@ function EnrollmentsPage() {
             ) : null}
           </div>
 
-          <div className="grid gap-3 xl:grid-cols-[1fr_220px_220px]">
+          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_220px_220px_220px_180px]">
             <div className="relative">
               <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="pl-9"
                 placeholder="Buscar atleta, delegação ou modalidade"
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(event) =>
+                  void navigate({
+                    search: (prev) => ({
+                      ...prev,
+                      q: event.target.value || undefined,
+                    }),
+                  })
+                }
               />
             </div>
 
             <Select
               value={statusFilter}
-              onValueChange={(value) => setStatusFilter((value as EnrollmentStatus | "ALL" | null) ?? "ALL")}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    status: (value as EnrollmentStatus | "ALL" | null) ?? "ALL",
+                  }),
+                })
+              }
             >
               <SelectTrigger>
                 <SelectValue />
@@ -339,7 +387,17 @@ function EnrollmentsPage() {
               </SelectContent>
             </Select>
 
-            <Select value={weekFilter} onValueChange={(value) => setWeekFilter(value ?? "ALL")}>
+            <Select
+              value={weekFilter}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    week: value ?? "ALL",
+                  }),
+                })
+              }
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -350,6 +408,47 @@ function EnrollmentsPage() {
                     Semana {week.week_number} · {week.status}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={sort}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    sort: value as "athlete" | "status" | "week",
+                  }),
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="week">Ordenar por semana</SelectItem>
+                <SelectItem value="athlete">Ordenar por atleta</SelectItem>
+                <SelectItem value="status">Ordenar por status</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={dir}
+              onValueChange={(value) =>
+                void navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    dir: value as "asc" | "desc",
+                  }),
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="asc">Ascendente</SelectItem>
+                <SelectItem value="desc">Descendente</SelectItem>
               </SelectContent>
             </Select>
           </div>

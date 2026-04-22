@@ -17,6 +17,7 @@ import {
   SidebarTrigger,
 } from "@sports-system/ui/components/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
+import { GlobalSearchForm } from "@/components/dashboard/global-search-form"
 import type { Session } from "@/types/auth"
 
 function ContentSkeleton() {
@@ -48,6 +49,7 @@ function useBreadcrumbs() {
     enrollments: "Inscrições",
     results: "Resultados",
     requests: "Solicitações",
+    search: "Busca",
     ai: "Geração IA",
     reports: "Relatórios",
     events: "Eventos",
@@ -85,7 +87,7 @@ export function DashboardLayout({
       <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex w-full items-center justify-between gap-3 px-4">
-            <div className="flex items-center gap-2 px-4">
+            <div className="flex min-w-0 items-center gap-2 px-4">
               <SidebarTrigger className="-ml-1" />
               <Separator
                 orientation="vertical"
@@ -101,11 +103,16 @@ export function DashboardLayout({
                     <BreadcrumbPage>{crumbs.at(-1) ?? "Dashboard"}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
-              </Breadcrumb>
+                </Breadcrumb>
             </div>
-            <Badge variant="outline" className="hidden sm:inline-flex">
-              {roleLabel[session.role]}
-            </Badge>
+            <div className="flex flex-1 items-center justify-end gap-3">
+              <div className="hidden lg:block">
+                <GlobalSearchForm />
+              </div>
+              <Badge variant="outline" className="hidden sm:inline-flex">
+                {roleLabel[session.role]}
+              </Badge>
+            </div>
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
