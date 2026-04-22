@@ -29,6 +29,7 @@ import {
 import { findManagedDelegation } from "@/lib/chief-delegation";
 import { apiFetch, ApiError } from "@/lib/api";
 import { formatDate, formatTime } from "@/lib/date";
+import { resolveRosterSize } from "@/lib/sports";
 import { athleteListQueryOptions } from "@/queries/athletes";
 import { delegationListQueryOptions } from "@/queries/delegations";
 import { enrollmentListQueryOptions } from "@/queries/enrollments";
@@ -174,7 +175,7 @@ function NewEnrollmentPage() {
       };
     }
 
-    const maxAthletes = typeof rules.max_athletes === "number" ? rules.max_athletes : null;
+    const maxAthletes = resolveRosterSize(selectedSport?.player_count, rules, selectedSport?.rules_json);
     if (maxAthletes != null && activeEventEnrollments.length >= maxAthletes) {
       return {
         type: "error" as const,

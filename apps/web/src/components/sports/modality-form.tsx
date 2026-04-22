@@ -182,7 +182,7 @@ export function ModalityForm({
                       onChange={(event) => field.handleChange(event.target.value)}
                     />
                     <FieldDescription>
-                      Exemplo: {`{"max_athletes": 4, "gender": "M", "schedule_conflict_check": true}`}
+                      Exemplo: {`{"max_athletes": 12, "substitutes": 6, "gender": "M", "schedule_conflict_check": true}`}
                     </FieldDescription>
                   </Field>
                 )}

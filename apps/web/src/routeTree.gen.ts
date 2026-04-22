@@ -24,11 +24,14 @@ import { Route as publicWeeksIndexRouteImport } from './routes/(public)/weeks/in
 import { Route as publicSportsIndexRouteImport } from './routes/(public)/sports/index'
 import { Route as publicResultsIndexRouteImport } from './routes/(public)/results/index'
 import { Route as publicReportIndexRouteImport } from './routes/(public)/report/index'
+import { Route as publicFeedIndexRouteImport } from './routes/(public)/feed/index'
 import { Route as publicDelegationsIndexRouteImport } from './routes/(public)/delegations/index'
 import { Route as publicCalendarIndexRouteImport } from './routes/(public)/calendar/index'
+import { Route as AuthOauthCallbackRouteImport } from './routes/auth/oauth/callback'
 import { Route as AuthenticatedRequestChiefStatusRouteImport } from './routes/_authenticated/request-chief/status'
 import { Route as AuthenticatedDashboardChiefRouteImport } from './routes/_authenticated/dashboard/_chief'
 import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard/_admin'
+import { Route as AuthenticatedAthletesCompareRouteImport } from './routes/_authenticated/athletes/compare'
 import { Route as AuthenticatedAthletesAthleteIdRouteImport } from './routes/_authenticated/athletes/$athleteId'
 import { Route as publicWeeksWeekIdRouteImport } from './routes/(public)/weeks/$weekId'
 import { Route as publicSportsSportIdRouteImport } from './routes/(public)/sports/$sportId'
@@ -141,6 +144,11 @@ const publicReportIndexRoute = publicReportIndexRouteImport.update({
   path: '/report/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const publicFeedIndexRoute = publicFeedIndexRouteImport.update({
+  id: '/(public)/feed/',
+  path: '/feed/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const publicDelegationsIndexRoute = publicDelegationsIndexRouteImport.update({
   id: '/(public)/delegations/',
   path: '/delegations/',
@@ -149,6 +157,11 @@ const publicDelegationsIndexRoute = publicDelegationsIndexRouteImport.update({
 const publicCalendarIndexRoute = publicCalendarIndexRouteImport.update({
   id: '/(public)/calendar/',
   path: '/calendar/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthOauthCallbackRoute = AuthOauthCallbackRouteImport.update({
+  id: '/auth/oauth/callback',
+  path: '/auth/oauth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRequestChiefStatusRoute =
@@ -166,6 +179,12 @@ const AuthenticatedDashboardAdminRoute =
   AuthenticatedDashboardAdminRouteImport.update({
     id: '/_admin',
     getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedAthletesCompareRoute =
+  AuthenticatedAthletesCompareRouteImport.update({
+    id: '/athletes/compare',
+    path: '/athletes/compare',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedAthletesAthleteIdRoute =
   AuthenticatedAthletesAthleteIdRouteImport.update({
@@ -378,9 +397,12 @@ export interface FileRoutesByFullPath {
   '/sports/$sportId': typeof publicSportsSportIdRouteWithChildren
   '/weeks/$weekId': typeof publicWeeksWeekIdRoute
   '/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
+  '/athletes/compare': typeof AuthenticatedAthletesCompareRoute
   '/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
+  '/auth/oauth/callback': typeof AuthOauthCallbackRoute
   '/calendar/': typeof publicCalendarIndexRoute
   '/delegations/': typeof publicDelegationsIndexRoute
+  '/feed/': typeof publicFeedIndexRoute
   '/report/': typeof publicReportIndexRoute
   '/results/': typeof publicResultsIndexRoute
   '/sports/': typeof publicSportsIndexRoute
@@ -428,10 +450,13 @@ export interface FileRoutesByTo {
   '/sports/$sportId': typeof publicSportsSportIdRouteWithChildren
   '/weeks/$weekId': typeof publicWeeksWeekIdRoute
   '/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
+  '/athletes/compare': typeof AuthenticatedAthletesCompareRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
+  '/auth/oauth/callback': typeof AuthOauthCallbackRoute
   '/calendar': typeof publicCalendarIndexRoute
   '/delegations': typeof publicDelegationsIndexRoute
+  '/feed': typeof publicFeedIndexRoute
   '/report': typeof publicReportIndexRoute
   '/results': typeof publicResultsIndexRoute
   '/sports': typeof publicSportsIndexRoute
@@ -482,11 +507,14 @@ export interface FileRoutesById {
   '/(public)/sports/$sportId': typeof publicSportsSportIdRouteWithChildren
   '/(public)/weeks/$weekId': typeof publicWeeksWeekIdRoute
   '/_authenticated/athletes/$athleteId': typeof AuthenticatedAthletesAthleteIdRoute
+  '/_authenticated/athletes/compare': typeof AuthenticatedAthletesCompareRoute
   '/_authenticated/dashboard/_admin': typeof AuthenticatedDashboardAdminRouteWithChildren
   '/_authenticated/dashboard/_chief': typeof AuthenticatedDashboardChiefRouteWithChildren
   '/_authenticated/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
+  '/auth/oauth/callback': typeof AuthOauthCallbackRoute
   '/(public)/calendar/': typeof publicCalendarIndexRoute
   '/(public)/delegations/': typeof publicDelegationsIndexRoute
+  '/(public)/feed/': typeof publicFeedIndexRoute
   '/(public)/report/': typeof publicReportIndexRoute
   '/(public)/results/': typeof publicResultsIndexRoute
   '/(public)/sports/': typeof publicSportsIndexRoute
@@ -538,9 +566,12 @@ export interface FileRouteTypes {
     | '/sports/$sportId'
     | '/weeks/$weekId'
     | '/athletes/$athleteId'
+    | '/athletes/compare'
     | '/request-chief/status'
+    | '/auth/oauth/callback'
     | '/calendar/'
     | '/delegations/'
+    | '/feed/'
     | '/report/'
     | '/results/'
     | '/sports/'
@@ -588,10 +619,13 @@ export interface FileRouteTypes {
     | '/sports/$sportId'
     | '/weeks/$weekId'
     | '/athletes/$athleteId'
+    | '/athletes/compare'
     | '/dashboard'
     | '/request-chief/status'
+    | '/auth/oauth/callback'
     | '/calendar'
     | '/delegations'
+    | '/feed'
     | '/report'
     | '/results'
     | '/sports'
@@ -641,11 +675,14 @@ export interface FileRouteTypes {
     | '/(public)/sports/$sportId'
     | '/(public)/weeks/$weekId'
     | '/_authenticated/athletes/$athleteId'
+    | '/_authenticated/athletes/compare'
     | '/_authenticated/dashboard/_admin'
     | '/_authenticated/dashboard/_chief'
     | '/_authenticated/request-chief/status'
+    | '/auth/oauth/callback'
     | '/(public)/calendar/'
     | '/(public)/delegations/'
+    | '/(public)/feed/'
     | '/(public)/report/'
     | '/(public)/results/'
     | '/(public)/sports/'
@@ -694,8 +731,10 @@ export interface RootRouteChildren {
   publicDelegationsDelegationIdRoute: typeof publicDelegationsDelegationIdRoute
   publicSportsSportIdRoute: typeof publicSportsSportIdRouteWithChildren
   publicWeeksWeekIdRoute: typeof publicWeeksWeekIdRoute
+  AuthOauthCallbackRoute: typeof AuthOauthCallbackRoute
   publicCalendarIndexRoute: typeof publicCalendarIndexRoute
   publicDelegationsIndexRoute: typeof publicDelegationsIndexRoute
+  publicFeedIndexRoute: typeof publicFeedIndexRoute
   publicReportIndexRoute: typeof publicReportIndexRoute
   publicResultsIndexRoute: typeof publicResultsIndexRoute
   publicSportsIndexRoute: typeof publicSportsIndexRoute
@@ -812,6 +851,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicReportIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(public)/feed/': {
+      id: '/(public)/feed/'
+      path: '/feed'
+      fullPath: '/feed/'
+      preLoaderRoute: typeof publicFeedIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(public)/delegations/': {
       id: '/(public)/delegations/'
       path: '/delegations'
@@ -824,6 +870,13 @@ declare module '@tanstack/react-router' {
       path: '/calendar'
       fullPath: '/calendar/'
       preLoaderRoute: typeof publicCalendarIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/oauth/callback': {
+      id: '/auth/oauth/callback'
+      path: '/auth/oauth/callback'
+      fullPath: '/auth/oauth/callback'
+      preLoaderRoute: typeof AuthOauthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/request-chief/status': {
@@ -846,6 +899,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardAdminRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/athletes/compare': {
+      id: '/_authenticated/athletes/compare'
+      path: '/athletes/compare'
+      fullPath: '/athletes/compare'
+      preLoaderRoute: typeof AuthenticatedAthletesCompareRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/athletes/$athleteId': {
       id: '/_authenticated/athletes/$athleteId'
@@ -1216,6 +1276,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedRequestChiefRoute: typeof AuthenticatedRequestChiefRouteWithChildren
   AuthenticatedAthletesAthleteIdRoute: typeof AuthenticatedAthletesAthleteIdRoute
+  AuthenticatedAthletesCompareRoute: typeof AuthenticatedAthletesCompareRoute
   AuthenticatedNarrativeIndexRoute: typeof AuthenticatedNarrativeIndexRoute
   AuthenticatedMatchesMatchIdIndexRoute: typeof AuthenticatedMatchesMatchIdIndexRoute
 }
@@ -1224,6 +1285,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedRequestChiefRoute: AuthenticatedRequestChiefRouteWithChildren,
   AuthenticatedAthletesAthleteIdRoute: AuthenticatedAthletesAthleteIdRoute,
+  AuthenticatedAthletesCompareRoute: AuthenticatedAthletesCompareRoute,
   AuthenticatedNarrativeIndexRoute: AuthenticatedNarrativeIndexRoute,
   AuthenticatedMatchesMatchIdIndexRoute: AuthenticatedMatchesMatchIdIndexRoute,
 }
@@ -1253,8 +1315,10 @@ const rootRouteChildren: RootRouteChildren = {
   publicDelegationsDelegationIdRoute: publicDelegationsDelegationIdRoute,
   publicSportsSportIdRoute: publicSportsSportIdRouteWithChildren,
   publicWeeksWeekIdRoute: publicWeeksWeekIdRoute,
+  AuthOauthCallbackRoute: AuthOauthCallbackRoute,
   publicCalendarIndexRoute: publicCalendarIndexRoute,
   publicDelegationsIndexRoute: publicDelegationsIndexRoute,
+  publicFeedIndexRoute: publicFeedIndexRoute,
   publicReportIndexRoute: publicReportIndexRoute,
   publicResultsIndexRoute: publicResultsIndexRoute,
   publicSportsIndexRoute: publicSportsIndexRoute,

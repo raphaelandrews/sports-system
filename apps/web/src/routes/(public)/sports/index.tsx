@@ -7,6 +7,7 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
+import { resolveRosterSize } from "@/lib/sports";
 import { sportListQueryOptions } from "@/queries/sports";
 import type { SportType } from "@/types/sports";
 
@@ -45,10 +46,9 @@ function SportsPage() {
                 </div>
                 {sport.player_count != null && (
                   <p className="text-muted-foreground text-sm">
-                    {sport.player_count}{" "}
                     {sport.sport_type === "INDIVIDUAL"
-                      ? "atleta(s)"
-                      : "jogador(es) por time"}
+                      ? `${sport.player_count} atleta(s)`
+                      : `${resolveRosterSize(sport.player_count, sport.rules_json)} atleta(s) por equipe`}
                   </p>
                 )}
               </CardHeader>

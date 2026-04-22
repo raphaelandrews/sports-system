@@ -10,6 +10,7 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
+import { resolveRosterSize } from "@/lib/sports";
 import { sportDetailQueryOptions } from "@/queries/sports";
 import type { Gender, SportType } from "@/types/sports";
 
@@ -49,10 +50,9 @@ function SportDetailPage() {
         )}
         {data.player_count != null && (
           <p className="text-sm text-muted-foreground mt-1">
-            {data.player_count}{" "}
             {data.sport_type === "INDIVIDUAL"
-              ? "atleta(s) por partida"
-              : "jogador(es) por time"}
+              ? `${data.player_count} atleta(s) por prova`
+              : `${resolveRosterSize(data.player_count, data.rules_json)} atleta(s) por equipe · ${data.player_count} em jogo`}
           </p>
         )}
         <Link

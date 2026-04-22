@@ -674,10 +674,10 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 - [x] **Chaveamento automático**: ~~gerar brackets~~ → movido para core (Fase 7 backend + Fase 10 frontend)
 - [x] **Dark/Light mode toggle**: ~~suportado por next-themes~~ → movido para core (Fase 1 frontend)
-- [ ] **Comparação de atletas**: tela side-by-side com estatísticas de dois atletas (head-to-head)
+- [x] **Comparação de atletas**: tela side-by-side com estatísticas de dois atletas (head-to-head)
 - [ ] **Busca global**: buscar atletas, delegações, eventos por nome
 - [ ] **Filtros e ordenação**: tabelas com filtros persistidos na URL via TanStack Router search params
-- [ ] **Feed de atividades**: timeline global de eventos da competição em tempo real
+- [x] **Feed de atividades**: timeline global de eventos da competição em tempo real
 - [ ] **Estatísticas de delegação**: página com todos os atletas, medalhas, e desempenho histórico por semana
 - [ ] **Regras editáveis**: admin pode editar as regras de cada esporte sem alterar código (edita `rules_json` via UI)
-- [ ] **OAuth — Google e GitHub**: autenticação via provedor externo nas páginas de login e cadastro (botões já presentes na UI, aguardando configuração do backend)
+- [x] **OAuth — Google e GitHub**: autenticação via provedor externo nas páginas de login e cadastro

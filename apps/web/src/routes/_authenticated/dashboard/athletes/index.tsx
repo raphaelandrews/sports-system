@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 import { cn } from "@sports-system/ui/lib/utils";
-import { Bot, Search, UserPlus } from "lucide-react";
+import { ArrowLeftRight, Bot, Search, UserPlus } from "lucide-react";
 
 import { apiFetch, ApiError } from "@/lib/api";
 import { formatDate } from "@/lib/date";
@@ -126,6 +126,13 @@ function AthletesPage() {
             >
               <UserPlus className="size-4" />
               Novo atleta
+            </Link>
+            <Link
+              to="/athletes/compare"
+              className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}
+            >
+              <ArrowLeftRight className="size-4" />
+              Comparar atletas
             </Link>
             {isAdmin ? (
               <button

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.limiter import limiter
 from app.database import get_session
-from app.schemas.auth import LoginRequest, RefreshRequest, RegisterRequest, TokenResponse
+from app.schemas.auth import LoginRequest, OAuthFinalizeRequest, RefreshRequest, RegisterRequest, TokenResponse
 from app.schemas.user import UserResponse
 from app.services import auth_service
 
@@ -37,3 +38,37 @@ async def refresh(data: RefreshRequest, session: AsyncSession = Depends(get_sess
 async def logout(data: RefreshRequest, session: AsyncSession = Depends(get_session)) -> None:
     await auth_service.logout(session, data.refresh_token)
     await session.commit()
+
+
+@router.get("/oauth/{provider}/start")
+async def oauth_start(provider: str) -> RedirectResponse:
+    authorize_url = await auth_service.get_oauth_authorize_url(provider)
+    return RedirectResponse(authorize_url, status_code=status.HTTP_302_FOUND)
+
+
+@router.get("/oauth/{provider}/callback")
+async def oauth_callback(
+    provider: str,
+    code: str = Query(...),
+    state: str = Query(...),
+    session: AsyncSession = Depends(get_session),
+) -> RedirectResponse:
+    try:
+        redirect_url = await auth_service.complete_oauth(session, provider, code, state)
+        await session.commit()
+    except Exception as exc:
+        await session.rollback()
+        detail = exc.detail if isinstance(exc, HTTPException) else "OAuth login failed"
+        error_redirect = auth_service.build_oauth_error_redirect(str(detail))
+        return RedirectResponse(error_redirect, status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(redirect_url, status_code=status.HTTP_302_FOUND)
+
+
+@router.post("/oauth/finalize", response_model=TokenResponse)
+async def oauth_finalize(
+    data: OAuthFinalizeRequest,
+    session: AsyncSession = Depends(get_session),
+) -> TokenResponse:
+    tokens = await auth_service.finalize_oauth(session, data.token)
+    await session.commit()
+    return tokens

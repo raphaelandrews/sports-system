@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { to: "/", label: "Home" },
   { to: "/weeks", label: "Semanas" },
   { to: "/results", label: "Resultados" },
+  { to: "/feed", label: "Feed" },
   { to: "/calendar", label: "Calendário" },
   { to: "/delegations", label: "Delegações" },
   { to: "/sports", label: "Esportes" },

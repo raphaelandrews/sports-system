@@ -19,6 +19,7 @@ import {
 } from "@sports-system/ui/components/table";
 import { cn } from "@sports-system/ui/lib/utils";
 
+import { resolveRosterSize } from "@/lib/sports";
 import { sportDetailQueryOptions } from "@/queries/sports";
 
 export const Route = createFileRoute(
@@ -53,7 +54,14 @@ function SportDetailPage() {
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
             <QuickStat label="Modalidades" value={String(sport.modalities.length)} />
-            <QuickStat label="Player count" value={String(sport.player_count ?? "-")} />
+            <QuickStat
+              label={sport.sport_type === "TEAM" ? "Roster size" : "Player count"}
+              value={String(
+                sport.sport_type === "TEAM"
+                  ? resolveRosterSize(sport.player_count, sport.rules_json)
+                  : sport.player_count ?? "-",
+              )}
+            />
             <QuickStat label="Stats schema" value={sport.stats_schema ? "Configurado" : "Vazio"} />
           </CardContent>
         </Card>

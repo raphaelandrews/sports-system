@@ -2,7 +2,9 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { CalendarDays, ClipboardCheck, Flag, Sparkles, Target, Trophy, Users } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card"
+import { ActivityFeed } from "@/components/activity/activity-feed"
 import { formatDate } from "@/lib/date"
+import { activityFeedQueryOptions } from "@/queries/activities"
 import { adminRequestsQueryOptions } from "@/queries/admin"
 import { finalReportQueryOptions } from "@/queries/reports"
 import { weekListQueryOptions } from "@/queries/weeks"
@@ -156,6 +158,7 @@ export function AdminDashboard() {
   const { data: finalReport } = useSuspenseQuery(finalReportQueryOptions())
   const { data: weeks } = useSuspenseQuery(weekListQueryOptions())
   const { data: requests } = useSuspenseQuery(adminRequestsQueryOptions())
+  const { data: activityFeed } = useSuspenseQuery(activityFeedQueryOptions(6))
 
   const currentWeek = findCurrentWeek(weeks.data)
   const pendingRequests = requests.data.filter((request) => request.status === "PENDING")
@@ -231,6 +234,13 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <ActivityFeed
+        initialItems={activityFeed}
+        limit={6}
+        showMatchLink
+        title="Pulso da competição"
+      />
     </DashboardShell>
   )
 }

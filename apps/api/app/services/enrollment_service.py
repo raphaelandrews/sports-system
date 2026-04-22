@@ -9,7 +9,7 @@ from app.models.athlete import Athlete, AthleteModality
 from app.models.delegation import Delegation, DelegationMember
 from app.models.enrollment import Enrollment, EnrollmentStatus
 from app.models.event import Event
-from app.models.sport import Modality
+from app.models.sport import Modality, Sport
 from app.models.user import User, UserRole
 from app.models.week import CompetitionWeek, WeekStatus
 from app.repositories import enrollment_repository
@@ -19,6 +19,35 @@ from app.schemas.enrollment import EnrollmentCreate, EnrollmentResponse, Enrollm
 from app.services import eligibility_service
 
 logger = logging.getLogger(__name__)
+
+
+def _get_numeric_rule(rules: dict, key: str) -> int | None:
+    value = rules.get(key)
+    return value if isinstance(value, int) else None
+
+
+def _resolve_max_athletes(modality: Modality, sport: Sport | None) -> int:
+    modality_rules = modality.rules_json
+    sport_rules = sport.rules_json if sport is not None else {}
+    player_count = sport.player_count if sport is not None else None
+
+    for rules in (modality_rules, sport_rules):
+        roster_size = _get_numeric_rule(rules, "roster_size")
+        if roster_size is not None:
+            return roster_size
+
+    if player_count is not None:
+        for rules in (modality_rules, sport_rules):
+            substitutes = _get_numeric_rule(rules, "substitutes")
+            if substitutes is not None:
+                return player_count + substitutes
+
+    for rules in (modality_rules, sport_rules):
+        max_athletes = _get_numeric_rule(rules, "max_athletes")
+        if max_athletes is not None:
+            return max_athletes
+
+    return player_count or 1
 
 
 async def list_enrollments(
@@ -58,6 +87,7 @@ async def _validate(
     athlete: Athlete,
     event: Event,
     modality: Modality,
+    sport: Sport | None,
     week: CompetitionWeek,
     delegation_id: int,
 ) -> None:
@@ -82,7 +112,7 @@ async def _validate(
                 detail=f"Modality requires gender '{required_gender}', athlete is '{athlete.gender.value}'",
             )
 
-    max_athletes = rules.get("max_athletes")
+    max_athletes = _resolve_max_athletes(modality, sport)
     if max_athletes is not None:
         count = await enrollment_repository.count_by_event_and_delegation(
             session,
@@ -156,12 +186,13 @@ async def create_enrollment(
     modality = await session.get(Modality, event.modality_id)
     if modality is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Modality not found")
+    sport = await session.get(Sport, modality.sport_id)
 
     existing = await enrollment_repository.get_by_athlete_and_event(session, data.athlete_id, data.event_id)
     if existing is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Athlete already enrolled in this event")
 
-    await _validate(session, athlete, event, modality, week, data.delegation_id)
+    await _validate(session, athlete, event, modality, sport, week, data.delegation_id)
 
     enrollment = Enrollment(
         athlete_id=data.athlete_id,
@@ -266,7 +297,8 @@ async def ai_generate(session: AsyncSession) -> list[EnrollmentResponse]:
         modality = await session.get(Modality, event.modality_id)
         if modality is None:
             continue
-        max_athletes = modality.rules_json.get("max_athletes", 1)
+        sport = await session.get(Sport, modality.sport_id)
+        max_athletes = _resolve_max_athletes(modality, sport)
         sample_size = min(len(delegations), 4)
         for delegation in random.sample(delegations, sample_size):
             member_user_ids_result = await session.execute(

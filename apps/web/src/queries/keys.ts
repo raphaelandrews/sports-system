@@ -64,4 +64,7 @@ export const queryKeys = {
     history: () => ["ai", "history"] as const,
     narrative: (date: string) => ["ai", "narrative", date] as const,
   },
+  activities: {
+    feed: (limit: number) => ["activities", "feed", limit] as const,
+  },
 } as const;

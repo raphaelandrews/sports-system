@@ -1,6 +1,7 @@
 import { Button } from "@sports-system/ui/components/button";
 import { Link } from "@tanstack/react-router";
 import { Card, CardContent } from "@sports-system/ui/components/card";
+import { env } from "@sports-system/env/web";
 import {
   FieldDescription,
   FieldGroup,
@@ -8,7 +9,6 @@ import {
   Field,
 } from "@sports-system/ui/components/field";
 import authImage from "@/components/assets/auth-image.webp";
-import { toast } from "sonner";
 import type React from "react";
 
 interface AuthCardProps {
@@ -47,7 +47,9 @@ export function AuthCard({
                 <Button
                   variant="outline"
                   type="button"
-                  onClick={() => toast.info("OAuth em breve")}
+                  onClick={() => {
+                    window.location.href = `${env.VITE_SERVER_URL}/auth/oauth/google/start`;
+                  }}
                 >
                   <GoogleIcon className="mr-2 h-4 w-4" />
                   Google
@@ -55,7 +57,9 @@ export function AuthCard({
                 <Button
                   variant="outline"
                   type="button"
-                  onClick={() => toast.info("OAuth em breve")}
+                  onClick={() => {
+                    window.location.href = `${env.VITE_SERVER_URL}/auth/oauth/github/start`;
+                  }}
                 >
                   <GithubIcon className="mr-2 h-4 w-4" />
                   GitHub

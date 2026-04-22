@@ -25,6 +25,19 @@ def create_access_token(user_id: int, role: str) -> str:
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
+def create_signed_token(payload: dict[str, object], expires_in_minutes: int, token_type: str) -> str:
+    expire = datetime.now(UTC) + timedelta(minutes=expires_in_minutes)
+    token_payload = {**payload, "exp": expire, "type": token_type}
+    return jwt.encode(token_payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def decode_signed_token(token: str, expected_type: str) -> dict[str, object]:
+    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    if payload.get("type") != expected_type:
+        raise jwt.InvalidTokenError("Invalid token type")
+    return payload
+
+
 def create_refresh_token_value() -> str:
     return secrets.token_urlsafe(64)
 

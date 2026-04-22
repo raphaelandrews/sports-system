@@ -2,6 +2,7 @@ import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import { adminRequestsQueryOptions } from "@/queries/admin";
+import { activityFeedQueryOptions } from "@/queries/activities";
 import { athleteListQueryOptions } from "@/queries/athletes";
 import { delegationListQueryOptions } from "@/queries/delegations";
 import { enrollmentListQueryOptions } from "@/queries/enrollments";
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
     void queryClient.prefetchQuery(notificationsQueryOptions(session.id))
 
     if (session.role === "ADMIN") {
+      void queryClient.prefetchQuery(activityFeedQueryOptions(6))
       void queryClient.prefetchQuery(finalReportQueryOptions())
       void queryClient.prefetchQuery(delegationListQueryOptions())
       void queryClient.prefetchQuery(athleteListQueryOptions({ per_page: 1 }))

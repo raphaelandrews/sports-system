@@ -23,6 +23,7 @@ import { cn } from "@sports-system/ui/lib/utils";
 import { Search, Trophy, Users } from "lucide-react";
 
 import { formatEventDate } from "@/lib/date";
+import { resolveRosterSize } from "@/lib/sports";
 import { sportListQueryOptions } from "@/queries/sports";
 
 export const Route = createFileRoute("/_authenticated/dashboard/sports/")({
@@ -132,7 +133,11 @@ function SportsPage() {
                       {sport.sport_type === "TEAM" ? "Coletivo" : "Individual"}
                     </Badge>
                   </TableCell>
-                  <TableCell>{sport.player_count ?? "-"}</TableCell>
+                  <TableCell>
+                    {sport.sport_type === "TEAM"
+                      ? resolveRosterSize(sport.player_count, sport.rules_json)
+                      : sport.player_count ?? "-"}
+                  </TableCell>
                   <TableCell>
                     <Badge variant={sport.is_active ? "secondary" : "outline"}>
                       {sport.is_active ? "Ativo" : "Arquivado"}

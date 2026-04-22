@@ -17,7 +17,8 @@ _SPORTS: list[dict[str, Any]] = [
         "description": "Futebol de campo — 11 jogadores por equipe.",
         "player_count": 11,
         "rules_json": {
-            "max_athletes": 11,
+            "max_athletes": 16,
+            "substitutes": 5,
             "schedule_conflict_check": True,
             "has_overtime": True,
             "has_penalty_shootout": True,
@@ -28,8 +29,8 @@ _SPORTS: list[dict[str, Any]] = [
             "individual": ["goals", "assists", "cards_yellow", "cards_red", "matches_played", "minutes_played"],
         },
         "modalities": [
-            {"name": "Futebol Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 11, "gender": "M", "schedule_conflict_check": True}},
-            {"name": "Futebol Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 11, "gender": "F", "schedule_conflict_check": True}},
+            {"name": "Futebol Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 16, "substitutes": 5, "gender": "M", "schedule_conflict_check": True}},
+            {"name": "Futebol Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 16, "substitutes": 5, "gender": "F", "schedule_conflict_check": True}},
         ],
     },
     {
@@ -38,7 +39,8 @@ _SPORTS: list[dict[str, Any]] = [
         "description": "Vôlei indoor — 6 jogadores por equipe.",
         "player_count": 6,
         "rules_json": {
-            "max_athletes": 6,
+            "max_athletes": 12,
+            "substitutes": 6,
             "schedule_conflict_check": True,
             "best_of": 5,
             "set_points": 25,
@@ -49,8 +51,8 @@ _SPORTS: list[dict[str, Any]] = [
             "individual": ["aces", "blocks", "attack_points", "errors", "sets_played"],
         },
         "modalities": [
-            {"name": "Vôlei Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 6, "gender": "M", "schedule_conflict_check": True}},
-            {"name": "Vôlei Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 6, "gender": "F", "schedule_conflict_check": True}},
+            {"name": "Vôlei Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 12, "substitutes": 6, "gender": "M", "schedule_conflict_check": True}},
+            {"name": "Vôlei Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 12, "substitutes": 6, "gender": "F", "schedule_conflict_check": True}},
         ],
     },
     {
@@ -59,7 +61,8 @@ _SPORTS: list[dict[str, Any]] = [
         "description": "Basquete 5×5.",
         "player_count": 5,
         "rules_json": {
-            "max_athletes": 5,
+            "max_athletes": 12,
+            "substitutes": 7,
             "schedule_conflict_check": True,
             "quarters": 4,
             "quarter_minutes": 10,
@@ -71,8 +74,8 @@ _SPORTS: list[dict[str, Any]] = [
             "individual": ["points_1pt", "points_2pt", "points_3pt", "rebounds_off", "rebounds_def", "assists", "blocks", "steals", "fouls"],
         },
         "modalities": [
-            {"name": "Basquete Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 5, "gender": "M", "schedule_conflict_check": True}},
-            {"name": "Basquete Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 5, "gender": "F", "schedule_conflict_check": True}},
+            {"name": "Basquete Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 12, "substitutes": 7, "gender": "M", "schedule_conflict_check": True}},
+            {"name": "Basquete Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 12, "substitutes": 7, "gender": "F", "schedule_conflict_check": True}},
         ],
     },
     {
@@ -130,7 +133,8 @@ _SPORTS: list[dict[str, Any]] = [
         "description": "Handebol indoor — 7 jogadores por equipe.",
         "player_count": 7,
         "rules_json": {
-            "max_athletes": 7,
+            "max_athletes": 14,
+            "substitutes": 7,
             "schedule_conflict_check": True,
             "halves": 2,
             "half_minutes": 30,
@@ -142,8 +146,8 @@ _SPORTS: list[dict[str, Any]] = [
             "individual": ["goals", "assists", "saves", "cards_yellow", "cards_red", "cards_blue", "suspensions_2min"],
         },
         "modalities": [
-            {"name": "Handebol Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 7, "gender": "M", "schedule_conflict_check": True}},
-            {"name": "Handebol Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 7, "gender": "F", "schedule_conflict_check": True}},
+            {"name": "Handebol Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 14, "substitutes": 7, "gender": "M", "schedule_conflict_check": True}},
+            {"name": "Handebol Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 14, "substitutes": 7, "gender": "F", "schedule_conflict_check": True}},
         ],
     },
     {

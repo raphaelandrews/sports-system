@@ -19,6 +19,7 @@ from app.config import settings
 from app.core.limiter import limiter
 from app.core.scheduler import setup_scheduler
 from app.routers import admin, auth, health, users
+from app.routers.activities import router as activities_router
 from app.routers.athletes import router as athletes_router
 from app.routers.delegations import invites_router, router as delegations_router
 from app.routers.enrollments import router as enrollments_router
@@ -144,6 +145,7 @@ app.include_router(sports_router)
 app.include_router(modalities_router)
 app.include_router(athletes_router)
 app.include_router(weeks_router)
+app.include_router(activities_router)
 app.include_router(events_router)
 app.include_router(matches_router)
 app.include_router(enrollments_router)
