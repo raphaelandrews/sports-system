@@ -9,6 +9,8 @@
     "gen:types": "openapi-typescript http://localhost:3000/openapi.json -o src/types/api.gen.ts"
   },
   "dependencies": {
+    "@fontsource/geist-mono": "^5.2.7",
+    "@fontsource/geist-sans": "^5.2.5",
     "@sports-system/env": "workspace:*",
     "@sports-system/ui": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",

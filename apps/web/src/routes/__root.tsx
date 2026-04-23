@@ -53,7 +53,13 @@ function RootDocument() {
         <HeadContent />
       </head>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          themes={["light", "sunny", "moss"]}
+          disableTransitionOnChange
+        >
           {isFullPage ? (
             <Outlet />
           ) : (
@@ -65,8 +71,8 @@ function RootDocument() {
           <Toaster richColors />
           <ReactQueryDevtools buttonPosition="bottom-right" />
           <TanStackRouterDevtools position="bottom-left" />
+          <Scripts />
         </ThemeProvider>
-        <Scripts />
       </body>
     </html>
   );

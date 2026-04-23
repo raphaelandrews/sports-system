@@ -22,6 +22,8 @@
     "apps/web": {
       "name": "web",
       "dependencies": {
+        "@fontsource/geist-mono": "^5.2.7",
+        "@fontsource/geist-sans": "^5.2.5",
         "@sports-system/env": "workspace:*",
         "@sports-system/ui": "workspace:*",
         "@tailwindcss/vite": "^4.1.18",
@@ -374,6 +376,10 @@
     "@fontsource-variable/jetbrains-mono": ["@fontsource-variable/jetbrains-mono@5.2.8", "", {}, "sha512-WBA9elru6Jdp5df2mES55wuOO0WIrn3kpXnI4+W2ek5u3ZgLS9XS4gmIlcQhiZOWEKl95meYdvK7xI+ETLCq/Q=="],
 
     "@fontsource-variable/plus-jakarta-sans": ["@fontsource-variable/plus-jakarta-sans@5.2.8", "", {}, "sha512-iQecBizIdZxezODNHzOn4SvvRMrZL/S8k4MEXGDynCmUrImVW0VmX+tIAMqnADwH4haXlHSXqMgU6+kcfBQJdw=="],
+
+    "@fontsource/geist-mono": ["@fontsource/geist-mono@5.2.7", "", {}, "sha512-xVPVFISJg/K0VVd+aQN0Y7X/sw9hUcJPyDWFJ5GpyU3bHELhoRsJkPSRSHXW32mOi0xZCUQDOaPj1sqIFJ1FGg=="],
+
+    "@fontsource/geist-sans": ["@fontsource/geist-sans@5.2.5", "", {}, "sha512-anllOHyJbElRs9fV15TeDRqAeb1IKm4bSknPl6ZMoyPTx1BBy7logudcUwpNjmQLkzn4Q0JGQLRCUKJYoyST6A=="],
 
     "@hono/node-server": ["@hono/node-server@1.19.14", "", { "peerDependencies": { "hono": "^4" } }, "sha512-GwtvgtXxnWsucXvbQXkRgqksiH2Qed37H9xHZocE5sA3N8O8O8/8FA3uclQXxXVzc9XBZuEOMK7+r02FmSpHtw=="],
 
