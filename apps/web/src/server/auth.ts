@@ -11,8 +11,7 @@ import type {
   Session,
   TokenResponse,
 } from "@/types/auth";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
+import { buildApiUrl } from "@/lib/url";
 
 function setAuthCookies(tokens: TokenResponse) {
   setCookie("access_token", tokens.access_token, {
@@ -34,7 +33,7 @@ export const getSessionFn = createServerFn().handler(
     const token = getCookie("access_token");
     if (!token) return null;
     try {
-      const res = await fetch(`${SERVER_URL}/users/me`, {
+      const res = await fetch(buildApiUrl("/users/me"), {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) return null;
@@ -48,7 +47,7 @@ export const getSessionFn = createServerFn().handler(
 export const loginFn = createServerFn({ method: "POST" })
   .inputValidator((data: LoginRequest) => data)
   .handler(async ({ data }) => {
-    const res = await fetch(`${SERVER_URL}/auth/login`, {
+    const res = await fetch(buildApiUrl("/auth/login"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -66,7 +65,7 @@ export const loginFn = createServerFn({ method: "POST" })
 export const registerFn = createServerFn({ method: "POST" })
   .inputValidator((data: RegisterRequest) => data)
   .handler(async ({ data }) => {
-    const res = await fetch(`${SERVER_URL}/auth/register`, {
+    const res = await fetch(buildApiUrl("/auth/register"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -85,7 +84,7 @@ export const registerFn = createServerFn({ method: "POST" })
 export const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
   const refreshToken = getCookie("refresh_token");
   if (refreshToken) {
-    await fetch(`${SERVER_URL}/auth/logout`, {
+    await fetch(buildApiUrl("/auth/logout"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh_token: refreshToken }),
@@ -98,7 +97,7 @@ export const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
 export const finalizeOAuthFn = createServerFn({ method: "POST" })
   .inputValidator((data: { token: string }) => data)
   .handler(async ({ data }) => {
-    const res = await fetch(`${SERVER_URL}/auth/oauth/finalize`, {
+    const res = await fetch(buildApiUrl("/auth/oauth/finalize"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),

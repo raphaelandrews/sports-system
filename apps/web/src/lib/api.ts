@@ -1,4 +1,4 @@
-import { env } from "@sports-system/env/web";
+import { buildApiUrl } from "@/lib/url";
 
 export class ApiError extends Error {
   constructor(
@@ -22,7 +22,7 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const { body, params, headers, ...rest } = options;
 
-  let url = `${env.VITE_SERVER_URL}${path}`;
+  let url = buildApiUrl(path);
 
   if (params) {
     const search = new URLSearchParams();
@@ -83,7 +83,7 @@ export async function apiFetchBlob(path: string): Promise<Blob> {
     }
   }
 
-  const res = await fetch(`${env.VITE_SERVER_URL}${path}`, {
+  const res = await fetch(buildApiUrl(path), {
     credentials: "include",
     headers: authHeader,
   });

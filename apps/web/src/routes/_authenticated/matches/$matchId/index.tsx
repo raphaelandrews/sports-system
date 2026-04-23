@@ -25,9 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sports-system/ui/components/select";
-import { env } from "@sports-system/env/web";
-
 import { apiFetch, ApiError } from "@/lib/api";
+import { buildApiUrl } from "@/lib/url";
 import { athleteListQueryOptions } from "@/queries/athletes";
 import { delegationListQueryOptions } from "@/queries/delegations";
 import { matchDetailQueryOptions } from "@/queries/matches";
@@ -75,7 +74,7 @@ function MatchLivePage() {
 
   React.useEffect(() => {
     const source = new EventSource(
-      `${env.VITE_SERVER_URL}/matches/${numericMatchId}/stream`,
+      buildApiUrl(`/matches/${numericMatchId}/stream`),
       { withCredentials: true },
     );
 

@@ -5,7 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { Badge } from "@sports-system/ui/components/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card";
 
-import { env } from "@sports-system/env/web";
+import { buildApiUrl } from "@/lib/url";
 import type { ActivityFeedItem, ActivityFeedItemType } from "@/types/activity";
 
 function itemIcon(type: ActivityFeedItemType) {
@@ -50,7 +50,7 @@ export function ActivityFeed({
   useEffect(() => {
     if (!live || typeof window === "undefined") return;
 
-    const streamUrl = new URL(`${env.VITE_SERVER_URL}/activities/stream`);
+    const streamUrl = new URL(buildApiUrl("/activities/stream"));
     const eventSource = new EventSource(streamUrl.toString(), { withCredentials: true });
 
     eventSource.onmessage = (event) => {
