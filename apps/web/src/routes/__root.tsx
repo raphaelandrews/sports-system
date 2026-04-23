@@ -55,9 +55,9 @@ function RootDocument() {
       <body>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="ember"
           enableSystem={false}
-          themes={["light", "sunny", "moss"]}
+          themes={["ember", "moss"]}
           disableTransitionOnChange
         >
           {isFullPage ? (
