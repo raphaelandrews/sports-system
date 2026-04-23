@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 from pydantic import BaseModel
 
 from app.models.delegation import DelegationMemberRole, InviteStatus
+from app.models.result import Medal
 
 
 class DelegationCreate(BaseModel):
@@ -66,3 +67,57 @@ class InviteResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class DelegationAthleteStatisticsItem(BaseModel):
+    athlete_id: int
+    athlete_name: str
+    athlete_code: str
+    is_active: bool
+    is_current_member: bool
+    joined_at: Optional[datetime]
+    left_at: Optional[datetime]
+    total_matches: int
+    gold: int
+    silver: int
+    bronze: int
+    total_medals: int
+
+
+class DelegationMedalItem(BaseModel):
+    result_id: int
+    athlete_id: Optional[int]
+    athlete_name: Optional[str]
+    match_id: int
+    rank: int
+    medal: Medal
+
+
+class DelegationWeekPerformanceItem(BaseModel):
+    week_id: int
+    week_number: int
+    status: str
+    start_date: date
+    end_date: date
+    matches_played: int
+    matches_completed: int
+    wins: int
+    gold: int
+    silver: int
+    bronze: int
+    total_medals: int
+
+
+class DelegationStatisticsResponse(BaseModel):
+    delegation: DelegationResponse
+    athlete_count: int
+    active_athlete_count: int
+    total_matches: int
+    total_wins: int
+    gold: int
+    silver: int
+    bronze: int
+    total_medals: int
+    athletes: list[DelegationAthleteStatisticsItem]
+    medals: list[DelegationMedalItem]
+    weekly_performance: list[DelegationWeekPerformanceItem]

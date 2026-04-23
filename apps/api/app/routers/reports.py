@@ -36,3 +36,16 @@ async def export_csv(
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=results.csv"},
     )
+
+
+@router.get("/export/xlsx")
+async def export_xlsx(
+    session: AsyncSession = Depends(get_session),
+    _: None = Depends(require_admin),
+) -> StreamingResponse:
+    content = await report_service.export_xlsx(session)
+    return StreamingResponse(
+        iter([content]),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=results.xlsx"},
+    )

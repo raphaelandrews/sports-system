@@ -1,11 +1,12 @@
 from datetime import date as date_type
 from typing import Optional
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.event import Event, Match, MatchEvent, MatchParticipant
-from app.models.sport import Modality
+from app.models.sport import Modality, Sport
+from app.models.week import CompetitionWeek
 
 
 async def get_event_by_id(session: AsyncSession, event_id: int) -> Optional[Event]:
@@ -90,3 +91,52 @@ async def create_match_event(session: AsyncSession, match_event: MatchEvent) -> 
     await session.flush()
     await session.refresh(match_event)
     return match_event
+
+
+async def search(
+    session: AsyncSession,
+    query: str,
+    limit: int = 8,
+) -> list[dict]:
+    pattern = f"%{query.strip()}%"
+    result = await session.execute(
+        select(
+            Event.id,
+            Event.week_id,
+            CompetitionWeek.week_number,
+            Sport.name.label("sport_name"),
+            Modality.name.label("modality_name"),
+            Event.venue,
+            Event.event_date,
+            Event.start_time,
+            Event.phase,
+            Event.status,
+        )
+        .join(CompetitionWeek, CompetitionWeek.id == Event.week_id)
+        .join(Modality, Modality.id == Event.modality_id)
+        .join(Sport, Sport.id == Modality.sport_id)
+        .where(
+            or_(
+                Sport.name.ilike(pattern),
+                Modality.name.ilike(pattern),
+                Event.venue.ilike(pattern),
+            )
+        )
+        .order_by(Event.event_date.desc(), Event.start_time.asc())
+        .limit(limit)
+    )
+    return [
+        {
+            "id": row.id,
+            "week_id": row.week_id,
+            "week_number": row.week_number,
+            "sport_name": row.sport_name,
+            "modality_name": row.modality_name,
+            "venue": row.venue,
+            "event_date": row.event_date,
+            "start_time": row.start_time,
+            "phase": row.phase,
+            "status": row.status,
+        }
+        for row in result.all()
+    ]

@@ -1,38 +1,12 @@
-export interface Session {
-  id: number;
-  email: string;
-  name: string;
-  role: "ADMIN" | "CHIEF" | "ATHLETE" | "COACH";
-}
+import type { ApiSchemas } from "@/types/api.gen";
 
-export interface TokenResponse {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-}
+export type UserRole = ApiSchemas["UserRole"];
+export type ChiefRequestStatus = ApiSchemas["ChiefRequestStatus"];
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface RegisterRequest {
-  email: string;
-  name: string;
-  password: string;
-}
-
-export interface ChiefRequestCreate {
-  delegation_name: string;
-  message?: string;
-}
-
-export interface ChiefRequestResponse {
-  id: number;
-  user_id: number;
-  delegation_name: string;
-  message: string | null;
-  status: "PENDING" | "APPROVED" | "REJECTED";
-  reviewed_by: number | null;
-  created_at: string;
-}
+export type Session = ApiSchemas["UserResponse"];
+export type TokenResponse = ApiSchemas["TokenResponse"];
+export type LoginRequest = ApiSchemas["LoginRequest"];
+export type RegisterRequest = ApiSchemas["RegisterRequest"];
+export type RefreshRequest = ApiSchemas["RefreshRequest"];
+export type ChiefRequestCreate = ApiSchemas["ChiefRequestCreate"];
+export type ChiefRequestResponse = ApiSchemas["ChiefRequestResponse"];

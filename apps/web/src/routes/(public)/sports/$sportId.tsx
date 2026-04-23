@@ -8,8 +8,9 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
+import { resolveRosterSize } from "@/lib/sports";
 import { sportDetailQueryOptions } from "@/queries/sports";
 import type { Gender, SportType } from "@/types/sports";
 
@@ -49,12 +50,18 @@ function SportDetailPage() {
         )}
         {data.player_count != null && (
           <p className="text-sm text-muted-foreground mt-1">
-            {data.player_count}{" "}
             {data.sport_type === "INDIVIDUAL"
-              ? "atleta(s) por partida"
-              : "jogador(es) por time"}
+              ? `${data.player_count} atleta(s) por prova`
+              : `${resolveRosterSize(data.player_count, data.rules_json)} atleta(s) por equipe · ${data.player_count} em jogo`}
           </p>
         )}
+        <Link
+          to="/sports/$sportId/bracket"
+          params={{ sportId }}
+          className="mt-4 inline-flex text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          Ver chaveamento
+        </Link>
       </div>
 
       <div>

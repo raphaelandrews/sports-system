@@ -18,6 +18,23 @@ async def update_me(session: AsyncSession, user: User, data: UserUpdate) -> User
     return await user_repository.save(session, user)
 
 
+async def search_users(
+    session: AsyncSession,
+    current_user: User,
+    query: str,
+    limit: int,
+) -> list[User]:
+    if current_user.role not in {UserRole.ADMIN, UserRole.CHIEF}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+
+    normalized = query.strip()
+    if len(normalized) < 2:
+        return []
+
+    users = await user_repository.search(session, normalized, limit)
+    return [user for user in users if user.id != current_user.id]
+
+
 async def request_chief(session: AsyncSession, user: User, data: ChiefRequestCreate) -> ChiefRequest:
     req = ChiefRequest(
         user_id=user.id,
@@ -25,6 +42,10 @@ async def request_chief(session: AsyncSession, user: User, data: ChiefRequestCre
         message=data.message,
     )
     return await chief_request_repository.create(session, req)
+
+
+async def get_my_request(session: AsyncSession, user_id: int) -> ChiefRequest | None:
+    return await chief_request_repository.get_by_user_id(session, user_id)
 
 
 async def list_pending_requests(

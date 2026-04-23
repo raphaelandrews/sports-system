@@ -1,45 +1,13 @@
-export type Medal = "GOLD" | "SILVER" | "BRONZE";
+import type { ApiSchemas } from "@/types/api.gen";
 
-export interface AthleteResponse {
-  id: number;
-  name: string;
-  code: string;
-  gender: "M" | "F" | null;
-  birthdate: string | null;
-  is_active: boolean;
-  user_id: number | null;
-}
+export type AthleteGender = ApiSchemas["AthleteGender"];
+export type Medal = ApiSchemas["Medal"];
 
-export interface DelegationHistoryItem {
-  delegation_id: number;
-  delegation_name: string;
-  delegation_code: string;
-  role: string;
-  joined_at: string;
-  left_at: string | null;
-}
-
-export interface MatchHistoryItem {
-  match_id: number;
-  event_id: number;
-  modality_name: string;
-  sport_name: string;
-  delegation_code: string;
-  role: string;
-  match_date: string | null;
-}
-
-export interface MedalResult {
-  id: number;
-  match_id: number;
-  rank: number;
-  medal: Medal | null;
-}
-
-export interface AthleteReportResponse {
-  athlete: AthleteResponse;
-  delegation_history: DelegationHistoryItem[];
-  match_history: MatchHistoryItem[];
-  medals: MedalResult[];
-  statistics: Record<string, Record<string, unknown>>;
-}
+export type AthleteResponse = ApiSchemas["AthleteResponse"];
+export type AthleteCreate = ApiSchemas["AthleteCreate"];
+export type AthleteUpdate = ApiSchemas["AthleteUpdate"];
+export type DelegationHistoryItem = ApiSchemas["DelegationHistoryItem"];
+export type MatchHistoryItem = ApiSchemas["MatchHistoryItem"];
+export type AthleteHistoryResponse = ApiSchemas["AthleteHistoryResponse"];
+export type AthleteStatisticsResponse = ApiSchemas["AthleteStatisticsResponse"];
+export type AthleteReportResponse = ApiSchemas["AthleteReportResponse"];

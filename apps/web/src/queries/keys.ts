@@ -5,7 +5,9 @@ export const queryKeys = {
   delegations: {
     all: () => ["delegations"] as const,
     detail: (id: number) => ["delegations", id] as const,
+    statistics: (id: number) => ["delegations", id, "statistics"] as const,
     members: (id: number) => ["delegations", id, "members"] as const,
+    history: (id: number) => ["delegations", id, "history"] as const,
     invites: (id: number) => ["delegations", id, "invites"] as const,
   },
   sports: {
@@ -34,16 +36,29 @@ export const queryKeys = {
     report: (id: number) => ["athletes", id, "report"] as const,
   },
   enrollments: {
+    all: () => ["enrollments"] as const,
+    list: (params?: Record<string, unknown>) => ["enrollments", params ?? {}] as const,
     byEvent: (eventId: number) => ["enrollments", "event", eventId] as const,
     byDelegation: (delegationId: number) =>
       ["enrollments", "delegation", delegationId] as const,
   },
   results: {
+    all: () => ["results"] as const,
+    list: (params?: Record<string, unknown>) => ["results", params ?? {}] as const,
     medalBoard: () => ["results", "medal-board"] as const,
+    medalBoardSport: (sportId: number) => ["results", "medal-board", "sport", sportId] as const,
+    records: (modalityId?: number) => ["results", "records", modalityId ?? "all"] as const,
+    standings: (modalityId: number) => ["results", "standings", modalityId] as const,
     byWeek: (weekId: number) => ["results", "week", weekId] as const,
   },
   notifications: {
     list: (userId: number) => ["notifications", userId] as const,
+  },
+  users: {
+    search: (query: string) => ["users", "search", query] as const,
+  },
+  search: {
+    global: (query: string) => ["search", "global", query] as const,
   },
   requests: {
     all: () => ["requests"] as const,
@@ -52,5 +67,8 @@ export const queryKeys = {
   ai: {
     history: () => ["ai", "history"] as const,
     narrative: (date: string) => ["ai", "narrative", date] as const,
+  },
+  activities: {
+    feed: (limit: number) => ["activities", "feed", limit] as const,
   },
 } as const;

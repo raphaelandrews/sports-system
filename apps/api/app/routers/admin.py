@@ -54,7 +54,7 @@ async def demo_seed(
     admin_user = User(
         email="admin@sports.local",
         name="Admin",
-        password_hash=hash_password("admin123"),
+        hashed_password=hash_password("admin123"),
         role=UserRole.ADMIN,
     )
     session.add(admin_user)
@@ -87,7 +87,7 @@ async def demo_seed(
         chief_user = User(
             email=f"chief.{code.lower()}@sports.local",
             name=f"Chefe {name}",
-            password_hash=hash_password("chief123"),
+            hashed_password=hash_password("chief123"),
             role=UserRole.CHIEF,
         )
         session.add(chief_user)

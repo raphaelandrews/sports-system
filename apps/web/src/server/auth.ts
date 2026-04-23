@@ -60,6 +60,7 @@ export const loginFn = createServerFn({ method: "POST" })
     }
     const tokens = (await res.json()) as TokenResponse;
     setAuthCookies(tokens);
+    return tokens;
   });
 
 export const registerFn = createServerFn({ method: "POST" })
@@ -78,9 +79,10 @@ export const registerFn = createServerFn({ method: "POST" })
     }
     const tokens = (await res.json()) as TokenResponse;
     setAuthCookies(tokens);
+    return tokens;
   });
 
-export const logoutFn = createServerFn().handler(async () => {
+export const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
   const refreshToken = getCookie("refresh_token");
   if (refreshToken) {
     await fetch(`${SERVER_URL}/auth/logout`, {
@@ -92,3 +94,22 @@ export const logoutFn = createServerFn().handler(async () => {
   deleteCookie("access_token");
   deleteCookie("refresh_token");
 });
+
+export const finalizeOAuthFn = createServerFn({ method: "POST" })
+  .inputValidator((data: { token: string }) => data)
+  .handler(async ({ data }) => {
+    const res = await fetch(`${SERVER_URL}/auth/oauth/finalize`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      const detail =
+        (json as { detail?: string }).detail ?? "OAuth login failed";
+      throw new Error(detail);
+    }
+    const tokens = (await res.json()) as TokenResponse;
+    setAuthCookies(tokens);
+    return tokens;
+  });

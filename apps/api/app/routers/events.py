@@ -3,9 +3,9 @@ import json
 from datetime import date
 from typing import AsyncGenerator, Optional
 
-from fastapi import APIRouter, Depends, Query, status
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sse_starlette.sse import EventSourceResponse
 
 from app.core import sse
 from app.core.deps import get_current_user, require_admin
@@ -36,7 +36,7 @@ async def list_events(
     sport_id: Optional[int] = Query(None),
     event_date: Optional[date] = Query(None),
     page: int = Query(1, ge=1),
-    per_page: int = Query(20, ge=1, le=100),
+    per_page: int = Query(20, ge=1, le=500),
     session: AsyncSession = Depends(get_session),
 ) -> PaginatedResponse[EventResponse]:
     return await event_service.list_events(session, week_id, sport_id, event_date, page, per_page)
@@ -116,22 +116,19 @@ async def list_match_events(
 
 
 @matches_router.get("/{match_id}/stream")
-async def stream_match(match_id: int) -> StreamingResponse:
+async def stream_match(request: Request, match_id: int) -> EventSourceResponse:
     async def event_generator() -> AsyncGenerator[str, None]:
         q = sse.subscribe(match_id)
         try:
             while True:
-                try:
-                    data = await asyncio.wait_for(q.get(), timeout=20.0)
-                    yield f"data: {data}\n\n"
-                except asyncio.TimeoutError:
-                    yield ": ping\n\n"
+                data = await q.get()
+                yield data
         except asyncio.CancelledError:
             pass
         finally:
             sse.unsubscribe(match_id, q)
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return EventSourceResponse(event_generator(), ping=20)
 
 
 @matches_router.post("/{match_id}/start", response_model=MatchResponse)

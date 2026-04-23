@@ -28,3 +28,11 @@ export function formatDate(iso: string): string {
 export function formatTime(time: string): string {
   return formatEventDate(`1970-01-01T${time}`);
 }
+
+export function isTransferWindow(): boolean {
+  const day = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    timeZone: "America/Sao_Paulo",
+  }).format(new Date());
+  return day === "Mon";
+}

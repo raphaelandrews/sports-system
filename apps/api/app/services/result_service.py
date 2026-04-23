@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,9 +18,6 @@ from app.schemas.result import (
     ResultUpdate,
     SportStandingEntry,
 )
-
-logger = logging.getLogger(__name__)
-
 
 async def list_results(
     session: AsyncSession,

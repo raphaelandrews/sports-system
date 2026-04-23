@@ -25,6 +25,8 @@ export const allEventsQueryOptions = (params?: {
   per_page?: number;
   page?: number;
   week_id?: number;
+  sport_id?: number;
+  event_date?: string;
 }) =>
   queryOptions({
     queryKey: [...queryKeys.events.all(), params ?? {}],

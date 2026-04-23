@@ -263,8 +263,11 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ## Tecnologias
 - Python 3.12+, FastAPI, SQLModel (SQLAlchemy + Pydantic), Alembic
 - PostgreSQL (banco principal + tabela `refresh_tokens` para invalidação de JWT)
+- FastAPI Users — gerenciamento de usuários, hashing Argon2id (pwdlib), base para OAuth futuro
 - JWT + refresh tokens (autenticação) — SSE usa `asyncio.Queue` in-process
-- SSE — Server-Sent Events (atualizações em tempo real, unidirecional servidor→cliente)
+- SSE — Server-Sent Events via `sse-starlette` (`EventSourceResponse`, heartbeat automático)
+- slowapi — rate limiting por IP nos endpoints de autenticação
+- orjson — serialização JSON de alta performance (default response class)
 - APScheduler (automação: travamento de semanas, notificações, geração de partidas)
 - LLM via API (geração de conteúdo IA, com modo mock para demos)
 - Servidor dedicado
@@ -285,7 +288,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - [x] Configurar projeto FastAPI com estrutura de pastas (`app/`, `routers/`, `services/`, `models/`, `schemas/`, `repositories/`)
 - [x] Configurar banco de dados PostgreSQL com SQLModel + Alembic
 - [x] Criar migrações iniciais (tabelas base)
-- [x] Configurar variáveis de ambiente (pydantic-settings) — `.env.example` na raiz do repo
+- [x] Configurar variáveis de ambiente (pydantic-settings) — `apps/api/.env.example`
 - [x] Configurar CORS para o frontend
 - [x] Adicionar `TIMEZONE=America/Sao_Paulo` à configuração — usado em toda lógica de data/hora
 - [x] Adicionar `AUTO_SIMULATE=true` à configuração — modo showcase: partidas iniciam e finalizam automaticamente com resultados gerados
@@ -300,7 +303,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
   - [x] A cada 1min (se `AUTO_SIMULATE=true`): finalizar partidas onde `started_at + 5min < utcnow()` → gera resultados e eventos automaticamente
   - [x] Diariamente à meia-noite (UTC-3): enviar notificações de lembrete 24h antes de partidas
 - [x] Criar endpoint `POST /admin/demo-seed` — gera semana completa com delegações, atletas, inscrições e resultados (para showcase)
-- [x] Criar tabela `users` com campos: id, email, name, password_hash, role, created_at, is_active
+- [x] Criar tabela `users` com campos: id, email, name, hashed_password, role, created_at, is_active, is_superuser, is_verified
 - [x] Criar tabela `notifications` com campos: id, user_id, type, payload (JSON), read, created_at
 - [x] Criar tabela `delegation_invites` com campos: id, delegation_id, user_id, status (PENDING/ACCEPTED/REFUSED), created_at
 - [x] Criar tabela `chief_requests` com campos: id, user_id, delegation_name, message, status, reviewed_by, created_at
@@ -465,8 +468,8 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
   - [x] Calendário otimizado por esporte e local (via ai_generate em events)
   - [x] Resultados plausíveis com base nos esportes e regras (via simulation_service)
   - [x] Narrativa contextualizada dos destaques do dia (via narrative_service)
-- [ ] `GET /report/export/pdf` — exportar relatório em PDF
 - [x] `GET /report/export/csv` — exportar resultados em CSV
+- [x] `GET /report/export/xlsx` — exportar resultados em XLSX
 
 ---
 
@@ -546,123 +549,124 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 3 — Notificações e Onboarding
 
-- [ ] Componente `NotificationBell` no header — badge de não lidas + dropdown
-- [ ] `NotificationItem` — renderiza por tipo (convite, aprovação, lembrete, resultado)
-- [ ] Fluxo de aceitar/recusar convite de delegação direto da notificação
-- [ ] Página de status da solicitação de chefe (`/request-chief/status`)
-- [ ] Indicador de janela de transferência ativa no header (segunda-feira)
+- [x] Componente `NotificationBell` no header — badge de não lidas + dropdown
+- [x] `NotificationItem` — renderiza por tipo (convite, aprovação, lembrete, resultado)
+- [x] Fluxo de aceitar/recusar convite de delegação direto da notificação
+- [x] Página de status da solicitação de chefe (`/request-chief/status`)
+- [x] Indicador de janela de transferência ativa no header (segunda-feira)
 
 ## Fase 4 — Dashboard
 
-- [ ] `routes/_authenticated/dashboard/index.tsx` (`ssr: 'data-only'`)
-  - [ ] **Admin**: total de delegações, atletas, status da semana, solicitações pendentes, atalhos de geração IA
-  - [ ] **Admin — gráficos**: progressão de medalhas por delegação, atletas por esporte (barra), taxa de partidas concluídas (gauge)
-  - [ ] **Chefe**: minha delegação, próximas partidas, status de inscrições, avisos
-  - [ ] **Atleta/Técnico**: minhas próximas partidas, meus resultados recentes
+- [x] `routes/_authenticated/dashboard/index.tsx` (`ssr: 'data-only'`)
+  - [x] **Admin**: total de delegações, atletas, status da semana, solicitações pendentes, atalhos de geração IA
+  - [x] **Admin — gráficos**: progressão de medalhas por delegação, atletas por esporte (barra), taxa de partidas concluídas (gauge)
+  - [x] **Chefe**: minha delegação, próximas partidas, status de inscrições, avisos
+  - [x] **Atleta/Técnico**: minhas próximas partidas, meus resultados recentes
 
 ## Fase 5 — Gestão de Delegações (Admin)
 
-- [ ] `routes/_authenticated/_admin/delegations/index.tsx` — lista com filtros, paginação, ação de gerar IA
-- [ ] `routes/_authenticated/_admin/delegations/new.tsx` — formulário de criação
-- [ ] `routes/_authenticated/_admin/delegations/$delegationId/index.tsx` — detalhe: membros, histórico, partidas
-- [ ] `routes/_authenticated/_admin/delegations/$delegationId/edit.tsx` — edição
-- [ ] Botão "Gerar com IA" com feedback de loading + toast de sucesso
+- [x] `routes/_authenticated/dashboard/delegations/index.tsx` — lista com filtros, paginação, ação de gerar IA *(rota compartilhada; admin vê botões de criação/edição, demais roles vêem lista somente-leitura)*
+- [x] `routes/_authenticated/_admin/delegations/new.tsx` — formulário de criação
+- [x] `routes/_authenticated/_admin/delegations/$delegationId/index.tsx` — detalhe: membros, histórico, partidas
+- [x] `routes/_authenticated/_admin/delegations/$delegationId/edit.tsx` — edição
+- [x] Botão "Gerar com IA" com feedback de loading + toast de sucesso
 
 ## Fase 6 — Minha Delegação (Chefe)
 
-- [ ] `routes/_authenticated/_chief/my-delegation/index.tsx` — overview da delegação
-- [ ] `routes/_authenticated/_chief/my-delegation/members.tsx` — lista membros, convites pendentes, ações
-- [ ] `routes/_authenticated/_chief/my-delegation/invite.tsx` — buscar usuário + enviar convite
-- [ ] `routes/_authenticated/_chief/my-delegation/transfers.tsx` — painel de transferências (ativo só na segunda)
+- [x] `routes/_authenticated/_chief/my-delegation/index.tsx` — overview da delegação
+- [x] `routes/_authenticated/_chief/my-delegation/members.tsx` — lista membros, convites pendentes, ações
+- [x] `routes/_authenticated/_chief/my-delegation/invite.tsx` — buscar usuário + enviar convite
+- [x] `routes/_authenticated/_chief/my-delegation/transfers.tsx` — painel de transferências (ativo só na segunda)
 
 ## Fase 7 — Esportes e Modalidades (Admin)
 
-- [ ] `routes/_authenticated/_admin/sports/index.tsx` — lista os 10 esportes + status
-- [ ] `routes/_authenticated/_admin/sports/$sportId/index.tsx` — detalhe: modalidades, regras, estatísticas-schema
-- [ ] `routes/_authenticated/_admin/sports/$sportId/modalities/new.tsx` — criar modalidade
-- [ ] `routes/_authenticated/_admin/sports/$sportId/modalities/$modalityId/edit.tsx` — editar regras
+- [x] `routes/_authenticated/dashboard/sports/index.tsx` — lista os 10 esportes + status *(rota compartilhada; admin vê coluna de ações, demais roles vêem lista somente-leitura)*
+- [x] `routes/_authenticated/_admin/sports/$sportId/index.tsx` — detalhe: modalidades, regras, estatísticas-schema
+- [x] `routes/_authenticated/_admin/sports/$sportId/modalities/new.tsx` — criar modalidade
+- [x] `routes/_authenticated/_admin/sports/$sportId/modalities/$modalityId/edit.tsx` — editar regras
 
 ## Fase 8 — Atletas e Técnicos
 
-- [ ] `routes/_authenticated/_admin/athletes/index.tsx` — lista global com filtros
-- [ ] `routes/_authenticated/_chief/athletes/index.tsx` — atletas da delegação
+- [x] `routes/_authenticated/_admin/athletes/index.tsx` — lista global com filtros *(implementado via rota compartilhada `/dashboard/athletes` com comportamento por role)*
+- [x] `routes/_authenticated/_chief/athletes/index.tsx` — atletas da delegação *(implementado via rota compartilhada `/dashboard/athletes` com comportamento por role)*
 - [x] `routes/_authenticated/athletes/$athleteId.tsx` — perfil do atleta:
   - [x] Dados pessoais e modalidades
   - [x] Timeline de delegações (com datas)
   - [x] Histórico de partidas (com delegação na época)
   - [x] Estatísticas por esporte
-- [ ] `routes/_authenticated/_admin/athletes/new.tsx` — cadastrar atleta (admin)
-- [ ] `routes/_authenticated/_chief/athletes/new.tsx` — cadastrar atleta (chefe)
-- [ ] Botão "Gerar com IA" (admin)
+- [x] `routes/_authenticated/_admin/athletes/new.tsx` — cadastrar atleta (admin) *(implementado via rota compartilhada `/dashboard/athletes/new` com comportamento por role)*
+- [x] `routes/_authenticated/_chief/athletes/new.tsx` — cadastrar atleta (chefe) *(implementado via rota compartilhada `/dashboard/athletes/new` com comportamento por role)*
+- [x] Botão "Gerar com IA" (admin)
 
 ## Fase 9 — Semanas de Competição (Admin)
 
-- [ ] `routes/_authenticated/_admin/weeks/index.tsx` — lista das semanas com status visual
-- [ ] `routes/_authenticated/_admin/weeks/new.tsx` — criar semana
-- [ ] `routes/_authenticated/_admin/weeks/$weekId/index.tsx` — detalhe da semana: eventos, status, ações de transição
-- [ ] Controles de estado: Publicar → Travar → Ativar → Encerrar (com confirmação) — travar também disponível como ação manual além do automático
-- [ ] Indicador "Janela de transferência aberta" — visível quando dia atual é segunda-feira em UTC-3
-- [ ] Indicador de próxima janela de transferência com countdown quando fora de segunda
+- [x] `routes/_authenticated/_admin/weeks/index.tsx` — lista das semanas com status visual
+- [x] `routes/_authenticated/_admin/weeks/new.tsx` — criar semana
+- [x] `routes/_authenticated/_admin/weeks/$weekId/index.tsx` — detalhe da semana: eventos, status, ações de transição
+- [x] Controles de estado: Publicar → Travar → Ativar → Encerrar (com confirmação) — travar também disponível como ação manual além do automático
+- [x] Indicador "Janela de transferência aberta" — visível quando dia atual é segunda-feira em UTC-3
+- [x] Indicador de próxima janela de transferência com countdown quando fora de segunda
 
 ## Fase 10 — Calendário e Partidas
 
-- [ ] `routes/_authenticated/_admin/calendar/index.tsx` — administração do calendário da semana
-- [ ] `routes/_authenticated/_admin/calendar/events/new.tsx` — criar evento
-- [ ] `routes/(public)/calendar/$weekId/index.tsx` — calendário público da semana (SSR)
-- [ ] `routes/_authenticated/matches/$matchId/index.tsx` (`ssr: false`) — partida ao vivo:
-  - [ ] Placar em tempo real via SSE (`GET /matches/{id}/stream`)
-  - [ ] Feed de eventos da partida ao vivo (gols, cartões, pontos com minuto)
-  - [ ] Lista de participantes com delegação na época
-  - [ ] Formulário de registro de evento (admin — tipo, atleta, minuto)
-- [ ] Componente `BracketView` — visualização de chaveamento mata-mata por modalidade
-- [ ] `routes/(public)/sports/$sportId/bracket.tsx` — página pública de chaveamento (SSR)
-- [ ] Botão "Gerar Calendário com IA" (admin)
+- [x] `routes/_authenticated/dashboard/calendar/index.tsx` — calendário da semana *(rota compartilhada; admin vê criação de evento, geração IA e ações por linha; demais roles vêem grade somente-leitura)*
+- [x] `routes/_authenticated/_admin/calendar/events/new.tsx` — criar evento
+- [x] `routes/(public)/calendar/$weekId/index.tsx` — calendário público da semana (SSR)
+- [x] `routes/_authenticated/matches/$matchId/index.tsx` (`ssr: false`) — partida ao vivo:
+  - [x] Placar em tempo real via SSE (`GET /matches/{id}/stream`)
+  - [x] Feed de eventos da partida ao vivo (gols, cartões, pontos com minuto)
+  - [x] Lista de participantes com delegação na época
+  - [x] Formulário de registro de evento (admin — tipo, atleta, minuto)
+- [x] Componente `BracketView` — visualização de chaveamento mata-mata por modalidade
+- [x] `routes/(public)/sports/$sportId/bracket.tsx` — página pública de chaveamento (SSR)
+- [x] Botão "Gerar Calendário com IA" (admin)
 
 ## Fase 11 — Inscrições
 
-- [ ] `routes/_authenticated/_admin/enrollments/index.tsx` — todas inscrições com filtros + revisão
-- [ ] `routes/_authenticated/_chief/enrollments/index.tsx` — inscrições da delegação
-- [ ] `routes/_authenticated/_chief/enrollments/new.tsx` — inscrever atleta em evento:
-  - [ ] Seletor de evento (filtrado por semana/esporte)
-  - [ ] Seletor de atleta (filtrado por elegibilidade)
-  - [ ] Validação em tempo real das regras do esporte
-- [ ] Badge de status de inscrição (PENDING/APPROVED/REJECTED) com mensagem de validação
-- [ ] Bloqueio visual de inscrições quando semana está TRAVADA
-- [ ] Botão "Gerar Inscrições com IA" (admin)
+- [x] `routes/_authenticated/_admin/enrollments/index.tsx` — todas inscrições com filtros + revisão *(implementado via rota compartilhada `/dashboard/enrollments` com comportamento por role)*
+- [x] `routes/_authenticated/_chief/enrollments/index.tsx` — inscrições da delegação *(implementado via rota compartilhada `/dashboard/enrollments` com comportamento por role)*
+- [x] `routes/_authenticated/_chief/enrollments/new.tsx` — inscrever atleta em evento *(implementado via rota compartilhada `/dashboard/enrollments/new` com comportamento por role)*:
+  - [x] Seletor de evento (filtrado por semana/esporte)
+  - [x] Seletor de atleta (filtrado por elegibilidade)
+  - [x] Validação em tempo real das regras do esporte
+- [x] Badge de status de inscrição (PENDING/APPROVED/REJECTED) com mensagem de validação
+- [x] Bloqueio visual de inscrições quando semana está TRAVADA
+- [x] Botão "Gerar Inscrições com IA" (admin)
 
 ## Fase 12 — Resultados e Quadro de Medalhas
 
-- [ ] `routes/(public)/results/index.tsx` — quadro de medalhas ao vivo (SSR + refetch 30s)
-- [ ] `routes/(public)/results/sports/$sportId/index.tsx` — classificação por esporte
-- [ ] `routes/_authenticated/_admin/results/index.tsx` — painel de entrada de resultados
-- [ ] `routes/_authenticated/_admin/results/$matchId/new.tsx` — registrar resultado com campos específicos por esporte
-- [ ] `routes/(public)/results/records/index.tsx` — recordes e melhores marcas da competição
-- [ ] Componente `MedalBoard` — tabela com ouro/prata/bronze animado
-- [ ] Componente `SportStandings` — tabela de classificação por esporte com critérios de desempate
-- [ ] Botão "Gerar Resultados com IA" (admin)
+- [x] `routes/(public)/results/index.tsx` — quadro de medalhas ao vivo (SSR + refetch 30s) *(implementado na Fase 3)*
+- [x] `routes/_authenticated/dashboard/results/index.tsx` — quadro de medalhas no dashboard (refetch 30s, sem layout público)
+- [x] `routes/(public)/results/sports/$sportId/index.tsx` — classificação por esporte
+- [x] `routes/_authenticated/dashboard/results/index.tsx` — painel de entrada de resultados *(implementado em rota compartilhada do dashboard)*
+- [x] `routes/_authenticated/dashboard/results/$matchId/new.tsx` — registrar resultado com campos específicos por esporte *(implementado em rota compartilhada do dashboard)*
+- [x] `routes/(public)/results/records/index.tsx` — recordes e melhores marcas da competição
+- [x] Componente `MedalBoard` — tabela com ouro/prata/bronze animado
+- [x] Componente `SportStandings` — tabela de classificação por esporte com critérios de desempate
+- [x] Botão "Gerar Resultados com IA" (admin)
 
 ## Fase 13 — Painel de IA (Admin)
 
-- [ ] `routes/_authenticated/_admin/ai/index.tsx` (`ssr: false`) — painel central de geração:
-  - [ ] Card por categoria: Delegações, Esportes, Atletas, Calendário, Inscrições, Resultados, Narrativa
-  - [ ] Botão "Gerar" por categoria com indicador de progresso
-  - [ ] Histórico das últimas gerações com timestamp e quantidade
-  - [ ] Preview do conteúdo gerado antes de confirmar
-- [ ] Componente `AiGenerateButton` — reutilizável, loading state + toast
+- [x] `routes/_authenticated/dashboard/ai/index.tsx` (`ssr: false`) — painel central de geração *(implementado em rota compartilhada do dashboard)*:
+  - [x] Card por categoria: Delegações, Esportes, Atletas, Calendário, Inscrições, Resultados, Narrativa
+  - [x] Botão "Gerar" por categoria com indicador de progresso
+  - [x] Histórico das últimas gerações com timestamp e quantidade
+  - [x] Preview do conteúdo gerado antes de confirmar
+- [x] Componente `AiGenerateButton` — reutilizável, loading state + toast
 
 ## Fase 14 — Relatórios e Exportação
 
-- [ ] `routes/(public)/report/index.tsx` — relatório final público (SSR)
-  - [ ] Quadro de medalhas completo
-  - [ ] Classificação por modalidade
-  - [ ] Recordes e melhores marcas
-  - [ ] Destaque de atletas
-- [ ] `routes/_authenticated/narrative/index.tsx` (`ssr: false`) — narrativa gerada por IA:
-  - [ ] Histórico de narrativas por dia
-  - [ ] Botão "Gerar narrativa do dia" (admin)
-  - [ ] Rendering de texto rico com destaques
-- [ ] Botão de exportação PDF (`/report/export/pdf`) *(opcional — pós-showcase)*
-- [ ] Botão de exportação CSV (`/report/export/csv`) *(opcional — pós-showcase)*
+- [x] `routes/(public)/report/index.tsx` — relatório final público (SSR)
+  - [x] Quadro de medalhas completo
+  - [x] Classificação por modalidade
+  - [x] Recordes e melhores marcas
+  - [x] Destaque de atletas
+- [x] `routes/_authenticated/narrative/index.tsx` (`ssr: false`) — narrativa gerada por IA:
+  - [x] Histórico de narrativas por dia
+  - [x] Botão "Gerar narrativa do dia" (admin)
+  - [x] Rendering de texto rico com destaques
+- [x] Botão de exportação CSV (`/report/export/csv`) — presente em `/report` e `/dashboard/results`
+- [x] Botão de exportação XLSX (`/report/export/xlsx`) — presente em `/report` e `/dashboard/results`
 
 ---
 
@@ -670,9 +674,10 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 - [x] **Chaveamento automático**: ~~gerar brackets~~ → movido para core (Fase 7 backend + Fase 10 frontend)
 - [x] **Dark/Light mode toggle**: ~~suportado por next-themes~~ → movido para core (Fase 1 frontend)
-- [ ] **Comparação de atletas**: tela side-by-side com estatísticas de dois atletas (head-to-head)
-- [ ] **Busca global**: buscar atletas, delegações, eventos por nome
-- [ ] **Filtros e ordenação**: tabelas com filtros persistidos na URL via TanStack Router search params
-- [ ] **Feed de atividades**: timeline global de eventos da competição em tempo real
-- [ ] **Estatísticas de delegação**: página com todos os atletas, medalhas, e desempenho histórico por semana
-- [ ] **Regras editáveis**: admin pode editar as regras de cada esporte sem alterar código (edita `rules_json` via UI)
+- [x] **Comparação de atletas**: tela side-by-side com estatísticas de dois atletas (head-to-head)
+- [x] **Busca global**: buscar atletas, delegações, eventos por nome
+- [x] **Filtros e ordenação**: tabelas com filtros persistidos na URL via TanStack Router search params
+- [x] **Feed de atividades**: timeline global de eventos da competição em tempo real
+- [x] **Estatísticas de delegação**: página com todos os atletas, medalhas, e desempenho histórico por semana
+- [x] **Regras editáveis**: admin pode editar as regras de cada esporte sem alterar código (edita `rules_json` via UI)
+- [x] **OAuth — Google e GitHub**: autenticação via provedor externo nas páginas de login e cadastro

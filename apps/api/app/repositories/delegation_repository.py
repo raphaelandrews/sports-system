@@ -1,7 +1,11 @@
-from sqlalchemy import func, select
+from sqlalchemy import case, distinct, func, or_, select, union
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.athlete import Athlete
 from app.models.delegation import Delegation, DelegationInvite, DelegationMember, InviteStatus
+from app.models.event import Event, Match, MatchParticipant, MatchStatus
+from app.models.result import Medal, Result
+from app.models.week import CompetitionWeek
 from app.models.user import User
 
 
@@ -12,6 +16,26 @@ async def get_by_id(session: AsyncSession, delegation_id: int) -> Delegation | N
 async def get_by_code(session: AsyncSession, code: str) -> Delegation | None:
     result = await session.execute(select(Delegation).where(Delegation.code == code))
     return result.scalar_one_or_none()
+
+
+async def search(
+    session: AsyncSession,
+    query: str,
+    limit: int = 8,
+) -> list[Delegation]:
+    pattern = f"%{query.strip()}%"
+    result = await session.execute(
+        select(Delegation)
+        .where(
+            or_(
+                Delegation.name.ilike(pattern),
+                Delegation.code.ilike(pattern),
+            )
+        )
+        .order_by(Delegation.name.asc())
+        .limit(limit)
+    )
+    return list(result.scalars().all())
 
 
 async def list_active(
@@ -129,3 +153,243 @@ async def get_current_delegation_id(session: AsyncSession, user_id: int) -> int 
         )
     )
     return result.scalar_one_or_none()
+
+
+async def get_athlete_statistics(session: AsyncSession, delegation_id: int) -> list[dict]:
+    membership_athletes = (
+        select(Athlete.id.label("athlete_id"))
+        .join(DelegationMember, DelegationMember.user_id == Athlete.user_id)
+        .where(DelegationMember.delegation_id == delegation_id)
+    )
+    result_athletes = select(Result.athlete_id.label("athlete_id")).where(
+        Result.delegation_id == delegation_id,
+        Result.athlete_id.is_not(None),
+    )
+    participant_athletes = select(MatchParticipant.athlete_id.label("athlete_id")).where(
+        MatchParticipant.delegation_id_at_time == delegation_id
+    )
+
+    athlete_ids = union(membership_athletes, result_athletes, participant_athletes).subquery()
+
+    membership_stats = (
+        select(
+            Athlete.id.label("athlete_id"),
+            func.min(DelegationMember.joined_at).label("joined_at"),
+            func.max(DelegationMember.left_at).label("left_at"),
+            func.max(
+                case(
+                    (DelegationMember.left_at.is_(None), 1),
+                    else_=0,
+                )
+            ).label("is_current_member"),
+        )
+        .join(DelegationMember, DelegationMember.user_id == Athlete.user_id)
+        .where(DelegationMember.delegation_id == delegation_id)
+        .group_by(Athlete.id)
+        .subquery()
+    )
+
+    match_stats = (
+        select(
+            MatchParticipant.athlete_id.label("athlete_id"),
+            func.count(distinct(MatchParticipant.match_id)).label("total_matches"),
+        )
+        .where(MatchParticipant.delegation_id_at_time == delegation_id)
+        .group_by(MatchParticipant.athlete_id)
+        .subquery()
+    )
+
+    medal_stats = (
+        select(
+            Result.athlete_id.label("athlete_id"),
+            func.count().filter(Result.medal == Medal.GOLD).label("gold"),
+            func.count().filter(Result.medal == Medal.SILVER).label("silver"),
+            func.count().filter(Result.medal == Medal.BRONZE).label("bronze"),
+        )
+        .where(
+            Result.delegation_id == delegation_id,
+            Result.athlete_id.is_not(None),
+            Result.medal.is_not(None),
+        )
+        .group_by(Result.athlete_id)
+        .subquery()
+    )
+
+    result = await session.execute(
+        select(
+            Athlete.id,
+            Athlete.name,
+            Athlete.code,
+            Athlete.is_active,
+            membership_stats.c.joined_at,
+            membership_stats.c.left_at,
+            func.coalesce(membership_stats.c.is_current_member, 0).label("is_current_member"),
+            func.coalesce(match_stats.c.total_matches, 0).label("total_matches"),
+            func.coalesce(medal_stats.c.gold, 0).label("gold"),
+            func.coalesce(medal_stats.c.silver, 0).label("silver"),
+            func.coalesce(medal_stats.c.bronze, 0).label("bronze"),
+        )
+        .join(athlete_ids, athlete_ids.c.athlete_id == Athlete.id)
+        .outerjoin(membership_stats, membership_stats.c.athlete_id == Athlete.id)
+        .outerjoin(match_stats, match_stats.c.athlete_id == Athlete.id)
+        .outerjoin(medal_stats, medal_stats.c.athlete_id == Athlete.id)
+        .order_by(
+            (func.coalesce(medal_stats.c.gold, 0) + func.coalesce(medal_stats.c.silver, 0) + func.coalesce(medal_stats.c.bronze, 0)).desc(),
+            func.coalesce(match_stats.c.total_matches, 0).desc(),
+            Athlete.name.asc(),
+        )
+    )
+
+    return [
+        {
+            "athlete_id": row.id,
+            "athlete_name": row.name,
+            "athlete_code": row.code,
+            "is_active": row.is_active,
+            "joined_at": row.joined_at,
+            "left_at": row.left_at,
+            "is_current_member": bool(row.is_current_member),
+            "total_matches": row.total_matches,
+            "gold": row.gold,
+            "silver": row.silver,
+            "bronze": row.bronze,
+        }
+        for row in result.all()
+    ]
+
+
+async def get_medal_entries(session: AsyncSession, delegation_id: int) -> list[dict]:
+    result = await session.execute(
+        select(
+            Result.id.label("result_id"),
+            Result.athlete_id,
+            Athlete.name.label("athlete_name"),
+            Result.match_id,
+            Result.rank,
+            Result.medal,
+        )
+        .outerjoin(Athlete, Athlete.id == Result.athlete_id)
+        .where(
+            Result.delegation_id == delegation_id,
+            Result.medal.is_not(None),
+        )
+        .order_by(Result.id.desc())
+    )
+    return [
+        {
+            "result_id": row.result_id,
+            "athlete_id": row.athlete_id,
+            "athlete_name": row.athlete_name,
+            "match_id": row.match_id,
+            "rank": row.rank,
+            "medal": row.medal,
+        }
+        for row in result.all()
+    ]
+
+
+async def get_weekly_performance(session: AsyncSession, delegation_id: int) -> list[dict]:
+    team_matches = (
+        select(Match.id.label("match_id"), Event.week_id.label("week_id"))
+        .join(Event, Event.id == Match.event_id)
+        .where(
+            (Match.team_a_delegation_id == delegation_id)
+            | (Match.team_b_delegation_id == delegation_id)
+        )
+    )
+    participant_matches = (
+        select(MatchParticipant.match_id.label("match_id"), Event.week_id.label("week_id"))
+        .join(Match, Match.id == MatchParticipant.match_id)
+        .join(Event, Event.id == Match.event_id)
+        .where(MatchParticipant.delegation_id_at_time == delegation_id)
+    )
+    involved_matches = union(team_matches, participant_matches).subquery()
+
+    match_totals = (
+        select(
+            involved_matches.c.week_id,
+            func.count(distinct(involved_matches.c.match_id)).label("matches_played"),
+            func.count(distinct(Match.id))
+            .filter(Match.status == MatchStatus.COMPLETED)
+            .label("matches_completed"),
+        )
+        .join(Match, Match.id == involved_matches.c.match_id)
+        .group_by(involved_matches.c.week_id)
+        .subquery()
+    )
+
+    win_totals = (
+        select(
+            Event.week_id.label("week_id"),
+            func.count(distinct(Result.match_id)).label("wins"),
+        )
+        .join(Match, Match.id == Result.match_id)
+        .join(Event, Event.id == Match.event_id)
+        .where(
+            Result.delegation_id == delegation_id,
+            Result.rank == 1,
+        )
+        .group_by(Event.week_id)
+        .subquery()
+    )
+
+    medal_totals = (
+        select(
+            Event.week_id.label("week_id"),
+            func.count().filter(Result.medal == Medal.GOLD).label("gold"),
+            func.count().filter(Result.medal == Medal.SILVER).label("silver"),
+            func.count().filter(Result.medal == Medal.BRONZE).label("bronze"),
+        )
+        .join(Match, Match.id == Result.match_id)
+        .join(Event, Event.id == Match.event_id)
+        .where(
+            Result.delegation_id == delegation_id,
+            Result.medal.is_not(None),
+        )
+        .group_by(Event.week_id)
+        .subquery()
+    )
+
+    result = await session.execute(
+        select(
+            CompetitionWeek.id,
+            CompetitionWeek.week_number,
+            CompetitionWeek.status,
+            CompetitionWeek.start_date,
+            CompetitionWeek.end_date,
+            func.coalesce(match_totals.c.matches_played, 0).label("matches_played"),
+            func.coalesce(match_totals.c.matches_completed, 0).label("matches_completed"),
+            func.coalesce(win_totals.c.wins, 0).label("wins"),
+            func.coalesce(medal_totals.c.gold, 0).label("gold"),
+            func.coalesce(medal_totals.c.silver, 0).label("silver"),
+            func.coalesce(medal_totals.c.bronze, 0).label("bronze"),
+        )
+        .outerjoin(match_totals, match_totals.c.week_id == CompetitionWeek.id)
+        .outerjoin(win_totals, win_totals.c.week_id == CompetitionWeek.id)
+        .outerjoin(medal_totals, medal_totals.c.week_id == CompetitionWeek.id)
+        .where(
+            or_(
+                match_totals.c.week_id.is_not(None),
+                win_totals.c.week_id.is_not(None),
+                medal_totals.c.week_id.is_not(None),
+            )
+        )
+        .order_by(CompetitionWeek.week_number)
+    )
+
+    return [
+        {
+            "week_id": row.id,
+            "week_number": row.week_number,
+            "status": row.status.value,
+            "start_date": row.start_date,
+            "end_date": row.end_date,
+            "matches_played": row.matches_played,
+            "matches_completed": row.matches_completed,
+            "wins": row.wins,
+            "gold": row.gold,
+            "silver": row.silver,
+            "bronze": row.bronze,
+        }
+        for row in result.all()
+    ]

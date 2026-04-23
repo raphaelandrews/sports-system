@@ -16,10 +16,17 @@ class CompetitionSummary(BaseModel):
     completed_matches: int
 
 
+class AthleteBySportEntry(BaseModel):
+    sport_id: int
+    sport_name: str
+    athlete_count: int
+
+
 class FinalReportResponse(BaseModel):
     medal_board: list[MedalBoardEntry]
     records: list[RecordResponse]
     summary: CompetitionSummary
+    athletes_by_sport: list[AthleteBySportEntry]
 
 
 class WeekSummary(BaseModel):

@@ -1,12 +1,15 @@
 import csv
 import io
+import zipfile
 from datetime import date
+from xml.sax.saxutils import escape
 
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.athlete import Athlete
+from app.models.athlete import AthleteModality
 from app.models.delegation import Delegation
 from app.models.event import Event, Match, MatchStatus
 from app.models.result import AthleteStatistic, Result
@@ -35,6 +38,19 @@ async def get_final_report(session: AsyncSession) -> FinalReportResponse:
     total_events = (await session.execute(select(func.count()).select_from(Event))).scalar_one()
     total_matches = (await session.execute(select(func.count()).select_from(Match))).scalar_one()
     completed_matches = (await session.execute(select(func.count()).select_from(Match).where(Match.status == MatchStatus.COMPLETED))).scalar_one()
+    athletes_by_sport_result = await session.execute(
+        select(
+            Sport.id,
+            Sport.name,
+            func.count(func.distinct(AthleteModality.athlete_id)).label("athlete_count"),
+        )
+        .select_from(Sport)
+        .join(Modality, Modality.sport_id == Sport.id, isouter=True)
+        .join(AthleteModality, AthleteModality.modality_id == Modality.id, isouter=True)
+        .where(Sport.is_active == True)  # noqa: E712
+        .group_by(Sport.id, Sport.name)
+        .order_by(func.count(func.distinct(AthleteModality.athlete_id)).desc(), Sport.name)
+    )
 
     return FinalReportResponse(
         medal_board=medal_board,
@@ -47,6 +63,10 @@ async def get_final_report(session: AsyncSession) -> FinalReportResponse:
             total_matches=total_matches,
             completed_matches=completed_matches,
         ),
+        athletes_by_sport=[
+            {"sport_id": sport_id, "sport_name": sport_name, "athlete_count": athlete_count}
+            for sport_id, sport_name, athlete_count in athletes_by_sport_result.all()
+        ],
     )
 
 
@@ -179,3 +199,144 @@ async def export_csv(session: AsyncSession) -> str:
             score,
         ])
     return output.getvalue()
+
+
+async def export_xlsx(session: AsyncSession) -> bytes:
+    rows_result = await session.execute(
+        select(Result, Match, Event, Modality, Sport, Delegation)
+        .join(Match, Match.id == Result.match_id)
+        .join(Event, Event.id == Match.event_id)
+        .join(Modality, Modality.id == Event.modality_id)
+        .join(Sport, Sport.id == Modality.sport_id)
+        .join(Delegation, Delegation.id == Result.delegation_id)
+        .where(Result.delegation_id.is_not(None))
+        .order_by(Event.event_date.desc(), Result.rank)
+    )
+    rows = rows_result.all()
+
+    sheet_rows: list[list[str]] = [[
+        "match_id",
+        "event_date",
+        "sport",
+        "modality",
+        "delegation",
+        "rank",
+        "medal",
+        "score",
+    ]]
+
+    for r, m, e, mod, sp, d in rows:
+        score = r.value_json.get("score", "") if r.value_json else ""
+        sheet_rows.append([
+            str(m.id),
+            e.event_date.isoformat(),
+            sp.name,
+            mod.name,
+            d.name,
+            str(r.rank),
+            r.medal.value if r.medal else "",
+            str(score),
+        ])
+
+    workbook = io.BytesIO()
+    with zipfile.ZipFile(workbook, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr(
+            "[Content_Types].xml",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+  <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+  <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
+  <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
+</Types>""",
+        )
+        archive.writestr(
+            "_rels/.rels",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
+  <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
+</Relationships>""",
+        )
+        archive.writestr(
+            "docProps/core.xml",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <dc:title>Sports System Results Export</dc:title>
+  <dc:creator>sports-system</dc:creator>
+</cp:coreProperties>""",
+        )
+        archive.writestr(
+            "docProps/app.xml",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">
+  <Application>sports-system</Application>
+</Properties>""",
+        )
+        archive.writestr(
+            "xl/workbook.xml",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets>
+    <sheet name="Results" sheetId="1" r:id="rId1"/>
+  </sheets>
+</workbook>""",
+        )
+        archive.writestr(
+            "xl/_rels/workbook.xml.rels",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>""",
+        )
+        archive.writestr(
+            "xl/styles.xml",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts>
+  <fills count="1"><fill><patternFill patternType="none"/></fill></fills>
+  <borders count="1"><border/></borders>
+  <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+  <cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>
+  <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+</styleSheet>""",
+        )
+        archive.writestr("xl/worksheets/sheet1.xml", _build_xlsx_sheet(sheet_rows))
+
+    return workbook.getvalue()
+
+
+def _build_xlsx_sheet(rows: list[list[str]]) -> str:
+    dimension = f"A1:H{max(len(rows), 1)}"
+    xml_rows: list[str] = []
+
+    for row_index, row in enumerate(rows, start=1):
+        cells = []
+        for col_index, value in enumerate(row, start=1):
+            cell_ref = f"{_column_name(col_index)}{row_index}"
+            cells.append(
+                f'<c r="{cell_ref}" t="inlineStr"><is><t>{escape(value)}</t></is></c>'
+            )
+        xml_rows.append(f'<row r="{row_index}">{"".join(cells)}</row>')
+
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <dimension ref="{dimension}"/>
+  <sheetViews><sheetView workbookViewId="0"/></sheetViews>
+  <sheetFormatPr defaultRowHeight="15"/>
+  <sheetData>{''.join(xml_rows)}</sheetData>
+</worksheet>"""
+
+
+def _column_name(index: int) -> str:
+    label = ""
+    current = index
+    while current > 0:
+        current, remainder = divmod(current - 1, 26)
+        label = chr(65 + remainder) + label
+    return label

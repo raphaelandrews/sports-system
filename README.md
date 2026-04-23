@@ -57,8 +57,10 @@ A multi-sport competition management system designed for generic sporting events
 | [SQLModel](https://sqlmodel.tiangolo.com) | ORM (SQLAlchemy + Pydantic) |
 | [Alembic](https://alembic.sqlalchemy.org) | Database migrations |
 | PostgreSQL | Primary database + refresh token storage |
-| JWT | Authentication (access + refresh tokens) |
-| SSE (Server-Sent Events) | Live score updates, medal board streaming |
+| JWT + FastAPI Users | Auth (access + refresh tokens, Argon2id hashing, OAuth-ready) |
+| sse-starlette | Server-Sent Events — live scores, medal board streaming |
+| slowapi | Rate limiting on auth endpoints (per IP) |
+| orjson | High-performance JSON serialization |
 | APScheduler | Automatic week locking, match generation, notifications |
 
 ---
@@ -135,19 +137,66 @@ bun install
 
 ## Environment Variables
 
-All variables documented in `.env.example` at the repo root, grouped by app.
+There is **no root `.env` or `.env.example`** in this repo.
+
+Environment files live only in:
+- `apps/api`
+- `apps/web`
+- `packages/infra`
+
+Initial setup:
 
 ```bash
-cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+cp packages/infra/.env.example packages/infra/.env
 ```
 
-Each app reads its own subset:
+### API env
 
-| App | Variables |
-|-----|-----------|
-| `apps/web` | `VITE_SERVER_URL`, `CORS_ORIGIN`, `VITE_TIMEZONE` |
-| `apps/api` | `DATABASE_URL`, `SECRET_KEY`, `FRONTEND_URL`, `PORT`, `LLM_API_KEY`, `TIMEZONE`, `AUTO_SIMULATE` |
-| `packages/infra` | `ALCHEMY_PASSWORD`, `CLOUDFLARE_API_TOKEN` |
+`apps/api/.env` is the backend source of truth.
+
+Important variables:
+- `DATABASE_URL`
+- `SECRET_KEY`
+- `FRONTEND_URL`
+- `BACKEND_PUBLIC_URL`
+- `PORT`
+- `TIMEZONE`
+- `DEBUG`
+- `AUTO_SIMULATE`
+- `LLM_API_KEY`
+- `GOOGLE_OAUTH_CLIENT_ID`
+- `GOOGLE_OAUTH_CLIENT_SECRET`
+- `GITHUB_OAUTH_CLIENT_ID`
+- `GITHUB_OAUTH_CLIENT_SECRET`
+
+### Web env
+
+`apps/web/.env` is the **base web env** and should contain shared/default values:
+- `VITE_SERVER_URL`
+- `VITE_TIMEZONE`
+- `CORS_ORIGIN`
+
+There is only one web env example now:
+- `apps/web/.env.example`
+
+Current load order in infra is:
+1. `packages/infra/.env`
+2. `apps/web/.env`
+
+This means:
+- `apps/web/.env` is enough for local frontend development
+- deploy-only overrides such as `VITE_SERVER_URL` and `CORS_ORIGIN` can live in `packages/infra/.env` or the shell/CI environment
+- `apps/web/.env.production` is no longer part of the documented flow
+
+### Infra env
+
+`packages/infra/.env` is only for Alchemy / Cloudflare infra values:
+- `ALCHEMY_PASSWORD`
+- `CLOUDFLARE_API_TOKEN`
+- `VITE_SERVER_URL` optional deploy override
+- `CORS_ORIGIN` optional deploy override
 
 ---
 
@@ -170,7 +219,9 @@ bun run check-types
 bun run check
 ```
 
-Frontend: `http://localhost:3001` · Backend: `http://localhost:3000` · Docs: `http://localhost:3000/docs`
+Frontend: `http://localhost:3001` · Backend: `http://localhost:3000` · Swagger UI: `http://localhost:3000/docs` · ReDoc: `http://localhost:3000/redoc`
+
+> Swagger UI and ReDoc are only served when `DEBUG=true` (default in dev). Set `DEBUG=false` in production env vars to disable.
 
 > `bun dev` requires Cloudflare credentials (`CLOUDFLARE_API_TOKEN`) for the infra watcher. Use `bun run dev:web` + `bun run dev:backend` without them.
 
@@ -183,8 +234,13 @@ bun install
 cd apps/api && uv sync
 
 # Environment variables
-cp .env.example .env
-# Edit .env — at minimum set DATABASE_URL, SECRET_KEY, FRONTEND_URL
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+cp packages/infra/.env.example packages/infra/.env
+
+# Edit apps/api/.env — at minimum set DATABASE_URL, SECRET_KEY, FRONTEND_URL, BACKEND_PUBLIC_URL
+# Edit apps/web/.env — set VITE_SERVER_URL, VITE_TIMEZONE, CORS_ORIGIN
+# Edit packages/infra/.env only if deploy needs overrides or Cloudflare credentials
 
 # Run database migrations
 bun run db:up
@@ -204,7 +260,7 @@ bun run deploy
 bun run destroy
 ```
 
-Infra config: `packages/infra/alchemy.run.ts`. Reads `VITE_SERVER_URL` and `CORS_ORIGIN` from env files.
+Infra config: `packages/infra/alchemy.run.ts`. It loads `packages/infra/.env` first and then `apps/web/.env`. Because `dotenv` does not override existing variables by default, deploy-specific values can be set in `packages/infra/.env` while `apps/web/.env` remains the default local source.
 
 ---
 
@@ -223,6 +279,35 @@ Infra config: `packages/infra/alchemy.run.ts`. Reads `VITE_SERVER_URL` and `CORS
 | `bun run db:up` | Run database migrations (upgrade head) |
 | `bun run db:new "msg"` | Create new migration with autogenerate |
 | `bun run db:down` | Roll back last migration |
+| `bun run --cwd apps/web gen:types` | Regenerate frontend types from OpenAPI schema |
+
+---
+
+## API Types
+
+Frontend types in `apps/web/src/types/` are generated from the FastAPI OpenAPI schema. The source of truth is `apps/web/src/types/api.gen.ts` — never edit it manually.
+
+**Regenerate after changing a Pydantic schema:**
+
+```bash
+# Backend must be running on localhost:3000
+bun run dev:backend   # in one terminal
+
+# In another terminal
+bun run --cwd apps/web gen:types
+```
+
+All domain type files (`weeks.ts`, `athletes.ts`, etc.) re-export from `api.gen.ts`, so existing imports throughout the codebase remain unchanged after regeneration.
+
+**Using the types:**
+
+```ts
+import type { WeekResponse, WeekStatus } from "@/types/weeks";
+
+// or directly from the generated file:
+import type { ApiSchemas } from "@/types/api.gen";
+type WeekResponse = ApiSchemas["WeekResponse"];
+```
 
 ---
 
@@ -259,4 +344,3 @@ import { Button } from "@sports-system/ui/components/button";
 | Karate (Karatê) | Individual | 1 |
 
 Each sport has custom statistics, tiebreak rules, and competition phases. See [FEATURES.md](./FEATURES.md) for full rules.
-

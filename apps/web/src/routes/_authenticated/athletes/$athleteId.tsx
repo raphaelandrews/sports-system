@@ -15,10 +15,13 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sports-system/ui/components/tabs";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 
 import { formatDate } from "@/lib/date";
 import { athleteReportQueryOptions } from "@/queries/athletes";
 import type { Medal } from "@/types/athletes";
+import { buttonVariants } from "@sports-system/ui/components/button";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/athletes/$athleteId")({
   ssr: false,
@@ -81,6 +84,15 @@ function AthleteProfilePage() {
               <span>{formatDate(athlete.birthdate)}</span>
             )}
           </div>
+        </div>
+        <div className="ml-auto">
+          <Link
+            to="/athletes/compare"
+            search={{ left: athlete.id }}
+            className={cn(buttonVariants({ variant: "outline" }))}
+          >
+            Comparar atleta
+          </Link>
         </div>
       </div>
 
@@ -185,7 +197,7 @@ function AthleteProfilePage() {
                   <Card key={key}>
                     <CardHeader className="pb-1 text-sm font-medium">{label}</CardHeader>
                     <CardContent className="space-y-1">
-                      {Object.entries(stats).map(([k, v]) => (
+                      {Object.entries(stats as Record<string, unknown>).map(([k, v]) => (
                         <div key={k} className="flex justify-between text-sm">
                           <span className="text-muted-foreground capitalize">
                             {k.replace(/_/g, " ")}

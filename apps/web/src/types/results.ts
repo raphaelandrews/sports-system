@@ -1,31 +1,10 @@
-export interface MedalBoardEntry {
-  delegation_id: number;
-  delegation_name: string;
-  delegation_code: string;
-  gold: number;
-  silver: number;
-  bronze: number;
-  total: number;
-}
+import type { ApiSchemas } from "@/types/api.gen";
 
-export interface RecordResponse {
-  id: number;
-  modality_id: number;
-  modality_name: string;
-  athlete_id: number;
-  athlete_name: string;
-  delegation_name: string;
-  value: string;
-  week_id: number;
-  set_at: string;
-}
+export type Medal = ApiSchemas["Medal"];
 
-export interface SportStandingEntry {
-  rank: number;
-  delegation_id: number | null;
-  delegation_name: string | null;
-  athlete_id: number | null;
-  athlete_name: string | null;
-  medal: string | null;
-  value_json: Record<string, unknown> | null;
-}
+export type ResultCreate = ApiSchemas["ResultCreate"];
+export type ResultUpdate = ApiSchemas["ResultUpdate"];
+export type ResultResponse = ApiSchemas["ResultResponse"];
+export type MedalBoardEntry = ApiSchemas["MedalBoardEntry"];
+export type SportStandingEntry = ApiSchemas["SportStandingEntry"];
+export type RecordResponse = ApiSchemas["RecordResponse"];

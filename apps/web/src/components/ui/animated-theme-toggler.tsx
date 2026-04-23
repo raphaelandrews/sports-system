@@ -1,101 +1,71 @@
-import { useCallback, useEffect, useRef, useState } from "react"
-import { Moon, Sun } from "lucide-react"
-import { flushSync } from "react-dom"
+import { Leaf, Palette, SunMedium } from "lucide-react";
+import { useTheme } from "next-themes";
 
-import { cn } from "@sports-system/ui/lib/utils"
-
-import { Button } from "@sports-system/ui/components/button"
+import { Button } from "@sports-system/ui/components/button";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@sports-system/ui/components/tooltip"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@sports-system/ui/components/dropdown-menu";
+import { cn } from "@sports-system/ui/lib/utils";
 
-
-interface AnimatedThemeTogglerProps extends React.ComponentPropsWithoutRef<"button"> {
-  duration?: number
+interface AnimatedThemeTogglerProps {
+  className?: string;
 }
 
-export const AnimatedThemeToggler = ({
-  className,
-  duration = 400,
-  ...props
-}: AnimatedThemeTogglerProps) => {
-  const [isDark, setIsDark] = useState(false)
-  const buttonRef = useRef<HTMLButtonElement>(null)
+type ThemeOption = {
+  id: "light" | "sunny" | "moss";
+  label: string;
+  icon: typeof SunMedium;
+};
 
-  useEffect(() => {
-    const updateTheme = () => {
-      setIsDark(document.documentElement.classList.contains("dark"))
-    }
+const THEME_OPTIONS: ThemeOption[] = [
+  { id: "light", label: "Light", icon: SunMedium },
+  { id: "sunny", label: "Sunny", icon: Palette },
+  { id: "moss", label: "Moss", icon: Leaf },
+];
 
-    updateTheme()
-
-    const observer = new MutationObserver(updateTheme)
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    })
-
-    return () => observer.disconnect()
-  }, [])
-
-  const toggleTheme = useCallback(async () => {
-    if (!buttonRef.current) return
-
-    await document.startViewTransition(() => {
-      flushSync(() => {
-        const newTheme = !isDark
-        setIsDark(newTheme)
-        document.documentElement.classList.toggle("dark")
-        localStorage.setItem("theme", newTheme ? "dark" : "light")
-      })
-    }).ready
-
-    const { top, left, width, height } =
-      buttonRef.current.getBoundingClientRect()
-    const x = left + width / 2
-    const y = top + height / 2
-    const maxRadius = Math.hypot(
-      Math.max(left, window.innerWidth - left),
-      Math.max(top, window.innerHeight - top)
-    )
-
-    document.documentElement.animate(
-      {
-        clipPath: [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${maxRadius}px at ${x}px ${y}px)`,
-        ],
-      },
-      {
-        duration,
-        easing: "ease-in-out",
-        pseudoElement: "::view-transition-new(root)",
-      }
-    )
-  }, [isDark, duration])
+export function AnimatedThemeToggler({ className }: AnimatedThemeTogglerProps) {
+  const { resolvedTheme, setTheme } = useTheme();
+  const activeTheme = (resolvedTheme ?? "moss") as ThemeOption["id"];
+  const activeOption = THEME_OPTIONS.find((option) => option.id === activeTheme) ?? THEME_OPTIONS[0];
+  const ActiveIcon = activeOption.icon;
 
   return (
-    <Tooltip>
-      <TooltipTrigger
+    <DropdownMenu>
+      <DropdownMenuTrigger
         render={
           <Button
-            ref={buttonRef}
-            onClick={toggleTheme}
-            className={cn(className)}
-            size="default"
-            variant="default"
-            {...props}
+            type="button"
+            size="sm"
+            variant="outline"
+            className={cn("gap-1.5", className)}
           />
         }
       >
-        {isDark ? <Sun size={16} /> : <Moon size={16} />}
-        <span className="sr-only">Toggle theme</span>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>Alternar tema</p>
-      </TooltipContent>
-    </Tooltip>
-  )
+        <ActiveIcon size={14} />
+        <span className="hidden md:inline">{activeOption.label}</span>
+        <span className="sr-only">Escolher tema</span>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuRadioGroup
+          value={activeTheme}
+          onValueChange={(value) => setTheme(value as ThemeOption["id"])}
+        >
+          {THEME_OPTIONS.map((option) => {
+            const Icon = option.icon;
+
+            return (
+              <DropdownMenuRadioItem key={option.id} value={option.id}>
+                <Icon size={14} />
+                {option.label}
+              </DropdownMenuRadioItem>
+            );
+          })}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }

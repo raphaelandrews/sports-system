@@ -2,7 +2,10 @@ import { queryOptions } from "@tanstack/react-query";
 
 import { apiFetch } from "@/lib/api";
 import type {
+  DelegationInviteResponse,
+  MemberHistoryItem,
   DelegationDetailResponse,
+  DelegationStatisticsResponse,
   DelegationSummary,
 } from "@/types/delegations";
 import { queryKeys } from "@/queries/keys";
@@ -22,4 +25,25 @@ export const delegationDetailQueryOptions = (id: number) =>
     queryKey: queryKeys.delegations.detail(id),
     queryFn: () => apiFetch<DelegationDetailResponse>(`/delegations/${id}`),
     staleTime: 2 * 60 * 1000,
+  });
+
+export const delegationHistoryQueryOptions = (id: number) =>
+  queryOptions({
+    queryKey: queryKeys.delegations.history(id),
+    queryFn: () => apiFetch<MemberHistoryItem[]>(`/delegations/${id}/history`),
+    staleTime: 2 * 60 * 1000,
+  });
+
+export const delegationStatisticsQueryOptions = (id: number) =>
+  queryOptions({
+    queryKey: queryKeys.delegations.statistics(id),
+    queryFn: () => apiFetch<DelegationStatisticsResponse>(`/delegations/${id}/statistics`),
+    staleTime: 2 * 60 * 1000,
+  });
+
+export const delegationInvitesQueryOptions = (id: number) =>
+  queryOptions({
+    queryKey: queryKeys.delegations.invites(id),
+    queryFn: () => apiFetch<DelegationInviteResponse[]>(`/delegations/${id}/invites`),
+    staleTime: 30 * 1000,
   });

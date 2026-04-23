@@ -1,24 +1,10 @@
-export type WeekStatus = "DRAFT" | "SCHEDULED" | "LOCKED" | "ACTIVE" | "COMPLETED";
+import type { ApiSchemas } from "@/types/api.gen";
 
-export interface WeekResponse {
-  id: number;
-  week_number: number;
-  start_date: string;
-  end_date: string;
-  status: WeekStatus;
-  sport_focus: number[];
-}
+export type WeekStatus = ApiSchemas["WeekStatus"];
 
-export interface WeekReportResponse {
-  week_id: number;
-  week_number: number;
-  status: string;
-  start_date: string;
-  end_date: string;
-  medal_board: import("./results").MedalBoardEntry[];
-  summary: {
-    total_events: number;
-    total_matches: number;
-    completed_matches: number;
-  };
-}
+export type WeekCreate = ApiSchemas["WeekCreate"];
+export type WeekUpdate = ApiSchemas["WeekUpdate"];
+export type WeekResponse = ApiSchemas["WeekResponse"];
+export type SchedulePreviewMatch = ApiSchemas["SchedulePreviewMatch"];
+export type GenerateSchedulePreviewResponse = ApiSchemas["GenerateSchedulePreview"];
+export type WeekReportResponse = ApiSchemas["WeekReportResponse"];

@@ -3,11 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "build": "WRANGLER_LOG_PATH=/tmp/wrangler.log vite build",
     "serve": "vite preview",
-    "dev:bare": "vite dev"
+    "dev:bare": "vite dev",
+    "gen:types": "openapi-typescript http://localhost:3000/openapi.json -o src/types/api.gen.ts"
   },
   "dependencies": {
+    "@fontsource/geist-mono": "^5.2.7",
+    "@fontsource/geist-sans": "^5.2.5",
     "@sports-system/env": "workspace:*",
     "@sports-system/ui": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
@@ -22,6 +25,7 @@
     "@tanstack/router-plugin": "^1.141.1",
     "dotenv": "catalog:",
     "lucide-react": "catalog:",
+    "motion": "^12.38.0",
     "next-themes": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
@@ -43,6 +47,7 @@
     "@vitejs/plugin-react": "^5.0.4",
     "alchemy": "catalog:",
     "jsdom": "^26.0.0",
+    "openapi-typescript": "^7.13.0",
     "typescript": "^5",
     "vite": "^7.0.2",
     "web-vitals": "^5.0.3",

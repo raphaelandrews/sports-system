@@ -51,6 +51,12 @@ function HomePage() {
           >
             Ver calendário →
           </Link>
+          <Link
+            to="/feed"
+            className="underline-offset-4 hover:underline font-medium"
+          >
+            Ver feed ao vivo →
+          </Link>
         </div>
       </section>
 

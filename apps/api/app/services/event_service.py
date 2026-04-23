@@ -9,6 +9,7 @@ from app.models.event import Event, Match, MatchEvent, MatchStatus
 from app.models.week import WeekStatus
 from app.repositories import event_repository, week_repository
 from app.schemas.common import Meta, PaginatedResponse
+from app.schemas.activity import ActivityFeedItem, ActivityFeedItemType
 from app.schemas.event import (
     EventCreate,
     EventDetailResponse,
@@ -144,6 +145,19 @@ async def add_match_event(
         "delegation_id_at_time": data.delegation_id_at_time,
     }
     await sse.broadcast(match_id, payload)
+    await sse.broadcast_activity_feed(
+        ActivityFeedItem(
+            id=f"match-event-{match_event.id}",
+            item_type=ActivityFeedItemType.MATCH_EVENT,
+            created_at=match_event.created_at,
+            title=f"{data.event_type.value.replace('_', ' ').title()} em partida",
+            description="Atualização global da competição",
+            match_id=match_id,
+            athlete_id=data.athlete_id,
+            delegation_id=data.delegation_id_at_time,
+            minute=data.minute,
+        ).model_dump(mode="json")
+    )
     return MatchEventResponse.model_validate(match_event)
 
 
@@ -167,6 +181,17 @@ async def start_match(session: AsyncSession, match_id: int) -> MatchResponse:
     match = await event_repository.save_match(session, match)
     await session.commit()
     await sse.broadcast(match_id, {"type": "match_started", "match_id": match_id})
+    await sse.broadcast_activity_feed(
+        ActivityFeedItem(
+            id=f"match-started-{match.id}-{match.started_at.isoformat()}",
+            item_type=ActivityFeedItemType.MATCH_STARTED,
+            created_at=match.started_at,
+            title="Partida iniciada",
+            description="Atualização global da competição",
+            match_id=match.id,
+            event_id=match.event_id,
+        ).model_dump(mode="json")
+    )
     return MatchResponse.model_validate(match)
 
 
@@ -193,6 +218,17 @@ async def finish_match(session: AsyncSession, match_id: int) -> MatchResponse:
     await session.commit()
     # Phase 9: simulation_service.generate_results(match, session)
     await sse.broadcast(match_id, {"type": "match_finished", "match_id": match_id, "status": "COMPLETED"})
+    await sse.broadcast_activity_feed(
+        ActivityFeedItem(
+            id=f"match-finished-{match.id}-{match.ended_at.isoformat()}",
+            item_type=ActivityFeedItemType.MATCH_FINISHED,
+            created_at=match.ended_at,
+            title="Partida encerrada",
+            description="Atualização global da competição",
+            match_id=match.id,
+            event_id=match.event_id,
+        ).model_dump(mode="json")
+    )
     return MatchResponse.model_validate(match)
 
 

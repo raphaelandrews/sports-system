@@ -10,11 +10,16 @@ from alembic.config import Config as AlembicConfig
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import ORJSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.config import settings
+from app.core.limiter import limiter
 from app.core.scheduler import setup_scheduler
 from app.routers import admin, auth, health, users
+from app.routers.activities import router as activities_router
 from app.routers.athletes import router as athletes_router
 from app.routers.delegations import invites_router, router as delegations_router
 from app.routers.enrollments import router as enrollments_router
@@ -22,6 +27,7 @@ from app.routers.events import events_router, matches_router
 from app.routers.narratives import router as narratives_router
 from app.routers.reports import router as reports_router
 from app.routers.results import router as results_router
+from app.routers.search import router as search_router
 from app.routers.sports import modalities_router, router as sports_router
 from app.routers.weeks import router as weeks_router
 from app.services.seed_service import seed_sports
@@ -72,8 +78,19 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logging.getLogger(__name__).info("scheduler_stopped")
 
 
-app = FastAPI(title="Sports System API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(
+    title="Sports System API",
+    version="0.1.0",
+    lifespan=lifespan,
+    default_response_class=ORJSONResponse,
+    docs_url="/docs" if settings.DEBUG else None,
+    redoc_url="/redoc" if settings.DEBUG else None,
+    openapi_url="/openapi.json" if settings.DEBUG else None,
+)
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.FRONTEND_URL],
@@ -84,8 +101,8 @@ app.add_middleware(
 
 
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
-    return JSONResponse(
+async def http_exception_handler(request: Request, exc: HTTPException) -> ORJSONResponse:
+    return ORJSONResponse(
         status_code=exc.status_code,
         content={
             "error": exc.__class__.__name__,
@@ -96,8 +113,8 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
-    return JSONResponse(
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> ORJSONResponse:
+    return ORJSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
             "error": "ValidationError",
@@ -108,9 +125,9 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 @app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+async def unhandled_exception_handler(request: Request, exc: Exception) -> ORJSONResponse:
     logging.getLogger(__name__).exception("unhandled_error path=%s", request.url.path)
-    return JSONResponse(
+    return ORJSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "error": "InternalServerError",
@@ -129,10 +146,12 @@ app.include_router(sports_router)
 app.include_router(modalities_router)
 app.include_router(athletes_router)
 app.include_router(weeks_router)
+app.include_router(activities_router)
 app.include_router(events_router)
 app.include_router(matches_router)
 app.include_router(enrollments_router)
 app.include_router(results_router)
+app.include_router(search_router)
 app.include_router(reports_router)
 app.include_router(narratives_router)
 app.include_router(admin.router)
