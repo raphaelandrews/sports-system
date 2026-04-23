@@ -29,7 +29,7 @@ function HomePage() {
   const events = eventsData.data;
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-10 space-y-12">
+    <main className="container mx-auto max-w-5xl px-4 py-10 space-y-12">
       <section className="text-center space-y-3">
         <h1 className="text-4xl font-bold tracking-tight">
           Sistema de Competições Esportivas
@@ -140,6 +140,6 @@ function HomePage() {
           </div>
         </section>
       )}
-    </div>
+    </main>
   );
 }

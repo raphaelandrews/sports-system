@@ -1,71 +1,94 @@
-import { Leaf, Palette, SunMedium } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useCallback, useRef } from "react"
+import { Flame, Leaf } from "lucide-react"
+import { useTheme } from "next-themes"
+import { flushSync } from "react-dom"
 
-import { Button } from "@sports-system/ui/components/button";
+import { cn } from "@sports-system/ui/lib/utils"
+
+import { Button } from "@sports-system/ui/components/button"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@sports-system/ui/components/dropdown-menu";
-import { cn } from "@sports-system/ui/lib/utils";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@sports-system/ui/components/tooltip"
 
-interface AnimatedThemeTogglerProps {
-  className?: string;
+interface AnimatedThemeTogglerProps extends React.ComponentPropsWithoutRef<"button"> {
+  duration?: number
 }
 
-type ThemeOption = {
-  id: "light" | "sunny" | "moss";
-  label: string;
-  icon: typeof SunMedium;
-};
+export const AnimatedThemeToggler = ({
+  className,
+  duration = 400,
+  ...props
+}: AnimatedThemeTogglerProps) => {
+  const { resolvedTheme, setTheme } = useTheme()
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
-const THEME_OPTIONS: ThemeOption[] = [
-  { id: "light", label: "Light", icon: SunMedium },
-  { id: "sunny", label: "Sunny", icon: Palette },
-  { id: "moss", label: "Moss", icon: Leaf },
-];
+  const toggleTheme = useCallback(async () => {
+    if (!buttonRef.current) return
 
-export function AnimatedThemeToggler({ className }: AnimatedThemeTogglerProps) {
-  const { resolvedTheme, setTheme } = useTheme();
-  const activeTheme = (resolvedTheme ?? "moss") as ThemeOption["id"];
-  const activeOption = THEME_OPTIONS.find((option) => option.id === activeTheme) ?? THEME_OPTIONS[0];
-  const ActiveIcon = activeOption.icon;
+    const currentTheme = resolvedTheme === "moss" ? "moss" : "ember"
+    const nextTheme = currentTheme === "moss" ? "ember" : "moss"
+
+    if (!("startViewTransition" in document)) {
+      setTheme(nextTheme)
+      return
+    }
+
+    const transition = document.startViewTransition(() => {
+      flushSync(() => {
+        setTheme(nextTheme)
+      })
+    })
+
+    await transition.ready
+
+    const { top, left, width, height } =
+      buttonRef.current.getBoundingClientRect()
+    const x = left + width / 2
+    const y = top + height / 2
+    const maxRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    )
+
+    document.documentElement.animate(
+      {
+        clipPath: [
+          `circle(0px at ${x}px ${y}px)`,
+          `circle(${maxRadius}px at ${x}px ${y}px)`,
+        ],
+      },
+      {
+        duration,
+        easing: "ease-in-out",
+        pseudoElement: "::view-transition-new(root)",
+      }
+    )
+  }, [duration, resolvedTheme, setTheme])
+
+  const isMoss = resolvedTheme === "moss"
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
+    <Tooltip>
+      <TooltipTrigger
         render={
           <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className={cn("gap-1.5", className)}
+            ref={buttonRef}
+            onClick={toggleTheme}
+            className={cn(className)}
+            size="default"
+            variant="default"
+            {...props}
           />
         }
       >
-        <ActiveIcon size={14} />
-        <span className="hidden md:inline">{activeOption.label}</span>
-        <span className="sr-only">Escolher tema</span>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuRadioGroup
-          value={activeTheme}
-          onValueChange={(value) => setTheme(value as ThemeOption["id"])}
-        >
-          {THEME_OPTIONS.map((option) => {
-            const Icon = option.icon;
-
-            return (
-              <DropdownMenuRadioItem key={option.id} value={option.id}>
-                <Icon size={14} />
-                {option.label}
-              </DropdownMenuRadioItem>
-            );
-          })}
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+        {isMoss ? <Leaf size={16} /> : <Flame size={16} />}
+        <span className="sr-only">Toggle theme</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>{isMoss ? "Alternar para Ember" : "Alternar para Moss"}</p>
+      </TooltipContent>
+    </Tooltip>
+  )
 }
