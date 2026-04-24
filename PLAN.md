@@ -148,34 +148,34 @@ class LeagueMember(SQLModel, table=True):
 **Goal:** Full CRUD for leagues + membership management.
 
 ### 2.1 Repository (`app/repositories/league_repository.py`)
-- [ ] `get_all`, `get_by_id`, `get_by_slug`, `create`, `update`
-- [ ] `get_member`, `get_members`, `add_member`, `update_member_role`, `remove_member`
-- [ ] `get_leagues_for_user`, `get_active_leagues`
+- [x] `get_all`, `get_by_id`, `get_by_slug`, `create`, `update`
+- [x] `get_member`, `get_members`, `add_member`, `update_member_role`, `remove_member`
+- [x] `get_leagues_for_user`, `get_active_leagues`
 
 ### 2.2 Service (`app/services/league_service.py`)
-- [ ] `create_league` → creates League + adds creator as LEAGUE_ADMIN in league_members
-- [ ] `update_league`, `archive_league`, `get_league_or_404`
-- [ ] `get_member_or_403`, `require_league_admin`
-- [ ] `add_member`, `update_member_role`, `remove_member`
-- [ ] `get_leagues_for_user`
+- [x] `create_league` → creates League + adds creator as LEAGUE_ADMIN in league_members
+- [x] `update_league`, `archive_league`, `get_league_or_404`
+- [x] `get_member_or_403`, `require_league_admin`
+- [x] `add_member`, `update_member_role`, `remove_member`
+- [x] `get_leagues_for_user`
 
 ### 2.3 Auth deps (`app/core/deps.py`)
-- [ ] Rename `require_admin` → `require_superadmin` (checks `SUPERADMIN` or legacy `ADMIN`)
-- [ ] Add `get_league_member(league_id)` factory (DB lookup, raises 403 if not found)
-- [ ] Add `require_league_admin`, `require_league_chief`, `require_league_member` dep factories
+- [x] Rename `require_admin` → `require_superadmin` (checks `SUPERADMIN` or legacy `ADMIN`)
+- [x] Add `get_league_member(league_id)` factory (DB lookup, raises 403 if not found)
+- [x] Add `require_league_admin`, `require_league_chief`, `require_league_member` dep factories
 
 ### 2.4 Router (`app/routers/leagues.py`, prefix: `/leagues`)
-- [ ] `GET /leagues` — list public leagues
-- [ ] `POST /leagues` — create (authenticated)
-- [ ] `GET /leagues/{league_id}` — detail (public)
-- [ ] `PATCH /leagues/{league_id}` — edit (league admin)
-- [ ] `DELETE /leagues/{league_id}` — archive (league admin or superadmin)
-- [ ] `GET /leagues/{league_id}/members` — list (any member)
-- [ ] `GET /leagues/{league_id}/members/me` — my membership (authenticated)
-- [ ] `PATCH /leagues/{league_id}/members/{user_id}` — update role (league admin)
-- [ ] `DELETE /leagues/{league_id}/members/{user_id}` — remove (league admin or self)
-- [ ] `GET /leagues/my` — user's leagues (authenticated)
-- [ ] Register in `main.py`
+- [x] `GET /leagues` — list public leagues
+- [x] `POST /leagues` — create (authenticated)
+- [x] `GET /leagues/{league_id}` — detail (public)
+- [x] `PATCH /leagues/{league_id}` — edit (league admin)
+- [x] `DELETE /leagues/{league_id}` — archive (league admin or superadmin)
+- [x] `GET /leagues/{league_id}/members` — list (any member)
+- [x] `GET /leagues/{league_id}/members/me` — my membership (authenticated)
+- [x] `PATCH /leagues/{league_id}/members/{user_id}` — update role (league admin)
+- [x] `DELETE /leagues/{league_id}/members/{user_id}` — remove (league admin or self)
+- [x] `GET /leagues/my` — user's leagues (authenticated)
+- [x] Register in `main.py`
 
 ---
 

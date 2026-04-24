@@ -35,7 +35,18 @@ type WorkspaceItem = {
   href: string
 }
 
-const roleMeta: Record<Session["role"], WorkspaceItem[]> = {
+type PlatformRole = Session["role"] | "SUPERADMIN" | "USER"
+
+const defaultWorkspaces: WorkspaceItem[] = [
+  {
+    name: "Painel",
+    meta: "Visão geral",
+    icon: Trophy,
+    href: "/dashboard",
+  },
+]
+
+const roleMeta: Partial<Record<PlatformRole, WorkspaceItem[]>> = {
   ADMIN: [
     {
       name: "Central Admin",
@@ -92,6 +103,21 @@ const roleMeta: Record<Session["role"], WorkspaceItem[]> = {
       href: "/calendar",
     },
   ],
+  SUPERADMIN: [
+    {
+      name: "Central Admin",
+      meta: "Operação geral",
+      icon: Crown,
+      href: "/dashboard",
+    },
+    {
+      name: "Ligas",
+      meta: "Gestão da plataforma",
+      icon: Sparkles,
+      href: "/dashboard",
+    },
+  ],
+  USER: defaultWorkspaces,
 }
 
 export function TeamSwitcher({ session }: { session: Session | null }) {
@@ -116,7 +142,8 @@ export function TeamSwitcher({ session }: { session: Session | null }) {
     )
   }
 
-  const workspaces = roleMeta[session.role]
+  const role = session.role as PlatformRole
+  const workspaces = roleMeta[role] ?? defaultWorkspaces
   const activeWorkspace =
     workspaces.find(
       (workspace) =>
@@ -182,7 +209,9 @@ export function TeamSwitcher({ session }: { session: Session | null }) {
                 </div>
                 <div className="grid leading-tight">
                   <span className="font-medium">
-                    {session.role === "ADMIN" ? "Modo controle" : "Modo competição"}
+                    {role === "ADMIN" || role === "SUPERADMIN"
+                      ? "Modo controle"
+                      : "Modo competição"}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {session.email}

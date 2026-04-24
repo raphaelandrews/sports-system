@@ -29,6 +29,8 @@ import {
 } from "@sports-system/ui/components/sidebar"
 import type { Session } from "@/types/auth"
 
+type PlatformRole = Session["role"] | "SUPERADMIN" | "USER"
+
 const publicNav: NavItem[] = [
   { title: "Início", url: "/", icon: Home },
   { title: "Competições", url: "/competitions", icon: CalendarDays },
@@ -91,7 +93,7 @@ const athleteNav: NavItem[] = [
   { title: "Meu perfil atleta", url: "/dashboard/my-profile", icon: UserCheck },
 ]
 
-const supportNav: Record<Session["role"], NavItem[]> = {
+const supportNav: Partial<Record<PlatformRole, NavItem[]>> = {
   ADMIN: [
     { title: "Centro analítico", url: "/report", icon: ChartColumn },
     { title: "Automação IA", url: "/dashboard/ai", icon: Sparkles },
@@ -108,10 +110,18 @@ const supportNav: Record<Session["role"], NavItem[]> = {
     { title: "Agenda da equipe", url: "/dashboard/calendar", icon: CalendarDays },
     { title: "Área protegida", url: "/dashboard", icon: Shield },
   ],
+  SUPERADMIN: [
+    { title: "Centro analítico", url: "/report", icon: ChartColumn },
+    { title: "Automação IA", url: "/dashboard/ai", icon: Sparkles },
+  ],
+  USER: [
+    { title: "Calendário oficial", url: "/dashboard/calendar", icon: CalendarDays },
+    { title: "Meu painel", url: "/dashboard", icon: Shield },
+  ],
 }
 
-function getNavItems(role: Session["role"]): NavItem[] {
-  if (role === "ADMIN") return adminNav
+function getNavItems(role: PlatformRole): NavItem[] {
+  if (role === "ADMIN" || role === "SUPERADMIN") return adminNav
   if (role === "CHIEF") return chiefNav
   return athleteNav
 }
@@ -120,6 +130,8 @@ export function AppSidebar({
   session,
   ...props
 }: React.ComponentProps<typeof Sidebar> & { session: Session | null }) {
+  const role = session?.role as PlatformRole | undefined
+
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
       <SidebarHeader>
@@ -130,8 +142,8 @@ export function AppSidebar({
         {session ? (
           <>
             <NavMain items={commonNav} label="Competição" />
-            <NavMain items={getNavItems(session.role)} label="Área restrita" />
-            <NavMain items={supportNav[session.role]} label="Atalhos" />
+            <NavMain items={getNavItems(role ?? "USER")} label="Área restrita" />
+            <NavMain items={supportNav[role ?? "USER"]} label="Atalhos" />
           </>
         ) : (
           <NavMain items={publicNav} label="Navegação" />

@@ -21,14 +21,17 @@ export interface NavItem {
   items?: { title: string; url: string }[]
 }
 
-export function NavMain({ items, label }: { items: NavItem[]; label?: string }) {
+export function NavMain({ items, label }: { items?: NavItem[]; label?: string }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const safeItems = items ?? []
+
+  if (safeItems.length === 0) return null
 
   return (
     <SidebarGroup>
       {label && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
       <SidebarMenu>
-        {items.map((item) =>
+        {safeItems.map((item) =>
           item.items && item.items.length > 0 ? (
             <ExpandableNavItem
               key={item.title}

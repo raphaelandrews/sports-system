@@ -17,8 +17,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.execute("ALTER TYPE userrole ADD VALUE IF NOT EXISTS 'SUPERADMIN'")
-    op.execute("ALTER TYPE userrole ADD VALUE IF NOT EXISTS 'USER'")
+    with op.get_context().autocommit_block():
+        op.execute("ALTER TYPE userrole ADD VALUE IF NOT EXISTS 'SUPERADMIN'")
+        op.execute("ALTER TYPE userrole ADD VALUE IF NOT EXISTS 'USER'")
     op.execute("UPDATE users SET role = 'SUPERADMIN' WHERE role = 'ADMIN'")
     op.execute("UPDATE users SET role = 'USER' WHERE role IN ('CHIEF', 'COACH', 'ATHLETE')")
 

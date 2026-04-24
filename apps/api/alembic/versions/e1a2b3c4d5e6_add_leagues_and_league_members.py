@@ -10,6 +10,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 import sqlmodel.sql.sqltypes
+from sqlalchemy.dialects import postgresql
 
 
 revision: str = "e1a2b3c4d5e6"
@@ -19,9 +20,11 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    league_status = sa.Enum("ACTIVE", "ARCHIVED", name="leaguestatus")
-    league_member_role = sa.Enum(
-        "LEAGUE_ADMIN", "CHIEF", "COACH", "ATHLETE", name="leaguememberrole"
+    league_status = postgresql.ENUM(
+        "ACTIVE", "ARCHIVED", name="leaguestatus", create_type=False
+    )
+    league_member_role = postgresql.ENUM(
+        "LEAGUE_ADMIN", "CHIEF", "COACH", "ATHLETE", name="leaguememberrole", create_type=False
     )
     bind = op.get_bind()
     league_status.create(bind, checkfirst=True)
@@ -75,5 +78,5 @@ def downgrade() -> None:
     op.drop_table("leagues")
 
     bind = op.get_bind()
-    sa.Enum(name="leaguememberrole").drop(bind, checkfirst=True)
-    sa.Enum(name="leaguestatus").drop(bind, checkfirst=True)
+    postgresql.ENUM(name="leaguememberrole").drop(bind, checkfirst=True)
+    postgresql.ENUM(name="leaguestatus").drop(bind, checkfirst=True)

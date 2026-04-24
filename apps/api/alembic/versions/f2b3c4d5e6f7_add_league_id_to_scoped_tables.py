@@ -51,7 +51,7 @@ def upgrade() -> None:
             'Showcase League',
             'showcase',
             'Migrated default showcase league',
-            COALESCE((SELECT id FROM users ORDER BY id LIMIT 1), 1),
+            (SELECT id FROM users ORDER BY id LIMIT 1),
             COALESCE((SELECT json_agg(id ORDER BY id) FROM sports), '[]'::json),
             TRUE,
             TRUE,
@@ -60,6 +60,7 @@ def upgrade() -> None:
             'ACTIVE',
             NOW()
         WHERE NOT EXISTS (SELECT 1 FROM leagues WHERE slug = 'showcase')
+          AND EXISTS (SELECT 1 FROM users)
         """
     )
 
@@ -117,11 +118,13 @@ def upgrade() -> None:
         SELECT
             (SELECT id FROM leagues WHERE slug = 'showcase'),
             dm.user_id,
-            CASE dm.role
-                WHEN 'CHIEF' THEN 'CHIEF'
-                WHEN 'COACH' THEN 'COACH'
-                ELSE 'ATHLETE'
-            END,
+            (
+                CASE dm.role
+                    WHEN 'CHIEF' THEN 'CHIEF'
+                    WHEN 'COACH' THEN 'COACH'
+                    ELSE 'ATHLETE'
+                END
+            )::leaguememberrole,
             dm.joined_at,
             dm.left_at
         FROM delegation_members dm
@@ -130,11 +133,13 @@ def upgrade() -> None:
             FROM league_members lm
             WHERE lm.league_id = (SELECT id FROM leagues WHERE slug = 'showcase')
               AND lm.user_id = dm.user_id
-              AND lm.role = CASE dm.role
-                  WHEN 'CHIEF' THEN 'CHIEF'
-                  WHEN 'COACH' THEN 'COACH'
-                  ELSE 'ATHLETE'
-              END
+              AND lm.role = (
+                  CASE dm.role
+                      WHEN 'CHIEF' THEN 'CHIEF'
+                      WHEN 'COACH' THEN 'COACH'
+                      ELSE 'ATHLETE'
+                  END
+              )::leaguememberrole
               AND (
                   (lm.left_at IS NULL AND dm.left_at IS NULL) OR
                   lm.left_at = dm.left_at

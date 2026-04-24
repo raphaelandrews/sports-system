@@ -5,7 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_session
+from app.models.league import LeagueMember, LeagueMemberRole
 from app.models.user import User, UserRole
+from app.services import league_service
 
 _bearer = HTTPBearer()
 
@@ -41,5 +43,43 @@ def require_role(*roles: UserRole):
     return _check
 
 
-require_admin = require_role(UserRole.ADMIN)
-require_chief_or_admin = require_role(UserRole.CHIEF, UserRole.ADMIN)
+require_superadmin = require_role(UserRole.SUPERADMIN, UserRole.ADMIN)
+require_admin = require_superadmin
+require_chief_or_admin = require_role(UserRole.CHIEF, UserRole.ADMIN, UserRole.SUPERADMIN)
+
+
+def get_league_member():
+    async def _get_league_member(
+        league_id: int,
+        user: User = Depends(get_current_user),
+        session: AsyncSession = Depends(get_session),
+    ) -> LeagueMember:
+        return await league_service.get_member_or_403(session, league_id, user)
+
+    return _get_league_member
+
+
+def require_league_member():
+    return get_league_member()
+
+
+def require_league_admin():
+    async def _require_league_admin(
+        league_id: int,
+        user: User = Depends(get_current_user),
+        session: AsyncSession = Depends(get_session),
+    ) -> LeagueMember:
+        return await league_service.require_league_admin(session, league_id, user)
+
+    return _require_league_admin
+
+
+def require_league_chief():
+    async def _require_league_chief(
+        member: LeagueMember = Depends(get_league_member()),
+    ) -> LeagueMember:
+        if member.role not in {LeagueMemberRole.LEAGUE_ADMIN, LeagueMemberRole.CHIEF}:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="League chief role required")
+        return member
+
+    return _require_league_chief
