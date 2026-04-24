@@ -63,7 +63,7 @@ function RecordsPage() {
                   <TableCell>{record.athlete_name}</TableCell>
                   <TableCell>{record.delegation_name}</TableCell>
                   <TableCell className="font-mono">{record.value}</TableCell>
-                  <TableCell>#{record.week_id}</TableCell>
+                  <TableCell>#{record.competition_id}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {formatEventDate(record.set_at, { dateStyle: "medium", timeStyle: "short" })}
                   </TableCell>

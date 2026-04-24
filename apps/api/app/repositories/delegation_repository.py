@@ -5,7 +5,7 @@ from app.models.athlete import Athlete
 from app.models.delegation import Delegation, DelegationInvite, DelegationMember, InviteStatus
 from app.models.event import Event, Match, MatchParticipant, MatchStatus
 from app.models.result import Medal, Result
-from app.models.week import CompetitionWeek
+from app.models.competition import Competition
 from app.models.user import User
 
 
@@ -290,7 +290,7 @@ async def get_medal_entries(session: AsyncSession, delegation_id: int) -> list[d
 
 async def get_weekly_performance(session: AsyncSession, delegation_id: int) -> list[dict]:
     team_matches = (
-        select(Match.id.label("match_id"), Event.week_id.label("week_id"))
+        select(Match.id.label("match_id"), Event.competition_id.label("competition_id"))
         .join(Event, Event.id == Match.event_id)
         .where(
             (Match.team_a_delegation_id == delegation_id)
@@ -298,7 +298,7 @@ async def get_weekly_performance(session: AsyncSession, delegation_id: int) -> l
         )
     )
     participant_matches = (
-        select(MatchParticipant.match_id.label("match_id"), Event.week_id.label("week_id"))
+        select(MatchParticipant.match_id.label("match_id"), Event.competition_id.label("competition_id"))
         .join(Match, Match.id == MatchParticipant.match_id)
         .join(Event, Event.id == Match.event_id)
         .where(MatchParticipant.delegation_id_at_time == delegation_id)
@@ -307,20 +307,20 @@ async def get_weekly_performance(session: AsyncSession, delegation_id: int) -> l
 
     match_totals = (
         select(
-            involved_matches.c.week_id,
+            involved_matches.c.competition_id,
             func.count(distinct(involved_matches.c.match_id)).label("matches_played"),
             func.count(distinct(Match.id))
             .filter(Match.status == MatchStatus.COMPLETED)
             .label("matches_completed"),
         )
         .join(Match, Match.id == involved_matches.c.match_id)
-        .group_by(involved_matches.c.week_id)
+        .group_by(involved_matches.c.competition_id)
         .subquery()
     )
 
     win_totals = (
         select(
-            Event.week_id.label("week_id"),
+            Event.competition_id.label("competition_id"),
             func.count(distinct(Result.match_id)).label("wins"),
         )
         .join(Match, Match.id == Result.match_id)
@@ -329,13 +329,13 @@ async def get_weekly_performance(session: AsyncSession, delegation_id: int) -> l
             Result.delegation_id == delegation_id,
             Result.rank == 1,
         )
-        .group_by(Event.week_id)
+        .group_by(Event.competition_id)
         .subquery()
     )
 
     medal_totals = (
         select(
-            Event.week_id.label("week_id"),
+            Event.competition_id.label("competition_id"),
             func.count().filter(Result.medal == Medal.GOLD).label("gold"),
             func.count().filter(Result.medal == Medal.SILVER).label("silver"),
             func.count().filter(Result.medal == Medal.BRONZE).label("bronze"),
@@ -346,17 +346,17 @@ async def get_weekly_performance(session: AsyncSession, delegation_id: int) -> l
             Result.delegation_id == delegation_id,
             Result.medal.is_not(None),
         )
-        .group_by(Event.week_id)
+        .group_by(Event.competition_id)
         .subquery()
     )
 
     result = await session.execute(
         select(
-            CompetitionWeek.id,
-            CompetitionWeek.week_number,
-            CompetitionWeek.status,
-            CompetitionWeek.start_date,
-            CompetitionWeek.end_date,
+            Competition.id,
+            Competition.number,
+            Competition.status,
+            Competition.start_date,
+            Competition.end_date,
             func.coalesce(match_totals.c.matches_played, 0).label("matches_played"),
             func.coalesce(match_totals.c.matches_completed, 0).label("matches_completed"),
             func.coalesce(win_totals.c.wins, 0).label("wins"),
@@ -364,23 +364,23 @@ async def get_weekly_performance(session: AsyncSession, delegation_id: int) -> l
             func.coalesce(medal_totals.c.silver, 0).label("silver"),
             func.coalesce(medal_totals.c.bronze, 0).label("bronze"),
         )
-        .outerjoin(match_totals, match_totals.c.week_id == CompetitionWeek.id)
-        .outerjoin(win_totals, win_totals.c.week_id == CompetitionWeek.id)
-        .outerjoin(medal_totals, medal_totals.c.week_id == CompetitionWeek.id)
+        .outerjoin(match_totals, match_totals.c.competition_id == Competition.id)
+        .outerjoin(win_totals, win_totals.c.competition_id == Competition.id)
+        .outerjoin(medal_totals, medal_totals.c.competition_id == Competition.id)
         .where(
             or_(
-                match_totals.c.week_id.is_not(None),
-                win_totals.c.week_id.is_not(None),
-                medal_totals.c.week_id.is_not(None),
+                match_totals.c.competition_id.is_not(None),
+                win_totals.c.competition_id.is_not(None),
+                medal_totals.c.competition_id.is_not(None),
             )
         )
-        .order_by(CompetitionWeek.week_number)
+        .order_by(Competition.number)
     )
 
     return [
         {
-            "week_id": row.id,
-            "week_number": row.week_number,
+            "competition_id": row.id,
+            "number": row.number,
             "status": row.status.value,
             "start_date": row.start_date,
             "end_date": row.end_date,

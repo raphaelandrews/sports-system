@@ -29,7 +29,7 @@ from app.routers.reports import router as reports_router
 from app.routers.results import router as results_router
 from app.routers.search import router as search_router
 from app.routers.sports import modalities_router, router as sports_router
-from app.routers.weeks import router as weeks_router
+from app.routers.competitions import router as competitions_router
 from app.services.seed_service import seed_sports
 
 
@@ -145,7 +145,7 @@ app.include_router(invites_router)
 app.include_router(sports_router)
 app.include_router(modalities_router)
 app.include_router(athletes_router)
-app.include_router(weeks_router)
+app.include_router(competitions_router)
 app.include_router(activities_router)
 app.include_router(events_router)
 app.include_router(matches_router)

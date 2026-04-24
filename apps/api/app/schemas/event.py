@@ -7,7 +7,7 @@ from app.models.event import EventPhase, EventStatus, MatchEventType, MatchStatu
 
 
 class EventCreate(BaseModel):
-    week_id: int
+    competition_id: int
     modality_id: int
     event_date: date
     start_time: time
@@ -25,7 +25,7 @@ class EventUpdate(BaseModel):
 
 class EventResponse(BaseModel):
     id: int
-    week_id: int
+    competition_id: int
     modality_id: int
     event_date: date
     start_time: time

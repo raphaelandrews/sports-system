@@ -51,7 +51,7 @@ class Event(SQLModel, table=True):
     __tablename__ = "events"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    week_id: int = Field(foreign_key="competition_weeks.id")
+    competition_id: int = Field(foreign_key="competitions.id")
     modality_id: int = Field(foreign_key="modalities.id")
     event_date: date = Field(sa_column=Column("date", Date, nullable=False))
     start_time: time = Field(sa_column=Column("time", Time, nullable=False))

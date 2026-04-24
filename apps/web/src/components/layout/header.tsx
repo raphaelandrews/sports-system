@@ -8,7 +8,7 @@ import { isTransferWindow } from "@/lib/date";
 
 const NAV_LINKS = [
   { to: "/", label: "Home" },
-  { to: "/weeks", label: "Semanas" },
+  { to: "/competitions", label: "Competições" },
   { to: "/results", label: "Resultados" },
   { to: "/feed", label: "Feed" },
   { to: "/calendar", label: "Calendário" },

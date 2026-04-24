@@ -10,7 +10,7 @@ from app.schemas.result import MedalBoardEntry, RecordResponse, ResultResponse
 class CompetitionSummary(BaseModel):
     total_delegations: int
     total_athletes: int
-    total_weeks: int
+    total_competitions: int
     total_events: int
     total_matches: int
     completed_matches: int
@@ -29,20 +29,20 @@ class FinalReportResponse(BaseModel):
     athletes_by_sport: list[AthleteBySportEntry]
 
 
-class WeekSummary(BaseModel):
+class CompetitionPeriodSummary(BaseModel):
     total_events: int
     completed_matches: int
     total_matches: int
 
 
-class WeekReportResponse(BaseModel):
-    week_id: int
-    week_number: int
+class CompetitionReportResponse(BaseModel):
+    competition_id: int
+    number: int
     status: str
     start_date: date
     end_date: date
     medal_board: list[MedalBoardEntry]
-    summary: WeekSummary
+    summary: CompetitionPeriodSummary
 
 
 class AthleteReportResponse(BaseModel):

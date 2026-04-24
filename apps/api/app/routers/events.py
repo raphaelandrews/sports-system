@@ -32,23 +32,23 @@ matches_router = APIRouter(prefix="/matches", tags=["matches"])
 
 @events_router.get("", response_model=PaginatedResponse[EventResponse])
 async def list_events(
-    week_id: Optional[int] = Query(None),
+    competition_id: Optional[int] = Query(None),
     sport_id: Optional[int] = Query(None),
     event_date: Optional[date] = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=500),
     session: AsyncSession = Depends(get_session),
 ) -> PaginatedResponse[EventResponse]:
-    return await event_service.list_events(session, week_id, sport_id, event_date, page, per_page)
+    return await event_service.list_events(session, competition_id, sport_id, event_date, page, per_page)
 
 
 @events_router.post("/ai-generate", response_model=list[EventResponse], status_code=status.HTTP_201_CREATED)
 async def ai_generate_schedule(
-    week_id: int,
+    competition_id: int,
     session: AsyncSession = Depends(get_session),
     _: User = Depends(require_admin),
 ) -> list[EventResponse]:
-    return await event_service.ai_generate_schedule(session, week_id)
+    return await event_service.ai_generate_schedule(session, competition_id)
 
 
 @events_router.post("", response_model=EventResponse, status_code=status.HTTP_201_CREATED)

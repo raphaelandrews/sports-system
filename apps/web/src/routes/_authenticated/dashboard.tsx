@@ -7,9 +7,9 @@ import { delegationListQueryOptions } from "@/queries/delegations";
 import { enrollmentListQueryOptions } from "@/queries/enrollments";
 import { allEventsQueryOptions } from "@/queries/events";
 import { notificationsQueryOptions } from "@/queries/notifications";
+import { competitionListQueryOptions } from "@/queries/competitions";
 import { finalReportQueryOptions } from "@/queries/reports";
 import { medalBoardQueryOptions } from "@/queries/results";
-import { weekListQueryOptions } from "@/queries/weeks";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   ssr: "data-only",
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       return
     }
 
-    void queryClient.prefetchQuery(weekListQueryOptions())
+    void queryClient.prefetchQuery(competitionListQueryOptions())
     void queryClient.prefetchQuery(medalBoardQueryOptions())
     void queryClient.prefetchQuery(allEventsQueryOptions({ per_page: 12 }))
     void queryClient.prefetchQuery(notificationsQueryOptions(session.id))

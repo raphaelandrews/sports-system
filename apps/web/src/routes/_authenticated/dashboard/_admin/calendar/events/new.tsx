@@ -28,8 +28,8 @@ import {
 
 import { apiFetch, ApiError } from "@/lib/api";
 import { queryKeys } from "@/queries/keys";
+import { competitionListQueryOptions } from "@/queries/competitions";
 import { sportDetailQueryOptions, sportListQueryOptions } from "@/queries/sports";
-import { weekListQueryOptions } from "@/queries/weeks";
 import type { EventCreate, EventPhase } from "@/types/events";
 import type { ModalityResponse } from "@/types/sports";
 
@@ -38,7 +38,7 @@ export const Route = createFileRoute(
 )({
   ssr: false,
   loader: ({ context: { queryClient } }) => {
-    void queryClient.prefetchQuery(weekListQueryOptions())
+    void queryClient.prefetchQuery(competitionListQueryOptions())
     void queryClient.prefetchQuery(sportListQueryOptions())
   },
   component: NewCalendarEventPage,
@@ -55,7 +55,7 @@ const phaseOptions: { value: EventPhase; label: string }[] = [
 function NewCalendarEventPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { data: weeksData } = useSuspenseQuery(weekListQueryOptions());
+  const { data: competitionsData } = useSuspenseQuery(competitionListQueryOptions());
   const { data: sportsData } = useSuspenseQuery(sportListQueryOptions());
   const sportDetails = useSuspenseQueries({
     queries: sportsData.data.map((sport) => sportDetailQueryOptions(sport.id)),
@@ -68,13 +68,13 @@ function NewCalendarEventPage() {
     ),
   );
 
-  const defaultWeek = weeksData.data[0];
+  const defaultCompetition = competitionsData.data[0];
   const defaultModality = modalities[0];
 
   const [form, setForm] = React.useState({
-    week_id: defaultWeek ? String(defaultWeek.id) : "",
+    competition_id: defaultCompetition ? String(defaultCompetition.id) : "",
     modality_id: defaultModality ? String(defaultModality.id) : "",
-    event_date: defaultWeek?.start_date ?? "",
+    event_date: defaultCompetition?.start_date ?? "",
     start_time: "09:00:00",
     venue: "",
     phase: "GROUPS" as EventPhase,
@@ -89,7 +89,7 @@ function NewCalendarEventPage() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.events.all() }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.weeks.all() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.competitions.all() }),
       ]);
       toast.success("Evento criado com sucesso.");
       await navigate({ to: "/dashboard/calendar" });
@@ -107,7 +107,7 @@ function NewCalendarEventPage() {
         <CardHeader>
           <CardTitle>Novo evento de calendario</CardTitle>
           <CardDescription>
-            Cadastro manual de evento por semana, modalidade, data e fase competitiva.
+            Cadastro manual de evento por competição, modalidade, data e fase competitiva.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -116,7 +116,7 @@ function NewCalendarEventPage() {
             onSubmit={(event) => {
               event.preventDefault();
               void mutation.mutateAsync({
-                week_id: Number(form.week_id),
+                competition_id: Number(form.competition_id),
                 modality_id: Number(form.modality_id),
                 event_date: form.event_date,
                 start_time: normalizeTime(form.start_time),
@@ -128,20 +128,20 @@ function NewCalendarEventPage() {
             <FieldGroup>
               <div className="grid gap-5 md:grid-cols-2">
                 <Field>
-                  <FieldLabel>Semana</FieldLabel>
+                  <FieldLabel>Competição</FieldLabel>
                   <Select
-                    value={form.week_id}
+                    value={form.competition_id}
                     onValueChange={(value) =>
-                      setForm((current) => ({ ...current, week_id: value ?? "" }))
+                      setForm((current) => ({ ...current, competition_id: value ?? "" }))
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione a semana" />
+                      <SelectValue placeholder="Selecione a competição" />
                     </SelectTrigger>
                     <SelectContent>
-                      {weeksData.data.map((week) => (
-                        <SelectItem key={week.id} value={String(week.id)}>
-                          Semana {week.week_number} · {week.status}
+                      {competitionsData.data.map((competition) => (
+                        <SelectItem key={competition.id} value={String(competition.id)}>
+                          Competição {competition.number} · {competition.status}
                         </SelectItem>
                       ))}
                     </SelectContent>

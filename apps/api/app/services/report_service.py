@@ -14,15 +14,15 @@ from app.models.delegation import Delegation
 from app.models.event import Event, Match, MatchStatus
 from app.models.result import AthleteStatistic, Result
 from app.models.sport import Modality, Sport
-from app.models.week import CompetitionWeek
+from app.models.competition import Competition
 from app.repositories import athlete_repository, result_repository
 from app.schemas.athlete import AthleteResponse, DelegationHistoryItem, MatchHistoryItem
 from app.schemas.report import (
     AthleteReportResponse,
+    CompetitionPeriodSummary,
+    CompetitionReportResponse,
     CompetitionSummary,
     FinalReportResponse,
-    WeekReportResponse,
-    WeekSummary,
 )
 from app.schemas.result import MedalBoardEntry, ResultResponse
 from app.services import result_service
@@ -34,7 +34,7 @@ async def get_final_report(session: AsyncSession) -> FinalReportResponse:
 
     total_delegations = (await session.execute(select(func.count()).select_from(Delegation).where(Delegation.is_active == True))).scalar_one()  # noqa: E712
     total_athletes = (await session.execute(select(func.count()).select_from(Athlete).where(Athlete.is_active == True))).scalar_one()  # noqa: E712
-    total_weeks = (await session.execute(select(func.count()).select_from(CompetitionWeek))).scalar_one()
+    total_competitions = (await session.execute(select(func.count()).select_from(Competition))).scalar_one()
     total_events = (await session.execute(select(func.count()).select_from(Event))).scalar_one()
     total_matches = (await session.execute(select(func.count()).select_from(Match))).scalar_one()
     completed_matches = (await session.execute(select(func.count()).select_from(Match).where(Match.status == MatchStatus.COMPLETED))).scalar_one()
@@ -58,7 +58,7 @@ async def get_final_report(session: AsyncSession) -> FinalReportResponse:
         summary=CompetitionSummary(
             total_delegations=total_delegations,
             total_athletes=total_athletes,
-            total_weeks=total_weeks,
+            total_competitions=total_competitions,
             total_events=total_events,
             total_matches=total_matches,
             completed_matches=completed_matches,
@@ -70,51 +70,38 @@ async def get_final_report(session: AsyncSession) -> FinalReportResponse:
     )
 
 
-async def get_week_report(session: AsyncSession, week_id: int) -> WeekReportResponse:
-    week = await session.get(CompetitionWeek, week_id)
-    if week is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Week not found")
+async def get_competition_report(session: AsyncSession, competition_id: int) -> CompetitionReportResponse:
+    competition = await session.get(Competition, competition_id)
+    if competition is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Competition not found")
 
-    total_events = (await session.execute(select(func.count()).select_from(Event).where(Event.week_id == week_id))).scalar_one()
+    total_events = (await session.execute(select(func.count()).select_from(Event).where(Event.competition_id == competition_id))).scalar_one()
     total_matches_q = (
         select(func.count()).select_from(Match)
         .join(Event, Event.id == Match.event_id)
-        .where(Event.week_id == week_id)
+        .where(Event.competition_id == competition_id)
     )
     total_matches = (await session.execute(total_matches_q)).scalar_one()
     completed_matches = (await session.execute(
         select(func.count()).select_from(Match)
         .join(Event, Event.id == Match.event_id)
-        .where(Event.week_id == week_id, Match.status == MatchStatus.COMPLETED)
+        .where(Event.competition_id == competition_id, Match.status == MatchStatus.COMPLETED)
     )).scalar_one()
 
-    # Medal board scoped to this week
-    from app.repositories.result_repository import get_medal_board as _mb
-    rows = await _mb(session)
-    # filter to results in this week
-    week_result_ids_q = (
-        select(Result.id)
-        .join(Match, Match.id == Result.match_id)
-        .join(Event, Event.id == Match.event_id)
-        .where(Event.week_id == week_id)
-        .scalar_subquery()
-    )
-    from sqlalchemy import text
-    from app.repositories import result_repository as rr
     from app.models.result import Medal
     gold = func.count().filter(Result.medal == Medal.GOLD)
     silver = func.count().filter(Result.medal == Medal.SILVER)
     bronze = func.count().filter(Result.medal == Medal.BRONZE)
-    week_board_result = await session.execute(
+    board_result = await session.execute(
         select(Result.delegation_id, gold.label("gold"), silver.label("silver"), bronze.label("bronze"))
         .join(Match, Match.id == Result.match_id)
         .join(Event, Event.id == Match.event_id)
-        .where(Event.week_id == week_id, Result.delegation_id.is_not(None), Result.medal.is_not(None))
+        .where(Event.competition_id == competition_id, Result.delegation_id.is_not(None), Result.medal.is_not(None))
         .group_by(Result.delegation_id)
         .order_by(gold.desc(), silver.desc(), bronze.desc())
     )
     medal_board: list[MedalBoardEntry] = []
-    for row in week_board_result.all():
+    for row in board_result.all():
         d = await session.get(Delegation, row.delegation_id)
         if d:
             medal_board.append(MedalBoardEntry(
@@ -127,14 +114,14 @@ async def get_week_report(session: AsyncSession, week_id: int) -> WeekReportResp
                 total=row.gold + row.silver + row.bronze,
             ))
 
-    return WeekReportResponse(
-        week_id=week.id,
-        week_number=week.week_number,
-        status=week.status.value,
-        start_date=week.start_date,
-        end_date=week.end_date,
+    return CompetitionReportResponse(
+        competition_id=competition.id,
+        number=competition.number,
+        status=competition.status.value,
+        start_date=competition.start_date,
+        end_date=competition.end_date,
         medal_board=medal_board,
-        summary=WeekSummary(
+        summary=CompetitionPeriodSummary(
             total_events=total_events,
             total_matches=total_matches,
             completed_matches=completed_matches,
@@ -159,7 +146,7 @@ async def get_athlete_report(session: AsyncSession, athlete_id: int) -> AthleteR
         select(AthleteStatistic).where(AthleteStatistic.athlete_id == athlete_id)
     )
     raw_stats = stats_result.scalars().all()
-    statistics = {f"sport_{s.sport_id}_week_{s.week_id}": s.stats_json for s in raw_stats}
+    statistics = {f"sport_{s.sport_id}_competition_{s.competition_id}": s.stats_json for s in raw_stats}
 
     return AthleteReportResponse(
         athlete=AthleteResponse.model_validate(athlete),

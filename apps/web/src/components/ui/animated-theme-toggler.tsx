@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { flushSync } from "react-dom"
@@ -23,6 +23,11 @@ export const AnimatedThemeToggler = ({
 }: AnimatedThemeTogglerProps) => {
   const { resolvedTheme, setTheme } = useTheme()
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const toggleTheme = useCallback(async () => {
     if (!buttonRef.current) return
@@ -67,7 +72,7 @@ export const AnimatedThemeToggler = ({
     )
   }, [duration, resolvedTheme, setTheme])
 
-  const isDark = resolvedTheme === "dark"
+  const isDark = mounted && resolvedTheme === "dark"
 
   return (
     <Tooltip>
@@ -83,11 +88,11 @@ export const AnimatedThemeToggler = ({
           />
         }
       >
-        {isDark ? <Sun size={16} /> : <Moon size={16} />}
+        {mounted ? (isDark ? <Sun size={16} /> : <Moon size={16} />) : <Moon size={16} />}
         <span className="sr-only">Toggle theme</span>
       </TooltipTrigger>
       <TooltipContent>
-        <p>{isDark ? "Alternar para claro" : "Alternar para escuro"}</p>
+        <p>{mounted && isDark ? "Alternar para claro" : "Alternar para escuro"}</p>
       </TooltipContent>
     </Tooltip>
   )

@@ -11,17 +11,17 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { formatDate } from "@/lib/date";
-import { weekListQueryOptions } from "@/queries/weeks";
-import type { WeekStatus } from "@/types/weeks";
+import { competitionListQueryOptions } from "@/queries/competitions";
+import type { CompetitionStatus } from "@/types/competitions";
 
-export const Route = createFileRoute("/(public)/weeks/")({
+export const Route = createFileRoute("/(public)/competitions/")({
   loader: ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(weekListQueryOptions()),
-  component: WeeksPage,
+    queryClient.ensureQueryData(competitionListQueryOptions()),
+  component: CompetitionsPage,
 });
 
 const statusVariant: Record<
-  WeekStatus,
+  CompetitionStatus,
   "default" | "secondary" | "outline" | "destructive"
 > = {
   DRAFT: "outline",
@@ -31,7 +31,7 @@ const statusVariant: Record<
   COMPLETED: "outline",
 };
 
-const statusLabel: Record<WeekStatus, string> = {
+const statusLabel: Record<CompetitionStatus, string> = {
   DRAFT: "Rascunho",
   SCHEDULED: "Agendada",
   LOCKED: "Bloqueada",
@@ -39,48 +39,48 @@ const statusLabel: Record<WeekStatus, string> = {
   COMPLETED: "Concluída",
 };
 
-function WeeksPage() {
-  const { data } = useSuspenseQuery(weekListQueryOptions());
+function CompetitionsPage() {
+  const { data } = useSuspenseQuery(competitionListQueryOptions());
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-6">
-      <h1 className="mb-6 text-2xl font-semibold">Semanas de Competição</h1>
+      <h1 className="mb-6 text-2xl font-semibold">Competições</h1>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Semana</TableHead>
+            <TableHead>Competição</TableHead>
             <TableHead>Período</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Esportes</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.data.map((week) => (
-            <TableRow key={week.id}>
+          {data.data.map((competition) => (
+            <TableRow key={competition.id}>
               <TableCell>
                 <Link
-                  to="/weeks/$weekId"
-                  params={{ weekId: String(week.id) }}
+                  to="/competitions/$competitionId"
+                  params={{ competitionId: String(competition.id) }}
                   className="font-medium underline-offset-4 hover:underline"
                 >
-                  Semana {week.week_number}
+                  Competição {competition.number}
                 </Link>
               </TableCell>
               <TableCell>
-                {formatDate(week.start_date)} – {formatDate(week.end_date)}
+                {formatDate(competition.start_date)} – {formatDate(competition.end_date)}
               </TableCell>
               <TableCell>
-                <Badge variant={statusVariant[week.status]}>
-                  {statusLabel[week.status]}
+                <Badge variant={statusVariant[competition.status]}>
+                  {statusLabel[competition.status]}
                 </Badge>
               </TableCell>
-              <TableCell>{week.sport_focus.length}</TableCell>
+              <TableCell>{competition.sport_focus.length}</TableCell>
             </TableRow>
           ))}
           {data.data.length === 0 && (
             <TableRow>
               <TableCell colSpan={4} className="text-muted-foreground text-center">
-                Nenhuma semana cadastrada.
+                Nenhuma competição cadastrada.
               </TableCell>
             </TableRow>
           )}

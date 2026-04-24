@@ -22,19 +22,19 @@ import { cn } from "@sports-system/ui/lib/utils";
 
 import { formatDate } from "@/lib/date";
 import { sportListQueryOptions } from "@/queries/sports";
-import { weekListQueryOptions } from "@/queries/weeks";
-import type { WeekStatus } from "@/types/weeks";
+import { competitionListQueryOptions } from "@/queries/competitions";
+import type { CompetitionStatus } from "@/types/competitions";
 
-export const Route = createFileRoute("/_authenticated/dashboard/_admin/weeks/")({
+export const Route = createFileRoute("/_authenticated/dashboard/_admin/competitions/")({
   ssr: false,
   loader: ({ context: { queryClient } }) => {
-    void queryClient.prefetchQuery(weekListQueryOptions())
-    void queryClient.prefetchQuery(sportListQueryOptions())
+    void queryClient.prefetchQuery(competitionListQueryOptions());
+    void queryClient.prefetchQuery(sportListQueryOptions());
   },
-  component: AdminWeeksPage,
+  component: AdminCompetitionsPage,
 });
 
-const statusLabel: Record<WeekStatus, string> = {
+const statusLabel: Record<CompetitionStatus, string> = {
   DRAFT: "Rascunho",
   SCHEDULED: "Agendada",
   LOCKED: "Travada",
@@ -42,8 +42,8 @@ const statusLabel: Record<WeekStatus, string> = {
   COMPLETED: "Encerrada",
 };
 
-function AdminWeeksPage() {
-  const { data: weeks } = useSuspenseQuery(weekListQueryOptions());
+function AdminCompetitionsPage() {
+  const { data: competitions } = useSuspenseQuery(competitionListQueryOptions());
   const { data: sports } = useSuspenseQuery(sportListQueryOptions());
 
   const sportNamesById = useMemo(
@@ -59,26 +59,26 @@ function AdminWeeksPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(160deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
           <CardHeader className="gap-3">
             <Badge variant="outline" className="w-fit">
-              Fase 9
+              Competições
             </Badge>
-            <CardTitle className="text-2xl">Semanas de competicao</CardTitle>
+            <CardTitle className="text-2xl">Competições</CardTitle>
             <CardDescription className="max-w-2xl">
-              Gerencie o ciclo da semana, acompanhe status visual e entre no detalhe para acionar transições.
+              Gerencie o ciclo de competição, acompanhe status visual e entre no detalhe para acionar transições.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
-            <MetricCard label="Total" value={String(weeks.data.length)} hint="Semanas cadastradas" />
+            <MetricCard label="Total" value={String(competitions.data.length)} hint="Competições cadastradas" />
             <MetricCard
               label="Ativas"
-              value={String(weeks.data.filter((week) => week.status === "ACTIVE").length)}
-              hint="Competicao em andamento"
+              value={String(competitions.data.filter((c) => c.status === "ACTIVE").length)}
+              hint="Competição em andamento"
             />
             <MetricCard
               label="Travadas+"
               value={String(
-                weeks.data.filter((week) => ["LOCKED", "ACTIVE", "COMPLETED"].includes(week.status)).length,
+                competitions.data.filter((c) => ["LOCKED", "ACTIVE", "COMPLETED"].includes(c.status)).length,
               )}
-              hint="Fora da edicao livre"
+              hint="Fora da edição livre"
             />
           </CardContent>
         </Card>
@@ -96,14 +96,14 @@ function AdminWeeksPage() {
             </Badge>
             <p className="text-sm text-muted-foreground">
               {transferInfo.open
-                ? "Transferencias liberadas hoje."
-                : `Proxima janela: ${transferInfo.nextLabel}.`}
+                ? "Transferências liberadas hoje."
+                : `Próxima janela: ${transferInfo.nextLabel}.`}
             </p>
             <Link
-              to="/dashboard/weeks/new"
+              to="/dashboard/competitions/new"
               className={cn(buttonVariants({ variant: "default" }), "w-full justify-start")}
             >
-              Nova semana
+              Nova competição
             </Link>
           </CardContent>
         </Card>
@@ -111,7 +111,7 @@ function AdminWeeksPage() {
 
       <Card className="border border-border/70">
         <CardHeader>
-          <CardTitle>Lista das semanas</CardTitle>
+          <CardTitle>Lista das competições</CardTitle>
           <CardDescription>
             Veja período, status e esportes foco antes de abrir o detalhe.
           </CardDescription>
@@ -120,7 +120,7 @@ function AdminWeeksPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Semana</TableHead>
+                <TableHead>Competição</TableHead>
                 <TableHead>Período</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Esportes foco</TableHead>
@@ -128,28 +128,29 @@ function AdminWeeksPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {weeks.data.map((week) => (
-                <TableRow key={week.id}>
-                  <TableCell className="font-medium">#{week.week_number}</TableCell>
+              {competitions.data.map((competition) => (
+                <TableRow key={competition.id}>
+                  <TableCell className="font-medium">#{competition.number}</TableCell>
                   <TableCell>
-                    {formatDate(week.start_date)} até {formatDate(week.end_date)}
+                    {formatDate(competition.start_date)} até {formatDate(competition.end_date)}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={week.status === "ACTIVE" ? "secondary" : "outline"}>
-                      {statusLabel[week.status]}
+                    <Badge variant={competition.status === "ACTIVE" ? "secondary" : "outline"}>
+                      {statusLabel[competition.status]}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {week.sport_focus.length > 0
-                      ? week.sport_focus
+                    {competition.sport_focus.length > 0
+                      ? competition.sport_focus
+                          .filter((sportId): sportId is number => typeof sportId === "number")
                           .map((sportId) => sportNamesById.get(sportId) ?? `#${sportId}`)
                           .join(", ")
                       : "Sem foco definido"}
                   </TableCell>
                   <TableCell className="text-right">
                     <Link
-                      to="/dashboard/weeks/$weekId"
-                      params={{ weekId: String(week.id) }}
+                      to="/dashboard/competitions/$competitionId"
+                      params={{ competitionId: String(competition.id) }}
                       className={cn(buttonVariants({ variant: "outline" }))}
                     >
                       Abrir detalhe

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.event import Event, EventPhase, EventStatus
 from app.models.sport import Modality
-from app.models.week import CompetitionWeek
+from app.models.competition import Competition
 
 logger = logging.getLogger(__name__)
 
@@ -24,14 +24,14 @@ def _slot_time(slot_str: str):
 
 async def generate_events(
     session: AsyncSession,
-    week: CompetitionWeek,
+    competition: Competition,
 ) -> list[Event]:
     """
-    For each sport_id in week.sport_focus, find active modalities and create
+    For each sport_id in competition.sport_focus, find active modalities and create
     one Event per modality, spread across Tue–Sun slots.
     Returns list of created Events.
     """
-    sport_ids: list[int] = [int(s) for s in (week.sport_focus or [])]
+    sport_ids: list[int] = [int(s) for s in (competition.sport_focus or [])]
     if not sport_ids:
         return []
 
@@ -43,14 +43,14 @@ async def generate_events(
     )
     modalities = list(modalities_result.scalars().all())
 
-    monday = week.start_date
+    monday = competition.start_date
     # Align to Monday
     monday = monday - timedelta(days=monday.weekday())
 
     slots: list[tuple[date, object]] = []
     for day_offset in _DAY_OFFSETS:
         day = monday + timedelta(days=day_offset)
-        if day > week.end_date:
+        if day > competition.end_date:
             break
         for slot_str in _SLOTS:
             slots.append((day, _slot_time(slot_str)))
@@ -61,7 +61,7 @@ async def generate_events(
             break
         event_date, start_time = slots[idx]
         event = Event(
-            week_id=week.id,
+            competition_id=competition.id,
             modality_id=mod.id,
             event_date=event_date,
             start_time=start_time,
@@ -74,5 +74,5 @@ async def generate_events(
     await session.flush()
     for event in created:
         await session.refresh(event)
-    logger.info("schedule_generated week_id=%s events=%s", week.id, len(created))
+    logger.info("schedule_generated competition_id=%s events=%s", competition.id, len(created))
     return created

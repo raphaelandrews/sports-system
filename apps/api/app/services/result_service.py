@@ -21,7 +21,7 @@ from app.schemas.result import (
 
 async def list_results(
     session: AsyncSession,
-    week_id: int | None,
+    competition_id: int | None,
     sport_id: int | None,
     delegation_id: int | None,
     page: int,
@@ -29,7 +29,7 @@ async def list_results(
 ) -> PaginatedResponse[ResultResponse]:
     offset = (page - 1) * per_page
     results, total = await result_repository.list_all(
-        session, offset, per_page, week_id=week_id, sport_id=sport_id, delegation_id=delegation_id
+        session, offset, per_page, competition_id=competition_id, sport_id=sport_id, delegation_id=delegation_id
     )
     return PaginatedResponse(
         data=[ResultResponse.model_validate(r) for r in results],
@@ -148,7 +148,7 @@ async def get_records(session: AsyncSession, modality_id: int | None = None) -> 
             athlete_name=athlete.name if athlete else "",
             delegation_name=delegation.name if delegation else "",
             value=r.value,
-            week_id=r.week_id,
+            competition_id=r.competition_id,
             set_at=r.set_at,
         ))
     return entries

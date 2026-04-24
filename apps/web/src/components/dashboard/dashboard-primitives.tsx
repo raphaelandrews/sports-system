@@ -7,9 +7,9 @@ import type {
   NotificationResponse,
   ResultPayload,
 } from "@/types/notifications"
-import type { WeekResponse, WeekStatus } from "@/types/weeks"
+import type { CompetitionResponse, CompetitionStatus } from "@/types/competitions"
 
-export const statusLabel: Record<WeekStatus, string> = {
+export const statusLabel: Record<CompetitionStatus, string> = {
   DRAFT: "Rascunho",
   SCHEDULED: "Agendada",
   LOCKED: "Travada",
@@ -17,12 +17,12 @@ export const statusLabel: Record<WeekStatus, string> = {
   COMPLETED: "Concluída",
 }
 
-export function findCurrentWeek(weeks: WeekResponse[]) {
+export function findCurrentCompetition(competitions: CompetitionResponse[]) {
   return (
-    weeks.find((week) => week.status === "ACTIVE") ??
-    weeks.find((week) => week.status === "LOCKED") ??
-    weeks.find((week) => week.status === "SCHEDULED") ??
-    weeks[0] ??
+    competitions.find((competition) => competition.status === "ACTIVE") ??
+    competitions.find((competition) => competition.status === "LOCKED") ??
+    competitions.find((competition) => competition.status === "SCHEDULED") ??
+    competitions[0] ??
     null
   )
 }

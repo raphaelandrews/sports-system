@@ -173,7 +173,7 @@ export function DelegationStatisticsPanel({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Semana</TableHead>
+                    <TableHead>Competição</TableHead>
                     <TableHead>Periodo</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Partidas</TableHead>
@@ -183,8 +183,8 @@ export function DelegationStatisticsPanel({
                 </TableHeader>
                 <TableBody>
                   {stats.weekly_performance.map((week) => (
-                    <TableRow key={week.week_id}>
-                      <TableCell className="font-medium">#{week.week_number}</TableCell>
+                    <TableRow key={week.competition_id}>
+                      <TableCell className="font-medium">#{week.competition_number}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {formatDate(week.start_date)} - {formatDate(week.end_date)}
                       </TableCell>

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/comp
 import { formatDate, formatEventDate } from "@/lib/date"
 import { allEventsQueryOptions } from "@/queries/events"
 import { notificationsQueryOptions } from "@/queries/notifications"
-import { weekListQueryOptions } from "@/queries/weeks"
+import { competitionListQueryOptions } from "@/queries/competitions"
 import type { Session } from "@/types/auth"
 import type { MatchReminderPayload, ResultPayload } from "@/types/notifications"
 
@@ -14,7 +14,7 @@ import {
   ActionLink,
   DashboardShell,
   EmptyState,
-  findCurrentWeek,
+  findCurrentCompetition,
   parseMatchReminderPayload,
   parseResultPayload,
   SectionHeader,
@@ -24,10 +24,10 @@ import {
 
 export function AthleteCoachDashboard({ session }: { session: Session }) {
   const { data: notifications } = useSuspenseQuery(notificationsQueryOptions(session.id))
-  const { data: weeks } = useSuspenseQuery(weekListQueryOptions())
+  const { data: competitions } = useSuspenseQuery(competitionListQueryOptions())
   const { data: events } = useSuspenseQuery(allEventsQueryOptions({ per_page: 12 }))
 
-  const currentWeek = findCurrentWeek(weeks.data)
+  const currentCompetition = findCurrentCompetition(competitions.data)
   const upcomingMatches = notifications.data
     .map(parseMatchReminderPayload)
     .filter((payload): payload is MatchReminderPayload => Boolean(payload))
@@ -48,9 +48,9 @@ export function AthleteCoachDashboard({ session }: { session: Session }) {
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
-          title="Semana atual"
-          value={currentWeek ? `#${currentWeek.week_number}` : "—"}
-          sub={currentWeek ? statusLabel[currentWeek.status] : "Nenhuma semana ativa"}
+          title="Competição atual"
+          value={currentCompetition ? `#${currentCompetition.number}` : "—"}
+          sub={currentCompetition ? statusLabel[currentCompetition.status] : "Nenhuma competição ativa"}
           icon={CalendarDays}
         />
         <StatCard

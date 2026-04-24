@@ -17,23 +17,23 @@ import { Suspense, useState } from "react";
 import { formatDate, formatTime } from "@/lib/date";
 import { delegationListQueryOptions } from "@/queries/delegations";
 import {
+  competitionEventsQueryOptions,
   eventDetailQueryOptions,
-  weekEventsQueryOptions,
 } from "@/queries/events";
-import { weekReportQueryOptions } from "@/queries/weeks";
+import { competitionReportQueryOptions } from "@/queries/competitions";
 import type { DelegationSummary } from "@/types/delegations";
 import type { EventResponse, EventStatus, MatchResponse } from "@/types/events";
 
-export const Route = createFileRoute("/(public)/weeks/$weekId")({
-  loader: async ({ context: { queryClient }, params: { weekId } }) => {
-    const id = Number(weekId);
+export const Route = createFileRoute("/(public)/competitions/$competitionId")({
+  loader: async ({ context: { queryClient }, params: { competitionId } }) => {
+    const id = Number(competitionId);
     await Promise.all([
-      queryClient.ensureQueryData(weekReportQueryOptions(id)),
-      queryClient.ensureQueryData(weekEventsQueryOptions(id)),
+      queryClient.ensureQueryData(competitionReportQueryOptions(id)),
+      queryClient.ensureQueryData(competitionEventsQueryOptions(id)),
       queryClient.ensureQueryData(delegationListQueryOptions()),
     ]);
   },
-  component: WeekDetailPage,
+  component: CompetitionDetailPage,
 });
 
 const phaseLabel: Record<string, string> = {
@@ -61,12 +61,12 @@ const eventStatusLabel: Record<EventStatus, string> = {
   CANCELLED: "Cancelado",
 };
 
-function WeekDetailPage() {
-  const { weekId } = Route.useParams();
-  const id = Number(weekId);
+function CompetitionDetailPage() {
+  const { competitionId } = Route.useParams();
+  const id = Number(competitionId);
 
-  const { data: report } = useSuspenseQuery(weekReportQueryOptions(id));
-  const { data: eventsData } = useSuspenseQuery(weekEventsQueryOptions(id));
+  const { data: report } = useSuspenseQuery(competitionReportQueryOptions(id));
+  const { data: eventsData } = useSuspenseQuery(competitionEventsQueryOptions(id));
   const { data: delegationsData } = useSuspenseQuery(delegationListQueryOptions());
 
   const delegationById = new Map<number, DelegationSummary>(
@@ -89,15 +89,15 @@ function WeekDetailPage() {
     <div className="container mx-auto max-w-5xl px-4 py-6">
       <div className="mb-1">
         <Link
-          to="/weeks"
+          to="/competitions"
           className="text-muted-foreground text-sm hover:underline"
         >
-          ← Semanas
+          ← Competições
         </Link>
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-semibold">Semana {report.week_number}</h1>
+        <h1 className="text-2xl font-semibold">Competição {report.number}</h1>
         <Badge variant={report.status === "ACTIVE" ? "default" : "secondary"}>
           {report.status}
         </Badge>
@@ -160,7 +160,7 @@ function WeekDetailPage() {
 
         <TabsContent value="events" className="mt-4 space-y-6">
           {sortedDates.length === 0 && (
-            <p className="text-muted-foreground text-sm">Nenhum evento nesta semana.</p>
+            <p className="text-muted-foreground text-sm">Nenhum evento nesta competição.</p>
           )}
           {sortedDates.map((date) => (
             <div key={date}>

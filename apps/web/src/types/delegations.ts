@@ -38,9 +38,9 @@ export interface DelegationMedalItem {
   medal: Medal;
 }
 
-export interface DelegationWeekPerformanceItem {
-  week_id: number;
-  week_number: number;
+export interface DelegationCompetitionPerformanceItem {
+  competition_id: number;
+  competition_number: number;
   status: string;
   start_date: string;
   end_date: string;
@@ -65,5 +65,5 @@ export interface DelegationStatisticsResponse {
   total_medals: number;
   athletes: DelegationAthleteStatisticsItem[];
   medals: DelegationMedalItem[];
-  weekly_performance: DelegationWeekPerformanceItem[];
+  weekly_performance: DelegationCompetitionPerformanceItem[];
 }

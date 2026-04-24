@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.delegation import DelegationMember
 from app.models.event import Event
-from app.models.week import CompetitionWeek
+from app.models.competition import Competition
 
 
 async def is_athlete_eligible_for_week(
@@ -13,7 +13,7 @@ async def is_athlete_eligible_for_week(
     athlete_id: int,
     user_id: int | None,
     delegation_id: int,
-    week: CompetitionWeek,
+    competition: Competition,
 ) -> tuple[bool, str]:
     """
     Checks:
@@ -26,7 +26,7 @@ async def is_athlete_eligible_for_week(
 
     first_event_result = await session.execute(
         select(Event)
-        .where(Event.week_id == week.id)
+        .where(Event.competition_id == competition.id)
         .order_by(Event.event_date, Event.start_time)
         .limit(1)
     )

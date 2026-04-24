@@ -129,8 +129,8 @@ async def get_delegation_statistics(
     medals = [DelegationMedalItem(**row) for row in medal_rows]
     weekly_performance = [
         DelegationWeekPerformanceItem(
-            week_id=row["week_id"],
-            week_number=row["week_number"],
+            competition_id=row["competition_id"],
+            number=row["number"],
             status=row["status"],
             start_date=row["start_date"],
             end_date=row["end_date"],

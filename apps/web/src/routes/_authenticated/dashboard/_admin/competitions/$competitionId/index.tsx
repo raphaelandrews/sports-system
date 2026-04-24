@@ -14,30 +14,30 @@ import { cn } from "@sports-system/ui/lib/utils";
 
 import { apiFetch, ApiError } from "@/lib/api";
 import { formatDate } from "@/lib/date";
-import { weekEventsQueryOptions } from "@/queries/events";
+import { competitionEventsQueryOptions } from "@/queries/events";
 import { queryKeys } from "@/queries/keys";
 import { sportListQueryOptions } from "@/queries/sports";
 import {
-  weekDetailQueryOptions,
-  weekSchedulePreviewQueryOptions,
-} from "@/queries/weeks";
-import type { WeekResponse, WeekStatus } from "@/types/weeks";
+  competitionDetailQueryOptions,
+  competitionSchedulePreviewQueryOptions,
+} from "@/queries/competitions";
+import type { CompetitionResponse, CompetitionStatus } from "@/types/competitions";
 
 export const Route = createFileRoute(
-  "/_authenticated/dashboard/_admin/weeks/$weekId/",
+  "/_authenticated/dashboard/_admin/competitions/$competitionId/",
 )({
   ssr: false,
   loader: ({ context: { queryClient }, params }) => {
-    const weekId = Number(params.weekId);
-    void queryClient.prefetchQuery(weekDetailQueryOptions(weekId))
-    void queryClient.prefetchQuery(weekEventsQueryOptions(weekId))
+    const competitionId = Number(params.competitionId);
+    void queryClient.prefetchQuery(competitionDetailQueryOptions(competitionId))
+    void queryClient.prefetchQuery(competitionEventsQueryOptions(competitionId))
     void queryClient.prefetchQuery(sportListQueryOptions())
-    void queryClient.prefetchQuery(weekSchedulePreviewQueryOptions(weekId))
+    void queryClient.prefetchQuery(competitionSchedulePreviewQueryOptions(competitionId))
   },
-  component: WeekDetailPage,
+  component: CompetitionDetailPage,
 });
 
-const statusLabel: Record<WeekStatus, string> = {
+const statusLabel: Record<CompetitionStatus, string> = {
   DRAFT: "Rascunho",
   SCHEDULED: "Agendada",
   LOCKED: "Travada",
@@ -45,40 +45,42 @@ const statusLabel: Record<WeekStatus, string> = {
   COMPLETED: "Encerrada",
 };
 
-function WeekDetailPage() {
+function CompetitionDetailPage() {
   const queryClient = useQueryClient();
-  const { weekId } = Route.useParams();
-  const weekNumber = Number(weekId);
-  const { data: week } = useSuspenseQuery(weekDetailQueryOptions(weekNumber));
-  const { data: events } = useSuspenseQuery(weekEventsQueryOptions(weekNumber));
+  const { competitionId } = Route.useParams();
+  const competitionNumber = Number(competitionId);
+  const { data: competition } = useSuspenseQuery(competitionDetailQueryOptions(competitionNumber));
+  const { data: events } = useSuspenseQuery(competitionEventsQueryOptions(competitionNumber));
   const { data: sports } = useSuspenseQuery(sportListQueryOptions());
-  const { data: preview } = useSuspenseQuery(weekSchedulePreviewQueryOptions(weekNumber));
+  const { data: preview } = useSuspenseQuery(competitionSchedulePreviewQueryOptions(competitionNumber));
 
-  const refreshWeek = async () => {
+  const refreshCompetition = async () => {
     await Promise.all([
-      queryClient.invalidateQueries({ queryKey: queryKeys.weeks.detail(weekNumber) }),
-      queryClient.invalidateQueries({ queryKey: queryKeys.weeks.all() }),
-      queryClient.invalidateQueries({ queryKey: [...queryKeys.weeks.detail(weekNumber), "schedule-preview"] }),
-      queryClient.invalidateQueries({ queryKey: queryKeys.events.byWeek(weekNumber) }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.competitions.detail(competitionNumber) }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.competitions.all() }),
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.competitions.detail(competitionNumber), "schedule-preview"],
+      }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.byCompetition(competitionNumber) }),
     ]);
   };
 
   const transitionMutation = useMutation({
     mutationFn: async (action: "publish" | "lock" | "activate" | "complete") =>
-      apiFetch<WeekResponse>(`/weeks/${weekNumber}/${action}`, {
+      apiFetch<CompetitionResponse>(`/competitions/${competitionNumber}/${action}`, {
         method: "POST",
       }),
     onSuccess: async (_, action) => {
-      await refreshWeek();
-      toast.success(`Semana ${transitionVerb[action]} com sucesso.`);
+      await refreshCompetition();
+      toast.success(`Competicao ${transitionVerb[action]} com sucesso.`);
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao alterar status da semana.");
+      toast.error(error instanceof ApiError ? error.message : "Falha ao alterar status da competicao.");
     },
   });
 
   const sportNamesById = new Map(sports.data.map((sport) => [sport.id, sport.name]));
-  const availableActions = getAvailableActions(week.status);
+  const availableActions = getAvailableActions(competition.status);
   const transferInfo = getTransferWindowInfo();
 
   return (
@@ -87,18 +89,21 @@ function WeekDetailPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(160deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Semana #{week.week_number}</Badge>
-              <Badge variant={week.status === "ACTIVE" ? "secondary" : "outline"}>
-                {statusLabel[week.status]}
+              <Badge variant="outline">Competicao #{competition.number}</Badge>
+              <Badge variant={competition.status === "ACTIVE" ? "secondary" : "outline"}>
+                {statusLabel[competition.status]}
               </Badge>
             </div>
-            <CardTitle className="text-2xl">Detalhe da semana</CardTitle>
+            <CardTitle className="text-2xl">Detalhe da competicao</CardTitle>
             <CardDescription className="max-w-2xl">
-              Controle o ciclo da semana com transicoes administrativas e acompanhe o calendario associado.
+              Controle o ciclo da competicao com transicoes administrativas e acompanhe o calendario associado.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
-            <QuickStat label="Periodo" value={`${formatDate(week.start_date)} - ${formatDate(week.end_date)}`} />
+            <QuickStat
+              label="Periodo"
+              value={`${formatDate(competition.start_date)} - ${formatDate(competition.end_date)}`}
+            />
             <QuickStat label="Eventos" value={String(events.data.length)} />
             <QuickStat label="Preview de partidas" value={String(preview.matches.length)} />
           </CardContent>
@@ -128,7 +133,7 @@ function WeekDetailPage() {
                 Nenhuma transicao disponivel para o status atual.
               </div>
             ) : null}
-            <Link to="/dashboard/weeks" className={cn(buttonVariants({ variant: "ghost" }), "w-full justify-start")}>
+            <Link to="/dashboard/competitions" className={cn(buttonVariants({ variant: "ghost" }), "w-full justify-start")}>
               Voltar para lista
             </Link>
           </CardContent>
@@ -145,15 +150,17 @@ function WeekDetailPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-sm text-muted-foreground">
-              Periodo: {formatDate(week.start_date)} ate {formatDate(week.end_date)}.
+              Periodo: {formatDate(competition.start_date)} ate {formatDate(competition.end_date)}.
             </div>
             <div className="flex flex-wrap gap-2">
-              {week.sport_focus.length > 0 ? (
-                week.sport_focus.map((sportId) => (
+              {competition.sport_focus.length > 0 ? (
+                competition.sport_focus
+                  .filter((sportId): sportId is number => typeof sportId === "number")
+                  .map((sportId) => (
                   <Badge key={sportId} variant="outline">
                     {sportNamesById.get(sportId) ?? `#${sportId}`}
                   </Badge>
-                ))
+                  ))
               ) : (
                 <span className="text-sm text-muted-foreground">Sem esportes foco definidos.</span>
               )}
@@ -185,7 +192,7 @@ function WeekDetailPage() {
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-                Nenhum match previsto ainda para esta semana.
+                Nenhum match previsto ainda para esta competicao.
               </div>
             )}
           </CardContent>
@@ -196,7 +203,7 @@ function WeekDetailPage() {
         <CardHeader>
           <CardTitle>Eventos cadastrados</CardTitle>
           <CardDescription>
-            Calendario atual desta semana, com status visivel para auditoria operacional.
+            Calendario atual desta competicao, com status visivel para auditoria operacional.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -216,7 +223,7 @@ function WeekDetailPage() {
             ))
           ) : (
             <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-              Nenhum evento criado para esta semana.
+              Nenhum evento criado para esta competicao.
             </div>
           )}
         </CardContent>
@@ -226,10 +233,10 @@ function WeekDetailPage() {
 }
 
 const transitionLabel = {
-  publish: "Publicar semana",
-  lock: "Travar semana",
-  activate: "Ativar semana",
-  complete: "Encerrar semana",
+  publish: "Publicar competicao",
+  lock: "Travar competicao",
+  activate: "Ativar competicao",
+  complete: "Encerrar competicao",
 } as const;
 
 const transitionVerb = {
@@ -239,7 +246,7 @@ const transitionVerb = {
   complete: "encerrada",
 } as const;
 
-function getAvailableActions(status: WeekStatus) {
+function getAvailableActions(status: CompetitionStatus) {
   if (status === "DRAFT") return ["publish"] as const;
   if (status === "SCHEDULED") return ["lock"] as const;
   if (status === "LOCKED") return ["activate"] as const;

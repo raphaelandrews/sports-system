@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import sse
 from app.models.event import Event, Match, MatchEvent, MatchStatus
-from app.models.week import WeekStatus
-from app.repositories import event_repository, week_repository
+from app.models.competition import CompetitionStatus
+from app.repositories import competition_repository, event_repository
 from app.schemas.common import Meta, PaginatedResponse
 from app.schemas.activity import ActivityFeedItem, ActivityFeedItemType
 from app.schemas.event import (
@@ -25,19 +25,19 @@ from app.services import bracket_service, schedule_service
 
 logger = logging.getLogger(__name__)
 
-_LOCKED_OR_LATER = {WeekStatus.LOCKED, WeekStatus.ACTIVE, WeekStatus.COMPLETED}
+_LOCKED_OR_LATER = {CompetitionStatus.LOCKED, CompetitionStatus.ACTIVE, CompetitionStatus.COMPLETED}
 
 
 async def list_events(
     session: AsyncSession,
-    week_id: int | None,
+    competition_id: int | None,
     sport_id: int | None,
     event_date,
     page: int,
     per_page: int,
 ) -> PaginatedResponse[EventResponse]:
     offset = (page - 1) * per_page
-    events, total = await event_repository.list_events(session, week_id, sport_id, event_date, offset, per_page)
+    events, total = await event_repository.list_events(session, competition_id, sport_id, event_date, offset, per_page)
     return PaginatedResponse(
         data=[EventResponse.model_validate(e) for e in events],
         meta=Meta(total=total, page=page, per_page=per_page),
@@ -53,11 +53,11 @@ async def get_event(session: AsyncSession, event_id: int) -> EventDetailResponse
 
 
 async def create_event(session: AsyncSession, data: EventCreate) -> EventResponse:
-    week = await week_repository.get_by_id(session, data.week_id)
-    if week is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Week not found")
+    competition = await competition_repository.get_by_id(session, data.competition_id)
+    if competition is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Competition not found")
     event = Event(
-        week_id=data.week_id,
+        competition_id=data.competition_id,
         modality_id=data.modality_id,
         event_date=data.event_date,
         start_time=data.start_time,
@@ -71,11 +71,11 @@ async def create_event(session: AsyncSession, data: EventCreate) -> EventRespons
 
 async def update_event(session: AsyncSession, event_id: int, data: EventUpdate) -> EventResponse:
     event = await _get_event_or_404(session, event_id)
-    week = await week_repository.get_by_id(session, event.week_id)
-    if week and week.status in _LOCKED_OR_LATER:
+    competition = await competition_repository.get_by_id(session, event.competition_id)
+    if competition and competition.status in _LOCKED_OR_LATER:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Cannot edit event in a LOCKED or later week",
+            detail="Cannot edit event in a LOCKED or later competition",
         )
     if data.event_date is not None:
         event.event_date = data.event_date
@@ -95,11 +95,11 @@ async def update_event(session: AsyncSession, event_id: int, data: EventUpdate) 
 async def cancel_event(session: AsyncSession, event_id: int) -> None:
     from app.models.event import EventStatus
     event = await _get_event_or_404(session, event_id)
-    week = await week_repository.get_by_id(session, event.week_id)
-    if week and week.status in _LOCKED_OR_LATER:
+    competition = await competition_repository.get_by_id(session, event.competition_id)
+    if competition and competition.status in _LOCKED_OR_LATER:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Cannot cancel event in a LOCKED or later week",
+            detail="Cannot cancel event in a LOCKED or later competition",
         )
     event.status = EventStatus.CANCELLED
     await event_repository.save_event(session, event)
@@ -232,23 +232,23 @@ async def finish_match(session: AsyncSession, match_id: int) -> MatchResponse:
     return MatchResponse.model_validate(match)
 
 
-async def ai_generate_schedule(session: AsyncSession, week_id: int) -> list[EventResponse]:
-    week = await week_repository.get_by_id(session, week_id)
-    if week is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Week not found")
-    if week.status in _LOCKED_OR_LATER:
+async def ai_generate_schedule(session: AsyncSession, competition_id: int) -> list[EventResponse]:
+    competition = await competition_repository.get_by_id(session, competition_id)
+    if competition is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Competition not found")
+    if competition.status in _LOCKED_OR_LATER:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Cannot generate schedule for a LOCKED or later week",
+            detail="Cannot generate schedule for a LOCKED or later competition",
         )
-    events = await schedule_service.generate_events(session, week)
+    events = await schedule_service.generate_events(session, competition)
     await session.commit()
     return [EventResponse.model_validate(e) for e in events]
 
 
-async def lock_and_generate_bracket(session: AsyncSession, week_id: int) -> int:
-    """Called from week_service.lock_week — generates bracket matches."""
-    return await bracket_service.generate(session, week_id)
+async def lock_and_generate_bracket(session: AsyncSession, competition_id: int) -> int:
+    """Called from competition_service.lock_competition — generates bracket matches."""
+    return await bracket_service.generate(session, competition_id)
 
 
 async def _get_event_or_404(session: AsyncSession, event_id: int) -> Event:

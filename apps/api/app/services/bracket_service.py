@@ -9,14 +9,14 @@ from app.models.event import Event, Match, MatchStatus
 logger = logging.getLogger(__name__)
 
 
-async def generate(session: AsyncSession, week_id: int) -> int:
+async def generate(session: AsyncSession, competition_id: int) -> int:
     """
-    For each Event in the week, read approved Enrollment delegation_ids
+    For each Event in the competition, read approved Enrollment delegation_ids
     and create round-robin Match pairings.
     Returns total matches created.
     """
     events_result = await session.execute(
-        select(Event).where(Event.week_id == week_id)
+        select(Event).where(Event.competition_id == competition_id)
     )
     events = list(events_result.scalars().all())
 

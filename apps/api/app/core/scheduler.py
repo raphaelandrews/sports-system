@@ -1,5 +1,5 @@
 import logging
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -7,25 +7,25 @@ from sqlalchemy import select
 
 from app.config import settings
 from app.database import async_session_factory
+from app.models.competition import Competition, CompetitionStatus
 from app.models.event import Event, Match, MatchStatus
-from app.models.week import CompetitionWeek, WeekStatus
 
 logger = logging.getLogger(__name__)
 
 scheduler = AsyncIOScheduler(timezone="UTC")
 
 
-async def _auto_lock_weeks() -> None:
+async def _auto_lock_competitions() -> None:
     now_utc = datetime.now(UTC).replace(tzinfo=None)
     async with async_session_factory() as session:
         result = await session.execute(
-            select(CompetitionWeek).where(CompetitionWeek.status == WeekStatus.SCHEDULED)
+            select(Competition).where(Competition.status == CompetitionStatus.SCHEDULED)
         )
-        weeks = result.scalars().all()
-        for week in weeks:
+        competitions = result.scalars().all()
+        for competition in competitions:
             first_event_result = await session.execute(
                 select(Event)
-                .where(Event.week_id == week.id)
+                .where(Event.competition_id == competition.id)
                 .order_by(Event.event_date, Event.start_time)
                 .limit(1)
             )
@@ -34,11 +34,14 @@ async def _auto_lock_weeks() -> None:
                 continue
             event_dt = datetime.combine(event.event_date, event.start_time)
             if event_dt < now_utc:
-                week.status = WeekStatus.LOCKED
-                session.add(week)
+                competition.status = CompetitionStatus.LOCKED
+                session.add(competition)
                 from app.services import bracket_service
-                matches = await bracket_service.generate(session, week.id)
-                logger.info("auto_lock_week week_id=%s bracket_matches=%s", week.id, matches)
+                matches = await bracket_service.generate(session, competition.id)
+                logger.info(
+                    "auto_lock_competition competition_id=%s bracket_matches=%s",
+                    competition.id, matches,
+                )
         await session.commit()
 
 
@@ -57,10 +60,9 @@ async def _auto_start_matches() -> None:
             event_dt = datetime.combine(event.event_date, event.start_time)
             if event_dt <= now_utc:
                 match.status = MatchStatus.IN_PROGRESS
-                match.started_at = now_utc  # already naive via .replace(tzinfo=None)
+                match.started_at = now_utc
                 session.add(match)
                 logger.info("auto_start_match match_id=%s", match.id)
-                # simulation_service.start(match, session) — Phase 9
         await session.commit()
 
 
@@ -103,11 +105,10 @@ async def _send_match_reminders() -> None:
         events = result.scalars().all()
         for event in events:
             logger.info("match_reminder_pending event_id=%s", event.id)
-            # notification_service.send_match_reminders(event, session) — Phase 2
 
 
 def setup_scheduler() -> AsyncIOScheduler:
-    scheduler.add_job(_auto_lock_weeks, "interval", minutes=5, id="auto_lock_weeks")
+    scheduler.add_job(_auto_lock_competitions, "interval", minutes=5, id="auto_lock_competitions")
     scheduler.add_job(_auto_start_matches, "interval", minutes=1, id="auto_start_matches")
     scheduler.add_job(_auto_finish_matches, "interval", minutes=1, id="auto_finish_matches")
     # midnight UTC-3 = 03:00 UTC

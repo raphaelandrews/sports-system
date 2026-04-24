@@ -1,15 +1,14 @@
-from datetime import datetime
 from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.athlete import Athlete
+from app.models.competition import Competition
 from app.models.delegation import Delegation
 from app.models.event import Event, Match, MatchEvent
 from app.models.result import Record
 from app.models.sport import Modality, Sport
-from app.models.week import CompetitionWeek
 
 
 async def list_recent_match_events(session: AsyncSession, limit: int) -> list[dict[str, Any]]:
@@ -25,8 +24,8 @@ async def list_recent_match_events(session: AsyncSession, limit: int) -> list[di
             MatchEvent.delegation_id_at_time.label("delegation_id"),
             Delegation.name.label("delegation_name"),
             Match.event_id.label("event_id"),
-            Event.week_id.label("week_id"),
-            CompetitionWeek.week_number.label("week_number"),
+            Event.competition_id.label("competition_id"),
+            Competition.number.label("competition_number"),
             Event.event_date.label("event_date"),
             Event.start_time.label("start_time"),
             Event.modality_id.label("modality_id"),
@@ -36,7 +35,7 @@ async def list_recent_match_events(session: AsyncSession, limit: int) -> list[di
         )
         .join(Match, Match.id == MatchEvent.match_id)
         .join(Event, Event.id == Match.event_id)
-        .join(CompetitionWeek, CompetitionWeek.id == Event.week_id)
+        .join(Competition, Competition.id == Event.competition_id)
         .join(Modality, Modality.id == Event.modality_id)
         .join(Sport, Sport.id == Modality.sport_id)
         .outerjoin(Athlete, Athlete.id == MatchEvent.athlete_id)
@@ -55,8 +54,8 @@ async def list_recent_match_state_changes(session: AsyncSession, limit: int) -> 
             Match.id.label("match_id"),
             Match.started_at.label("created_at"),
             Match.event_id.label("event_id"),
-            Event.week_id.label("week_id"),
-            CompetitionWeek.week_number.label("week_number"),
+            Event.competition_id.label("competition_id"),
+            Competition.number.label("competition_number"),
             Event.event_date.label("event_date"),
             Event.start_time.label("start_time"),
             Event.modality_id.label("modality_id"),
@@ -65,7 +64,7 @@ async def list_recent_match_state_changes(session: AsyncSession, limit: int) -> 
             Sport.name.label("sport_name"),
         )
         .join(Event, Event.id == Match.event_id)
-        .join(CompetitionWeek, CompetitionWeek.id == Event.week_id)
+        .join(Competition, Competition.id == Event.competition_id)
         .join(Modality, Modality.id == Event.modality_id)
         .join(Sport, Sport.id == Modality.sport_id)
         .where(Match.started_at.is_not(None))
@@ -82,8 +81,8 @@ async def list_recent_match_state_changes(session: AsyncSession, limit: int) -> 
             Match.id.label("match_id"),
             Match.ended_at.label("created_at"),
             Match.event_id.label("event_id"),
-            Event.week_id.label("week_id"),
-            CompetitionWeek.week_number.label("week_number"),
+            Event.competition_id.label("competition_id"),
+            Competition.number.label("competition_number"),
             Event.event_date.label("event_date"),
             Event.start_time.label("start_time"),
             Event.modality_id.label("modality_id"),
@@ -92,7 +91,7 @@ async def list_recent_match_state_changes(session: AsyncSession, limit: int) -> 
             Sport.name.label("sport_name"),
         )
         .join(Event, Event.id == Match.event_id)
-        .join(CompetitionWeek, CompetitionWeek.id == Event.week_id)
+        .join(Competition, Competition.id == Event.competition_id)
         .join(Modality, Modality.id == Event.modality_id)
         .join(Sport, Sport.id == Modality.sport_id)
         .where(Match.ended_at.is_not(None))
@@ -112,8 +111,8 @@ async def list_recent_records(session: AsyncSession, limit: int) -> list[dict[st
         select(
             Record.id.label("activity_id"),
             Record.set_at.label("created_at"),
-            Record.week_id.label("week_id"),
-            CompetitionWeek.week_number.label("week_number"),
+            Record.competition_id.label("competition_id"),
+            Competition.number.label("competition_number"),
             Record.modality_id.label("modality_id"),
             Modality.name.label("modality_name"),
             Sport.id.label("sport_id"),
@@ -124,7 +123,7 @@ async def list_recent_records(session: AsyncSession, limit: int) -> list[dict[st
             Delegation.name.label("delegation_name"),
             Record.value.label("value"),
         )
-        .join(CompetitionWeek, CompetitionWeek.id == Record.week_id)
+        .join(Competition, Competition.id == Record.competition_id)
         .join(Modality, Modality.id == Record.modality_id)
         .join(Sport, Sport.id == Modality.sport_id)
         .join(Athlete, Athlete.id == Record.athlete_id)

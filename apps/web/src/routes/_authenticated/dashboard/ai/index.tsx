@@ -27,13 +27,13 @@ import { apiFetch } from "@/lib/api";
 import { formatDate, formatEventDate, formatTime } from "@/lib/date";
 import { aiGenerationHistoryQueryOptions, narrativeTodayQueryOptions } from "@/queries/ai";
 import { athleteListQueryOptions } from "@/queries/athletes";
+import { competitionListQueryOptions } from "@/queries/competitions";
 import { delegationListQueryOptions } from "@/queries/delegations";
 import { enrollmentListQueryOptions } from "@/queries/enrollments";
 import { allEventsQueryOptions } from "@/queries/events";
 import { queryKeys } from "@/queries/keys";
 import { resultListQueryOptions } from "@/queries/results";
 import { sportListQueryOptions } from "@/queries/sports";
-import { weekListQueryOptions } from "@/queries/weeks";
 import type { NarrativeResponse } from "@/types/reports";
 
 export const Route = createFileRoute("/_authenticated/dashboard/ai/")({
@@ -50,7 +50,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/ai/")({
       queryClient.ensureQueryData(delegationListQueryOptions()),
       queryClient.ensureQueryData(sportListQueryOptions()),
       queryClient.ensureQueryData(athleteListQueryOptions({ per_page: 1 })),
-      queryClient.ensureQueryData(weekListQueryOptions()),
+      queryClient.ensureQueryData(competitionListQueryOptions()),
       queryClient.ensureQueryData(allEventsQueryOptions({ per_page: 200 })),
       queryClient.ensureQueryData(enrollmentListQueryOptions({ per_page: 1 })),
       queryClient.ensureQueryData(resultListQueryOptions({ per_page: 1 })),
@@ -65,12 +65,17 @@ function AiControlRoomPage() {
   const { data: delegations } = useSuspenseQuery(delegationListQueryOptions());
   const { data: sports } = useSuspenseQuery(sportListQueryOptions());
   const { data: athletes } = useSuspenseQuery(athleteListQueryOptions({ per_page: 1 }));
-  const { data: weeks } = useSuspenseQuery(weekListQueryOptions());
+  const { data: competitions } = useSuspenseQuery(competitionListQueryOptions());
   const { data: events } = useSuspenseQuery(allEventsQueryOptions({ per_page: 200 }));
   const { data: enrollments } = useSuspenseQuery(enrollmentListQueryOptions({ per_page: 1 }));
   const { data: results } = useSuspenseQuery(resultListQueryOptions({ per_page: 1 }));
 
-  const activeWeek = weeks.data.find((week) => week.status === "DRAFT" || week.status === "SCHEDULED") ?? weeks.data[0] ?? null;
+  const activeCompetition =
+    competitions.data.find(
+      (competition) => competition.status === "DRAFT" || competition.status === "SCHEDULED",
+    ) ??
+    competitions.data[0] ??
+    null;
   const candidateEvents = [...events.data].sort((a, b) =>
     `${a.event_date}T${a.start_time}`.localeCompare(`${b.event_date}T${b.start_time}`),
   );
@@ -78,13 +83,17 @@ function AiControlRoomPage() {
 
   const [delegationCount, setDelegationCount] = useState("5");
   const [sportCount, setSportCount] = useState("3");
-  const [selectedWeekId, setSelectedWeekId] = useState(activeWeek ? String(activeWeek.id) : "");
+  const [selectedCompetitionId, setSelectedCompetitionId] = useState(
+    activeCompetition ? String(activeCompetition.id) : "",
+  );
   const [selectedEventId, setSelectedEventId] = useState(defaultEvent ? String(defaultEvent.id) : "");
   const [narrativeDate, setNarrativeDate] = useState(
     narrative?.narrative_date ?? new Date().toISOString().slice(0, 10),
   );
 
-  const selectedWeek = weeks.data.find((week) => String(week.id) === selectedWeekId) ?? null;
+  const selectedCompetition =
+    competitions.data.find((competition) => String(competition.id) === selectedCompetitionId) ??
+    null;
   const selectedEvent =
     candidateEvents.find((event) => String(event.id) === selectedEventId) ?? null;
 
@@ -271,19 +280,22 @@ function AiControlRoomPage() {
 
           <GeneratorCard
             badge="Calendário"
-            title="Gerar agenda da semana"
-            description="Usa a semana escolhida para montar os eventos oficiais."
+            title="Gerar agenda da competição"
+            description="Usa a competição escolhida para montar os eventos oficiais."
             icon={<CalendarDays className="size-4" />}
             controls={
-              <FieldBlock label="Semana alvo">
-                <Select value={selectedWeekId} onValueChange={(value) => setSelectedWeekId(value ?? "")}>
+              <FieldBlock label="Competição alvo">
+                <Select
+                  value={selectedCompetitionId}
+                  onValueChange={(value) => setSelectedCompetitionId(value ?? "")}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma semana" />
+                    <SelectValue placeholder="Selecione uma competição" />
                   </SelectTrigger>
                   <SelectContent>
-                    {weeks.data.map((week) => (
-                      <SelectItem key={week.id} value={String(week.id)}>
-                        Semana {week.week_number} · {week.status} · {formatDate(week.start_date)}
+                    {competitions.data.map((competition) => (
+                      <SelectItem key={competition.id} value={String(competition.id)}>
+                        Competição {competition.number} · {competition.status} · {formatDate(competition.start_date)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -294,26 +306,36 @@ function AiControlRoomPage() {
               <AiGenerateButton
                 label="Gerar calendário"
                 previewTitle="Preview da geração de calendário"
-                previewDescription="A IA criará eventos para a semana escolhida."
+                previewDescription="A IA criará eventos para a competição escolhida."
                 previewItems={[
                   { label: "Endpoint", value: "/events/ai-generate" },
-                  { label: "Semana", value: selectedWeek ? `#${selectedWeek.week_number} · ${selectedWeek.status}` : "Selecione uma semana" },
-                  { label: "Período", value: selectedWeek ? `${formatDate(selectedWeek.start_date)} até ${formatDate(selectedWeek.end_date)}` : "Sem período" },
+                  {
+                    label: "Competição",
+                    value: selectedCompetition
+                      ? `#${selectedCompetition.number} · ${selectedCompetition.status}`
+                      : "Selecione uma competição",
+                  },
+                  {
+                    label: "Período",
+                    value: selectedCompetition
+                      ? `${formatDate(selectedCompetition.start_date)} até ${formatDate(selectedCompetition.end_date)}`
+                      : "Sem período",
+                  },
                   { label: "Impacto", value: "Novos eventos aparecerão no calendário admin e público" },
                 ]}
-                disabled={!selectedWeek}
+                disabled={!selectedCompetition}
                 successMessage={(data: { length: number }) => `${data.length} eventos gerados com IA.`}
                 errorMessage="Falha ao gerar calendário."
                 onGenerate={() =>
                   apiFetch<Array<unknown>>("/events/ai-generate", {
                     method: "POST",
-                    params: { week_id: Number(selectedWeekId) },
+                    params: { competition_id: Number(selectedCompetitionId) },
                   })
                 }
                 onSuccess={async () => {
                   await Promise.all([
                     queryClient.invalidateQueries({ queryKey: queryKeys.events.all() }),
-                    queryClient.invalidateQueries({ queryKey: queryKeys.weeks.all() }),
+                    queryClient.invalidateQueries({ queryKey: queryKeys.competitions.all() }),
                     invalidateAiSurface(),
                   ]);
                 }}

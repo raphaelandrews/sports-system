@@ -103,7 +103,7 @@ function PublicReportPage() {
             <CardContent className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
               <ReportStat label="Delegações" value={String(report.summary.total_delegations)} />
               <ReportStat label="Atletas" value={String(report.summary.total_athletes)} />
-              <ReportStat label="Semanas" value={String(report.summary.total_weeks)} />
+              <ReportStat label="Competições" value={String(report.summary.total_competitions)} />
               <ReportStat label="Eventos" value={String(report.summary.total_events)} />
               <ReportStat label="Partidas" value={String(report.summary.total_matches)} />
               <ReportStat label="Concluídas" value={String(report.summary.completed_matches)} />

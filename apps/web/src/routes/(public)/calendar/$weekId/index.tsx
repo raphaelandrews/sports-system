@@ -8,8 +8,8 @@ import { cn } from "@sports-system/ui/lib/utils";
 
 import { formatDate, formatTime } from "@/lib/date";
 import { delegationListQueryOptions } from "@/queries/delegations";
-import { eventDetailQueryOptions, weekEventsQueryOptions } from "@/queries/events";
-import { weekDetailQueryOptions } from "@/queries/weeks";
+import { competitionEventsQueryOptions, eventDetailQueryOptions } from "@/queries/events";
+import { competitionDetailQueryOptions } from "@/queries/competitions";
 import type { EventDetailResponse, EventResponse, EventStatus } from "@/types/events";
 
 export const Route = createFileRoute("/(public)/calendar/$weekId/")({
@@ -17,8 +17,8 @@ export const Route = createFileRoute("/(public)/calendar/$weekId/")({
     const weekId = Number(params.weekId);
 
     await Promise.all([
-      queryClient.ensureQueryData(weekDetailQueryOptions(weekId)),
-      queryClient.ensureQueryData(weekEventsQueryOptions(weekId)),
+      queryClient.ensureQueryData(competitionDetailQueryOptions(weekId)),
+      queryClient.ensureQueryData(competitionEventsQueryOptions(weekId)),
       queryClient.ensureQueryData(delegationListQueryOptions()),
     ]);
   },
@@ -46,8 +46,8 @@ const phaseLabel: Record<string, string> = {
 function PublicWeekCalendarPage() {
   const { weekId } = Route.useParams();
   const numericWeekId = Number(weekId);
-  const { data: week } = useSuspenseQuery(weekDetailQueryOptions(numericWeekId));
-  const { data: eventsData } = useSuspenseQuery(weekEventsQueryOptions(numericWeekId));
+  const { data: competition } = useSuspenseQuery(competitionDetailQueryOptions(numericWeekId));
+  const { data: eventsData } = useSuspenseQuery(competitionEventsQueryOptions(numericWeekId));
   const { data: delegationsData } = useSuspenseQuery(delegationListQueryOptions());
   const eventDetails = useSuspenseQueries({
     queries: eventsData.data.map((event) => eventDetailQueryOptions(event.id)),
@@ -77,16 +77,19 @@ function PublicWeekCalendarPage() {
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">Calendario oficial</Badge>
-              <Badge variant="secondary">{week.status}</Badge>
+              <Badge variant="secondary">{competition.status}</Badge>
             </div>
-            <CardTitle className="text-3xl">Semana {week.week_number}</CardTitle>
+            <CardTitle className="text-3xl">Competicao {competition.number}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-3">
-            <QuickPill label="Periodo" value={`${formatDate(week.start_date)} - ${formatDate(week.end_date)}`} />
+            <QuickPill
+              label="Periodo"
+              value={`${formatDate(competition.start_date)} - ${formatDate(competition.end_date)}`}
+            />
             <QuickPill label="Eventos" value={String(eventsData.data.length)} />
             <QuickPill
               label="Status"
-              value={week.status === "ACTIVE" ? "Em disputa" : week.status}
+              value={competition.status === "ACTIVE" ? "Em disputa" : competition.status}
             />
           </CardContent>
         </Card>
@@ -97,10 +100,14 @@ function PublicWeekCalendarPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <Link to="/calendar" className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}>
-              Voltar para todas as semanas
+              Voltar para todas as competicoes
             </Link>
-            <Link to="/weeks/$weekId" params={{ weekId }} className={cn(buttonVariants({ variant: "ghost" }), "w-full justify-start")}>
-              Ver resumo da semana
+            <Link
+              to="/competitions/$competitionId"
+              params={{ competitionId: weekId }}
+              className={cn(buttonVariants({ variant: "ghost" }), "w-full justify-start")}
+            >
+              Ver resumo da competicao
             </Link>
           </CardContent>
         </Card>
@@ -170,8 +177,8 @@ function PublicWeekCalendarPage() {
 
                     <div className="flex flex-col gap-2">
                       <Link
-                        to="/weeks/$weekId"
-                        params={{ weekId }}
+                        to="/competitions/$competitionId"
+                        params={{ competitionId: weekId }}
                         className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "justify-start")}
                       >
                         <ArrowRight className="mr-2 size-4" />

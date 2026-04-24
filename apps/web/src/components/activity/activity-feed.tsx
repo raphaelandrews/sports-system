@@ -98,7 +98,7 @@ export function ActivityFeed({
                         <div className="font-medium">{item.title}</div>
                         <div className="text-sm text-muted-foreground">{item.description}</div>
                         <div className="flex flex-wrap gap-2 pt-1 text-xs text-muted-foreground">
-                          {item.week_number != null ? <span>Semana {item.week_number}</span> : null}
+                          {item.competition_number != null ? <span>Competição {item.competition_number}</span> : null}
                           {item.sport_name ? <span>{item.sport_name}</span> : null}
                           {item.modality_name ? <span>{item.modality_name}</span> : null}
                           {item.minute != null ? <span>{item.minute}min</span> : null}

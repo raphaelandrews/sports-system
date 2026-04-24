@@ -247,7 +247,7 @@ function DashboardSearchPage() {
                         {event.sport_name} · {event.modality_name}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        Semana #{event.week_number} · {formatDate(event.event_date)} · {formatTime(event.start_time)}
+                        Competição #{event.competition_number} · {formatDate(event.event_date)} · {formatTime(event.start_time)}
                       </div>
                     </div>
                     <Badge variant="outline">{event.phase}</Badge>
@@ -257,11 +257,11 @@ function DashboardSearchPage() {
                   </div>
                   <div className="mt-3">
                     <Link
-                      to="/calendar/$weekId"
-                      params={{ weekId: String(event.week_id) }}
+                      to="/competitions/$competitionId"
+                      params={{ competitionId: String(event.competition_id) }}
                       className="text-sm font-medium hover:underline"
                     >
-                      Abrir semana #{event.week_number}
+                      Abrir competição #{event.competition_number}
                     </Link>
                   </div>
                 </div>

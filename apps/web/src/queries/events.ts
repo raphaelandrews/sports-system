@@ -4,12 +4,12 @@ import { apiFetch } from "@/lib/api";
 import type { EventDetailResponse, EventResponse } from "@/types/events";
 import { queryKeys } from "@/queries/keys";
 
-export const weekEventsQueryOptions = (weekId: number) =>
+export const competitionEventsQueryOptions = (competitionId: number) =>
   queryOptions({
-    queryKey: queryKeys.events.byWeek(weekId),
+    queryKey: queryKeys.events.byCompetition(competitionId),
     queryFn: () =>
       apiFetch<{ data: EventResponse[] }>("/events", {
-        params: { week_id: weekId, per_page: 100 },
+        params: { competition_id: competitionId, per_page: 100 },
       }),
     staleTime: 2 * 60 * 1000,
   });
@@ -24,7 +24,7 @@ export const eventDetailQueryOptions = (eventId: number) =>
 export const allEventsQueryOptions = (params?: {
   per_page?: number;
   page?: number;
-  week_id?: number;
+  competition_id?: number;
   sport_id?: number;
   event_date?: string;
 }) =>

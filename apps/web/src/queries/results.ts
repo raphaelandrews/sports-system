@@ -26,7 +26,7 @@ export const sportMedalBoardQueryOptions = (sportId: number) =>
 export const resultListQueryOptions = (params?: {
   page?: number;
   per_page?: number;
-  week_id?: number;
+  competition_id?: number;
   sport_id?: number;
   delegation_id?: number;
 }) =>

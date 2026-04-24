@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import require_admin
 from app.database import get_session
-from app.schemas.report import AthleteReportResponse, FinalReportResponse, WeekReportResponse
+from app.schemas.report import AthleteReportResponse, CompetitionReportResponse, FinalReportResponse
 from app.services import report_service
 
 router = APIRouter(prefix="/report", tags=["reports"])
@@ -15,9 +15,9 @@ async def get_final_report(session: AsyncSession = Depends(get_session)) -> Fina
     return await report_service.get_final_report(session)
 
 
-@router.get("/week/{week_id}", response_model=WeekReportResponse)
-async def get_week_report(week_id: int, session: AsyncSession = Depends(get_session)) -> WeekReportResponse:
-    return await report_service.get_week_report(session, week_id)
+@router.get("/competition/{competition_id}", response_model=CompetitionReportResponse)
+async def get_competition_report(competition_id: int, session: AsyncSession = Depends(get_session)) -> CompetitionReportResponse:
+    return await report_service.get_competition_report(session, competition_id)
 
 
 @router.get("/athlete/{athlete_id}", response_model=AthleteReportResponse)

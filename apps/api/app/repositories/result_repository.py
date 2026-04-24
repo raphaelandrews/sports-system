@@ -16,17 +16,17 @@ async def list_all(
     session: AsyncSession,
     offset: int,
     limit: int,
-    week_id: int | None = None,
+    competition_id: int | None = None,
     sport_id: int | None = None,
     delegation_id: int | None = None,
 ) -> tuple[list[Result], int]:
     q = select(Result)
     if delegation_id is not None:
         q = q.where(Result.delegation_id == delegation_id)
-    if week_id is not None or sport_id is not None:
+    if competition_id is not None or sport_id is not None:
         q = q.join(Match, Match.id == Result.match_id).join(Event, Event.id == Match.event_id)
-        if week_id is not None:
-            q = q.where(Event.week_id == week_id)
+        if competition_id is not None:
+            q = q.where(Event.competition_id == competition_id)
         if sport_id is not None:
             q = q.join(Modality, Modality.id == Event.modality_id).where(Modality.sport_id == sport_id)
     total_result = await session.execute(select(func.count()).select_from(q.subquery()))
@@ -133,13 +133,13 @@ async def save_record(session: AsyncSession, record: Record) -> Record:
 
 
 async def get_athlete_statistic(
-    session: AsyncSession, athlete_id: int, sport_id: int, week_id: int
+    session: AsyncSession, athlete_id: int, sport_id: int, competition_id: int
 ) -> Optional[AthleteStatistic]:
     result = await session.execute(
         select(AthleteStatistic).where(
             AthleteStatistic.athlete_id == athlete_id,
             AthleteStatistic.sport_id == sport_id,
-            AthleteStatistic.week_id == week_id,
+            AthleteStatistic.competition_id == competition_id,
         )
     )
     return result.scalar_one_or_none()

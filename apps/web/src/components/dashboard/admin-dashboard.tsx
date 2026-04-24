@@ -6,14 +6,14 @@ import { ActivityFeed } from "@/components/activity/activity-feed"
 import { formatDate } from "@/lib/date"
 import { activityFeedQueryOptions } from "@/queries/activities"
 import { adminRequestsQueryOptions } from "@/queries/admin"
+import { competitionListQueryOptions } from "@/queries/competitions"
 import { finalReportQueryOptions } from "@/queries/reports"
-import { weekListQueryOptions } from "@/queries/weeks"
 
 import {
   ActionLink,
   DashboardShell,
   EmptyState,
-  findCurrentWeek,
+  findCurrentCompetition,
   SectionHeader,
   StatCard,
   statusLabel,
@@ -156,11 +156,11 @@ function GaugeCard({
 
 export function AdminDashboard() {
   const { data: finalReport } = useSuspenseQuery(finalReportQueryOptions())
-  const { data: weeks } = useSuspenseQuery(weekListQueryOptions())
+  const { data: competitions } = useSuspenseQuery(competitionListQueryOptions())
   const { data: requests } = useSuspenseQuery(adminRequestsQueryOptions())
   const { data: activityFeed } = useSuspenseQuery(activityFeedQueryOptions(6))
 
-  const currentWeek = findCurrentWeek(weeks.data)
+  const currentCompetition = findCurrentCompetition(competitions.data)
   const pendingRequests = requests.data.filter((request) => request.status === "PENDING")
   const completionRate =
     finalReport.summary.total_matches > 0
@@ -191,12 +191,12 @@ export function AdminDashboard() {
           icon={Users}
         />
         <StatCard
-          title="Semana"
-          value={currentWeek ? `#${currentWeek.week_number}` : "—"}
+          title="Competição"
+          value={currentCompetition ? `#${currentCompetition.number}` : "—"}
           sub={
-            currentWeek
-              ? `${statusLabel[currentWeek.status]} · ${formatDate(currentWeek.start_date)}`
-              : "Nenhuma semana criada"
+            currentCompetition
+              ? `${statusLabel[currentCompetition.status]} · ${formatDate(currentCompetition.start_date)}`
+              : "Nenhuma competição criada"
           }
           icon={CalendarDays}
         />

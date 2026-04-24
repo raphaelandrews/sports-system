@@ -23,7 +23,7 @@ import {
   delegationInvitesQueryOptions,
   delegationListQueryOptions,
 } from "@/queries/delegations";
-import { weekListQueryOptions } from "@/queries/weeks";
+import { competitionListQueryOptions } from "@/queries/competitions";
 
 export const Route = createFileRoute(
   "/_authenticated/dashboard/_chief/my-delegation/",
@@ -33,7 +33,7 @@ export const Route = createFileRoute(
     const delegations = await queryClient.ensureQueryData(delegationListQueryOptions());
     const managed = findManagedDelegation(delegations.data, session);
 
-    void queryClient.prefetchQuery(weekListQueryOptions())
+    void queryClient.prefetchQuery(competitionListQueryOptions())
 
     if (!managed) {
       return { delegationId: null };
@@ -51,7 +51,7 @@ function MyDelegationOverviewPage() {
   const { session } = Route.useRouteContext();
   const { delegationId } = Route.useLoaderData();
   const { data: delegations } = useSuspenseQuery(delegationListQueryOptions());
-  const { data: weeks } = useSuspenseQuery(weekListQueryOptions());
+  const { data: competitions } = useSuspenseQuery(competitionListQueryOptions());
   const delegation = findManagedDelegation(delegations.data, session);
 
   if (!delegation || !delegationId) {
@@ -69,10 +69,10 @@ function MyDelegationOverviewPage() {
   const { data: detail } = useSuspenseQuery(delegationDetailQueryOptions(delegationId));
   const { data: invites } = useSuspenseQuery(delegationInvitesQueryOptions(delegationId));
 
-  const activeWeek =
-    weeks.data.find((week) => week.status === "ACTIVE") ??
-    weeks.data.find((week) => week.status === "LOCKED") ??
-    weeks.data.find((week) => week.status === "SCHEDULED") ??
+  const activeCompetition =
+    competitions.data.find((competition) => competition.status === "ACTIVE") ??
+    competitions.data.find((competition) => competition.status === "LOCKED") ??
+    competitions.data.find((competition) => competition.status === "SCHEDULED") ??
     null;
 
   const activeMembers = detail.members.filter((member) => !member.left_at);
@@ -81,7 +81,7 @@ function MyDelegationOverviewPage() {
   return (
     <ChiefDelegationShell
       title="Minha delegacao"
-      description="Resumo operacional do chefe para acompanhar composicao atual, convites em aberto e estado da semana."
+      description="Resumo operacional do chefe para acompanhar composicao atual, convites em aberto e estado da competicao."
       delegation={delegation}
     >
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -105,9 +105,9 @@ function MyDelegationOverviewPage() {
         />
         <OverviewStat
           icon={CalendarDays}
-          label="Semana atual"
-          value={activeWeek ? `#${activeWeek.week_number}` : "—"}
-          hint={activeWeek ? activeWeek.status : "Sem semana ativa"}
+          label="Competição atual"
+          value={activeCompetition ? `#${activeCompetition.number}` : "—"}
+          hint={activeCompetition ? activeCompetition.status : "Sem competição ativa"}
         />
       </section>
 
@@ -176,10 +176,10 @@ function MyDelegationOverviewPage() {
             <div className="rounded-xl border border-dashed border-border/80 p-3 text-sm text-muted-foreground">
               Criada em {formatEventDate(delegation.created_at, { dateStyle: "long" })}.
             </div>
-            {activeWeek ? (
+            {activeCompetition ? (
               <div className="rounded-xl border border-border/70 bg-muted/25 p-3 text-sm text-muted-foreground">
-                Semana #{activeWeek.week_number}: {formatDate(activeWeek.start_date)} ate{" "}
-                {formatDate(activeWeek.end_date)}.
+                Competição #{activeCompetition.number}: {formatDate(activeCompetition.start_date)} ate{" "}
+                {formatDate(activeCompetition.end_date)}.
               </div>
             ) : null}
           </CardContent>

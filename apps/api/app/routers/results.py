@@ -25,14 +25,14 @@ router = APIRouter(prefix="/results", tags=["results"])
 
 @router.get("", response_model=PaginatedResponse[ResultResponse])
 async def list_results(
-    week_id: Optional[int] = Query(None),
+    competition_id: Optional[int] = Query(None),
     sport_id: Optional[int] = Query(None),
     delegation_id: Optional[int] = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
     session: AsyncSession = Depends(get_session),
 ) -> PaginatedResponse[ResultResponse]:
-    return await result_service.list_results(session, week_id, sport_id, delegation_id, page, per_page)
+    return await result_service.list_results(session, competition_id, sport_id, delegation_id, page, per_page)
 
 
 @router.get("/medal-board", response_model=list[MedalBoardEntry])

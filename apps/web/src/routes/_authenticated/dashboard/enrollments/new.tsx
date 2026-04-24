@@ -31,14 +31,14 @@ import { apiFetch, ApiError } from "@/lib/api";
 import { formatDate, formatTime } from "@/lib/date";
 import { resolveRosterSize } from "@/lib/sports";
 import { athleteListQueryOptions } from "@/queries/athletes";
+import { competitionListQueryOptions } from "@/queries/competitions";
 import { delegationListQueryOptions } from "@/queries/delegations";
 import { enrollmentListQueryOptions } from "@/queries/enrollments";
 import { allEventsQueryOptions } from "@/queries/events";
 import { queryKeys } from "@/queries/keys";
 import { sportDetailQueryOptions, sportListQueryOptions } from "@/queries/sports";
-import { weekListQueryOptions } from "@/queries/weeks";
+import type { CompetitionResponse } from "@/types/competitions";
 import type { EnrollmentCreate } from "@/types/enrollments";
-import type { WeekResponse } from "@/types/weeks";
 
 export const Route = createFileRoute("/_authenticated/dashboard/enrollments/new")({
   ssr: false,
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/enrollments/new"
     }
   },
   loader: ({ context: { queryClient } }) => {
-    void queryClient.prefetchQuery(weekListQueryOptions())
+    void queryClient.prefetchQuery(competitionListQueryOptions())
     void queryClient.prefetchQuery(allEventsQueryOptions({ per_page: 200 }))
     void queryClient.prefetchQuery(athleteListQueryOptions({ per_page: 500 }))
     void queryClient.prefetchQuery(delegationListQueryOptions())
@@ -64,7 +64,7 @@ function NewEnrollmentPage() {
   const navigate = useNavigate();
   const isAdmin = session.role === "ADMIN";
 
-  const { data: weeksData } = useSuspenseQuery(weekListQueryOptions());
+  const { data: competitionsData } = useSuspenseQuery(competitionListQueryOptions());
   const { data: eventsData } = useSuspenseQuery(allEventsQueryOptions({ per_page: 200 }));
   const { data: athletesData } = useSuspenseQuery(athleteListQueryOptions({ per_page: 500 }));
   const { data: delegationsData } = useSuspenseQuery(delegationListQueryOptions());
@@ -75,8 +75,11 @@ function NewEnrollmentPage() {
   });
 
   const managedDelegation = findManagedDelegation(delegationsData.data, session);
-  const defaultWeek = weeksData.data.find((week) => !isEnrollmentLocked(week)) ?? weeksData.data[0] ?? null;
-  const [weekId, setWeekId] = useState<string>(defaultWeek ? String(defaultWeek.id) : "");
+  const defaultCompetition =
+    competitionsData.data.find((competition) => !isEnrollmentLocked(competition)) ??
+    competitionsData.data[0] ??
+    null;
+  const [weekId, setWeekId] = useState<string>(defaultCompetition ? String(defaultCompetition.id) : "");
   const [sportId, setSportId] = useState<string>("ALL");
   const [eventId, setEventId] = useState<string>("");
   const [athleteId, setAthleteId] = useState<string>("");
@@ -85,9 +88,9 @@ function NewEnrollmentPage() {
   );
   const [localMessage, setLocalMessage] = useState<string | null>(null);
 
-  const weekById = useMemo(
-    () => new Map(weeksData.data.map((week) => [week.id, week])),
-    [weeksData.data],
+  const competitionById = useMemo(
+    () => new Map(competitionsData.data.map((competition) => [competition.id, competition])),
+    [competitionsData.data],
   );
   const athleteById = useMemo(
     () => new Map(athletesData.data.map((athlete) => [athlete.id, athlete])),
@@ -114,7 +117,7 @@ function NewEnrollmentPage() {
 
   const selectableEvents = useMemo(() => {
     return eventsData.data
-      .filter((event) => (weekId ? event.week_id === Number(weekId) : true))
+      .filter((event) => (weekId ? event.competition_id === Number(weekId) : true))
       .filter((event) => {
         if (sportId === "ALL") {
           return true;
@@ -128,22 +131,22 @@ function NewEnrollmentPage() {
   }, [eventsData.data, sportByModalityId, sportId, weekId]);
 
   const selectedEvent = selectableEvents.find((event) => event.id === Number(eventId)) ?? null;
-  const selectedWeek = selectedEvent
-    ? weekById.get(selectedEvent.week_id) ?? null
-    : weekById.get(Number(weekId)) ?? null;
+  const selectedCompetition = selectedEvent
+    ? competitionById.get(selectedEvent.competition_id) ?? null
+    : competitionById.get(Number(weekId)) ?? null;
   const selectedModality = selectedEvent ? modalityById.get(selectedEvent.modality_id) ?? null : null;
   const selectedSport = selectedEvent ? sportByModalityId.get(selectedEvent.modality_id) ?? null : null;
   const selectedAthlete = athleteById.get(Number(athleteId)) ?? null;
 
   const localValidation = useMemo(() => {
-    if (!selectedWeek || !selectedEvent || !selectedModality || !delegationId) {
+    if (!selectedCompetition || !selectedEvent || !selectedModality || !delegationId) {
       return null;
     }
 
-    if (isEnrollmentLocked(selectedWeek)) {
+    if (isEnrollmentLocked(selectedCompetition)) {
       return {
         type: "error" as const,
-        message: "Semana travada. Inscrições bloqueadas para esta agenda.",
+        message: "Competição travada. Inscrições bloqueadas para esta agenda.",
       };
     }
 
@@ -234,7 +237,7 @@ function NewEnrollmentPage() {
     selectedAthlete,
     selectedEvent,
     selectedModality,
-    selectedWeek,
+    selectedCompetition,
   ]);
 
   const mutation = useMutation({
@@ -257,7 +260,7 @@ function NewEnrollmentPage() {
     !selectedEvent ||
     !selectedAthlete ||
     !delegationId ||
-    isEnrollmentLocked(selectedWeek) ||
+    isEnrollmentLocked(selectedCompetition) ||
     localValidation?.type === "error";
 
   return (
@@ -266,7 +269,7 @@ function NewEnrollmentPage() {
         <CardHeader>
           <CardTitle>Nova inscrição</CardTitle>
           <CardDescription>
-            Selecione semana, esporte, evento e atleta. Regras locais são validadas antes do envio.
+            Selecione competição, esporte, evento e atleta. Regras locais são validadas antes do envio.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -290,15 +293,15 @@ function NewEnrollmentPage() {
             <FieldGroup>
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
                 <Field>
-                  <FieldLabel>Semana</FieldLabel>
+                  <FieldLabel>Competição</FieldLabel>
                   <Select value={weekId} onValueChange={(value) => setWeekId(value ?? "")}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione a semana" />
+                      <SelectValue placeholder="Selecione a competição" />
                     </SelectTrigger>
                     <SelectContent>
-                      {weeksData.data.map((week) => (
-                        <SelectItem key={week.id} value={String(week.id)}>
-                          Semana {week.week_number} · {week.status}
+                      {competitionsData.data.map((competition) => (
+                        <SelectItem key={competition.id} value={String(competition.id)}>
+                          Competição {competition.number} · {competition.status}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -338,8 +341,8 @@ function NewEnrollmentPage() {
                       {selectableEvents.map((event) => {
                         const modality = modalityById.get(event.modality_id);
                         const sport = sportByModalityId.get(event.modality_id);
-                        const week = weekById.get(event.week_id);
-                        const locked = week ? isEnrollmentLocked(week) : false;
+                        const competition = competitionById.get(event.competition_id);
+                        const locked = competition ? isEnrollmentLocked(competition) : false;
 
                         return (
                           <SelectItem key={event.id} value={String(event.id)}>
@@ -350,7 +353,7 @@ function NewEnrollmentPage() {
                     </SelectContent>
                   </Select>
                   <FieldDescription>
-                    Eventos em semanas travadas ficam visualmente bloqueados no envio.
+                    Eventos em competições travadas ficam visualmente bloqueados no envio.
                   </FieldDescription>
                 </Field>
 
@@ -398,7 +401,7 @@ function NewEnrollmentPage() {
                   <CardTitle className="text-base">Resumo da seleção</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm text-muted-foreground">
-                  <SummaryRow label="Semana" value={selectedWeek ? `#${selectedWeek.week_number} · ${selectedWeek.status}` : "—"} />
+                  <SummaryRow label="Competição" value={selectedCompetition ? `#${selectedCompetition.number} · ${selectedCompetition.status}` : "—"} />
                   <SummaryRow label="Esporte" value={selectedSport?.name ?? "—"} />
                   <SummaryRow label="Modalidade" value={selectedModality?.name ?? "—"} />
                   <SummaryRow
@@ -418,12 +421,12 @@ function NewEnrollmentPage() {
                   <CardTitle className="text-base">Validação em tempo real</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {selectedWeek && isEnrollmentLocked(selectedWeek) ? (
+                  {selectedCompetition && isEnrollmentLocked(selectedCompetition) ? (
                     <Alert variant="destructive">
                       <ShieldAlert className="size-4" />
-                      <AlertTitle>Semana travada</AlertTitle>
+                      <AlertTitle>Competição travada</AlertTitle>
                       <AlertDescription>
-                        Inscrições bloqueadas quando a semana está LOCKED, ACTIVE ou COMPLETED.
+                        Inscrições bloqueadas quando a competição está LOCKED, ACTIVE ou COMPLETED.
                       </AlertDescription>
                     </Alert>
                   ) : null}
@@ -484,6 +487,10 @@ function SummaryRow({
   );
 }
 
-function isEnrollmentLocked(week: WeekResponse | null) {
-  return week?.status === "LOCKED" || week?.status === "ACTIVE" || week?.status === "COMPLETED";
+function isEnrollmentLocked(competition: CompetitionResponse | null) {
+  return (
+    competition?.status === "LOCKED" ||
+    competition?.status === "ACTIVE" ||
+    competition?.status === "COMPLETED"
+  );
 }

@@ -14,14 +14,15 @@ export const queryKeys = {
     all: () => ["sports"] as const,
     detail: (id: number) => ["sports", id] as const,
   },
-  weeks: {
-    all: () => ["weeks"] as const,
-    detail: (id: number) => ["weeks", id] as const,
-    report: (id: number) => ["weeks", id, "report"] as const,
+  competitions: {
+    all: () => ["competitions"] as const,
+    detail: (id: number) => ["competitions", id] as const,
+    report: (id: number) => ["competitions", id, "report"] as const,
   },
   events: {
     all: () => ["events"] as const,
-    byWeek: (weekId: number) => ["events", "week", weekId] as const,
+    byCompetition: (competitionId: number) => ["events", "competition", competitionId] as const,
+    byWeek: (competitionId: number) => ["events", "competition", competitionId] as const,
     detail: (id: number) => ["events", id] as const,
   },
   matches: {
@@ -49,7 +50,7 @@ export const queryKeys = {
     medalBoardSport: (sportId: number) => ["results", "medal-board", "sport", sportId] as const,
     records: (modalityId?: number) => ["results", "records", modalityId ?? "all"] as const,
     standings: (modalityId: number) => ["results", "standings", modalityId] as const,
-    byWeek: (weekId: number) => ["results", "week", weekId] as const,
+    byCompetition: (competitionId: number) => ["results", "competition", competitionId] as const,
   },
   notifications: {
     list: (userId: number) => ["notifications", userId] as const,

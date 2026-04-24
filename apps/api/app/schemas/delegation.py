@@ -94,8 +94,8 @@ class DelegationMedalItem(BaseModel):
 
 
 class DelegationWeekPerformanceItem(BaseModel):
-    week_id: int
-    week_number: int
+    competition_id: int
+    number: int
     status: str
     start_date: date
     end_date: date

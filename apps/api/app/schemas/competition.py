@@ -3,35 +3,35 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, model_validator
 
-from app.models.week import WeekStatus
+from app.models.competition import CompetitionStatus
 
 
-class WeekCreate(BaseModel):
-    week_number: int
+class CompetitionCreate(BaseModel):
+    number: int
     start_date: date
     end_date: date
     sport_focus: list[int] = []
 
     @model_validator(mode="after")
-    def check_dates(self) -> "WeekCreate":
+    def check_dates(self) -> "CompetitionCreate":
         if self.end_date < self.start_date:
             raise ValueError("end_date must be >= start_date")
         return self
 
 
-class WeekUpdate(BaseModel):
-    week_number: Optional[int] = None
+class CompetitionUpdate(BaseModel):
+    number: Optional[int] = None
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     sport_focus: Optional[list[int]] = None
 
 
-class WeekResponse(BaseModel):
+class CompetitionResponse(BaseModel):
     id: int
-    week_number: int
+    number: int
     start_date: date
     end_date: date
-    status: WeekStatus
+    status: CompetitionStatus
     sport_focus: list[Any]
 
     model_config = {"from_attributes": True}
@@ -45,5 +45,5 @@ class SchedulePreviewMatch(BaseModel):
 
 
 class GenerateSchedulePreview(BaseModel):
-    week_id: int
+    competition_id: int
     matches: list[SchedulePreviewMatch]

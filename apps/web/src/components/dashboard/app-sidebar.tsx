@@ -31,7 +31,7 @@ import type { Session } from "@/types/auth"
 
 const publicNav: NavItem[] = [
   { title: "Início", url: "/", icon: Home },
-  { title: "Semanas", url: "/weeks", icon: CalendarDays },
+  { title: "Competições", url: "/competitions", icon: CalendarDays },
   { title: "Resultados", url: "/results", icon: Medal },
   { title: "Feed ao vivo", url: "/feed", icon: Rss },
   { title: "Calendário", url: "/calendar", icon: CalendarDays },
@@ -55,7 +55,7 @@ const adminNav: NavItem[] = [
     icon: Settings,
     isActive: false,
     items: [
-      { title: "Semanas", url: "/dashboard/weeks" },
+      { title: "Competições", url: "/dashboard/competitions" },
       { title: "Calendário", url: "/dashboard/calendar" },
       { title: "Delegações", url: "/dashboard/delegations" },
       { title: "Esportes", url: "/dashboard/sports" },

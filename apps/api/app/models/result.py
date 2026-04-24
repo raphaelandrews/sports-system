@@ -30,7 +30,7 @@ class AthleteStatistic(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     athlete_id: int = Field(foreign_key="athletes.id")
     sport_id: int = Field(foreign_key="sports.id")
-    week_id: int = Field(foreign_key="competition_weeks.id")
+    competition_id: int = Field(foreign_key="competitions.id")
     stats_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
 
 
@@ -42,5 +42,5 @@ class Record(SQLModel, table=True):
     athlete_id: int = Field(foreign_key="athletes.id")
     delegation_id_at_time: int = Field(foreign_key="delegations.id")
     value: str
-    week_id: int = Field(foreign_key="competition_weeks.id")
+    competition_id: int = Field(foreign_key="competitions.id")
     set_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))

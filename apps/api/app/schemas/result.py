@@ -61,5 +61,5 @@ class RecordResponse(BaseModel):
     athlete_name: str
     delegation_name: str
     value: str
-    week_id: int
+    competition_id: int
     set_at: datetime

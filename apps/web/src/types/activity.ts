@@ -12,8 +12,8 @@ export type ActivityFeedItem = {
   description: string;
   match_id: number | null;
   event_id: number | null;
-  week_id: number | null;
-  week_number: number | null;
+  competition_id: number | null;
+  competition_number: number | null;
   sport_id: number | null;
   sport_name: string | null;
   modality_id: number | null;

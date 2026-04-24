@@ -187,7 +187,7 @@ async def _check_and_update_record(
         athlete_id=enrollment.athlete_id,
         delegation_id_at_time=winner_delegation_id,
         value=str(winner_score),
-        week_id=event.week_id,
+        competition_id=event.competition_id,
     ))
     logger.info(
         "new_record modality_id=%s value=%s athlete_id=%s",
@@ -275,13 +275,13 @@ async def simulate_match(session: AsyncSession, match_id: int) -> None:
     )
     for enrollment in enrolled.scalars().all():
         stat = await result_repository.get_athlete_statistic(
-            session, enrollment.athlete_id, modality.sport_id, event.week_id
+            session, enrollment.athlete_id, modality.sport_id, event.competition_id
         )
         if stat is None:
             stat = AthleteStatistic(
                 athlete_id=enrollment.athlete_id,
                 sport_id=modality.sport_id,
-                week_id=event.week_id,
+                competition_id=event.competition_id,
                 stats_json={},
             )
         s = dict(stat.stats_json)

@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.event import Event, Match, MatchEvent, MatchParticipant
 from app.models.sport import Modality, Sport
-from app.models.week import CompetitionWeek
+from app.models.competition import Competition
 
 
 async def get_event_by_id(session: AsyncSession, event_id: int) -> Optional[Event]:
@@ -15,15 +15,15 @@ async def get_event_by_id(session: AsyncSession, event_id: int) -> Optional[Even
 
 async def list_events(
     session: AsyncSession,
-    week_id: Optional[int],
+    competition_id: Optional[int],
     sport_id: Optional[int],
     event_date: Optional[date_type],
     offset: int,
     limit: int,
 ) -> tuple[list[Event], int]:
     q = select(Event)
-    if week_id is not None:
-        q = q.where(Event.week_id == week_id)
+    if competition_id is not None:
+        q = q.where(Event.competition_id == competition_id)
     if sport_id is not None:
         q = q.join(Modality, Modality.id == Event.modality_id).where(Modality.sport_id == sport_id)
     if event_date is not None:
@@ -102,8 +102,8 @@ async def search(
     result = await session.execute(
         select(
             Event.id,
-            Event.week_id,
-            CompetitionWeek.week_number,
+            Event.competition_id,
+            Competition.number,
             Sport.name.label("sport_name"),
             Modality.name.label("modality_name"),
             Event.venue,
@@ -112,7 +112,7 @@ async def search(
             Event.phase,
             Event.status,
         )
-        .join(CompetitionWeek, CompetitionWeek.id == Event.week_id)
+        .join(Competition, Competition.id == Event.competition_id)
         .join(Modality, Modality.id == Event.modality_id)
         .join(Sport, Sport.id == Modality.sport_id)
         .where(
@@ -128,8 +128,8 @@ async def search(
     return [
         {
             "id": row.id,
-            "week_id": row.week_id,
-            "week_number": row.week_number,
+            "competition_id": row.competition_id,
+            "number": row.number,
             "sport_name": row.sport_name,
             "modality_name": row.modality_name,
             "venue": row.venue,

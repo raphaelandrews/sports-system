@@ -21,35 +21,35 @@ import { Input } from "@sports-system/ui/components/input";
 
 import type { SportResponse } from "@/types/sports";
 
-interface WeekFormProps {
+interface CompetitionFormProps {
   sports: SportResponse[];
   isSubmitting?: boolean;
   errorMessage?: string | null;
   onSubmit: (value: {
-    week_number: number;
+    number: number;
     start_date: string;
     end_date: string;
     sport_focus: number[];
   }) => Promise<void>;
 }
 
-export function WeekForm({
+export function CompetitionForm({
   sports,
   isSubmitting = false,
   errorMessage,
   onSubmit,
-}: WeekFormProps) {
+}: CompetitionFormProps) {
   const [selectedSports, setSelectedSports] = useState<number[]>([]);
 
   const form = useForm({
     defaultValues: {
-      week_number: "",
+      number: "",
       start_date: "",
       end_date: "",
     },
     onSubmit: async ({ value }) => {
       await onSubmit({
-        week_number: Number(value.week_number),
+        number: Number(value.number),
         start_date: value.start_date,
         end_date: value.end_date,
         sport_focus: selectedSports,
@@ -61,7 +61,7 @@ export function WeekForm({
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <Card className="border border-border/70 bg-gradient-to-br from-card via-card to-muted/20">
         <CardHeader>
-          <CardTitle>Nova semana</CardTitle>
+          <CardTitle>Nova competicao</CardTitle>
           <CardDescription>
             Defina numero, periodo e esportes foco para preparar a competicao.
           </CardDescription>
@@ -76,17 +76,17 @@ export function WeekForm({
           >
             <FieldGroup>
               <form.Field
-                name="week_number"
+                name="number"
                 validators={{
                   onChange: ({ value }) =>
-                    Number(value) <= 0 ? "Informe um numero de semana valido." : undefined,
+                    Number(value) <= 0 ? "Informe um numero de competicao valido." : undefined,
                 }}
               >
                 {(field) => (
                   <Field>
-                    <FieldLabel htmlFor="week-number">Numero da semana</FieldLabel>
+                    <FieldLabel htmlFor="competition-number">Numero da competicao</FieldLabel>
                     <Input
-                      id="week-number"
+                      id="competition-number"
                       type="number"
                       min="1"
                       value={field.state.value}
@@ -102,9 +102,9 @@ export function WeekForm({
                 <form.Field name="start_date">
                   {(field) => (
                     <Field>
-                      <FieldLabel htmlFor="week-start-date">Inicio</FieldLabel>
+                      <FieldLabel htmlFor="competition-start-date">Inicio</FieldLabel>
                       <Input
-                        id="week-start-date"
+                        id="competition-start-date"
                         type="date"
                         value={field.state.value}
                         onBlur={field.handleBlur}
@@ -117,9 +117,9 @@ export function WeekForm({
                 <form.Field name="end_date">
                   {(field) => (
                     <Field>
-                      <FieldLabel htmlFor="week-end-date">Fim</FieldLabel>
+                      <FieldLabel htmlFor="competition-end-date">Fim</FieldLabel>
                       <Input
-                        id="week-end-date"
+                        id="competition-end-date"
                         type="date"
                         value={field.state.value}
                         onBlur={field.handleBlur}
@@ -133,7 +133,7 @@ export function WeekForm({
               <Field>
                 <FieldLabel>Esportes foco</FieldLabel>
                 <FieldDescription>
-                  Opcional. Marque os esportes com prioridade para esta semana.
+                  Opcional. Marque os esportes com prioridade para esta competicao.
                 </FieldDescription>
                 <div className="grid gap-2 md:grid-cols-2">
                   {sports.map((sport) => {
@@ -165,17 +165,17 @@ export function WeekForm({
 
             {errorMessage ? (
               <Alert variant="destructive">
-                <AlertTitle>Nao foi possivel criar a semana</AlertTitle>
+                <AlertTitle>Nao foi possivel criar a competicao</AlertTitle>
                 <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
             ) : null}
 
             <div className="flex flex-wrap items-center gap-3">
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Criando..." : "Criar semana"}
+                {isSubmitting ? "Criando..." : "Criar competicao"}
               </Button>
               <Link
-                to="/dashboard/weeks"
+                to="/dashboard/competitions"
                 className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
                 Cancelar e voltar
@@ -187,3 +187,5 @@ export function WeekForm({
     </div>
   );
 }
+
+export const WeekForm = CompetitionForm;

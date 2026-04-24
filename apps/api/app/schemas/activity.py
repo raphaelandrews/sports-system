@@ -20,8 +20,8 @@ class ActivityFeedItem(BaseModel):
     description: str
     match_id: Optional[int] = None
     event_id: Optional[int] = None
-    week_id: Optional[int] = None
-    week_number: Optional[int] = None
+    competition_id: Optional[int] = None
+    competition_number: Optional[int] = None
     sport_id: Optional[int] = None
     sport_name: Optional[str] = None
     modality_id: Optional[int] = None

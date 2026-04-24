@@ -26,8 +26,8 @@ class GlobalSearchDelegationItem(BaseModel):
 
 class GlobalSearchEventItem(BaseModel):
     id: int
-    week_id: int
-    week_number: int
+    competition_id: int
+    number: int
     sport_name: str
     modality_name: str
     venue: Optional[str]

@@ -14,7 +14,7 @@ from app.models.event import Event, EventPhase, EventStatus, Match, MatchStatus
 from app.models.result import Medal, Result
 from app.models.sport import Modality, Sport
 from app.models.user import User, UserRole
-from app.models.week import CompetitionWeek, WeekStatus
+from app.models.competition import Competition, CompetitionStatus
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -118,15 +118,15 @@ async def demo_seed(
                 session.add(AthleteModality(athlete_id=athlete.id, modality_id=mod_a.id))
                 session.add(AthleteModality(athlete_id=athlete.id, modality_id=mod_b.id))
 
-    # --- Competition week ---
-    week = CompetitionWeek(
-        week_number=1,
+    # --- Competition ---
+    competition = Competition(
+        number=1,
         start_date=week_start,
         end_date=week_start + timedelta(days=6),
-        status=WeekStatus.COMPLETED,
+        status=CompetitionStatus.COMPLETED,
         sport_focus=[s.id for s in sports[:5]],
     )
-    session.add(week)
+    session.add(competition)
     await session.flush()
 
     # --- Events & matches for up to 5 sports ---
@@ -134,7 +134,7 @@ async def demo_seed(
     for sport_idx, (sport, mod) in enumerate(zip(sports[:5], modalities[:5])):
         event_dt = datetime.combine(week_start + timedelta(days=sport_idx + 1), time(10, 0))
         event = Event(
-            week_id=week.id,
+            competition_id=competition.id,
             modality_id=mod.id,
             event_date=event_dt.date(),
             start_time=event_dt.time(),
@@ -176,7 +176,7 @@ async def demo_seed(
         "delegations": len(delegations),
         "athletes": len(all_athletes),
         "sports_referenced": len(sports),
-        "week": week.week_number,
+        "competition": competition.number,
         "medals": medals_awarded,
     }
 

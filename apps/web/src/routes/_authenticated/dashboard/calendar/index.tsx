@@ -25,14 +25,14 @@ import { apiFetch, ApiError } from "@/lib/api";
 import { formatDate, formatTime } from "@/lib/date";
 import { allEventsQueryOptions } from "@/queries/events";
 import { queryKeys } from "@/queries/keys";
-import { weekListQueryOptions } from "@/queries/weeks";
+import { competitionListQueryOptions } from "@/queries/competitions";
 import type { EventStatus } from "@/types/events";
-import type { WeekResponse } from "@/types/weeks";
+import type { CompetitionResponse } from "@/types/competitions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/calendar/")({
   ssr: false,
   loader: ({ context: { queryClient } }) => {
-    void queryClient.prefetchQuery(weekListQueryOptions())
+    void queryClient.prefetchQuery(competitionListQueryOptions())
   },
   component: CalendarPage,
 });
@@ -56,35 +56,41 @@ function CalendarPage() {
   const { session } = Route.useRouteContext();
   const isAdmin = session.role === "ADMIN";
   const queryClient = useQueryClient();
-  const { data: weeksData } = useSuspenseQuery(weekListQueryOptions());
-  const weeks = orderWeeks(weeksData.data);
-  const defaultWeekId = weeks[0]?.id;
-  const [selectedWeekId, setSelectedWeekId] = useWeekSelection(defaultWeekId);
+  const { data: competitionsData } = useSuspenseQuery(competitionListQueryOptions());
+  const competitions = orderCompetitions(competitionsData.data);
+  const defaultCompetitionId = competitions[0]?.id;
+  const [selectedCompetitionId, setSelectedCompetitionId] = useWeekSelection(defaultCompetitionId);
 
   const eventsQuery = useQuery({
     ...allEventsQueryOptions(
-      selectedWeekId ? { per_page: 100, week_id: selectedWeekId } : { per_page: 100 },
+      selectedCompetitionId
+        ? { per_page: 100, competition_id: selectedCompetitionId }
+        : { per_page: 100 },
     ),
-    enabled: selectedWeekId != null,
+    enabled: selectedCompetitionId != null,
   });
 
   const generateMutation = useMutation({
     mutationFn: async () => {
-      if (!selectedWeekId) {
-        throw new Error("Selecione uma semana antes de gerar.");
+      if (!selectedCompetitionId) {
+        throw new Error("Selecione uma competicao antes de gerar.");
       }
-      return apiFetch(`/events/ai-generate?week_id=${selectedWeekId}`, {
+      return apiFetch(`/events/ai-generate?competition_id=${selectedCompetitionId}`, {
         method: "POST",
       });
     },
     onSuccess: async () => {
-      if (!selectedWeekId) {
+      if (!selectedCompetitionId) {
         return;
       }
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.events.all() }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.events.byWeek(selectedWeekId) }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.weeks.detail(selectedWeekId) }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.events.byCompetition(selectedCompetitionId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.competitions.detail(selectedCompetitionId),
+        }),
       ]);
       toast.success("Calendario gerado com IA.");
     },
@@ -95,7 +101,8 @@ function CalendarPage() {
 
   const events = eventsQuery.data?.data ?? [];
   const groupedEvents = groupEventsByDay(events);
-  const activeWeek = weeks.find((week) => week.id === selectedWeekId);
+  const activeCompetition =
+    competitions.find((competition) => competition.id === selectedCompetitionId) ?? null;
 
   return (
     <div className="space-y-6">
@@ -104,24 +111,26 @@ function CalendarPage() {
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">Calendário</Badge>
-              {activeWeek ? <Badge variant="secondary">Semana {activeWeek.week_number}</Badge> : null}
+              {activeCompetition ? (
+                <Badge variant="secondary">Competição {activeCompetition.number}</Badge>
+              ) : null}
             </div>
             <CardTitle className="text-2xl">Calendário de eventos</CardTitle>
             <CardDescription className="max-w-2xl">
-              Acompanhe os eventos agendados por semana e fase da competição.
+              Acompanhe os eventos agendados por competição e fase.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
             <StatCard
-              label="Semana ativa"
-              value={activeWeek ? `#${activeWeek.week_number}` : "Sem semana"}
+              label="Competição ativa"
+              value={activeCompetition ? `#${activeCompetition.number}` : "Sem competicao"}
             />
             <StatCard label="Eventos visiveis" value={String(events.length)} />
             <StatCard
               label="Periodo"
               value={
-                activeWeek
-                  ? `${formatDate(activeWeek.start_date)} - ${formatDate(activeWeek.end_date)}`
+                activeCompetition
+                  ? `${formatDate(activeCompetition.start_date)} - ${formatDate(activeCompetition.end_date)}`
                   : "—"
               }
             />
@@ -132,21 +141,21 @@ function CalendarPage() {
           <CardHeader>
             <CardTitle>Controles</CardTitle>
             <CardDescription>
-              {isAdmin ? "Semana, criacao manual e IA." : "Selecione a semana para visualizar."}
+              {isAdmin ? "Competição, criacao manual e IA." : "Selecione a competicao para visualizar."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Select
-              value={selectedWeekId ? String(selectedWeekId) : undefined}
-              onValueChange={(value) => setSelectedWeekId(Number(value))}
+              value={selectedCompetitionId ? String(selectedCompetitionId) : undefined}
+              onValueChange={(value) => setSelectedCompetitionId(Number(value))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione a semana" />
+                <SelectValue placeholder="Selecione a competicao" />
               </SelectTrigger>
               <SelectContent>
-                {weeks.map((week) => (
-                  <SelectItem key={week.id} value={String(week.id)}>
-                    Semana {week.week_number} · {week.status}
+                {competitions.map((competition) => (
+                  <SelectItem key={competition.id} value={String(competition.id)}>
+                    Competição {competition.number} · {competition.status}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -166,7 +175,7 @@ function CalendarPage() {
                   type="button"
                   variant="secondary"
                   className="w-full justify-start"
-                  disabled={generateMutation.isPending || !selectedWeekId}
+                  disabled={generateMutation.isPending || !selectedCompetitionId}
                   onClick={() => generateMutation.mutate()}
                 >
                   <Sparkles className="mr-2 size-4" />
@@ -175,10 +184,10 @@ function CalendarPage() {
               </>
             ) : null}
 
-            {activeWeek ? (
+            {activeCompetition ? (
               <Link
                 to="/calendar/$weekId"
-                params={{ weekId: String(activeWeek.id) }}
+                params={{ weekId: String(activeCompetition.id) }}
                 className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}
               >
                 <Waves className="mr-2 size-4" />
@@ -213,7 +222,7 @@ function CalendarPage() {
 
           {!eventsQuery.isLoading && !eventsQuery.error && events.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-border/70 p-10 text-center text-sm text-muted-foreground">
-              Nenhum evento nesta semana.
+              Nenhum evento nesta competicao.
             </div>
           ) : null}
 
@@ -292,8 +301,8 @@ function groupEventsByDay<T extends { event_date: string; start_time: string }>(
     }, {});
 }
 
-function orderWeeks(weeks: WeekResponse[]) {
-  return [...weeks].sort((a, b) => b.week_number - a.week_number);
+function orderCompetitions(competitions: CompetitionResponse[]) {
+  return [...competitions].sort((a, b) => b.number - a.number);
 }
 
 function useWeekSelection(defaultWeekId?: number) {

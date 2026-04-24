@@ -26,9 +26,9 @@ import { apiFetch, apiFetchBlob, ApiError } from "@/lib/api";
 import { formatDate, formatTime } from "@/lib/date";
 import { allEventsQueryOptions, eventDetailQueryOptions } from "@/queries/events";
 import { queryKeys } from "@/queries/keys";
+import { competitionListQueryOptions } from "@/queries/competitions";
 import { medalBoardQueryOptions } from "@/queries/results";
 import { sportDetailQueryOptions, sportListQueryOptions } from "@/queries/sports";
-import { weekListQueryOptions } from "@/queries/weeks";
 
 export const Route = createFileRoute("/_authenticated/dashboard/results/")({
   ssr: false,
@@ -38,7 +38,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/results/")({
     await Promise.all([
       queryClient.ensureQueryData(medalBoardQueryOptions()),
       queryClient.ensureQueryData(allEventsQueryOptions({ per_page: 200 })),
-      queryClient.ensureQueryData(weekListQueryOptions()),
+      queryClient.ensureQueryData(competitionListQueryOptions()),
       ...sports.data.map((sport) => queryClient.ensureQueryData(sportDetailQueryOptions(sport.id))),
     ]);
   },
@@ -71,7 +71,7 @@ function ResultsPage() {
     refetchInterval: 30_000,
   });
   const { data: eventsData } = useSuspenseQuery(allEventsQueryOptions({ per_page: 200 }));
-  const { data: weeksData } = useSuspenseQuery(weekListQueryOptions());
+  const { data: competitionsData } = useSuspenseQuery(competitionListQueryOptions());
   const { data: sportsData } = useSuspenseQuery(sportListQueryOptions());
   const sportDetails = useSuspenseQueries({
     queries: sportsData.data.map((sport) => sportDetailQueryOptions(sport.id)),
@@ -96,9 +96,9 @@ function ResultsPage() {
       ),
     [sportDetails],
   );
-  const weekById = useMemo(
-    () => new Map(weeksData.data.map((week) => [week.id, week])),
-    [weeksData.data],
+  const competitionById = useMemo(
+    () => new Map(competitionsData.data.map((competition) => [competition.id, competition])),
+    [competitionsData.data],
   );
   const openEvents = [...eventsData.data].sort((a, b) =>
     `${a.event_date}T${a.start_time}`.localeCompare(`${b.event_date}T${b.start_time}`),
@@ -176,10 +176,10 @@ function ResultsPage() {
               {openEvents.map((event) => {
                 const modality = modalityById.get(event.modality_id);
                 const sport = sportByModalityId.get(event.modality_id);
-                const week = weekById.get(event.week_id);
+                const competition = competitionById.get(event.competition_id);
                 return (
                   <SelectItem key={event.id} value={String(event.id)}>
-                    {sport?.name ?? "Esporte"} · {modality?.name ?? `Evento #${event.id}`} · Semana {week?.week_number ?? "?"} · {formatDate(event.event_date)} · {formatTime(event.start_time)}
+                    {sport?.name ?? "Esporte"} · {modality?.name ?? `Evento #${event.id}`} · Competição {competition?.number ?? "?"} · {formatDate(event.event_date)} · {formatTime(event.start_time)}
                   </SelectItem>
                 );
               })}

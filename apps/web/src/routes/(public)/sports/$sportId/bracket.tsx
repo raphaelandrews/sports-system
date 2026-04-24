@@ -18,10 +18,10 @@ import {
 } from "@sports-system/ui/components/select";
 
 import { BracketView, type BracketRound } from "@/components/matches/bracket-view";
+import { competitionListQueryOptions } from "@/queries/competitions";
 import { delegationListQueryOptions } from "@/queries/delegations";
 import { allEventsQueryOptions, eventDetailQueryOptions } from "@/queries/events";
 import { sportDetailQueryOptions } from "@/queries/sports";
-import { weekListQueryOptions } from "@/queries/weeks";
 
 export const Route = createFileRoute("/(public)/sports/$sportId/bracket")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/(public)/sports/$sportId/bracket")({
 
     await Promise.all([
       queryClient.ensureQueryData(sportDetailQueryOptions(sportId)),
-      queryClient.ensureQueryData(weekListQueryOptions()),
+      queryClient.ensureQueryData(competitionListQueryOptions()),
       queryClient.ensureQueryData(delegationListQueryOptions()),
       queryClient.ensureQueryData(allEventsQueryOptions({ per_page: 200, sport_id: sportId })),
     ]);
@@ -51,17 +51,18 @@ function SportBracketPage() {
   const { sportId } = Route.useParams();
   const numericSportId = Number(sportId);
   const { data: sport } = useSuspenseQuery(sportDetailQueryOptions(numericSportId));
-  const { data: weeksData } = useSuspenseQuery(weekListQueryOptions());
+  const { data: competitionsData } = useSuspenseQuery(competitionListQueryOptions());
   const { data: delegationsData } = useSuspenseQuery(delegationListQueryOptions());
   const { data: eventsData } = useSuspenseQuery(
     allEventsQueryOptions({ per_page: 200, sport_id: numericSportId }),
   );
-  const [selectedWeekId, setSelectedWeekId] = React.useState<string>(
-    weeksData.data[0] ? String(weeksData.data[0].id) : "all",
+  const [selectedCompetitionId, setSelectedCompetitionId] = React.useState<string>(
+    competitionsData.data[0] ? String(competitionsData.data[0].id) : "all",
   );
 
   const filteredEvents = eventsData.data.filter(
-    (event) => selectedWeekId === "all" || event.week_id === Number(selectedWeekId),
+    (event) =>
+      selectedCompetitionId === "all" || event.competition_id === Number(selectedCompetitionId),
   );
 
   const eventDetails = useSuspenseQueries({
@@ -130,21 +131,21 @@ function SportBracketPage() {
         <Card className="border border-border/70">
           <CardHeader>
             <CardTitle>Filtro</CardTitle>
-            <CardDescription>Visualize todas as semanas ou uma semana especifica.</CardDescription>
+            <CardDescription>Visualize todas as competições ou uma competição específica.</CardDescription>
           </CardHeader>
           <CardContent>
             <Select
-              value={selectedWeekId}
-              onValueChange={(value) => setSelectedWeekId(value ?? "all")}
+              value={selectedCompetitionId}
+              onValueChange={(value) => setSelectedCompetitionId(value ?? "all")}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Todas as semanas" />
+                <SelectValue placeholder="Todas as competições" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas as semanas</SelectItem>
-                {weeksData.data.map((week) => (
-                  <SelectItem key={week.id} value={String(week.id)}>
-                    Semana {week.week_number}
+                <SelectItem value="all">Todas as competições</SelectItem>
+                {competitionsData.data.map((competition) => (
+                  <SelectItem key={competition.id} value={String(competition.id)}>
+                    Competição {competition.number}
                   </SelectItem>
                 ))}
               </SelectContent>

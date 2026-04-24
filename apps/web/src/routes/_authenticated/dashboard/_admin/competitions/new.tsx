@@ -2,12 +2,12 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { WeekForm } from "@/components/weeks/week-form";
+import { CompetitionForm } from "@/components/competitions/competition-form";
 import { apiFetch, ApiError } from "@/lib/api";
 import { queryKeys } from "@/queries/keys";
 import { sportListQueryOptions } from "@/queries/sports";
 
-export const Route = createFileRoute("/_authenticated/dashboard/_admin/weeks/new")({
+export const Route = createFileRoute("/_authenticated/dashboard/_admin/competitions/new")({
   ssr: false,
   loader: ({ context: { queryClient } }) => {
     void queryClient.prefetchQuery(sportListQueryOptions())
@@ -22,24 +22,24 @@ function NewWeekPage() {
 
   const mutation = useMutation({
     mutationFn: (payload: {
-      week_number: number;
+      number: number;
       start_date: string;
       end_date: string;
       sport_focus: number[];
     }) =>
-      apiFetch("/weeks", {
+      apiFetch("/competitions", {
         method: "POST",
         body: payload,
       }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.weeks.all() });
-      toast.success("Semana criada com sucesso.");
-      await navigate({ to: "/dashboard/weeks" });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.competitions.all() });
+      toast.success("Competicao criada com sucesso.");
+      await navigate({ to: "/dashboard/competitions" });
     },
   });
 
   return (
-    <WeekForm
+    <CompetitionForm
       sports={sports.data}
       isSubmitting={mutation.isPending}
       errorMessage={mutation.error instanceof ApiError ? mutation.error.message : null}

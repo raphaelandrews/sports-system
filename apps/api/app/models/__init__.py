@@ -6,7 +6,7 @@ from app.models.narrative import AIGeneration, Narrative
 from app.models.result import AthleteStatistic, Record, Result
 from app.models.sport import Modality, Sport, SportStatisticsSchema
 from app.models.user import ChiefRequest, Notification, RefreshToken, User
-from app.models.week import CompetitionWeek
+from app.models.competition import Competition
 
 __all__ = [
     "User",
@@ -21,7 +21,7 @@ __all__ = [
     "SportStatisticsSchema",
     "Athlete",
     "AthleteModality",
-    "CompetitionWeek",
+    "Competition",
     "Event",
     "Match",
     "MatchParticipant",

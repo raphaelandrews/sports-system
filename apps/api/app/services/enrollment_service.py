@@ -11,7 +11,7 @@ from app.models.enrollment import Enrollment, EnrollmentStatus
 from app.models.event import Event
 from app.models.sport import Modality, Sport
 from app.models.user import User, UserRole
-from app.models.week import CompetitionWeek, WeekStatus
+from app.models.competition import Competition, CompetitionStatus
 from app.repositories import enrollment_repository
 from app.repositories.delegation_repository import get_current_delegation_id
 from app.schemas.common import Meta, PaginatedResponse
@@ -88,13 +88,13 @@ async def _validate(
     event: Event,
     modality: Modality,
     sport: Sport | None,
-    week: CompetitionWeek,
+    competition: Competition,
     delegation_id: int,
 ) -> None:
     rules = modality.rules_json
 
     eligible, reason = await eligibility_service.is_athlete_eligible_for_week(
-        session, athlete.id, athlete.user_id, delegation_id, week
+        session, athlete.id, athlete.user_id, delegation_id, competition
     )
     if not eligible:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=reason)
@@ -176,11 +176,11 @@ async def create_enrollment(
     if event is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
 
-    week = await session.get(CompetitionWeek, event.week_id)
-    if week is None or week.status in (WeekStatus.LOCKED, WeekStatus.ACTIVE, WeekStatus.COMPLETED):
+    competition = await session.get(Competition, event.competition_id)
+    if competition is None or competition.status in (CompetitionStatus.LOCKED, CompetitionStatus.ACTIVE, CompetitionStatus.COMPLETED):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Enrollments are closed — week is locked or completed",
+            detail="Enrollments are closed — competition is locked or completed",
         )
 
     modality = await session.get(Modality, event.modality_id)
@@ -224,11 +224,11 @@ async def cancel_enrollment(
 
     event = await session.get(Event, enrollment.event_id)
     if event is not None:
-        week = await session.get(CompetitionWeek, event.week_id)
-        if week is not None and week.status in (WeekStatus.LOCKED, WeekStatus.ACTIVE, WeekStatus.COMPLETED):
+        competition = await session.get(Competition, event.competition_id)
+        if competition is not None and competition.status in (CompetitionStatus.LOCKED, CompetitionStatus.ACTIVE, CompetitionStatus.COMPLETED):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Cannot cancel enrollment — week is locked",
+                detail="Cannot cancel enrollment — competition is locked",
             )
 
     await session.delete(enrollment)
@@ -258,21 +258,21 @@ async def review_enrollment(
 
 
 async def ai_generate(session: AsyncSession) -> list[EnrollmentResponse]:
-    weeks_result = await session.execute(
-        select(CompetitionWeek)
-        .where(CompetitionWeek.status.in_([WeekStatus.DRAFT, WeekStatus.SCHEDULED]))
-        .order_by(CompetitionWeek.week_number.desc())
+    competitions_result = await session.execute(
+        select(Competition)
+        .where(Competition.status.in_([CompetitionStatus.DRAFT, CompetitionStatus.SCHEDULED]))
+        .order_by(Competition.number.desc())
         .limit(1)
     )
-    week = weeks_result.scalar_one_or_none()
-    if week is None:
+    competition = competitions_result.scalar_one_or_none()
+    if competition is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No open week found for AI generation",
+            detail="No open competition found for AI generation",
         )
 
     events_result = await session.execute(
-        select(Event).where(Event.week_id == week.id).limit(6)
+        select(Event).where(Event.competition_id == competition.id).limit(6)
     )
     events = list(events_result.scalars().all())
     if not events:
@@ -342,5 +342,5 @@ async def ai_generate(session: AsyncSession) -> list[EnrollmentResponse]:
             break
 
     await session.commit()
-    logger.info("ai_generate_enrollments created=%s week_id=%s", len(created), week.id)
+    logger.info("ai_generate_enrollments created=%s competition_id=%s", len(created), competition.id)
     return created

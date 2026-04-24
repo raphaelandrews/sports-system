@@ -36,14 +36,14 @@ import { findManagedDelegation } from "@/lib/chief-delegation";
 import { apiFetch, ApiError } from "@/lib/api";
 import { formatDate, formatTime } from "@/lib/date";
 import { athleteListQueryOptions } from "@/queries/athletes";
+import { competitionListQueryOptions } from "@/queries/competitions";
 import { delegationListQueryOptions } from "@/queries/delegations";
 import { enrollmentListQueryOptions } from "@/queries/enrollments";
 import { allEventsQueryOptions } from "@/queries/events";
 import { queryKeys } from "@/queries/keys";
 import { sportDetailQueryOptions, sportListQueryOptions } from "@/queries/sports";
-import { weekListQueryOptions } from "@/queries/weeks";
+import type { CompetitionResponse } from "@/types/competitions";
 import type { EnrollmentReview, EnrollmentStatus, EnrollmentResponse } from "@/types/enrollments";
-import type { WeekResponse } from "@/types/weeks";
 
 const enrollmentsSearchSchema = z.object({
   q: z.string().optional(),
@@ -61,7 +61,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/enrollments/")({
     void queryClient.prefetchQuery(athleteListQueryOptions({ per_page: 500 }))
     void queryClient.prefetchQuery(delegationListQueryOptions())
     void queryClient.prefetchQuery(allEventsQueryOptions({ per_page: 200 }))
-    void queryClient.prefetchQuery(weekListQueryOptions())
+    void queryClient.prefetchQuery(competitionListQueryOptions())
     void queryClient.prefetchQuery(sportListQueryOptions())
   },
   component: EnrollmentsPage,
@@ -83,7 +83,7 @@ function EnrollmentsPage() {
   const { data: athletesData } = useSuspenseQuery(athleteListQueryOptions({ per_page: 500 }));
   const { data: delegationsData } = useSuspenseQuery(delegationListQueryOptions());
   const { data: eventsData } = useSuspenseQuery(allEventsQueryOptions({ per_page: 200 }));
-  const { data: weeksData } = useSuspenseQuery(weekListQueryOptions());
+  const { data: competitionsData } = useSuspenseQuery(competitionListQueryOptions());
   const { data: sportsData } = useSuspenseQuery(sportListQueryOptions());
   const sportDetails = useSuspenseQueries({
     queries: sportsData.data.map((sport) => sportDetailQueryOptions(sport.id)),
@@ -102,9 +102,9 @@ function EnrollmentsPage() {
     () => new Map(eventsData.data.map((event) => [event.id, event])),
     [eventsData.data],
   );
-  const weekById = useMemo(
-    () => new Map(weeksData.data.map((week) => [week.id, week])),
-    [weeksData.data],
+  const competitionById = useMemo(
+    () => new Map(competitionsData.data.map((competition) => [competition.id, competition])),
+    [competitionsData.data],
   );
   const modalityById = useMemo(
     () =>
@@ -135,17 +135,17 @@ function EnrollmentsPage() {
         const delegation = delegationById.get(enrollment.delegation_id);
         const modality = event ? modalityById.get(event.modality_id) : null;
         const sport = event ? sportByModalityId.get(event.modality_id) : null;
-        const week = event ? weekById.get(event.week_id) : null;
+        const competition = event ? competitionById.get(event.competition_id) : null;
 
         const matchesStatus = statusFilter === "ALL" || enrollment.status === statusFilter;
-        const matchesWeek = weekFilter === "ALL" || event?.week_id === Number(weekFilter);
+        const matchesWeek = weekFilter === "ALL" || event?.competition_id === Number(weekFilter);
         const matchesSearch =
           !normalizedSearch ||
           athlete?.name.toLowerCase().includes(normalizedSearch) ||
           delegation?.name.toLowerCase().includes(normalizedSearch) ||
           modality?.name.toLowerCase().includes(normalizedSearch) ||
           sport?.name.toLowerCase().includes(normalizedSearch) ||
-          week?.week_number.toString().includes(normalizedSearch) ||
+          competition?.number.toString().includes(normalizedSearch) ||
           enrollment.validation_message?.toLowerCase().includes(normalizedSearch);
 
         return matchesStatus && matchesWeek && Boolean(matchesSearch);
@@ -155,8 +155,8 @@ function EnrollmentsPage() {
         const rightEvent = eventById.get(right.event_id);
         const leftAthlete = athleteById.get(left.athlete_id);
         const rightAthlete = athleteById.get(right.athlete_id);
-        const leftWeek = leftEvent ? weekById.get(leftEvent.week_id) : null;
-        const rightWeek = rightEvent ? weekById.get(rightEvent.week_id) : null;
+        const leftCompetition = leftEvent ? competitionById.get(leftEvent.competition_id) : null;
+        const rightCompetition = rightEvent ? competitionById.get(rightEvent.competition_id) : null;
         const multiplier = dir === "asc" ? 1 : -1;
 
         if (sort === "athlete") {
@@ -165,10 +165,11 @@ function EnrollmentsPage() {
         if (sort === "status") {
           return left.status.localeCompare(right.status) * multiplier;
         }
-        return ((leftWeek?.week_number ?? 0) - (rightWeek?.week_number ?? 0)) * multiplier;
+        return ((leftCompetition?.number ?? 0) - (rightCompetition?.number ?? 0)) * multiplier;
       });
   }, [
     athleteById,
+    competitionById,
     delegationById,
     dir,
     enrollmentsData.data,
@@ -178,7 +179,6 @@ function EnrollmentsPage() {
     sort,
     sportByModalityId,
     statusFilter,
-    weekById,
     weekFilter,
   ]);
 
@@ -333,7 +333,7 @@ function EnrollmentsPage() {
             <div>
               <CardTitle>Lista operacional</CardTitle>
               <CardDescription>
-                Filtros por semana, status e busca textual sobre atleta, delegação e modalidade.
+                Filtros por competição, status e busca textual sobre atleta, delegação e modalidade.
               </CardDescription>
             </div>
             {!isAdmin ? (
@@ -402,10 +402,10 @@ function EnrollmentsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Todas as semanas</SelectItem>
-                {weeksData.data.map((week) => (
-                  <SelectItem key={week.id} value={String(week.id)}>
-                    Semana {week.week_number} · {week.status}
+                <SelectItem value="ALL">Todas as competições</SelectItem>
+                {competitionsData.data.map((competition) => (
+                  <SelectItem key={competition.id} value={String(competition.id)}>
+                    Competição {competition.number} · {competition.status}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -426,7 +426,7 @@ function EnrollmentsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="week">Ordenar por semana</SelectItem>
+                <SelectItem value="week">Ordenar por competição</SelectItem>
                 <SelectItem value="athlete">Ordenar por atleta</SelectItem>
                 <SelectItem value="status">Ordenar por status</SelectItem>
               </SelectContent>
@@ -474,12 +474,12 @@ function EnrollmentsPage() {
               <TableBody>
                 {filtered.map((enrollment) => {
                   const event = eventById.get(enrollment.event_id);
-                  const week = event ? weekById.get(event.week_id) : null;
+                  const competition = event ? competitionById.get(event.competition_id) : null;
                   const modality = event ? modalityById.get(event.modality_id) : null;
                   const sport = event ? sportByModalityId.get(event.modality_id) : null;
                   const athlete = athleteById.get(enrollment.athlete_id);
                   const delegation = delegationById.get(enrollment.delegation_id);
-                  const weekLocked = week ? isEnrollmentLocked(week) : false;
+                  const competitionLocked = competition ? isEnrollmentLocked(competition) : false;
 
                   return (
                     <TableRow key={enrollment.id}>
@@ -496,9 +496,9 @@ function EnrollmentsPage() {
                         <div className="text-xs text-muted-foreground">
                           {sport?.name ?? "Esporte"} · {event ? `${formatDate(event.event_date)} · ${formatTime(event.start_time)}` : "Sem agenda"}
                         </div>
-                        {week ? (
+                        {competition ? (
                           <div className="mt-1 text-xs text-muted-foreground">
-                            Semana {week.week_number} · {week.status}
+                            Competição {competition.number} · {competition.status}
                           </div>
                         ) : null}
                       </TableCell>
@@ -560,7 +560,7 @@ function EnrollmentsPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              disabled={cancelMutation.isPending || weekLocked}
+                              disabled={cancelMutation.isPending || competitionLocked}
                               onClick={() => cancelMutation.mutate(enrollment.id)}
                             >
                               <Trash2 className="size-4" />
@@ -577,7 +577,7 @@ function EnrollmentsPage() {
 
           {!isAdmin ? (
             <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-              Cancelamento fica indisponível quando a semana está travada, ativa ou concluída.
+              Cancelamento fica indisponível quando a competição está travada, ativa ou concluída.
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
@@ -599,6 +599,10 @@ function StatTile({ label, value }: { label: string; value: string }) {
   );
 }
 
-function isEnrollmentLocked(week: WeekResponse) {
-  return week.status === "LOCKED" || week.status === "ACTIVE" || week.status === "COMPLETED";
+function isEnrollmentLocked(competition: CompetitionResponse) {
+  return (
+    competition.status === "LOCKED" ||
+    competition.status === "ACTIVE" ||
+    competition.status === "COMPLETED"
+  );
 }

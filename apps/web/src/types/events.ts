@@ -6,9 +6,13 @@ export type MatchStatus = ApiSchemas["MatchStatus"];
 export type ParticipantRole = ApiSchemas["ParticipantRole"];
 export type MatchEventType = ApiSchemas["MatchEventType"];
 
-export type EventCreate = ApiSchemas["EventCreate"];
+export type EventCreate = Omit<ApiSchemas["EventCreate"], "week_id"> & {
+  competition_id: number;
+};
 export type EventUpdate = ApiSchemas["EventUpdate"];
-export type EventResponse = ApiSchemas["EventResponse"];
+export type EventResponse = Omit<ApiSchemas["EventResponse"], "week_id"> & {
+  competition_id: number;
+};
 export type EventDetailResponse = ApiSchemas["EventDetailResponse"];
 export type MatchResponse = ApiSchemas["MatchResponse"];
 export type MatchDetailResponse = ApiSchemas["MatchDetailResponse"];

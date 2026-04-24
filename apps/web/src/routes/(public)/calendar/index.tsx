@@ -20,13 +20,13 @@ import { useState } from "react";
 
 import { formatDate, formatTime } from "@/lib/date";
 import { allEventsQueryOptions } from "@/queries/events";
-import { weekListQueryOptions } from "@/queries/weeks";
+import { competitionListQueryOptions } from "@/queries/competitions";
 import type { EventStatus } from "@/types/events";
 
 export const Route = createFileRoute("/(public)/calendar/")({
   loader: ({ context: { queryClient } }) =>
     Promise.all([
-      queryClient.ensureQueryData(weekListQueryOptions()),
+      queryClient.ensureQueryData(competitionListQueryOptions()),
       queryClient.ensureQueryData(allEventsQueryOptions({ per_page: 100 })),
     ]),
   component: CalendarPage,
@@ -50,14 +50,14 @@ const statusLabel: Record<EventStatus, string> = {
 };
 
 function CalendarPage() {
-  const { data: weeksData } = useSuspenseQuery(weekListQueryOptions());
-  const weeks = weeksData.data;
+  const { data: competitionsData } = useSuspenseQuery(competitionListQueryOptions());
+  const competitions = competitionsData.data;
 
-  const [selectedWeekId, setSelectedWeekId] = useState<string>("all");
+  const [selectedCompetitionId, setSelectedCompetitionId] = useState<string>("all");
 
   const params =
-    selectedWeekId !== "all"
-      ? { per_page: 100, week_id: Number(selectedWeekId) }
+    selectedCompetitionId !== "all"
+      ? { per_page: 100, competition_id: Number(selectedCompetitionId) }
       : { per_page: 100 };
 
   const { data: eventsData } = useSuspenseQuery(allEventsQueryOptions(params));
@@ -75,15 +75,18 @@ function CalendarPage() {
     <div className="container mx-auto max-w-5xl px-4 py-6">
       <div className="mb-6 flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">Calendário</h1>
-        <Select value={selectedWeekId} onValueChange={(v) => setSelectedWeekId(v ?? "all")}>
+        <Select
+          value={selectedCompetitionId}
+          onValueChange={(value) => setSelectedCompetitionId(value ?? "all")}
+        >
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Todas as semanas" />
+            <SelectValue placeholder="Todas as competicoes" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todas as semanas</SelectItem>
-            {weeks.map((w) => (
-              <SelectItem key={w.id} value={String(w.id)}>
-                Semana {w.week_number}
+            <SelectItem value="all">Todas as competicoes</SelectItem>
+            {competitions.map((competition) => (
+              <SelectItem key={competition.id} value={String(competition.id)}>
+                Competicao {competition.number}
               </SelectItem>
             ))}
           </SelectContent>
@@ -101,13 +104,13 @@ function CalendarPage() {
           <div key={day}>
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="text-lg font-medium">{formatDate(day)}</h2>
-              {selectedWeekId !== "all" ? (
+              {selectedCompetitionId !== "all" ? (
                 <Link
-                  to="/calendar/$weekId"
-                  params={{ weekId: selectedWeekId }}
+                  to="/competitions/$competitionId"
+                  params={{ competitionId: selectedCompetitionId }}
                   className="text-sm text-muted-foreground hover:text-foreground hover:underline"
                 >
-                  Ver semana
+                  Ver competicao
                 </Link>
               ) : null}
             </div>

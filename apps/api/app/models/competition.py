@@ -6,7 +6,7 @@ from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
 
 
-class WeekStatus(str, Enum):
+class CompetitionStatus(str, Enum):
     DRAFT = "DRAFT"
     SCHEDULED = "SCHEDULED"
     LOCKED = "LOCKED"
@@ -14,12 +14,12 @@ class WeekStatus(str, Enum):
     COMPLETED = "COMPLETED"
 
 
-class CompetitionWeek(SQLModel, table=True):
-    __tablename__ = "competition_weeks"
+class Competition(SQLModel, table=True):
+    __tablename__ = "competitions"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    week_number: int
+    number: int
     start_date: date
     end_date: date
-    status: WeekStatus = Field(default=WeekStatus.DRAFT)
+    status: CompetitionStatus = Field(default=CompetitionStatus.DRAFT)
     sport_focus: list[Any] = Field(default_factory=list, sa_column=Column(JSON, nullable=False))

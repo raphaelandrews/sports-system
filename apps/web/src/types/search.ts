@@ -16,8 +16,8 @@ export interface GlobalSearchDelegationItem {
 
 export interface GlobalSearchEventItem {
   id: number;
-  week_id: number;
-  week_number: number;
+  competition_id: number;
+  competition_number: number;
   sport_name: string;
   modality_name: string;
   venue: string | null;
