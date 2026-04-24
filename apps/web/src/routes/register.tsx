@@ -5,7 +5,7 @@ import { RegisterForm } from "@/components/auth/register-form";
 export const Route = createFileRoute("/register")({
   beforeLoad: ({ context }) => {
     if (context.session) {
-      throw redirect({ to: "/dashboard" });
+      throw redirect({ to: "/leagues" });
     }
   },
   component: RegisterPage,

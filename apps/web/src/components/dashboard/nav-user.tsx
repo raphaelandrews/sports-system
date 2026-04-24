@@ -1,18 +1,8 @@
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  LogIn,
-  LogOut,
-  ShieldCheck,
-} from "lucide-react"
-import { Link, useRouter } from "@tanstack/react-router"
-import { toast } from "sonner"
+import { BadgeCheck, Bell, ChevronsUpDown, LogIn, LogOut, ShieldCheck } from "lucide-react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { toast } from "sonner";
 
-import {
-  Avatar,
-  AvatarFallback,
-} from "@sports-system/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@sports-system/ui/components/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,15 +11,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@sports-system/ui/components/dropdown-menu"
+} from "@sports-system/ui/components/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@sports-system/ui/components/sidebar"
-import { logoutFn } from "@/server/auth"
-import type { Session } from "@/types/auth"
+} from "@sports-system/ui/components/sidebar";
+import { logoutFn } from "@/server/auth";
+import type { Session } from "@/types/auth";
 
 export function NavUser({ user }: { user: Session | null }) {
   if (!user) {
@@ -42,31 +32,33 @@ export function NavUser({ user }: { user: Session | null }) {
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
-    )
+    );
   }
 
-  const { isMobile } = useSidebar()
-  const router = useRouter()
+  const { isMobile } = useSidebar();
+  const router = useRouter();
 
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
     .slice(0, 2)
     .join("")
-    .toUpperCase()
+    .toUpperCase();
 
   const roleLabel: Record<Session["role"], string> = {
+    SUPERADMIN: "Administrador",
+    USER: "Usuário",
     ADMIN: "Administrador",
-    CHIEF: "Chefe de Delegação",
-    ATHLETE: "Atleta",
+    CHIEF: "Chefe",
     COACH: "Técnico",
-  }
+    ATHLETE: "Atleta",
+  };
 
   async function handleLogout() {
-    await logoutFn()
-    await router.invalidate()
-    router.navigate({ to: "/login" })
-    toast.success("Sessão encerrada")
+    await logoutFn();
+    await router.invalidate();
+    router.navigate({ to: "/login" });
+    toast.success("Sessão encerrada");
   }
 
   return (
@@ -137,5 +129,5 @@ export function NavUser({ user }: { user: Session | null }) {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

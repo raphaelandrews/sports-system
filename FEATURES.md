@@ -10,12 +10,13 @@ Sistema genérico para gerenciar eventos multiesportivos (olimpíadas escolares,
 
 A competição é estruturada em **semanas**:
 
-| Dia | Atividade |
-|-----|-----------|
+| Dia                                | Atividade                                                    |
+| ---------------------------------- | ------------------------------------------------------------ |
 | Segunda-feira (00h00–23h59, UTC-3) | Janela de transferências — atletas podem trocar de delegação |
-| Terça a Domingo | 6 dias de eventos esportivos |
+| Terça a Domingo                    | 6 dias de eventos esportivos                                 |
 
 **Regras do ciclo:**
+
 - O calendário de uma semana é montado pelo admin e **travado automaticamente** quando o horário do primeiro evento passa
 - Uma vez travada, nenhuma alteração de escala é permitida na semana atual
 - Ao travar, o sistema **gera automaticamente** as partidas e o chaveamento com base nas inscrições aprovadas
@@ -24,9 +25,11 @@ A competição é estruturada em **semanas**:
 - Resultados de partidas registram a **delegação do atleta no momento da partida** — mudanças futuras não afetam o histórico
 
 **Estados de uma semana de competição:**
+
 ```
 RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ```
+
 - `RASCUNHO`: admin está montando o calendário
 - `AGENDADA`: calendário publicado, visível aos usuários
 - `TRAVADA`: horário do primeiro evento passou — travamento e geração de partidas automáticos via scheduler
@@ -38,6 +41,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ## Tipos de Usuário e Permissões
 
 ### Admin
+
 - Acesso total ao sistema
 - Aprova/rejeita solicitações de chefe de delegação
 - Gerencia esportes, modalidades, calendário
@@ -45,6 +49,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - Encerra semanas e publica resultados
 
 ### Chefe de Delegação
+
 - Gerencia própria delegação
 - Convida usuários para a delegação (atletas, técnicos)
 - Inscreve atletas em provas
@@ -53,17 +58,20 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - Um usuário pertence a **uma única delegação por vez**
 
 ### Técnico / Manager
+
 - Visualiza agenda da delegação
 - Acompanha resultados
 - Não pode inscrever atletas (apenas o chefe pode)
 
 ### Atleta
+
 - Visualiza própria agenda e resultados
 - Visualiza quadro de medalhas e classificações
 - Pode competir em **múltiplas modalidades**
 - Histórico de delegações e partidas preservado mesmo após transferências
 
 ### Público (sem autenticação)
+
 - Visualiza página inicial, quadro de medalhas, calendário, resultados e perfil de delegações
 
 ---
@@ -71,6 +79,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ## Regras de Negócio
 
 ### Usuários e Delegações
+
 - Registro cria usuário sem delegação
 - Para ser chefe de delegação, usuário envia solicitação → admin aprova → delegação é criada ou atribuída
 - Convite para delegação: chefe envia convite pelo sistema → usuário recebe **notificação in-app** → aceita ou recusa
@@ -80,17 +89,20 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - Histórico de delegações: `(atleta, delegação, data_entrada, data_saída)` — `data_saída` nulo se ativo
 
 ### Integridade Histórica de Partidas
+
 - Toda participação em partida registra `delegacao_na_epoca` (snapshot do vínculo no momento)
 - Perfil do atleta exibe cronologia: delegações por período + partidas por delegação representada
 - Quadro de medalhas reflete a delegação do momento da conquista (não a atual)
 
 ### Inscições e Elegibilidade
+
 - Atleta novo (ou recém-transferido): elegível apenas na próxima semana após cadastro/transferência
 - Inscrição fecha quando a semana é travada (primeiro evento inicia)
 - Validação automática de regras por esporte (ex: categoria de peso no judô, sexo na modalidade)
 - Atleta pode competir em modalidades diferentes na mesma semana se não houver conflito de horário
 
 ### Partidas e Resultados
+
 - Com `AUTO_SIMULATE=true` (modo showcase): partidas iniciam automaticamente no horário agendado e finalizam 5 minutos depois com resultados, estatísticas e eventos gerados automaticamente
 - Com `AUTO_SIMULATE=false` (modo real): admin controla início, placar ao vivo e encerramento manualmente
 - Placar ao vivo atualizado via timeline de eventos (gol ao minuto X, cartão, ponto marcado) — seja pelo admin ou pelo simulador
@@ -101,6 +113,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - Recordes (melhor tempo, maior pontuação) atualizados automaticamente
 
 ### Notificações
+
 - Todas notificações são **in-app** (sem e-mail)
 - Usuário vê badge de notificações não lidas no header
 - Tipos: convite de delegação, solicitação aprovada/rejeitada, lembrete de partida (24h antes), resultado publicado, transferência aceita/recusada
@@ -110,6 +123,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ## Modalidades Esportivas
 
 ### 1. Futebol (Coletivo — 11 jogadores)
+
 **Estrutura de competição:** Fase de grupos → Mata-mata → Final + Disputa de 3º lugar
 
 **Estatísticas de equipe:** Jogos, Vitórias, Empates, Derrotas, Pontos, Gols marcados, Gols sofridos, Saldo de gols, Cartões amarelos, Cartões vermelhos
@@ -123,6 +137,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ---
 
 ### 2. Vôlei (Coletivo — 6 jogadores)
+
 **Estrutura:** Fase de grupos → Mata-mata
 
 **Estatísticas de equipe:** Vitórias, Derrotas, Sets ganhos, Sets perdidos, Pontos marcados, Pontos sofridos
@@ -136,6 +151,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ---
 
 ### 3. Basquete (Coletivo — 5 jogadores)
+
 **Estrutura:** Fase de grupos → Mata-mata
 
 **Estatísticas de equipe:** Vitórias, Derrotas, Pontos marcados, Pontos sofridos, Saldo
@@ -149,7 +165,9 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ---
 
 ### 4. Atletismo (Individual e Revezamento)
+
 **Provas planejadas:**
+
 - Corridas: 100m, 200m, 400m, 800m, 1500m (masculino/feminino/misto)
 - Saltos: Salto em altura, Salto em distância
 - Lançamentos: Arremesso de peso
@@ -164,6 +182,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ---
 
 ### 5. Judô (Individual)
+
 **Categorias:** Por peso (até 60kg, 66kg, 73kg, 81kg, 90kg, +90kg — masculino; até 48kg, 52kg, 57kg, 63kg, 70kg, +70kg — feminino)
 
 **Estatísticas:** Ippon (vitória imediata), Waza-ari (½ ponto), Shido (penalidade), Hansoku-make (desqualificação)
@@ -175,6 +194,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ---
 
 ### 6. Handebol (Coletivo — 7 jogadores)
+
 **Estrutura:** Fase de grupos → Mata-mata
 
 **Estatísticas de equipe:** Vitórias, Empates, Derrotas, Pontos, Gols marcados, Gols sofridos, Saldo
@@ -188,7 +208,9 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ---
 
 ### 7. Natação (Individual e Revezamento)
+
 **Provas:**
+
 - 50m Livre, 100m Livre, 200m Livre
 - 50m Costas, 50m Peito, 50m Borboleta
 - 100m Medley individual
@@ -203,6 +225,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ---
 
 ### 8. Vôlei de Praia (Coletivo — 2 jogadores/dupla)
+
 **Estrutura:** Fase de grupos → Eliminatória
 
 **Estatísticas de equipe:** Vitórias, Derrotas, Sets ganhos/perdidos, Pontos marcados/sofridos
@@ -216,6 +239,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ---
 
 ### 9. Tênis de Mesa (Individual e Duplas)
+
 **Modalidades:** Simples masculino, Simples feminino, Duplas mistas
 
 **Estatísticas:** Sets ganhos, Sets perdidos, Pontos, Vitórias, Derrotas
@@ -229,6 +253,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 ---
 
 ### 10. Karatê (Individual)
+
 **Modalidades:** Kata (forma) e Kumite (combate)
 
 **Categorias Kumite:** Por peso (similar ao judô)
@@ -261,6 +286,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 # BACKEND — FastAPI
 
 ## Tecnologias
+
 - Python 3.12+, FastAPI, SQLModel (SQLAlchemy + Pydantic), Alembic
 - PostgreSQL (banco principal + tabela `refresh_tokens` para invalidação de JWT)
 - FastAPI Users — gerenciamento de usuários, hashing Argon2id (pwdlib), base para OAuth futuro
@@ -274,6 +300,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 - Todos os timestamps armazenados em UTC; lógica de negócio usa `TIMEZONE=America/Sao_Paulo` (configurável)
 
 ## Boas Práticas
+
 - Separação em camadas: `router → service → repository → model`
 - Pydantic v2 para validação de request/response
 - Migrações com Alembic
@@ -478,6 +505,7 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 # FRONTEND — TanStack Start
 
 ## Tecnologias
+
 - TanStack Start (React 19, SSR + SPA seletivo)
 - TanStack Router (file-based routing, `beforeLoad` guards)
 - TanStack Query (server state, cache para navegação instantânea)
@@ -487,12 +515,12 @@ RASCUNHO → AGENDADA → TRAVADA → ATIVA → CONCLUÍDA
 
 ## Estratégia SSR por Rota
 
-| Rota | Modo | Motivo |
-|------|------|--------|
-| `/`, `/login`, `/register` | SSR completo | SEO, primeira pintura rápida |
-| `/results`, `/calendar`, `/sports`, `/delegations/*` | SSR completo | Conteúdo público indexável |
-| `/dashboard`, áreas autenticadas | `ssr: 'data-only'` | Dados no servidor, componente no cliente (QueryClient/browser APIs) |
-| `/admin/ai`, match ao vivo | `ssr: false` | Streaming IA, SSE |
+| Rota                                                 | Modo               | Motivo                                                              |
+| ---------------------------------------------------- | ------------------ | ------------------------------------------------------------------- |
+| `/`, `/login`, `/register`                           | SSR completo       | SEO, primeira pintura rápida                                        |
+| `/results`, `/calendar`, `/sports`, `/delegations/*` | SSR completo       | Conteúdo público indexável                                          |
+| `/dashboard`, áreas autenticadas                     | `ssr: 'data-only'` | Dados no servidor, componente no cliente (QueryClient/browser APIs) |
+| `/admin/ai`, match ao vivo                           | `ssr: false`       | Streaming IA, SSE                                                   |
 
 ## Padrão de Autenticação
 
@@ -565,7 +593,7 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 5 — Gestão de Delegações (Admin)
 
-- [x] `routes/_authenticated/dashboard/delegations/index.tsx` — lista com filtros, paginação, ação de gerar IA *(rota compartilhada; admin vê botões de criação/edição, demais roles vêem lista somente-leitura)*
+- [x] `routes/_authenticated/dashboard/delegations/index.tsx` — lista com filtros, paginação, ação de gerar IA _(rota compartilhada; admin vê botões de criação/edição, demais roles vêem lista somente-leitura)_
 - [x] `routes/_authenticated/_admin/delegations/new.tsx` — formulário de criação
 - [x] `routes/_authenticated/_admin/delegations/$delegationId/index.tsx` — detalhe: membros, histórico, partidas
 - [x] `routes/_authenticated/_admin/delegations/$delegationId/edit.tsx` — edição
@@ -580,22 +608,22 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 7 — Esportes e Modalidades (Admin)
 
-- [x] `routes/_authenticated/dashboard/sports/index.tsx` — lista os 10 esportes + status *(rota compartilhada; admin vê coluna de ações, demais roles vêem lista somente-leitura)*
+- [x] `routes/_authenticated/dashboard/sports/index.tsx` — lista os 10 esportes + status _(rota compartilhada; admin vê coluna de ações, demais roles vêem lista somente-leitura)_
 - [x] `routes/_authenticated/_admin/sports/$sportId/index.tsx` — detalhe: modalidades, regras, estatísticas-schema
 - [x] `routes/_authenticated/_admin/sports/$sportId/modalities/new.tsx` — criar modalidade
 - [x] `routes/_authenticated/_admin/sports/$sportId/modalities/$modalityId/edit.tsx` — editar regras
 
 ## Fase 8 — Atletas e Técnicos
 
-- [x] `routes/_authenticated/_admin/athletes/index.tsx` — lista global com filtros *(implementado via rota compartilhada `/dashboard/athletes` com comportamento por role)*
-- [x] `routes/_authenticated/_chief/athletes/index.tsx` — atletas da delegação *(implementado via rota compartilhada `/dashboard/athletes` com comportamento por role)*
+- [x] `routes/_authenticated/_admin/athletes/index.tsx` — lista global com filtros _(implementado via rota compartilhada `/dashboard/athletes` com comportamento por role)_
+- [x] `routes/_authenticated/_chief/athletes/index.tsx` — atletas da delegação _(implementado via rota compartilhada `/dashboard/athletes` com comportamento por role)_
 - [x] `routes/_authenticated/athletes/$athleteId.tsx` — perfil do atleta:
   - [x] Dados pessoais e modalidades
   - [x] Timeline de delegações (com datas)
   - [x] Histórico de partidas (com delegação na época)
   - [x] Estatísticas por esporte
-- [x] `routes/_authenticated/_admin/athletes/new.tsx` — cadastrar atleta (admin) *(implementado via rota compartilhada `/dashboard/athletes/new` com comportamento por role)*
-- [x] `routes/_authenticated/_chief/athletes/new.tsx` — cadastrar atleta (chefe) *(implementado via rota compartilhada `/dashboard/athletes/new` com comportamento por role)*
+- [x] `routes/_authenticated/_admin/athletes/new.tsx` — cadastrar atleta (admin) _(implementado via rota compartilhada `/dashboard/athletes/new` com comportamento por role)_
+- [x] `routes/_authenticated/_chief/athletes/new.tsx` — cadastrar atleta (chefe) _(implementado via rota compartilhada `/dashboard/athletes/new` com comportamento por role)_
 - [x] Botão "Gerar com IA" (admin)
 
 ## Fase 9 — Semanas de Competição (Admin)
@@ -609,7 +637,7 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 10 — Calendário e Partidas
 
-- [x] `routes/_authenticated/dashboard/calendar/index.tsx` — calendário da semana *(rota compartilhada; admin vê criação de evento, geração IA e ações por linha; demais roles vêem grade somente-leitura)*
+- [x] `routes/_authenticated/dashboard/calendar/index.tsx` — calendário da semana _(rota compartilhada; admin vê criação de evento, geração IA e ações por linha; demais roles vêem grade somente-leitura)_
 - [x] `routes/_authenticated/_admin/calendar/events/new.tsx` — criar evento
 - [x] `routes/(public)/calendar/$weekId/index.tsx` — calendário público da semana (SSR)
 - [x] `routes/_authenticated/matches/$matchId/index.tsx` (`ssr: false`) — partida ao vivo:
@@ -623,9 +651,9 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 11 — Inscrições
 
-- [x] `routes/_authenticated/_admin/enrollments/index.tsx` — todas inscrições com filtros + revisão *(implementado via rota compartilhada `/dashboard/enrollments` com comportamento por role)*
-- [x] `routes/_authenticated/_chief/enrollments/index.tsx` — inscrições da delegação *(implementado via rota compartilhada `/dashboard/enrollments` com comportamento por role)*
-- [x] `routes/_authenticated/_chief/enrollments/new.tsx` — inscrever atleta em evento *(implementado via rota compartilhada `/dashboard/enrollments/new` com comportamento por role)*:
+- [x] `routes/_authenticated/_admin/enrollments/index.tsx` — todas inscrições com filtros + revisão _(implementado via rota compartilhada `/dashboard/enrollments` com comportamento por role)_
+- [x] `routes/_authenticated/_chief/enrollments/index.tsx` — inscrições da delegação _(implementado via rota compartilhada `/dashboard/enrollments` com comportamento por role)_
+- [x] `routes/_authenticated/_chief/enrollments/new.tsx` — inscrever atleta em evento _(implementado via rota compartilhada `/dashboard/enrollments/new` com comportamento por role)_:
   - [x] Seletor de evento (filtrado por semana/esporte)
   - [x] Seletor de atleta (filtrado por elegibilidade)
   - [x] Validação em tempo real das regras do esporte
@@ -635,11 +663,11 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 12 — Resultados e Quadro de Medalhas
 
-- [x] `routes/(public)/results/index.tsx` — quadro de medalhas ao vivo (SSR + refetch 30s) *(implementado na Fase 3)*
+- [x] `routes/(public)/results/index.tsx` — quadro de medalhas ao vivo (SSR + refetch 30s) _(implementado na Fase 3)_
 - [x] `routes/_authenticated/dashboard/results/index.tsx` — quadro de medalhas no dashboard (refetch 30s, sem layout público)
 - [x] `routes/(public)/results/sports/$sportId/index.tsx` — classificação por esporte
-- [x] `routes/_authenticated/dashboard/results/index.tsx` — painel de entrada de resultados *(implementado em rota compartilhada do dashboard)*
-- [x] `routes/_authenticated/dashboard/results/$matchId/new.tsx` — registrar resultado com campos específicos por esporte *(implementado em rota compartilhada do dashboard)*
+- [x] `routes/_authenticated/dashboard/results/index.tsx` — painel de entrada de resultados _(implementado em rota compartilhada do dashboard)_
+- [x] `routes/_authenticated/dashboard/results/$matchId/new.tsx` — registrar resultado com campos específicos por esporte _(implementado em rota compartilhada do dashboard)_
 - [x] `routes/(public)/results/records/index.tsx` — recordes e melhores marcas da competição
 - [x] Componente `MedalBoard` — tabela com ouro/prata/bronze animado
 - [x] Componente `SportStandings` — tabela de classificação por esporte com critérios de desempate
@@ -647,7 +675,7 @@ Sessão carregada via server function no `__root.tsx` e injetada no router conte
 
 ## Fase 13 — Painel de IA (Admin)
 
-- [x] `routes/_authenticated/dashboard/ai/index.tsx` (`ssr: false`) — painel central de geração *(implementado em rota compartilhada do dashboard)*:
+- [x] `routes/_authenticated/dashboard/ai/index.tsx` (`ssr: false`) — painel central de geração _(implementado em rota compartilhada do dashboard)_:
   - [x] Card por categoria: Delegações, Esportes, Atletas, Calendário, Inscrições, Resultados, Narrativa
   - [x] Botão "Gerar" por categoria com indicador de progresso
   - [x] Histórico das últimas gerações com timestamp e quantidade

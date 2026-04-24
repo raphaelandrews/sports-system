@@ -36,7 +36,10 @@ export function MedalBoard({
             <TableCell>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-medium">{entry.delegation_name}</span>
-                <Badge variant="outline" className="font-mono text-[10px] uppercase tracking-[0.2em]">
+                <Badge
+                  variant="outline"
+                  className="font-mono text-[10px] uppercase tracking-[0.2em]"
+                >
                   {entry.delegation_code}
                 </Badge>
               </div>
@@ -51,7 +54,11 @@ export function MedalBoard({
           <TableRow>
             <TableCell
               colSpan={6}
-              className={compact ? "py-6 text-center text-muted-foreground" : "py-10 text-center text-muted-foreground"}
+              className={
+                compact
+                  ? "py-6 text-center text-muted-foreground"
+                  : "py-10 text-center text-muted-foreground"
+              }
             >
               Nenhuma medalha registrada ainda.
             </TableCell>

@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 import {
   BarChart3,
   CalendarDays,
@@ -12,24 +12,22 @@ import {
   Settings,
   Sparkles,
   Trophy,
-  Users,
   UserCheck,
-  ClipboardList,
-} from "lucide-react"
+} from "lucide-react";
 
-import { NavMain, type NavItem } from "@/components/dashboard/nav-main"
-import { NavUser } from "@/components/dashboard/nav-user"
-import { TeamSwitcher } from "@/components/dashboard/team-switcher"
+import { NavMain, type NavItem } from "@/components/dashboard/nav-main";
+import { NavUser } from "@/components/dashboard/nav-user";
+import { TeamSwitcher } from "@/components/dashboard/team-switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@sports-system/ui/components/sidebar"
-import type { Session } from "@/types/auth"
+} from "@sports-system/ui/components/sidebar";
+import type { Session } from "@/types/auth";
 
-type PlatformRole = Session["role"] | "SUPERADMIN" | "USER"
+type PlatformRole = Session["role"] | "SUPERADMIN" | "USER";
 
 const publicNav: NavItem[] = [
   { title: "Início", url: "/", icon: Home },
@@ -39,7 +37,7 @@ const publicNav: NavItem[] = [
   { title: "Calendário", url: "/calendar", icon: CalendarDays },
   { title: "Delegações", url: "/delegations", icon: Flag },
   { title: "Esportes", url: "/sports", icon: Trophy },
-]
+];
 
 const commonNav: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
@@ -48,7 +46,7 @@ const commonNav: NavItem[] = [
   { title: "Resultados", url: "/dashboard/results", icon: Medal },
   { title: "Delegações", url: "/dashboard/delegations", icon: Flag },
   { title: "Esportes", url: "/dashboard/sports", icon: Trophy },
-]
+];
 
 const adminNav: NavItem[] = [
   {
@@ -69,47 +67,14 @@ const adminNav: NavItem[] = [
   },
   { title: "Geração IA", url: "/dashboard/ai", icon: Sparkles },
   { title: "Relatório Final", url: "/report", icon: BarChart3 },
-]
-
-const chiefNav: NavItem[] = [
-  {
-    title: "Minha Delegação",
-    url: "#",
-    icon: Flag,
-    isActive: false,
-    items: [
-      { title: "Visão geral", url: "/dashboard/my-delegation" },
-      { title: "Membros", url: "/dashboard/my-delegation/members" },
-      { title: "Convidar", url: "/dashboard/my-delegation/invite" },
-      { title: "Transferências", url: "/dashboard/my-delegation/transfers" },
-    ],
-  },
-  { title: "Inscrições", url: "/dashboard/enrollments", icon: ClipboardList },
-  { title: "Atletas", url: "/dashboard/athletes", icon: Users },
-]
+];
 
 const athleteNav: NavItem[] = [
   { title: "Minhas partidas", url: "/dashboard/my-matches", icon: CalendarDays },
   { title: "Meu perfil atleta", url: "/dashboard/my-profile", icon: UserCheck },
-]
+];
 
 const supportNav: Partial<Record<PlatformRole, NavItem[]>> = {
-  ADMIN: [
-    { title: "Centro analítico", url: "/report", icon: ChartColumn },
-    { title: "Automação IA", url: "/dashboard/ai", icon: Sparkles },
-  ],
-  CHIEF: [
-    { title: "Resultados da delegação", url: "/dashboard/results", icon: Trophy },
-    { title: "Área protegida", url: "/dashboard", icon: Shield },
-  ],
-  ATHLETE: [
-    { title: "Calendário oficial", url: "/dashboard/calendar", icon: CalendarDays },
-    { title: "Meu painel", url: "/dashboard", icon: Shield },
-  ],
-  COACH: [
-    { title: "Agenda da equipe", url: "/dashboard/calendar", icon: CalendarDays },
-    { title: "Área protegida", url: "/dashboard", icon: Shield },
-  ],
   SUPERADMIN: [
     { title: "Centro analítico", url: "/report", icon: ChartColumn },
     { title: "Automação IA", url: "/dashboard/ai", icon: Sparkles },
@@ -118,19 +83,18 @@ const supportNav: Partial<Record<PlatformRole, NavItem[]>> = {
     { title: "Calendário oficial", url: "/dashboard/calendar", icon: CalendarDays },
     { title: "Meu painel", url: "/dashboard", icon: Shield },
   ],
-}
+};
 
 function getNavItems(role: PlatformRole): NavItem[] {
-  if (role === "ADMIN" || role === "SUPERADMIN") return adminNav
-  if (role === "CHIEF") return chiefNav
-  return athleteNav
+  if (role === "SUPERADMIN") return adminNav;
+  return athleteNav;
 }
 
 export function AppSidebar({
   session,
   ...props
 }: React.ComponentProps<typeof Sidebar> & { session: Session | null }) {
-  const role = session?.role as PlatformRole | undefined
+  const role = session?.role as PlatformRole | undefined;
 
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
@@ -155,5 +119,5 @@ export function AppSidebar({
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

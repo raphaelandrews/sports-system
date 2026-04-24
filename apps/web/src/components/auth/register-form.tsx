@@ -28,7 +28,7 @@ export function RegisterForm() {
         });
         syncAccessTokenCookie(tokens.access_token);
         await router.invalidate();
-        await navigate({ to: "/dashboard" });
+        await navigate({ to: "/leagues" });
       } catch (err) {
         if (err instanceof Error) {
           setServerError(err.message);
@@ -58,8 +58,7 @@ export function RegisterForm() {
       <form.Field
         name="name"
         validators={{
-          onChange: ({ value }) =>
-            !value.trim() ? "Nome obrigatório" : undefined,
+          onChange: ({ value }) => (!value.trim() ? "Nome obrigatório" : undefined),
         }}
       >
         {(field) => (
@@ -97,7 +96,7 @@ export function RegisterForm() {
             <Input
               id="email"
               type="email"
-               placeholder="sports@email.com"
+              placeholder="sports@email.com"
               autoComplete="email"
               value={field.state.value}
               onChange={(e) => field.handleChange(e.target.value)}

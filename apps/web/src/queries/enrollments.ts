@@ -1,26 +1,29 @@
-import { queryOptions } from "@tanstack/react-query"
+import { queryOptions } from "@tanstack/react-query";
 
-import { apiFetch } from "@/lib/api"
-import { queryKeys } from "@/queries/keys"
-import type { EnrollmentResponse, EnrollmentStatus } from "@/types/enrollments"
+import { apiFetch } from "@/lib/api";
+import { queryKeys } from "@/queries/keys";
+import type { EnrollmentResponse, EnrollmentStatus } from "@/types/enrollments";
 
 interface PaginatedResponse<T> {
-  data: T[]
-  meta: { total: number; page: number; per_page: number }
+  data: T[];
+  meta: { total: number; page: number; per_page: number };
 }
 
-export const enrollmentListQueryOptions = (params?: {
-  page?: number
-  per_page?: number
-  event_id?: number
-  delegation_id?: number
-  status?: EnrollmentStatus
-}) =>
+export const enrollmentListQueryOptions = (
+  leagueId: number,
+  params?: {
+    page?: number;
+    per_page?: number;
+    event_id?: number;
+    delegation_id?: number;
+    status?: EnrollmentStatus;
+  },
+) =>
   queryOptions({
-    queryKey: queryKeys.enrollments.list(params),
+    queryKey: queryKeys.enrollments.list(leagueId, params),
     queryFn: () =>
-      apiFetch<PaginatedResponse<EnrollmentResponse>>("/enrollments", {
+      apiFetch<PaginatedResponse<EnrollmentResponse>>(`/leagues/${leagueId}/enrollments`, {
         params: { page: 1, per_page: 50, ...params },
       }),
     staleTime: 60_000,
-  })
+  });

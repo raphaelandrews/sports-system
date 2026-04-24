@@ -75,10 +75,7 @@ async function resolveApiPath(path: string): Promise<string> {
   return `/leagues/${leagueId}${path}`;
 }
 
-export async function apiFetch<T>(
-  path: string,
-  options: RequestOptions = {},
-): Promise<T> {
+export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { body, params, headers, ...rest } = options;
 
   const resolvedPath = await resolveApiPath(path);
@@ -95,9 +92,7 @@ export async function apiFetch<T>(
 
   let authHeader: Record<string, string> = {};
   if (typeof document !== "undefined") {
-    const match = document.cookie
-      .split("; ")
-      .find((c) => c.startsWith("access_token="));
+    const match = document.cookie.split("; ").find((c) => c.startsWith("access_token="));
     if (match) {
       authHeader = { Authorization: `Bearer ${match.split("=")[1]}` };
     }
@@ -136,9 +131,7 @@ export async function apiFetchBlob(path: string): Promise<Blob> {
   const resolvedPath = await resolveApiPath(path);
   let authHeader: Record<string, string> = {};
   if (typeof document !== "undefined") {
-    const match = document.cookie
-      .split("; ")
-      .find((c) => c.startsWith("access_token="));
+    const match = document.cookie.split("; ").find((c) => c.startsWith("access_token="));
     if (match) {
       authHeader = { Authorization: `Bearer ${match.split("=")[1]}` };
     }

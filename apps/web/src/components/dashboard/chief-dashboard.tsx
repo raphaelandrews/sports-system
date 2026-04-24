@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   Activity,
   ArrowRight,
@@ -8,17 +8,17 @@ import {
   Medal,
   ShieldAlert,
   Users,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card"
-import { formatEventDate } from "@/lib/date"
-import { athleteListQueryOptions } from "@/queries/athletes"
-import { delegationListQueryOptions } from "@/queries/delegations"
-import { enrollmentListQueryOptions } from "@/queries/enrollments"
-import { notificationsQueryOptions } from "@/queries/notifications"
-import { medalBoardQueryOptions } from "@/queries/results"
-import type { Session } from "@/types/auth"
-import type { MatchReminderPayload } from "@/types/notifications"
+import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card";
+import { formatEventDate } from "@/lib/date";
+import { athleteListQueryOptions } from "@/queries/athletes";
+import { delegationListQueryOptions } from "@/queries/delegations";
+import { enrollmentListQueryOptions } from "@/queries/enrollments";
+import { notificationsQueryOptions } from "@/queries/notifications";
+import { medalBoardQueryOptions } from "@/queries/results";
+import type { Session } from "@/types/auth";
+import type { MatchReminderPayload } from "@/types/notifications";
 
 import {
   ActionLink,
@@ -27,18 +27,10 @@ import {
   parseMatchReminderPayload,
   SectionHeader,
   StatCard,
-} from "./dashboard-primitives"
+} from "./dashboard-primitives";
 
-function StatusBar({
-  label,
-  value,
-  tone,
-}: {
-  label: string
-  value: number
-  tone: string
-}) {
-  const width = Math.min(value * 12, 100)
+function StatusBar({ label, value, tone }: { label: string; value: number; tone: string }) {
+  const width = Math.min(value * 12, 100);
 
   return (
     <div className="space-y-2">
@@ -53,34 +45,34 @@ function StatusBar({
         />
       </div>
     </div>
-  )
+  );
 }
 
-export function ChiefDashboard({ session }: { session: Session }) {
-  const { data: delegations } = useSuspenseQuery(delegationListQueryOptions())
-  const { data: athletes } = useSuspenseQuery(athleteListQueryOptions({ per_page: 100 }))
-  const { data: enrollments } = useSuspenseQuery(enrollmentListQueryOptions())
-  const { data: medalBoard } = useSuspenseQuery(medalBoardQueryOptions())
-  const { data: notifications } = useSuspenseQuery(notificationsQueryOptions(session.id))
+export function ChiefDashboard({ session, leagueId }: { session: Session; leagueId: number }) {
+  const { data: delegations } = useSuspenseQuery(delegationListQueryOptions(leagueId));
+  const { data: athletes } = useSuspenseQuery(athleteListQueryOptions(leagueId, { per_page: 100 }));
+  const { data: enrollments } = useSuspenseQuery(enrollmentListQueryOptions(leagueId));
+  const { data: medalBoard } = useSuspenseQuery(medalBoardQueryOptions(leagueId));
+  const { data: notifications } = useSuspenseQuery(notificationsQueryOptions(session.id));
 
   const myDelegation =
-    delegations.data.find((delegation) => delegation.chief_id === session.id) ?? null
+    delegations.data.find((delegation) => delegation.chief_id === session.id) ?? null;
   const myMedalEntry = myDelegation
     ? (medalBoard.find((entry) => entry.delegation_id === myDelegation.id) ?? null)
-    : null
+    : null;
   const rank = myMedalEntry
     ? medalBoard.findIndex((entry) => entry.delegation_id === myMedalEntry.delegation_id) + 1
-    : null
+    : null;
 
   const upcomingMatches = notifications.data
     .map(parseMatchReminderPayload)
     .filter((payload): payload is MatchReminderPayload => Boolean(payload))
-    .slice(0, 4)
+    .slice(0, 4);
 
-  const unreadNotices = notifications.data.filter((notification) => !notification.read).slice(0, 5)
-  const pendingEnrollments = enrollments.data.filter((item) => item.status === "PENDING").length
-  const approvedEnrollments = enrollments.data.filter((item) => item.status === "APPROVED").length
-  const rejectedEnrollments = enrollments.data.filter((item) => item.status === "REJECTED").length
+  const unreadNotices = notifications.data.filter((notification) => !notification.read).slice(0, 5);
+  const pendingEnrollments = enrollments.data.filter((item) => item.status === "PENDING").length;
+  const approvedEnrollments = enrollments.data.filter((item) => item.status === "APPROVED").length;
+  const rejectedEnrollments = enrollments.data.filter((item) => item.status === "REJECTED").length;
 
   return (
     <DashboardShell accent="from-sky-500/25 via-teal-400/15 to-transparent">
@@ -208,5 +200,5 @@ export function ChiefDashboard({ session }: { session: Session }) {
         </Card>
       </div>
     </DashboardShell>
-  )
+  );
 }

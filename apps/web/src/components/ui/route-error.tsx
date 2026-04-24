@@ -18,9 +18,7 @@ export function RouteErrorComponent({ error, reset }: RouteErrorComponentProps) 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
       <div className="grid gap-1">
-        {status && (
-          <p className="text-muted-foreground text-xs font-mono">{status}</p>
-        )}
+        {status && <p className="text-muted-foreground text-xs font-mono">{status}</p>}
         <p className="text-sm font-medium">{message}</p>
       </div>
       {reset && (

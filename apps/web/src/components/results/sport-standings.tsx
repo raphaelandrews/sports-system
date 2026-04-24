@@ -16,11 +16,7 @@ const medalLabel: Record<Medal, string> = {
   BRONZE: "Bronze",
 };
 
-export function SportStandings({
-  entries,
-}: {
-  entries: SportStandingEntry[];
-}) {
+export function SportStandings({ entries }: { entries: SportStandingEntry[] }) {
   return (
     <Table>
       <TableHeader>
@@ -37,7 +33,9 @@ export function SportStandings({
             <TableCell className="font-semibold">{entry.rank}</TableCell>
             <TableCell>
               <div className="space-y-1">
-                {entry.delegation_name ? <div className="font-medium">{entry.delegation_name}</div> : null}
+                {entry.delegation_name ? (
+                  <div className="font-medium">{entry.delegation_name}</div>
+                ) : null}
                 {entry.athlete_name ? (
                   <div className="text-sm text-muted-foreground">{entry.athlete_name}</div>
                 ) : null}

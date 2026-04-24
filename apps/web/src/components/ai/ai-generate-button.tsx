@@ -58,9 +58,7 @@ export function AiGenerateButton<TData>({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
-        render={
-          <Button type="button" variant={variant} className="w-full justify-start" />
-        }
+        render={<Button type="button" variant={variant} className="w-full justify-start" />}
         disabled={disabled}
       >
         {label}
@@ -85,11 +83,7 @@ export function AiGenerateButton<TData>({
         </div>
 
         <DialogFooter>
-          <Button
-            type="button"
-            onClick={() => mutation.mutate()}
-            disabled={mutation.isPending}
-          >
+          <Button type="button" onClick={() => mutation.mutate()} disabled={mutation.isPending}>
             {mutation.isPending ? pendingLabel : confirmLabel}
           </Button>
         </DialogFooter>

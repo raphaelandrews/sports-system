@@ -5,7 +5,7 @@ import { LoginForm } from "@/components/auth/login-form";
 export const Route = createFileRoute("/login")({
   beforeLoad: ({ context }) => {
     if (context.session) {
-      throw redirect({ to: "/dashboard" });
+      throw redirect({ to: "/leagues" });
     }
   },
   component: LoginPage,

@@ -23,6 +23,7 @@ import type { SportResponse } from "@/types/sports";
 
 interface CompetitionFormProps {
   sports: SportResponse[];
+  leagueId: number;
   isSubmitting?: boolean;
   errorMessage?: string | null;
   onSubmit: (value: {
@@ -35,6 +36,7 @@ interface CompetitionFormProps {
 
 export function CompetitionForm({
   sports,
+  leagueId,
   isSubmitting = false,
   errorMessage,
   onSubmit,
@@ -175,7 +177,8 @@ export function CompetitionForm({
                 {isSubmitting ? "Criando..." : "Criar competicao"}
               </Button>
               <Link
-                to="/dashboard/competitions"
+                to="/leagues/$leagueId/dashboard/competitions"
+                params={{ leagueId: String(leagueId) }}
                 className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
                 Cancelar e voltar

@@ -1,16 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import {
-  deleteCookie,
-  getCookie,
-  setCookie,
-} from "@tanstack/react-start/server";
+import { deleteCookie, getCookie, setCookie } from "@tanstack/react-start/server";
 
-import type {
-  LoginRequest,
-  RegisterRequest,
-  Session,
-  TokenResponse,
-} from "@/types/auth";
+import type { LoginRequest, RegisterRequest, Session, TokenResponse } from "@/types/auth";
 import { buildApiUrl } from "@/lib/url";
 
 function setAuthCookies(tokens: TokenResponse) {
@@ -28,21 +19,19 @@ function setAuthCookies(tokens: TokenResponse) {
   });
 }
 
-export const getSessionFn = createServerFn().handler(
-  async (): Promise<Session | null> => {
-    const token = getCookie("access_token");
-    if (!token) return null;
-    try {
-      const res = await fetch(buildApiUrl("/users/me"), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) return null;
-      return res.json() as Promise<Session>;
-    } catch {
-      return null;
-    }
-  },
-);
+export const getSessionFn = createServerFn().handler(async (): Promise<Session | null> => {
+  const token = getCookie("access_token");
+  if (!token) return null;
+  try {
+    const res = await fetch(buildApiUrl("/users/me"), {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    return res.json() as Promise<Session>;
+  } catch {
+    return null;
+  }
+});
 
 export const loginFn = createServerFn({ method: "POST" })
   .inputValidator((data: LoginRequest) => data)
@@ -72,8 +61,7 @@ export const registerFn = createServerFn({ method: "POST" })
     });
     if (!res.ok) {
       const json = await res.json().catch(() => ({}));
-      const detail =
-        (json as { detail?: string }).detail ?? "Registration failed";
+      const detail = (json as { detail?: string }).detail ?? "Registration failed";
       throw new Error(detail);
     }
     const tokens = (await res.json()) as TokenResponse;
@@ -104,8 +92,7 @@ export const finalizeOAuthFn = createServerFn({ method: "POST" })
     });
     if (!res.ok) {
       const json = await res.json().catch(() => ({}));
-      const detail =
-        (json as { detail?: string }).detail ?? "OAuth login failed";
+      const detail = (json as { detail?: string }).detail ?? "OAuth login failed";
       throw new Error(detail);
     }
     const tokens = (await res.json()) as TokenResponse;

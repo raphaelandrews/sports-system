@@ -1,14 +1,6 @@
-import * as React from "react"
-import { useRouterState } from "@tanstack/react-router"
-import {
-  ChevronsUpDown,
-  Crown,
-  Flag,
-  ShieldCheck,
-  Sparkles,
-  Trophy,
-  UserRound,
-} from "lucide-react"
+import * as React from "react";
+import { useRouterState } from "@tanstack/react-router";
+import { ChevronsUpDown, Crown, Sparkles, Trophy } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -18,24 +10,24 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@sports-system/ui/components/dropdown-menu"
+} from "@sports-system/ui/components/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@sports-system/ui/components/sidebar"
+} from "@sports-system/ui/components/sidebar";
 
-import type { Session } from "@/types/auth"
+import type { Session } from "@/types/auth";
 
 type WorkspaceItem = {
-  name: string
-  meta: string
-  icon: React.ElementType
-  href: string
-}
+  name: string;
+  meta: string;
+  icon: React.ElementType;
+  href: string;
+};
 
-type PlatformRole = Session["role"] | "SUPERADMIN" | "USER"
+type PlatformRole = Session["role"] | "SUPERADMIN" | "USER";
 
 const defaultWorkspaces: WorkspaceItem[] = [
   {
@@ -44,65 +36,9 @@ const defaultWorkspaces: WorkspaceItem[] = [
     icon: Trophy,
     href: "/dashboard",
   },
-]
+];
 
 const roleMeta: Partial<Record<PlatformRole, WorkspaceItem[]>> = {
-  ADMIN: [
-    {
-      name: "Central Admin",
-      meta: "Operação geral",
-      icon: Crown,
-      href: "/dashboard",
-    },
-    {
-      name: "Delegações",
-      meta: "Gestão esportiva",
-      icon: Sparkles,
-      href: "/dashboard/delegations",
-    },
-  ],
-  CHIEF: [
-    {
-      name: "Minha Delegação",
-      meta: "Gestão esportiva",
-      icon: Flag,
-      href: "/dashboard",
-    },
-    {
-      name: "Inscrições",
-      meta: "Janela atual",
-      icon: ShieldCheck,
-      href: "/dashboard",
-    },
-  ],
-  ATHLETE: [
-    {
-      name: "Agenda pessoal",
-      meta: "Próximas partidas",
-      icon: Trophy,
-      href: "/dashboard",
-    },
-    {
-      name: "Resultados",
-      meta: "Histórico recente",
-      icon: UserRound,
-      href: "/results",
-    },
-  ],
-  COACH: [
-    {
-      name: "Painel técnico",
-      meta: "Acompanhamento",
-      icon: ShieldCheck,
-      href: "/dashboard",
-    },
-    {
-      name: "Agenda da equipe",
-      meta: "Próximos jogos",
-      icon: Trophy,
-      href: "/calendar",
-    },
-  ],
   SUPERADMIN: [
     {
       name: "Central Admin",
@@ -118,11 +54,11 @@ const roleMeta: Partial<Record<PlatformRole, WorkspaceItem[]>> = {
     },
   ],
   USER: defaultWorkspaces,
-}
+};
 
 export function TeamSwitcher({ session }: { session: Session | null }) {
-  const { isMobile } = useSidebar()
-  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const { isMobile } = useSidebar();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   if (!session) {
     return (
@@ -134,23 +70,24 @@ export function TeamSwitcher({ session }: { session: Session | null }) {
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">Sports System</span>
-              <span className="truncate text-xs text-sidebar-foreground/70">Competição esportiva</span>
+              <span className="truncate text-xs text-sidebar-foreground/70">
+                Competição esportiva
+              </span>
             </div>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
-    )
+    );
   }
 
-  const role = session.role as PlatformRole
-  const workspaces = roleMeta[role] ?? defaultWorkspaces
+  const role = session.role as PlatformRole;
+  const workspaces = roleMeta[role] ?? defaultWorkspaces;
   const activeWorkspace =
     workspaces.find(
-      (workspace) =>
-        pathname === workspace.href || pathname.startsWith(`${workspace.href}/`)
-    ) ?? workspaces[0]
+      (workspace) => pathname === workspace.href || pathname.startsWith(`${workspace.href}/`),
+    ) ?? workspaces[0];
 
-  if (!activeWorkspace) return null
+  if (!activeWorkspace) return null;
 
   return (
     <SidebarMenu>
@@ -209,13 +146,9 @@ export function TeamSwitcher({ session }: { session: Session | null }) {
                 </div>
                 <div className="grid leading-tight">
                   <span className="font-medium">
-                    {role === "ADMIN" || role === "SUPERADMIN"
-                      ? "Modo controle"
-                      : "Modo competição"}
+                    {role === "SUPERADMIN" ? "Modo controle" : "Modo competição"}
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    {session.email}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{session.email}</span>
                 </div>
               </DropdownMenuItem>
             </DropdownMenuGroup>
@@ -223,5 +156,5 @@ export function TeamSwitcher({ session }: { session: Session | null }) {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

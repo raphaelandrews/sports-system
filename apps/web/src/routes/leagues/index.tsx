@@ -1,0 +1,69 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link, createFileRoute } from "@tanstack/react-router";
+
+import { Badge } from "@sports-system/ui/components/badge";
+import { buttonVariants } from "@sports-system/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@sports-system/ui/components/card";
+import { cn } from "@sports-system/ui/lib/utils";
+import { leagueListQueryOptions } from "@/queries/leagues";
+
+export const Route = createFileRoute("/leagues/")({
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(leagueListQueryOptions()),
+  component: LeaguesPage,
+});
+
+function LeaguesPage() {
+  const { data: leagues } = useSuspenseQuery(leagueListQueryOptions());
+
+  return (
+    <div className="container mx-auto max-w-5xl px-4 py-10">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">Ligas</h1>
+        <Link to="/leagues/new" className={cn(buttonVariants())}>
+          Criar liga
+        </Link>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {leagues.map((league) => (
+          <Card key={league.id}>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>{league.name}</CardTitle>
+                {league.is_showcase && <Badge variant="default">Showcase</Badge>}
+              </div>
+              <CardDescription>{league.slug}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {league.description ?? "Sem descrição"}
+              </p>
+              <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                <span>{league.member_count} membros</span>
+                <span>·</span>
+                <span>{league.timezone}</span>
+              </div>
+              <Link
+                to="/leagues/$leagueId"
+                params={{ leagueId: String(league.id) }}
+                className={cn(buttonVariants({ variant: "secondary" }), "mt-4 w-full")}
+              >
+                Ver liga
+              </Link>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {leagues.length === 0 && (
+        <p className="text-center text-muted-foreground">Nenhuma liga cadastrada.</p>
+      )}
+    </div>
+  );
+}

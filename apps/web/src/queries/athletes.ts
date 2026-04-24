@@ -9,23 +9,26 @@ interface PaginatedResponse<T> {
   meta: { total: number; page: number; per_page: number };
 }
 
-export const athleteListQueryOptions = (params?: {
-  page?: number;
-  per_page?: number;
-}) =>
+export const athleteListQueryOptions = (
+  leagueId: number,
+  params?: {
+    page?: number;
+    per_page?: number;
+  },
+) =>
   queryOptions({
-    queryKey: [...queryKeys.athletes.all(), params ?? {}],
+    queryKey: [...queryKeys.athletes.all(leagueId), params ?? {}],
     queryFn: () =>
-      apiFetch<PaginatedResponse<AthleteResponse>>("/athletes", {
+      apiFetch<PaginatedResponse<AthleteResponse>>(`/leagues/${leagueId}/athletes`, {
         params: { page: 1, per_page: 20, ...params },
       }),
     staleTime: 2 * 60 * 1000,
   });
 
-export const athleteReportQueryOptions = (athleteId: number) =>
+export const athleteReportQueryOptions = (leagueId: number, athleteId: number) =>
   queryOptions({
-    queryKey: queryKeys.athletes.report(athleteId),
+    queryKey: queryKeys.athletes.report(leagueId, athleteId),
     queryFn: () =>
-      apiFetch<AthleteReportResponse>(`/report/athlete/${athleteId}`),
+      apiFetch<AthleteReportResponse>(`/leagues/${leagueId}/report/athlete/${athleteId}`),
     staleTime: 2 * 60 * 1000,
   });

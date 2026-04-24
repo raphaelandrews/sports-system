@@ -1,26 +1,14 @@
 import { Bell } from "lucide-react";
 import { Button } from "@sports-system/ui/components/button";
 import { Badge } from "@sports-system/ui/components/badge";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@sports-system/ui/components/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@sports-system/ui/components/popover";
 import { ScrollArea } from "@sports-system/ui/components/scroll-area";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notificationsQueryOptions } from "@/queries/notifications";
 import { queryKeys } from "@/queries/keys";
 import { apiFetch } from "@/lib/api";
 import { formatEventDate } from "@/lib/date";
-import type {
-  InvitePayload,
-  NotificationResponse,
-  NotificationType,
-} from "@/types/notifications";
+import type { InvitePayload, NotificationResponse, NotificationType } from "@/types/notifications";
 
 function notifTitle(type: NotificationType): string {
   switch (type) {
@@ -75,7 +63,7 @@ function NotificationItem({ notif, onMarkRead }: NotificationItemProps) {
     onSuccess: () => {
       onMarkRead(notif.id);
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.delegations.all(),
+        queryKey: ["delegations"],
       });
     },
   });
@@ -99,19 +87,13 @@ function NotificationItem({ notif, onMarkRead }: NotificationItemProps) {
     >
       <div className="flex items-start gap-2">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium leading-none">
-            {notifTitle(notif.notification_type)}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            {notifDescription(notif)}
-          </p>
+          <p className="text-sm font-medium leading-none">{notifTitle(notif.notification_type)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{notifDescription(notif)}</p>
           <p className="text-xs text-muted-foreground/60 mt-1">
             {formatEventDate(notif.created_at)}
           </p>
         </div>
-        {!notif.read && (
-          <div className="w-2 h-2 rounded-full bg-blue-500 mt-1 flex-shrink-0" />
-        )}
+        {!notif.read && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1 flex-shrink-0" />}
       </div>
       {isInvite && !notif.read && (
         <div className="flex gap-2 mt-2">
@@ -201,9 +183,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
         </div>
         <ScrollArea className="max-h-80">
           {notifications.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              Nenhuma notificação
-            </p>
+            <p className="text-sm text-muted-foreground text-center py-8">Nenhuma notificação</p>
           ) : (
             notifications.map((notif) => (
               <NotificationItem

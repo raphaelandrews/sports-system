@@ -11,7 +11,10 @@ export function NarrativeRichText({ content }: { content: string }) {
     }
 
     blocks.push(
-      <ul key={`list-${blocks.length}`} className="space-y-2 pl-5 text-sm leading-7 text-foreground/90">
+      <ul
+        key={`list-${blocks.length}`}
+        className="space-y-2 pl-5 text-sm leading-7 text-foreground/90"
+      >
         {bulletBuffer.map((item, index) => (
           <li key={`${item}-${index}`} className="list-disc marker:text-primary">
             {renderInlineMarkdown(item)}
@@ -40,7 +43,10 @@ export function NarrativeRichText({ content }: { content: string }) {
 
     if (line.startsWith("### ")) {
       blocks.push(
-        <h3 key={`h3-${blocks.length}`} className="text-lg font-semibold tracking-tight text-foreground">
+        <h3
+          key={`h3-${blocks.length}`}
+          className="text-lg font-semibold tracking-tight text-foreground"
+        >
           {renderInlineMarkdown(line.slice(4))}
         </h3>,
       );
@@ -49,7 +55,10 @@ export function NarrativeRichText({ content }: { content: string }) {
 
     if (line.startsWith("## ")) {
       blocks.push(
-        <h2 key={`h2-${blocks.length}`} className="text-xl font-semibold tracking-tight text-foreground">
+        <h2
+          key={`h2-${blocks.length}`}
+          className="text-xl font-semibold tracking-tight text-foreground"
+        >
           {renderInlineMarkdown(line.slice(3))}
         </h2>,
       );
@@ -58,7 +67,10 @@ export function NarrativeRichText({ content }: { content: string }) {
 
     if (line.startsWith("# ")) {
       blocks.push(
-        <h1 key={`h1-${blocks.length}`} className="text-2xl font-semibold tracking-tight text-foreground">
+        <h1
+          key={`h1-${blocks.length}`}
+          className="text-2xl font-semibold tracking-tight text-foreground"
+        >
           {renderInlineMarkdown(line.slice(2))}
         </h1>,
       );

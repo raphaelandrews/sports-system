@@ -29,6 +29,7 @@ type DelegationFormValues = {
 
 interface AdminDelegationFormProps {
   mode: "create" | "edit";
+  leagueId: number;
   defaultValues?: Partial<DelegationFormValues>;
   isSubmitting?: boolean;
   errorMessage?: string | null;
@@ -37,6 +38,7 @@ interface AdminDelegationFormProps {
 
 export function AdminDelegationForm({
   mode,
+  leagueId,
   defaultValues,
   isSubmitting = false,
   errorMessage,
@@ -65,9 +67,7 @@ export function AdminDelegationForm({
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       <Card className="border border-border/70 bg-gradient-to-br from-card via-card to-muted/20">
         <CardHeader>
-          <CardTitle>
-            {mode === "create" ? "Nova delegação" : "Editar delegação"}
-          </CardTitle>
+          <CardTitle>{mode === "create" ? "Nova delegação" : "Editar delegação"}</CardTitle>
           <CardDescription>
             {mode === "create"
               ? "Cadastre delegações com identidade clara para o calendário, inscrições e relatórios."
@@ -151,8 +151,7 @@ export function AdminDelegationForm({
                 name="flag_url"
                 validators={{
                   onChange: ({ value }) =>
-                    value.trim() &&
-                    !/^https?:\/\/.+/i.test(value.trim())
+                    value.trim() && !/^https?:\/\/.+/i.test(value.trim())
                       ? "Use uma URL iniciando com http:// ou https://."
                       : undefined,
                 }}
@@ -194,7 +193,8 @@ export function AdminDelegationForm({
                     : "Salvar alterações"}
               </Button>
               <Link
-                to="/dashboard/delegations"
+                to="/leagues/$leagueId/dashboard/delegations"
+                params={{ leagueId: String(leagueId) }}
                 className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
                 Cancelar e voltar

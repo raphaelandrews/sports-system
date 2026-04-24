@@ -34,12 +34,14 @@ export function ActivityFeed({
   live = true,
   showMatchLink = false,
   title = "Feed de atividades",
+  leagueId,
 }: {
   initialItems: ActivityFeedItem[];
   limit: number;
   live?: boolean;
   showMatchLink?: boolean;
   title?: string;
+  leagueId?: number;
 }) {
   const [items, setItems] = useState(initialItems.slice(0, limit));
 
@@ -98,7 +100,9 @@ export function ActivityFeed({
                         <div className="font-medium">{item.title}</div>
                         <div className="text-sm text-muted-foreground">{item.description}</div>
                         <div className="flex flex-wrap gap-2 pt-1 text-xs text-muted-foreground">
-                          {item.competition_number != null ? <span>Competição {item.competition_number}</span> : null}
+                          {item.competition_number != null ? (
+                            <span>Competição {item.competition_number}</span>
+                          ) : null}
                           {item.sport_name ? <span>{item.sport_name}</span> : null}
                           {item.modality_name ? <span>{item.modality_name}</span> : null}
                           {item.minute != null ? <span>{item.minute}min</span> : null}
@@ -107,10 +111,10 @@ export function ActivityFeed({
                     </div>
                     <div className="shrink-0 text-right text-xs text-muted-foreground">
                       <div>{formatTimestamp(item.created_at)}</div>
-                      {showMatchLink && item.match_id != null ? (
+                      {showMatchLink && item.match_id != null && leagueId != null ? (
                         <Link
-                          to="/matches/$matchId"
-                          params={{ matchId: String(item.match_id) }}
+                          to="/leagues/$leagueId/matches/$matchId"
+                          params={{ leagueId: String(leagueId), matchId: String(item.match_id) }}
                           className="mt-2 inline-block text-foreground underline-offset-4 hover:underline"
                         >
                           Ver partida

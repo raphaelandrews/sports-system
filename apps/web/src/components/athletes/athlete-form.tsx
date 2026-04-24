@@ -43,6 +43,7 @@ type AthleteFormValues = {
 interface AthleteFormProps {
   mode: "create";
   roleScope: "admin" | "chief";
+  leagueId: number;
   defaultValues?: Partial<AthleteResponse>;
   isSubmitting?: boolean;
   errorMessage?: string | null;
@@ -58,6 +59,7 @@ interface AthleteFormProps {
 export function AthleteForm({
   mode,
   roleScope,
+  leagueId,
   defaultValues,
   isSubmitting = false,
   errorMessage,
@@ -163,7 +165,9 @@ export function AthleteForm({
                       <FieldLabel htmlFor="athlete-gender">Genero</FieldLabel>
                       <Select
                         value={field.state.value}
-                        onValueChange={(value) => field.handleChange(value as AthleteFormValues["gender"])}
+                        onValueChange={(value) =>
+                          field.handleChange(value as AthleteFormValues["gender"])
+                        }
                       >
                         <SelectTrigger id="athlete-gender">
                           <SelectValue />
@@ -220,7 +224,8 @@ export function AthleteForm({
                 {isSubmitting ? "Salvando..." : "Cadastrar atleta"}
               </Button>
               <Link
-                to="/dashboard/athletes"
+                to="/leagues/$leagueId/dashboard/athletes"
+                params={{ leagueId: String(leagueId) }}
                 className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
                 Cancelar e voltar

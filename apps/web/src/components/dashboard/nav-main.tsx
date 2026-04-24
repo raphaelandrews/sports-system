@@ -1,7 +1,7 @@
-import { ChevronRight, type LucideIcon } from "lucide-react"
-import { Link, useRouterState } from "@tanstack/react-router"
-import { useState } from "react"
-import { cn } from "@/lib/utils"
+import { ChevronRight, type LucideIcon } from "lucide-react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -11,21 +11,21 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@sports-system/ui/components/sidebar"
+} from "@sports-system/ui/components/sidebar";
 
 export interface NavItem {
-  title: string
-  url: string
-  icon?: LucideIcon
-  isActive?: boolean
-  items?: { title: string; url: string }[]
+  title: string;
+  url: string;
+  icon?: LucideIcon;
+  isActive?: boolean;
+  items?: { title: string; url: string }[];
 }
 
 export function NavMain({ items, label }: { items?: NavItem[]; label?: string }) {
-  const pathname = useRouterState({ select: (state) => state.location.pathname })
-  const safeItems = items ?? []
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const safeItems = items ?? [];
 
-  if (safeItems.length === 0) return null
+  if (safeItems.length === 0) return null;
 
   return (
     <SidebarGroup>
@@ -45,33 +45,33 @@ export function NavMain({ items, label }: { items?: NavItem[]; label?: string })
                 tooltip={item.title}
                 className={cn(
                   (pathname === item.url || pathname.startsWith(`${item.url}/`)) &&
-                    "bg-sidebar-accent text-sidebar-accent-foreground"
+                    "bg-sidebar-accent text-sidebar-accent-foreground",
                 )}
               >
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
-          )
+          ),
         )}
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }
 
 function ExpandableNavItem({
   item,
   pathname,
 }: {
-  item: NavItem & { items: { title: string; url: string }[] }
-  pathname: string
+  item: NavItem & { items: { title: string; url: string }[] };
+  pathname: string;
 }) {
   const isActive =
     pathname === item.url ||
     item.items.some(
-      (subItem) => pathname === subItem.url || pathname.startsWith(`${subItem.url}/`)
-    )
-  const [open, setOpen] = useState(isActive || item.isActive)
+      (subItem) => pathname === subItem.url || pathname.startsWith(`${subItem.url}/`),
+    );
+  const [open, setOpen] = useState(isActive || item.isActive);
 
   return (
     <SidebarMenuItem>
@@ -95,7 +95,7 @@ function ExpandableNavItem({
                 render={<Link to={subItem.url} />}
                 className={cn(
                   (pathname === subItem.url || pathname.startsWith(`${subItem.url}/`)) &&
-                    "bg-sidebar-accent/70 text-sidebar-accent-foreground"
+                    "bg-sidebar-accent/70 text-sidebar-accent-foreground",
                 )}
               >
                 <span>{subItem.title}</span>
@@ -105,5 +105,5 @@ function ExpandableNavItem({
         </SidebarMenuSub>
       ) : null}
     </SidebarMenuItem>
-  )
+  );
 }

@@ -16,7 +16,7 @@ import { getSessionFn } from "@/server/auth";
 
 import appCss from "@/index.css?url";
 
-const AUTH_PATHS = ["/login", "/register", "/auth/oauth/callback"]
+const AUTH_PATHS = ["/login", "/register", "/auth/oauth/callback"];
 
 export interface RouterAppContext {
   queryClient: QueryClient;

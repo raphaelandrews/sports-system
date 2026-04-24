@@ -26,7 +26,7 @@ function RequestChiefPage() {
         },
       });
       toast.success("Solicitação enviada com sucesso!");
-      await router.navigate({ to: "/dashboard" });
+      await router.navigate({ to: "/leagues" });
     },
   });
 
@@ -49,8 +49,7 @@ function RequestChiefPage() {
         <form.Field
           name="delegation_name"
           validators={{
-            onChange: ({ value }) =>
-              !value.trim() ? "Nome da delegação obrigatório" : undefined,
+            onChange: ({ value }) => (!value.trim() ? "Nome da delegação obrigatório" : undefined),
           }}
         >
           {(field) => (
@@ -64,9 +63,7 @@ function RequestChiefPage() {
                 placeholder="Ex: Delegação Brasil"
               />
               {field.state.meta.errors.length > 0 && (
-                <p className="text-destructive text-sm">
-                  {field.state.meta.errors[0]}
-                </p>
+                <p className="text-destructive text-sm">{field.state.meta.errors[0]}</p>
               )}
             </div>
           )}
@@ -90,9 +87,7 @@ function RequestChiefPage() {
         <form.Subscribe selector={(s) => [s.isSubmitting, s.errors] as const}>
           {([isSubmitting, errors]) => (
             <>
-              {errors.length > 0 && (
-                <p className="text-destructive text-sm">{String(errors[0])}</p>
-              )}
+              {errors.length > 0 && <p className="text-destructive text-sm">{String(errors[0])}</p>}
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Enviando..." : "Enviar solicitação"}
               </Button>

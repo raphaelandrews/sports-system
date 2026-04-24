@@ -87,13 +87,7 @@ function MatchCard({ match }: { match: BracketMatchItem }) {
   );
 }
 
-function TeamRow({
-  name,
-  emphasized,
-}: {
-  name: string;
-  emphasized: boolean;
-}) {
+function TeamRow({ name, emphasized }: { name: string; emphasized: boolean }) {
   return (
     <div
       className={cn(

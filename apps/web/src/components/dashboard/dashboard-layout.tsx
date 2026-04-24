@@ -1,6 +1,6 @@
-import * as React from "react"
-import { useRouterState } from "@tanstack/react-router"
-import { Skeleton } from "@sports-system/ui/components/skeleton"
+import * as React from "react";
+import { useRouterState } from "@tanstack/react-router";
+import { Skeleton } from "@sports-system/ui/components/skeleton";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,18 +8,18 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbLink,
-} from "@sports-system/ui/components/breadcrumb"
-import { Separator } from "@sports-system/ui/components/separator"
+} from "@sports-system/ui/components/breadcrumb";
+import { Separator } from "@sports-system/ui/components/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@sports-system/ui/components/sidebar"
-import { AppSidebar } from "@/components/dashboard/app-sidebar"
-import { GlobalSearchForm } from "@/components/dashboard/global-search-form"
-import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler"
-import { NotificationBell } from "@/components/ui/notification-bell"
-import type { Session } from "@/types/auth"
+} from "@sports-system/ui/components/sidebar";
+import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import { GlobalSearchForm } from "@/components/dashboard/global-search-form";
+import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { NotificationBell } from "@/components/ui/notification-bell";
+import type { Session } from "@/types/auth";
 
 function ContentSkeleton() {
   return (
@@ -35,7 +35,7 @@ function ContentSkeleton() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 const pathLabels: Record<string, string> = {
@@ -71,25 +71,25 @@ const pathLabels: Record<string, string> = {
   records: "Recordes",
   modalities: "Modalidades",
   edit: "Editar",
-}
+};
 
 function useBreadcrumbs() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const normalized = pathname.replace(/^\/dashboard\/?/, "/")
-  const segments = normalized.split("/").filter(Boolean)
-  return segments.map((s) => pathLabels[s] ?? s)
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const normalized = pathname.replace(/^\/dashboard\/?/, "/");
+  const segments = normalized.split("/").filter(Boolean);
+  return segments.map((s) => pathLabels[s] ?? s);
 }
 
 export function DashboardLayout({
   session,
   children,
 }: {
-  session: Session | null
-  children?: React.ReactNode
+  session: Session | null;
+  children?: React.ReactNode;
 }) {
-  const crumbs = useBreadcrumbs()
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const pageTitle = crumbs.at(-1) ?? (pathname.startsWith("/dashboard") ? "Dashboard" : "Início")
+  const crumbs = useBreadcrumbs();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const pageTitle = crumbs.at(-1) ?? (pathname.startsWith("/dashboard") ? "Dashboard" : "Início");
 
   return (
     <SidebarProvider>
@@ -99,10 +99,7 @@ export function DashboardLayout({
           <div className="flex w-full items-center justify-between gap-3 px-4">
             <div className="flex min-w-0 items-center gap-2 px-4">
               <SidebarTrigger className="-ml-1" />
-              <Separator
-                orientation="vertical"
-                className="mr-2 h-4 data-vertical:self-center"
-              />
+              <Separator orientation="vertical" className="mr-2 h-4 data-vertical:self-center" />
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
@@ -127,11 +124,9 @@ export function DashboardLayout({
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
-          <React.Suspense fallback={<ContentSkeleton />}>
-            {children}
-          </React.Suspense>
+          <React.Suspense fallback={<ContentSkeleton />}>{children}</React.Suspense>
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

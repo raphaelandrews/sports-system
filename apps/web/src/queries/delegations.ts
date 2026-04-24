@@ -10,40 +10,42 @@ import type {
 } from "@/types/delegations";
 import { queryKeys } from "@/queries/keys";
 
-export const delegationListQueryOptions = () =>
+export const delegationListQueryOptions = (leagueId: number) =>
   queryOptions({
-    queryKey: queryKeys.delegations.all(),
+    queryKey: queryKeys.delegations.all(leagueId),
     queryFn: () =>
-      apiFetch<{ data: DelegationSummary[] }>("/delegations", {
+      apiFetch<{ data: DelegationSummary[] }>(`/leagues/${leagueId}/delegations`, {
         params: { per_page: 100 },
       }),
     staleTime: 5 * 60 * 1000,
   });
 
-export const delegationDetailQueryOptions = (id: number) =>
+export const delegationDetailQueryOptions = (leagueId: number, id: number) =>
   queryOptions({
-    queryKey: queryKeys.delegations.detail(id),
-    queryFn: () => apiFetch<DelegationDetailResponse>(`/delegations/${id}`),
+    queryKey: queryKeys.delegations.detail(leagueId, id),
+    queryFn: () => apiFetch<DelegationDetailResponse>(`/leagues/${leagueId}/delegations/${id}`),
     staleTime: 2 * 60 * 1000,
   });
 
-export const delegationHistoryQueryOptions = (id: number) =>
+export const delegationHistoryQueryOptions = (leagueId: number, id: number) =>
   queryOptions({
-    queryKey: queryKeys.delegations.history(id),
-    queryFn: () => apiFetch<MemberHistoryItem[]>(`/delegations/${id}/history`),
+    queryKey: queryKeys.delegations.history(leagueId, id),
+    queryFn: () => apiFetch<MemberHistoryItem[]>(`/leagues/${leagueId}/delegations/${id}/history`),
     staleTime: 2 * 60 * 1000,
   });
 
-export const delegationStatisticsQueryOptions = (id: number) =>
+export const delegationStatisticsQueryOptions = (leagueId: number, id: number) =>
   queryOptions({
-    queryKey: queryKeys.delegations.statistics(id),
-    queryFn: () => apiFetch<DelegationStatisticsResponse>(`/delegations/${id}/statistics`),
+    queryKey: queryKeys.delegations.statistics(leagueId, id),
+    queryFn: () =>
+      apiFetch<DelegationStatisticsResponse>(`/leagues/${leagueId}/delegations/${id}/statistics`),
     staleTime: 2 * 60 * 1000,
   });
 
-export const delegationInvitesQueryOptions = (id: number) =>
+export const delegationInvitesQueryOptions = (leagueId: number, id: number) =>
   queryOptions({
-    queryKey: queryKeys.delegations.invites(id),
-    queryFn: () => apiFetch<DelegationInviteResponse[]>(`/delegations/${id}/invites`),
+    queryKey: queryKeys.delegations.invites(leagueId, id),
+    queryFn: () =>
+      apiFetch<DelegationInviteResponse[]>(`/leagues/${leagueId}/delegations/${id}/invites`),
     staleTime: 30 * 1000,
   });

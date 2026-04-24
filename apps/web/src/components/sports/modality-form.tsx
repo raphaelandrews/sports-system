@@ -39,6 +39,7 @@ interface ModalityFormProps {
   mode: "create" | "edit";
   sportName: string;
   sportId: number;
+  leagueId: number;
   defaultValues?: Partial<ModalityResponse>;
   isSubmitting?: boolean;
   errorMessage?: string | null;
@@ -54,6 +55,7 @@ export function ModalityForm({
   mode,
   sportName,
   sportId,
+  leagueId,
   defaultValues,
   isSubmitting = false,
   errorMessage,
@@ -89,9 +91,7 @@ export function ModalityForm({
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <Card className="border border-border/70 bg-gradient-to-br from-card via-card to-muted/20">
         <CardHeader>
-          <CardTitle>
-            {mode === "create" ? "Nova modalidade" : "Editar modalidade"}
-          </CardTitle>
+          <CardTitle>{mode === "create" ? "Nova modalidade" : "Editar modalidade"}</CardTitle>
           <CardDescription>
             {mode === "create"
               ? `Cadastre uma nova modalidade para ${sportName}.`
@@ -182,7 +182,8 @@ export function ModalityForm({
                       onChange={(event) => field.handleChange(event.target.value)}
                     />
                     <FieldDescription>
-                      Exemplo: {`{"max_athletes": 12, "substitutes": 6, "gender": "M", "schedule_conflict_check": true}`}
+                      Exemplo:{" "}
+                      {`{"max_athletes": 12, "substitutes": 6, "gender": "M", "schedule_conflict_check": true}`}
                     </FieldDescription>
                   </Field>
                 )}
@@ -214,8 +215,8 @@ export function ModalityForm({
                     : "Salvar alterações"}
               </Button>
               <Link
-                to="/dashboard/sports/$sportId"
-                params={{ sportId: String(sportId) }}
+                to="/leagues/$leagueId/dashboard/sports/$sportId"
+                params={{ leagueId: String(leagueId), sportId: String(sportId) }}
                 className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
                 Cancelar e voltar

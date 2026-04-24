@@ -106,7 +106,9 @@ export function DelegationStatisticsPanel({
                           <Badge variant={athlete.is_current_member ? "secondary" : "outline"}>
                             {athlete.is_current_member ? "Ativo" : "Historico"}
                           </Badge>
-                          {!athlete.is_active ? <Badge variant="outline">Ficha inativa</Badge> : null}
+                          {!athlete.is_active ? (
+                            <Badge variant="outline">Ficha inativa</Badge>
+                          ) : null}
                         </div>
                       </TableCell>
                       <TableCell>{athlete.total_matches}</TableCell>

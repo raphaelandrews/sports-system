@@ -46,8 +46,8 @@ async def _get_match_league_id(session: AsyncSession, match_id: int) -> int | No
     return result.scalar_one_or_none()
 
 
-@router.post("/demo-seed", status_code=status.HTTP_201_CREATED)
-async def demo_seed(
+@router.post("/seed", status_code=status.HTTP_201_CREATED)
+async def seed(
     league_id: int,
     session: AsyncSession = Depends(get_session),
     _: LeagueMember = Depends(require_league_admin()),
@@ -165,8 +165,12 @@ async def demo_seed(
             if modalities:
                 mod_a = modalities[(delegation_index * 2) % len(modalities)]
                 mod_b = modalities[(delegation_index * 2 + 1) % len(modalities)]
-                session.add(AthleteModality(athlete_id=athlete.id, modality_id=mod_a.id))
-                session.add(AthleteModality(athlete_id=athlete.id, modality_id=mod_b.id))
+                session.add(
+                    AthleteModality(athlete_id=athlete.id, modality_id=mod_a.id)
+                )
+                session.add(
+                    AthleteModality(athlete_id=athlete.id, modality_id=mod_b.id)
+                )
 
     competition = Competition(
         league_id=league_id,
@@ -181,7 +185,9 @@ async def demo_seed(
 
     medals_awarded: list[dict[str, object]] = []
     for sport_index, (sport, modality) in enumerate(zip(sports[:5], modalities[:5])):
-        event_dt = datetime.combine(competition_start + timedelta(days=sport_index + 1), time(10, 0))
+        event_dt = datetime.combine(
+            competition_start + timedelta(days=sport_index + 1), time(10, 0)
+        )
         event = Event(
             competition_id=competition.id,
             modality_id=modality.id,
@@ -213,11 +219,40 @@ async def demo_seed(
         session.add(match)
         await session.flush()
 
-        session.add(Result(match_id=match.id, delegation_id=del_a.id, rank=1, medal=Medal.GOLD, value_json={}))
-        session.add(Result(match_id=match.id, delegation_id=del_b.id, rank=2, medal=Medal.SILVER, value_json={}))
-        session.add(Result(match_id=match.id, delegation_id=del_bronze.id, rank=3, medal=Medal.BRONZE, value_json={}))
+        session.add(
+            Result(
+                match_id=match.id,
+                delegation_id=del_a.id,
+                rank=1,
+                medal=Medal.GOLD,
+                value_json={},
+            )
+        )
+        session.add(
+            Result(
+                match_id=match.id,
+                delegation_id=del_b.id,
+                rank=2,
+                medal=Medal.SILVER,
+                value_json={},
+            )
+        )
+        session.add(
+            Result(
+                match_id=match.id,
+                delegation_id=del_bronze.id,
+                rank=3,
+                medal=Medal.BRONZE,
+                value_json={},
+            )
+        )
         medals_awarded.append(
-            {"sport": sport.name, "gold": del_a.name, "silver": del_b.name, "bronze": del_bronze.name}
+            {
+                "sport": sport.name,
+                "gold": del_a.name,
+                "silver": del_b.name,
+                "bronze": del_bronze.name,
+            }
         )
 
     await session.commit()
@@ -242,7 +277,9 @@ async def simulate_match(
 ) -> dict[str, object]:
     match_league_id = await _get_match_league_id(session, match_id)
     if match_league_id is None or match_league_id != league_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Match not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Match not found"
+        )
 
     try:
         await simulation_service.simulate_match(session, match_id)

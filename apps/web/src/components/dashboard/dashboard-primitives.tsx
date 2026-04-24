@@ -1,13 +1,13 @@
-import type { ElementType, ReactNode } from "react"
-import { ArrowRight } from "lucide-react"
+import type { ElementType, ReactNode } from "react";
+import { ArrowRight } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card";
 import type {
   MatchReminderPayload,
   NotificationResponse,
   ResultPayload,
-} from "@/types/notifications"
-import type { CompetitionResponse, CompetitionStatus } from "@/types/competitions"
+} from "@/types/notifications";
+import type { CompetitionResponse, CompetitionStatus } from "@/types/competitions";
 
 export const statusLabel: Record<CompetitionStatus, string> = {
   DRAFT: "Rascunho",
@@ -15,7 +15,7 @@ export const statusLabel: Record<CompetitionStatus, string> = {
   LOCKED: "Travada",
   ACTIVE: "Ativa",
   COMPLETED: "Concluída",
-}
+};
 
 export function findCurrentCompetition(competitions: CompetitionResponse[]) {
   return (
@@ -24,35 +24,35 @@ export function findCurrentCompetition(competitions: CompetitionResponse[]) {
     competitions.find((competition) => competition.status === "SCHEDULED") ??
     competitions[0] ??
     null
-  )
+  );
 }
 
 export function parseMatchReminderPayload(notification: NotificationResponse) {
-  if (notification.notification_type !== "MATCH_REMINDER") return null
+  if (notification.notification_type !== "MATCH_REMINDER") return null;
 
-  const payload = notification.payload as Partial<MatchReminderPayload>
+  const payload = notification.payload as Partial<MatchReminderPayload>;
 
   if (
     typeof payload.match_id !== "number" ||
     typeof payload.event_name !== "string" ||
     typeof payload.start_time !== "string"
   ) {
-    return null
+    return null;
   }
 
-  return payload
+  return payload;
 }
 
 export function parseResultPayload(notification: NotificationResponse) {
-  if (notification.notification_type !== "RESULT") return null
+  if (notification.notification_type !== "RESULT") return null;
 
-  const payload = notification.payload as Partial<ResultPayload>
+  const payload = notification.payload as Partial<ResultPayload>;
 
   if (typeof payload.match_id !== "number" || typeof payload.event_name !== "string") {
-    return null
+    return null;
   }
 
-  return payload
+  return payload;
 }
 
 export function StatCard({
@@ -61,10 +61,10 @@ export function StatCard({
   sub,
   icon: Icon,
 }: {
-  title: string
-  value: string | number
-  sub: string
-  icon: ElementType
+  title: string;
+  value: string | number;
+  sub: string;
+  icon: ElementType;
 }) {
   return (
     <Card className="border-border/70 bg-card/80 shadow-sm">
@@ -77,7 +77,7 @@ export function StatCard({
         <p className="mt-1 text-xs text-muted-foreground">{sub}</p>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function SectionHeader({
@@ -85,9 +85,9 @@ export function SectionHeader({
   title,
   description,
 }: {
-  eyebrow: string
-  title: string
-  description: string
+  eyebrow: string;
+  title: string;
+  description: string;
 }) {
   return (
     <div className="space-y-2">
@@ -99,16 +99,10 @@ export function SectionHeader({
         <p className="max-w-3xl text-sm text-muted-foreground">{description}</p>
       </div>
     </div>
-  )
+  );
 }
 
-export function DashboardShell({
-  accent,
-  children,
-}: {
-  accent: string
-  children: ReactNode
-}) {
+export function DashboardShell({ accent, children }: { accent: string; children: ReactNode }) {
   return (
     <div className="relative overflow-hidden rounded-[28px] border border-border/60 bg-background">
       <div
@@ -116,7 +110,7 @@ export function DashboardShell({
       />
       <div className="relative space-y-6 p-6">{children}</div>
     </div>
-  )
+  );
 }
 
 export function ActionLink({ to, label }: { to: string; label: string }) {
@@ -128,9 +122,9 @@ export function ActionLink({ to, label }: { to: string; label: string }) {
       <span>{label}</span>
       <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5" />
     </a>
-  )
+  );
 }
 
 export function EmptyState({ text }: { text: string }) {
-  return <p className="text-sm text-muted-foreground">{text}</p>
+  return <p className="text-sm text-muted-foreground">{text}</p>;
 }

@@ -1,5 +1,4 @@
 import { Button } from "@sports-system/ui/components/button";
-import { Link } from "@tanstack/react-router";
 import { Card, CardContent } from "@sports-system/ui/components/card";
 import {
   FieldDescription,
@@ -19,13 +18,7 @@ interface AuthCardProps {
   onFormSubmit: (e: React.FormEvent) => void;
 }
 
-export function AuthCard({
-  title,
-  subtitle,
-  switchText,
-  children,
-  onFormSubmit,
-}: AuthCardProps) {
+export function AuthCard({ title, subtitle, switchText, children, onFormSubmit }: AuthCardProps) {
   return (
     <div className="flex flex-col gap-6">
       <Card className="overflow-hidden p-0">
@@ -66,9 +59,7 @@ export function AuthCard({
                 </Button>
               </Field>
 
-              <FieldDescription className="text-center">
-                {switchText}
-              </FieldDescription>
+              <FieldDescription className="text-center">{switchText}</FieldDescription>
             </FieldGroup>
           </form>
 
@@ -84,13 +75,13 @@ export function AuthCard({
 
       <FieldDescription className="px-6 text-center">
         Ao continuar, você concorda com nossos{" "}
-        <Link to="/terms" className="underline underline-offset-4 hover:text-foreground">
+        <a href="#" className="underline underline-offset-4 hover:text-foreground">
           Termos de Uso
-        </Link>{" "}
+        </a>{" "}
         e{" "}
-        <Link to="/privacy" className="underline underline-offset-4 hover:text-foreground">
+        <a href="#" className="underline underline-offset-4 hover:text-foreground">
           Política de Privacidade
-        </Link>
+        </a>
         .
       </FieldDescription>
     </div>

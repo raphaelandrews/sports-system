@@ -4,23 +4,23 @@ import { apiFetch } from "@/lib/api";
 import { queryKeys } from "@/queries/keys";
 import type { AIGenerationResponse, NarrativeResponse } from "@/types/reports";
 
-export const aiGenerationHistoryQueryOptions = () =>
+export const aiGenerationHistoryQueryOptions = (leagueId: number) =>
   queryOptions({
-    queryKey: queryKeys.ai.history(),
-    queryFn: () => apiFetch<AIGenerationResponse[]>("/ai/generation-history"),
+    queryKey: queryKeys.ai.history(leagueId),
+    queryFn: () => apiFetch<AIGenerationResponse[]>(`/leagues/${leagueId}/ai/generation-history`),
     staleTime: 30_000,
   });
 
-export const narrativeTodayQueryOptions = () =>
+export const narrativeTodayQueryOptions = (leagueId: number) =>
   queryOptions({
-    queryKey: queryKeys.ai.narrative("today"),
-    queryFn: () => apiFetch<NarrativeResponse | null>("/narrative/today"),
+    queryKey: queryKeys.ai.narrative(leagueId, "today"),
+    queryFn: () => apiFetch<NarrativeResponse | null>(`/leagues/${leagueId}/narrative/today`),
     staleTime: 30_000,
   });
 
-export const narrativeByDateQueryOptions = (targetDate: string) =>
+export const narrativeByDateQueryOptions = (leagueId: number, targetDate: string) =>
   queryOptions({
-    queryKey: queryKeys.ai.narrative(targetDate),
-    queryFn: () => apiFetch<NarrativeResponse>(`/narrative/${targetDate}`),
+    queryKey: queryKeys.ai.narrative(leagueId, targetDate),
+    queryFn: () => apiFetch<NarrativeResponse>(`/leagues/${leagueId}/narrative/${targetDate}`),
     staleTime: 30_000,
   });

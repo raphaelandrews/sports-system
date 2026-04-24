@@ -1,14 +1,14 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { Activity, CalendarDays, Medal, Trophy, UserRound } from "lucide-react"
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Activity, CalendarDays, Medal, Trophy, UserRound } from "lucide-react";
 
-import { Badge } from "@sports-system/ui/components/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card"
-import { formatDate, formatEventDate } from "@/lib/date"
-import { allEventsQueryOptions } from "@/queries/events"
-import { notificationsQueryOptions } from "@/queries/notifications"
-import { competitionListQueryOptions } from "@/queries/competitions"
-import type { Session } from "@/types/auth"
-import type { MatchReminderPayload, ResultPayload } from "@/types/notifications"
+import { Badge } from "@sports-system/ui/components/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card";
+import { formatDate, formatEventDate } from "@/lib/date";
+import { allEventsQueryOptions } from "@/queries/events";
+import { notificationsQueryOptions } from "@/queries/notifications";
+import { competitionListQueryOptions } from "@/queries/competitions";
+import type { Session } from "@/types/auth";
+import type { MatchReminderPayload, ResultPayload } from "@/types/notifications";
 
 import {
   ActionLink,
@@ -20,28 +20,34 @@ import {
   SectionHeader,
   StatCard,
   statusLabel,
-} from "./dashboard-primitives"
+} from "./dashboard-primitives";
 
-export function AthleteCoachDashboard({ session }: { session: Session }) {
-  const { data: notifications } = useSuspenseQuery(notificationsQueryOptions(session.id))
-  const { data: competitions } = useSuspenseQuery(competitionListQueryOptions())
-  const { data: events } = useSuspenseQuery(allEventsQueryOptions({ per_page: 12 }))
+export function AthleteCoachDashboard({
+  session,
+  leagueId,
+}: {
+  session: Session;
+  leagueId: number;
+}) {
+  const { data: notifications } = useSuspenseQuery(notificationsQueryOptions(session.id));
+  const { data: competitions } = useSuspenseQuery(competitionListQueryOptions(leagueId));
+  const { data: events } = useSuspenseQuery(allEventsQueryOptions(leagueId, { per_page: 12 }));
 
-  const currentCompetition = findCurrentCompetition(competitions.data)
+  const currentCompetition = findCurrentCompetition(competitions.data);
   const upcomingMatches = notifications.data
     .map(parseMatchReminderPayload)
     .filter((payload): payload is MatchReminderPayload => Boolean(payload))
-    .slice(0, 4)
+    .slice(0, 4);
   const recentResults = notifications.data
     .map(parseResultPayload)
     .filter((payload): payload is ResultPayload => Boolean(payload))
-    .slice(0, 4)
-  const nextEvents = events.data.slice(0, 3)
+    .slice(0, 4);
+  const nextEvents = events.data.slice(0, 3);
 
   return (
     <DashboardShell accent="from-violet-500/15 via-blue-500/10 to-transparent">
       <SectionHeader
-        eyebrow={session.role === "COACH" ? "Painel do técnico" : "Painel do atleta"}
+        eyebrow="Painel do atleta"
         title={`Olá, ${session.name}`}
         description="Veja o que vem pela frente, acompanhe seus resultados recentes e navegue rápido para o calendário e para a página pública de resultados."
       />
@@ -50,7 +56,9 @@ export function AthleteCoachDashboard({ session }: { session: Session }) {
         <StatCard
           title="Competição atual"
           value={currentCompetition ? `#${currentCompetition.number}` : "—"}
-          sub={currentCompetition ? statusLabel[currentCompetition.status] : "Nenhuma competição ativa"}
+          sub={
+            currentCompetition ? statusLabel[currentCompetition.status] : "Nenhuma competição ativa"
+          }
           icon={CalendarDays}
         />
         <StatCard
@@ -166,5 +174,5 @@ export function AthleteCoachDashboard({ session }: { session: Session }) {
         </Card>
       </div>
     </DashboardShell>
-  )
+  );
 }

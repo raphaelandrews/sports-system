@@ -2,13 +2,18 @@
 Runs only when the sports table is empty (idempotent).
 """
 
+import logging
 from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import async_session_factory
+from app.models.league import League, LeagueMember, LeagueMemberRole
 from app.models.sport import Gender, Modality, Sport, SportStatisticsSchema, SportType
+from app.models.user import User, UserRole
+
+logger = logging.getLogger(__name__)
 
 _SPORTS: list[dict[str, Any]] = [
     {
@@ -25,12 +30,47 @@ _SPORTS: list[dict[str, Any]] = [
             "max_substitutions": 5,
         },
         "stats_schema": {
-            "team": ["wins", "losses", "draws", "points", "goals_for", "goals_against", "goal_diff", "cards_yellow", "cards_red"],
-            "individual": ["goals", "assists", "cards_yellow", "cards_red", "matches_played", "minutes_played"],
+            "team": [
+                "wins",
+                "losses",
+                "draws",
+                "points",
+                "goals_for",
+                "goals_against",
+                "goal_diff",
+                "cards_yellow",
+                "cards_red",
+            ],
+            "individual": [
+                "goals",
+                "assists",
+                "cards_yellow",
+                "cards_red",
+                "matches_played",
+                "minutes_played",
+            ],
         },
         "modalities": [
-            {"name": "Futebol Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 16, "substitutes": 5, "gender": "M", "schedule_conflict_check": True}},
-            {"name": "Futebol Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 16, "substitutes": 5, "gender": "F", "schedule_conflict_check": True}},
+            {
+                "name": "Futebol Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "max_athletes": 16,
+                    "substitutes": 5,
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Futebol Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "max_athletes": 16,
+                    "substitutes": 5,
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                },
+            },
         ],
     },
     {
@@ -47,12 +87,37 @@ _SPORTS: list[dict[str, Any]] = [
             "fifth_set_points": 15,
         },
         "stats_schema": {
-            "team": ["wins", "losses", "sets_won", "sets_lost", "points_scored", "points_conceded"],
+            "team": [
+                "wins",
+                "losses",
+                "sets_won",
+                "sets_lost",
+                "points_scored",
+                "points_conceded",
+            ],
             "individual": ["aces", "blocks", "attack_points", "errors", "sets_played"],
         },
         "modalities": [
-            {"name": "Vôlei Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 12, "substitutes": 6, "gender": "M", "schedule_conflict_check": True}},
-            {"name": "Vôlei Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 12, "substitutes": 6, "gender": "F", "schedule_conflict_check": True}},
+            {
+                "name": "Vôlei Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "max_athletes": 12,
+                    "substitutes": 6,
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Vôlei Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "max_athletes": 12,
+                    "substitutes": 6,
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                },
+            },
         ],
     },
     {
@@ -71,11 +136,39 @@ _SPORTS: list[dict[str, Any]] = [
         },
         "stats_schema": {
             "team": ["wins", "losses", "points_for", "points_against", "point_diff"],
-            "individual": ["points_1pt", "points_2pt", "points_3pt", "rebounds_off", "rebounds_def", "assists", "blocks", "steals", "fouls"],
+            "individual": [
+                "points_1pt",
+                "points_2pt",
+                "points_3pt",
+                "rebounds_off",
+                "rebounds_def",
+                "assists",
+                "blocks",
+                "steals",
+                "fouls",
+            ],
         },
         "modalities": [
-            {"name": "Basquete Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 12, "substitutes": 7, "gender": "M", "schedule_conflict_check": True}},
-            {"name": "Basquete Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 12, "substitutes": 7, "gender": "F", "schedule_conflict_check": True}},
+            {
+                "name": "Basquete Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "max_athletes": 12,
+                    "substitutes": 7,
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Basquete Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "max_athletes": 12,
+                    "substitutes": 7,
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                },
+            },
         ],
     },
     {
@@ -89,17 +182,91 @@ _SPORTS: list[dict[str, Any]] = [
             "disqualification_on_false_start": True,
         },
         "stats_schema": {
-            "individual": ["time_seconds", "distance_meters", "height_meters", "position", "attempts_used"],
+            "individual": [
+                "time_seconds",
+                "distance_meters",
+                "height_meters",
+                "position",
+                "attempts_used",
+            ],
         },
         "modalities": [
-            {"name": "100m Rasos Masculino", "gender": Gender.M, "rules_json": {"gender": "M", "schedule_conflict_check": True, "metric": "time"}},
-            {"name": "100m Rasos Feminino", "gender": Gender.F, "rules_json": {"gender": "F", "schedule_conflict_check": True, "metric": "time"}},
-            {"name": "400m Masculino", "gender": Gender.M, "rules_json": {"gender": "M", "schedule_conflict_check": True, "metric": "time"}},
-            {"name": "400m Feminino", "gender": Gender.F, "rules_json": {"gender": "F", "schedule_conflict_check": True, "metric": "time"}},
-            {"name": "Salto em Distância Masculino", "gender": Gender.M, "rules_json": {"gender": "M", "schedule_conflict_check": True, "metric": "distance", "attempts": 3}},
-            {"name": "Salto em Distância Feminino", "gender": Gender.F, "rules_json": {"gender": "F", "schedule_conflict_check": True, "metric": "distance", "attempts": 3}},
-            {"name": "Revezamento 4×100m Masculino", "gender": Gender.M, "rules_json": {"gender": "M", "max_athletes": 4, "schedule_conflict_check": True, "metric": "time"}},
-            {"name": "Revezamento 4×100m Feminino", "gender": Gender.F, "rules_json": {"gender": "F", "max_athletes": 4, "schedule_conflict_check": True, "metric": "time"}},
+            {
+                "name": "100m Rasos Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                    "metric": "time",
+                },
+            },
+            {
+                "name": "100m Rasos Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                    "metric": "time",
+                },
+            },
+            {
+                "name": "400m Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                    "metric": "time",
+                },
+            },
+            {
+                "name": "400m Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                    "metric": "time",
+                },
+            },
+            {
+                "name": "Salto em Distância Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                    "metric": "distance",
+                    "attempts": 3,
+                },
+            },
+            {
+                "name": "Salto em Distância Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                    "metric": "distance",
+                    "attempts": 3,
+                },
+            },
+            {
+                "name": "Revezamento 4×100m Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "gender": "M",
+                    "max_athletes": 4,
+                    "schedule_conflict_check": True,
+                    "metric": "time",
+                },
+            },
+            {
+                "name": "Revezamento 4×100m Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "gender": "F",
+                    "max_athletes": 4,
+                    "schedule_conflict_check": True,
+                    "metric": "time",
+                },
+            },
         ],
     },
     {
@@ -111,20 +278,94 @@ _SPORTS: list[dict[str, Any]] = [
             "schedule_conflict_check": True,
             "has_repechage": True,
             "weight_categories": {
-                "M": ["até 60kg", "até 66kg", "até 73kg", "até 81kg", "até 90kg", "+90kg"],
-                "F": ["até 48kg", "até 52kg", "até 57kg", "até 63kg", "até 70kg", "+70kg"],
+                "M": [
+                    "até 60kg",
+                    "até 66kg",
+                    "até 73kg",
+                    "até 81kg",
+                    "até 90kg",
+                    "+90kg",
+                ],
+                "F": [
+                    "até 48kg",
+                    "até 52kg",
+                    "até 57kg",
+                    "até 63kg",
+                    "até 70kg",
+                    "+70kg",
+                ],
             },
         },
         "stats_schema": {
-            "individual": ["ippons", "waza_aris", "shidos", "matches_won", "matches_lost"],
+            "individual": [
+                "ippons",
+                "waza_aris",
+                "shidos",
+                "matches_won",
+                "matches_lost",
+            ],
         },
         "modalities": [
-            {"name": "Judô Masculino até 66kg", "gender": Gender.M, "category": "até 66kg", "rules_json": {"gender": "M", "weight_category": "até 66kg", "schedule_conflict_check": True}},
-            {"name": "Judô Masculino até 81kg", "gender": Gender.M, "category": "até 81kg", "rules_json": {"gender": "M", "weight_category": "até 81kg", "schedule_conflict_check": True}},
-            {"name": "Judô Masculino +90kg", "gender": Gender.M, "category": "+90kg", "rules_json": {"gender": "M", "weight_category": "+90kg", "schedule_conflict_check": True}},
-            {"name": "Judô Feminino até 57kg", "gender": Gender.F, "category": "até 57kg", "rules_json": {"gender": "F", "weight_category": "até 57kg", "schedule_conflict_check": True}},
-            {"name": "Judô Feminino até 70kg", "gender": Gender.F, "category": "até 70kg", "rules_json": {"gender": "F", "weight_category": "até 70kg", "schedule_conflict_check": True}},
-            {"name": "Judô Feminino +70kg", "gender": Gender.F, "category": "+70kg", "rules_json": {"gender": "F", "weight_category": "+70kg", "schedule_conflict_check": True}},
+            {
+                "name": "Judô Masculino até 66kg",
+                "gender": Gender.M,
+                "category": "até 66kg",
+                "rules_json": {
+                    "gender": "M",
+                    "weight_category": "até 66kg",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Judô Masculino até 81kg",
+                "gender": Gender.M,
+                "category": "até 81kg",
+                "rules_json": {
+                    "gender": "M",
+                    "weight_category": "até 81kg",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Judô Masculino +90kg",
+                "gender": Gender.M,
+                "category": "+90kg",
+                "rules_json": {
+                    "gender": "M",
+                    "weight_category": "+90kg",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Judô Feminino até 57kg",
+                "gender": Gender.F,
+                "category": "até 57kg",
+                "rules_json": {
+                    "gender": "F",
+                    "weight_category": "até 57kg",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Judô Feminino até 70kg",
+                "gender": Gender.F,
+                "category": "até 70kg",
+                "rules_json": {
+                    "gender": "F",
+                    "weight_category": "até 70kg",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Judô Feminino +70kg",
+                "gender": Gender.F,
+                "category": "+70kg",
+                "rules_json": {
+                    "gender": "F",
+                    "weight_category": "+70kg",
+                    "schedule_conflict_check": True,
+                },
+            },
         ],
     },
     {
@@ -142,12 +383,46 @@ _SPORTS: list[dict[str, Any]] = [
             "has_penalty_shootout": True,
         },
         "stats_schema": {
-            "team": ["wins", "losses", "draws", "points", "goals_for", "goals_against", "goal_diff"],
-            "individual": ["goals", "assists", "saves", "cards_yellow", "cards_red", "cards_blue", "suspensions_2min"],
+            "team": [
+                "wins",
+                "losses",
+                "draws",
+                "points",
+                "goals_for",
+                "goals_against",
+                "goal_diff",
+            ],
+            "individual": [
+                "goals",
+                "assists",
+                "saves",
+                "cards_yellow",
+                "cards_red",
+                "cards_blue",
+                "suspensions_2min",
+            ],
         },
         "modalities": [
-            {"name": "Handebol Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 14, "substitutes": 7, "gender": "M", "schedule_conflict_check": True}},
-            {"name": "Handebol Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 14, "substitutes": 7, "gender": "F", "schedule_conflict_check": True}},
+            {
+                "name": "Handebol Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "max_athletes": 14,
+                    "substitutes": 7,
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Handebol Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "max_athletes": 14,
+                    "substitutes": 7,
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                },
+            },
         ],
     },
     {
@@ -161,18 +436,104 @@ _SPORTS: list[dict[str, Any]] = [
             "disqualification_on_early_start": True,
         },
         "stats_schema": {
-            "individual": ["time_centiseconds", "position", "best_personal_centiseconds"],
+            "individual": [
+                "time_centiseconds",
+                "position",
+                "best_personal_centiseconds",
+            ],
         },
         "modalities": [
-            {"name": "50m Livre Masculino", "gender": Gender.M, "rules_json": {"gender": "M", "schedule_conflict_check": True, "distance": 50, "stroke": "livre"}},
-            {"name": "50m Livre Feminino", "gender": Gender.F, "rules_json": {"gender": "F", "schedule_conflict_check": True, "distance": 50, "stroke": "livre"}},
-            {"name": "100m Livre Masculino", "gender": Gender.M, "rules_json": {"gender": "M", "schedule_conflict_check": True, "distance": 100, "stroke": "livre"}},
-            {"name": "100m Livre Feminino", "gender": Gender.F, "rules_json": {"gender": "F", "schedule_conflict_check": True, "distance": 100, "stroke": "livre"}},
-            {"name": "50m Costas Masculino", "gender": Gender.M, "rules_json": {"gender": "M", "schedule_conflict_check": True, "distance": 50, "stroke": "costas"}},
-            {"name": "50m Costas Feminino", "gender": Gender.F, "rules_json": {"gender": "F", "schedule_conflict_check": True, "distance": 50, "stroke": "costas"}},
-            {"name": "100m Medley Masculino", "gender": Gender.M, "rules_json": {"gender": "M", "schedule_conflict_check": True, "distance": 100, "stroke": "medley"}},
-            {"name": "100m Medley Feminino", "gender": Gender.F, "rules_json": {"gender": "F", "schedule_conflict_check": True, "distance": 100, "stroke": "medley"}},
-            {"name": "Revezamento 4×50m Livre Misto", "gender": Gender.MIXED, "rules_json": {"gender": "MIXED", "max_athletes": 4, "schedule_conflict_check": True, "distance": 50, "stroke": "livre"}},
+            {
+                "name": "50m Livre Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                    "distance": 50,
+                    "stroke": "livre",
+                },
+            },
+            {
+                "name": "50m Livre Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                    "distance": 50,
+                    "stroke": "livre",
+                },
+            },
+            {
+                "name": "100m Livre Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                    "distance": 100,
+                    "stroke": "livre",
+                },
+            },
+            {
+                "name": "100m Livre Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                    "distance": 100,
+                    "stroke": "livre",
+                },
+            },
+            {
+                "name": "50m Costas Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                    "distance": 50,
+                    "stroke": "costas",
+                },
+            },
+            {
+                "name": "50m Costas Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                    "distance": 50,
+                    "stroke": "costas",
+                },
+            },
+            {
+                "name": "100m Medley Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                    "distance": 100,
+                    "stroke": "medley",
+                },
+            },
+            {
+                "name": "100m Medley Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                    "distance": 100,
+                    "stroke": "medley",
+                },
+            },
+            {
+                "name": "Revezamento 4×50m Livre Misto",
+                "gender": Gender.MIXED,
+                "rules_json": {
+                    "gender": "MIXED",
+                    "max_athletes": 4,
+                    "schedule_conflict_check": True,
+                    "distance": 50,
+                    "stroke": "livre",
+                },
+            },
         ],
     },
     {
@@ -189,13 +550,44 @@ _SPORTS: list[dict[str, Any]] = [
             "no_substitutions": True,
         },
         "stats_schema": {
-            "team": ["wins", "losses", "sets_won", "sets_lost", "points_scored", "points_conceded"],
+            "team": [
+                "wins",
+                "losses",
+                "sets_won",
+                "sets_lost",
+                "points_scored",
+                "points_conceded",
+            ],
             "individual": ["aces", "blocks", "attack_points", "errors"],
         },
         "modalities": [
-            {"name": "Vôlei de Praia Masculino", "gender": Gender.M, "rules_json": {"max_athletes": 2, "gender": "M", "schedule_conflict_check": True}},
-            {"name": "Vôlei de Praia Feminino", "gender": Gender.F, "rules_json": {"max_athletes": 2, "gender": "F", "schedule_conflict_check": True}},
-            {"name": "Vôlei de Praia Misto", "gender": Gender.MIXED, "rules_json": {"max_athletes": 2, "gender": "MIXED", "schedule_conflict_check": True}},
+            {
+                "name": "Vôlei de Praia Masculino",
+                "gender": Gender.M,
+                "rules_json": {
+                    "max_athletes": 2,
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Vôlei de Praia Feminino",
+                "gender": Gender.F,
+                "rules_json": {
+                    "max_athletes": 2,
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Vôlei de Praia Misto",
+                "gender": Gender.MIXED,
+                "rules_json": {
+                    "max_athletes": 2,
+                    "gender": "MIXED",
+                    "schedule_conflict_check": True,
+                },
+            },
         ],
     },
     {
@@ -210,12 +602,35 @@ _SPORTS: list[dict[str, Any]] = [
             "serve_alternation": 2,
         },
         "stats_schema": {
-            "individual": ["wins", "losses", "sets_won", "sets_lost", "points_for", "points_against"],
+            "individual": [
+                "wins",
+                "losses",
+                "sets_won",
+                "sets_lost",
+                "points_for",
+                "points_against",
+            ],
         },
         "modalities": [
-            {"name": "Tênis de Mesa Simples Masculino", "gender": Gender.M, "rules_json": {"gender": "M", "schedule_conflict_check": True}},
-            {"name": "Tênis de Mesa Simples Feminino", "gender": Gender.F, "rules_json": {"gender": "F", "schedule_conflict_check": True}},
-            {"name": "Tênis de Mesa Duplas Mistas", "gender": Gender.MIXED, "rules_json": {"gender": "MIXED", "max_athletes": 2, "schedule_conflict_check": True}},
+            {
+                "name": "Tênis de Mesa Simples Masculino",
+                "gender": Gender.M,
+                "rules_json": {"gender": "M", "schedule_conflict_check": True},
+            },
+            {
+                "name": "Tênis de Mesa Simples Feminino",
+                "gender": Gender.F,
+                "rules_json": {"gender": "F", "schedule_conflict_check": True},
+            },
+            {
+                "name": "Tênis de Mesa Duplas Mistas",
+                "gender": Gender.MIXED,
+                "rules_json": {
+                    "gender": "MIXED",
+                    "max_athletes": 2,
+                    "schedule_conflict_check": True,
+                },
+            },
         ],
     },
     {
@@ -229,15 +644,73 @@ _SPORTS: list[dict[str, Any]] = [
             "modality_types": ["kata", "kumite"],
         },
         "stats_schema": {
-            "kumite": {"individual": ["yukos", "waza_aris", "ippons", "penalties", "senshu", "matches_won", "matches_lost"]},
+            "kumite": {
+                "individual": [
+                    "yukos",
+                    "waza_aris",
+                    "ippons",
+                    "penalties",
+                    "senshu",
+                    "matches_won",
+                    "matches_lost",
+                ]
+            },
             "kata": {"individual": ["judge_scores", "final_score", "rank"]},
         },
         "modalities": [
-            {"name": "Karatê Kata Masculino", "gender": Gender.M, "category": "kata", "rules_json": {"gender": "M", "modality_type": "kata", "schedule_conflict_check": True}},
-            {"name": "Karatê Kata Feminino", "gender": Gender.F, "category": "kata", "rules_json": {"gender": "F", "modality_type": "kata", "schedule_conflict_check": True}},
-            {"name": "Karatê Kumite Masculino Leve", "gender": Gender.M, "category": "kumite-leve", "rules_json": {"gender": "M", "modality_type": "kumite", "weight_category": "leve", "schedule_conflict_check": True}},
-            {"name": "Karatê Kumite Masculino Médio", "gender": Gender.M, "category": "kumite-medio", "rules_json": {"gender": "M", "modality_type": "kumite", "weight_category": "médio", "schedule_conflict_check": True}},
-            {"name": "Karatê Kumite Feminino Leve", "gender": Gender.F, "category": "kumite-leve", "rules_json": {"gender": "F", "modality_type": "kumite", "weight_category": "leve", "schedule_conflict_check": True}},
+            {
+                "name": "Karatê Kata Masculino",
+                "gender": Gender.M,
+                "category": "kata",
+                "rules_json": {
+                    "gender": "M",
+                    "modality_type": "kata",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Karatê Kata Feminino",
+                "gender": Gender.F,
+                "category": "kata",
+                "rules_json": {
+                    "gender": "F",
+                    "modality_type": "kata",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Karatê Kumite Masculino Leve",
+                "gender": Gender.M,
+                "category": "kumite-leve",
+                "rules_json": {
+                    "gender": "M",
+                    "modality_type": "kumite",
+                    "weight_category": "leve",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Karatê Kumite Masculino Médio",
+                "gender": Gender.M,
+                "category": "kumite-medio",
+                "rules_json": {
+                    "gender": "M",
+                    "modality_type": "kumite",
+                    "weight_category": "médio",
+                    "schedule_conflict_check": True,
+                },
+            },
+            {
+                "name": "Karatê Kumite Feminino Leve",
+                "gender": Gender.F,
+                "category": "kumite-leve",
+                "rules_json": {
+                    "gender": "F",
+                    "modality_type": "kumite",
+                    "weight_category": "leve",
+                    "schedule_conflict_check": True,
+                },
+            },
         ],
     },
 ]
@@ -257,7 +730,9 @@ async def seed_sports() -> None:
             session.add(sport)
             await session.flush()
 
-            session.add(SportStatisticsSchema(sport_id=sport.id, stats_schema=stats_schema))
+            session.add(
+                SportStatisticsSchema(sport_id=sport.id, stats_schema=stats_schema)
+            )
 
             for mod_data in modalities_data:
                 session.add(Modality(sport_id=sport.id, **mod_data))
@@ -266,3 +741,56 @@ async def seed_sports() -> None:
             sport_data["stats_schema"] = stats_schema
 
         await session.commit()
+
+
+async def seed_showcase_league() -> None:
+    async with async_session_factory() as session:
+        existing = await session.execute(
+            select(League).where(League.is_showcase == True)
+        )  # noqa: E712
+        if existing.scalar_one_or_none() is not None:
+            return
+
+        superadmin_result = await session.execute(
+            select(User)
+            .where(User.role.in_([UserRole.SUPERADMIN, UserRole.ADMIN]))
+            .order_by(User.id)
+            .limit(1)
+        )
+        superadmin = superadmin_result.scalar_one_or_none()
+        if superadmin is None:
+            logger.warning(
+                "seed_showcase_league: no superadmin found, skipping showcase league creation"
+            )
+            return
+
+        sports_result = await session.execute(
+            select(Sport).where(Sport.is_active == True).order_by(Sport.id)
+        )  # noqa: E712
+        sports = list(sports_result.scalars().all())
+        sports_config = [s.id for s in sports]
+
+        league = League(
+            name="Showcase League",
+            slug="showcase",
+            description="Default showcase league with full automation",
+            created_by_id=superadmin.id,
+            sports_config=sports_config,
+            is_showcase=True,
+            auto_simulate=True,
+            transfer_window_enabled=True,
+            timezone="America/Sao_Paulo",
+        )
+        session.add(league)
+        await session.flush()
+
+        session.add(
+            LeagueMember(
+                league_id=league.id,
+                user_id=superadmin.id,
+                role=LeagueMemberRole.LEAGUE_ADMIN,
+            )
+        )
+
+        await session.commit()
+        logger.info("seed_showcase_league: created showcase league id=%s", league.id)

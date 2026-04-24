@@ -1,13 +1,13 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { CalendarDays, ClipboardCheck, Flag, Sparkles, Target, Trophy, Users } from "lucide-react"
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { CalendarDays, ClipboardCheck, Flag, Sparkles, Target, Trophy, Users } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card"
-import { ActivityFeed } from "@/components/activity/activity-feed"
-import { formatDate } from "@/lib/date"
-import { activityFeedQueryOptions } from "@/queries/activities"
-import { adminRequestsQueryOptions } from "@/queries/admin"
-import { competitionListQueryOptions } from "@/queries/competitions"
-import { finalReportQueryOptions } from "@/queries/reports"
+import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card";
+import { ActivityFeed } from "@/components/activity/activity-feed";
+import { formatDate } from "@/lib/date";
+import { activityFeedQueryOptions } from "@/queries/activities";
+import { adminRequestsQueryOptions } from "@/queries/admin";
+import { competitionListQueryOptions } from "@/queries/competitions";
+import { finalReportQueryOptions } from "@/queries/reports";
 
 import {
   ActionLink,
@@ -17,12 +17,12 @@ import {
   SectionHeader,
   StatCard,
   statusLabel,
-} from "./dashboard-primitives"
+} from "./dashboard-primitives";
 
-function MedalProgressCard() {
-  const { data: finalReport } = useSuspenseQuery(finalReportQueryOptions())
-  const leaders = finalReport.medal_board.slice(0, 5)
-  const maxTotal = leaders[0]?.total ?? 1
+function MedalProgressCard({ leagueId }: { leagueId: number }) {
+  const { data: finalReport } = useSuspenseQuery(finalReportQueryOptions(leagueId));
+  const leaders = finalReport.medal_board.slice(0, 5);
+  const maxTotal = leaders[0]?.total ?? 1;
 
   return (
     <Card className="border-border/70 bg-card/85 shadow-sm">
@@ -37,10 +37,10 @@ function MedalProgressCard() {
           <EmptyState text="O quadro de medalhas ainda não tem entradas para exibir." />
         ) : (
           leaders.map((entry) => {
-            const totalShare = maxTotal > 0 ? (entry.total / maxTotal) * 100 : 0
-            const goldShare = entry.total > 0 ? (entry.gold / entry.total) * 100 : 0
-            const silverShare = entry.total > 0 ? (entry.silver / entry.total) * 100 : 0
-            const bronzeShare = entry.total > 0 ? (entry.bronze / entry.total) * 100 : 0
+            const totalShare = maxTotal > 0 ? (entry.total / maxTotal) * 100 : 0;
+            const goldShare = entry.total > 0 ? (entry.gold / entry.total) * 100 : 0;
+            const silverShare = entry.total > 0 ? (entry.silver / entry.total) * 100 : 0;
+            const bronzeShare = entry.total > 0 ? (entry.bronze / entry.total) * 100 : 0;
 
             return (
               <div key={entry.delegation_id} className="space-y-2">
@@ -67,18 +67,18 @@ function MedalProgressCard() {
                   </div>
                 </div>
               </div>
-            )
+            );
           })
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
-function AthletesBySportCard() {
-  const { data: finalReport } = useSuspenseQuery(finalReportQueryOptions())
-  const sports = finalReport.athletes_by_sport.slice(0, 8)
-  const maxCount = Math.max(...sports.map((sport) => sport.athlete_count), 1)
+function AthletesBySportCard({ leagueId }: { leagueId: number }) {
+  const { data: finalReport } = useSuspenseQuery(finalReportQueryOptions(leagueId));
+  const sports = finalReport.athletes_by_sport.slice(0, 8);
+  const maxCount = Math.max(...sports.map((sport) => sport.athlete_count), 1);
 
   return (
     <Card className="border-border/70 bg-card/85 shadow-sm">
@@ -112,7 +112,7 @@ function AthletesBySportCard() {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function GaugeCard({
@@ -120,9 +120,9 @@ function GaugeCard({
   title,
   description,
 }: {
-  value: number
-  title: string
-  description: string
+  value: number;
+  title: string;
+  description: string;
 }) {
   return (
     <Card className="border-border/70 bg-card/85 shadow-sm">
@@ -151,23 +151,23 @@ function GaugeCard({
         <p className="max-w-xs text-center text-sm text-muted-foreground">{description}</p>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export function AdminDashboard() {
-  const { data: finalReport } = useSuspenseQuery(finalReportQueryOptions())
-  const { data: competitions } = useSuspenseQuery(competitionListQueryOptions())
-  const { data: requests } = useSuspenseQuery(adminRequestsQueryOptions())
-  const { data: activityFeed } = useSuspenseQuery(activityFeedQueryOptions(6))
+export function AdminDashboard({ leagueId }: { leagueId: number }) {
+  const { data: finalReport } = useSuspenseQuery(finalReportQueryOptions(leagueId));
+  const { data: competitions } = useSuspenseQuery(competitionListQueryOptions(leagueId));
+  const { data: requests } = useSuspenseQuery(adminRequestsQueryOptions(leagueId));
+  const { data: activityFeed } = useSuspenseQuery(activityFeedQueryOptions(leagueId, 6));
 
-  const currentCompetition = findCurrentCompetition(competitions.data)
-  const pendingRequests = requests.data.filter((request) => request.status === "PENDING")
+  const currentCompetition = findCurrentCompetition(competitions.data);
+  const pendingRequests = requests.data.filter((request) => request.status === "PENDING");
   const completionRate =
     finalReport.summary.total_matches > 0
       ? Math.round(
           (finalReport.summary.completed_matches / finalReport.summary.total_matches) * 100,
         )
-      : 0
+      : 0;
 
   return (
     <DashboardShell accent="from-amber-500/30 via-orange-500/15 to-transparent">
@@ -209,7 +209,7 @@ export function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
-        <MedalProgressCard />
+        <MedalProgressCard leagueId={leagueId} />
         <GaugeCard
           value={completionRate}
           title="Taxa de partidas concluídas"
@@ -218,7 +218,7 @@ export function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <AthletesBySportCard />
+        <AthletesBySportCard leagueId={leagueId} />
         <Card className="border-border/70 bg-card/85 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
@@ -240,7 +240,8 @@ export function AdminDashboard() {
         limit={6}
         showMatchLink
         title="Pulso da competição"
+        leagueId={leagueId}
       />
     </DashboardShell>
-  )
+  );
 }

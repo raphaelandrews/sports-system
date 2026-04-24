@@ -31,7 +31,7 @@ from app.routers.search import router as search_router
 from app.routers.sports import modalities_router, router as sports_router
 from app.routers.leagues import router as leagues_router
 from app.routers.competitions import router as competitions_router
-from app.services.seed_service import seed_sports
+from app.services.seed_service import seed_showcase_league, seed_sports
 
 
 def _configure_logging() -> None:
@@ -71,6 +71,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _configure_logging()
     _run_migrations()
     await seed_sports()
+    await seed_showcase_league()
     sched = setup_scheduler()
     sched.start()
     logging.getLogger(__name__).info("scheduler_started")
@@ -102,7 +103,9 @@ app.add_middleware(
 
 
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException) -> ORJSONResponse:
+async def http_exception_handler(
+    request: Request, exc: HTTPException
+) -> ORJSONResponse:
     return ORJSONResponse(
         status_code=exc.status_code,
         content={
@@ -114,7 +117,9 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> ORJSON
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> ORJSONResponse:
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> ORJSONResponse:
     return ORJSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
@@ -126,7 +131,9 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 @app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception) -> ORJSONResponse:
+async def unhandled_exception_handler(
+    request: Request, exc: Exception
+) -> ORJSONResponse:
     logging.getLogger(__name__).exception("unhandled_error path=%s", request.url.path)
     return ORJSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

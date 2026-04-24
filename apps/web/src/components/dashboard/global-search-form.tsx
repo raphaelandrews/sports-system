@@ -6,8 +6,9 @@ import { startTransition, useEffect, useState } from "react";
 export function GlobalSearchForm() {
   const navigate = useNavigate();
   const location = useRouterState({ select: (state) => state.location });
+  const leagueId = location.pathname.match(/^\/leagues\/(\d+)/)?.[1] ?? null;
   const routeQuery =
-    location.pathname.startsWith("/dashboard/search") && typeof location.search.q === "string"
+    location.pathname.includes("/dashboard/search") && typeof location.search.q === "string"
       ? location.search.q
       : "";
 
@@ -22,16 +23,20 @@ export function GlobalSearchForm() {
       onSubmit={(event) => {
         event.preventDefault();
         const nextQuery = value.trim();
+        if (!leagueId) return;
         startTransition(() => {
           void navigate({
-            to: "/dashboard/search",
+            to: "/leagues/$leagueId/dashboard/search",
+            params: { leagueId },
             search: nextQuery ? { q: nextQuery } : {},
           });
         });
       }}
     >
       <Field className="w-full max-w-md">
-        <FieldLabel htmlFor="global-search" className="sr-only">Buscar</FieldLabel>
+        <FieldLabel htmlFor="global-search" className="sr-only">
+          Buscar
+        </FieldLabel>
         <Input
           id="global-search"
           className="rounded-full px-4"

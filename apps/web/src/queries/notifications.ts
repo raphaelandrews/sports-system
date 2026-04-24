@@ -13,10 +13,9 @@ export const notificationsQueryOptions = (userId: number) =>
   queryOptions({
     queryKey: queryKeys.notifications.list(userId),
     queryFn: () =>
-      apiFetch<PaginatedResponse<NotificationResponse>>(
-        `/users/${userId}/notifications`,
-        { params: { per_page: "20" } },
-      ),
+      apiFetch<PaginatedResponse<NotificationResponse>>(`/users/${userId}/notifications`, {
+        params: { per_page: "20" },
+      }),
     staleTime: 30_000,
   });
 
@@ -25,6 +24,5 @@ export const chiefRequestQueryOptions = () =>
     queryKey: queryKeys.requests.chief(),
     queryFn: () => apiFetch<ChiefRequestResponse>("/requests/chief/me"),
     staleTime: 60_000,
-    retry: (_count, error) =>
-      !(error instanceof ApiError && error.status === 404),
+    retry: (_count, error) => !(error instanceof ApiError && error.status === 404),
   });

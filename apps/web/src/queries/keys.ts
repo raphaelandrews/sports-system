@@ -3,54 +3,64 @@ export const queryKeys = {
     session: () => ["auth", "session"] as const,
   },
   delegations: {
-    all: () => ["delegations"] as const,
-    detail: (id: number) => ["delegations", id] as const,
-    statistics: (id: number) => ["delegations", id, "statistics"] as const,
-    members: (id: number) => ["delegations", id, "members"] as const,
-    history: (id: number) => ["delegations", id, "history"] as const,
-    invites: (id: number) => ["delegations", id, "invites"] as const,
+    all: (leagueId: number) => ["delegations", leagueId] as const,
+    detail: (leagueId: number, id: number) => ["delegations", leagueId, id] as const,
+    statistics: (leagueId: number, id: number) =>
+      ["delegations", leagueId, id, "statistics"] as const,
+    members: (leagueId: number, id: number) => ["delegations", leagueId, id, "members"] as const,
+    history: (leagueId: number, id: number) => ["delegations", leagueId, id, "history"] as const,
+    invites: (leagueId: number, id: number) => ["delegations", leagueId, id, "invites"] as const,
   },
   sports: {
     all: () => ["sports"] as const,
     detail: (id: number) => ["sports", id] as const,
   },
   competitions: {
-    all: () => ["competitions"] as const,
-    detail: (id: number) => ["competitions", id] as const,
-    report: (id: number) => ["competitions", id, "report"] as const,
+    all: (leagueId: number) => ["competitions", leagueId] as const,
+    detail: (leagueId: number, id: number) => ["competitions", leagueId, id] as const,
+    report: (leagueId: number, id: number) => ["competitions", leagueId, id, "report"] as const,
   },
   events: {
-    all: () => ["events"] as const,
-    byCompetition: (competitionId: number) => ["events", "competition", competitionId] as const,
-    byWeek: (competitionId: number) => ["events", "competition", competitionId] as const,
-    detail: (id: number) => ["events", id] as const,
+    all: (leagueId: number) => ["events", leagueId] as const,
+    byCompetition: (leagueId: number, competitionId: number) =>
+      ["events", leagueId, "competition", competitionId] as const,
+    byWeek: (leagueId: number, competitionId: number) =>
+      ["events", leagueId, "competition", competitionId] as const,
+    detail: (leagueId: number, id: number) => ["events", leagueId, id] as const,
   },
   matches: {
     all: () => ["matches"] as const,
     detail: (id: number) => ["matches", id] as const,
   },
   athletes: {
-    all: () => ["athletes"] as const,
-    detail: (id: number) => ["athletes", id] as const,
-    byDelegation: (delegationId: number) =>
-      ["athletes", "delegation", delegationId] as const,
-    report: (id: number) => ["athletes", id, "report"] as const,
+    all: (leagueId: number) => ["athletes", leagueId] as const,
+    detail: (leagueId: number, id: number) => ["athletes", leagueId, id] as const,
+    byDelegation: (leagueId: number, delegationId: number) =>
+      ["athletes", leagueId, "delegation", delegationId] as const,
+    report: (leagueId: number, id: number) => ["athletes", leagueId, id, "report"] as const,
   },
   enrollments: {
-    all: () => ["enrollments"] as const,
-    list: (params?: Record<string, unknown>) => ["enrollments", params ?? {}] as const,
-    byEvent: (eventId: number) => ["enrollments", "event", eventId] as const,
-    byDelegation: (delegationId: number) =>
-      ["enrollments", "delegation", delegationId] as const,
+    all: (leagueId: number) => ["enrollments", leagueId] as const,
+    list: (leagueId: number, params?: Record<string, unknown>) =>
+      ["enrollments", leagueId, params ?? {}] as const,
+    byEvent: (leagueId: number, eventId: number) =>
+      ["enrollments", leagueId, "event", eventId] as const,
+    byDelegation: (leagueId: number, delegationId: number) =>
+      ["enrollments", leagueId, "delegation", delegationId] as const,
   },
   results: {
-    all: () => ["results"] as const,
-    list: (params?: Record<string, unknown>) => ["results", params ?? {}] as const,
-    medalBoard: () => ["results", "medal-board"] as const,
-    medalBoardSport: (sportId: number) => ["results", "medal-board", "sport", sportId] as const,
-    records: (modalityId?: number) => ["results", "records", modalityId ?? "all"] as const,
-    standings: (modalityId: number) => ["results", "standings", modalityId] as const,
-    byCompetition: (competitionId: number) => ["results", "competition", competitionId] as const,
+    all: (leagueId: number) => ["results", leagueId] as const,
+    list: (leagueId: number, params?: Record<string, unknown>) =>
+      ["results", leagueId, params ?? {}] as const,
+    medalBoard: (leagueId: number) => ["results", leagueId, "medal-board"] as const,
+    medalBoardSport: (leagueId: number, sportId: number) =>
+      ["results", leagueId, "medal-board", "sport", sportId] as const,
+    records: (leagueId: number, modalityId?: number) =>
+      ["results", leagueId, "records", modalityId ?? "all"] as const,
+    standings: (leagueId: number, modalityId: number) =>
+      ["results", leagueId, "standings", modalityId] as const,
+    byCompetition: (leagueId: number, competitionId: number) =>
+      ["results", leagueId, "competition", competitionId] as const,
   },
   notifications: {
     list: (userId: number) => ["notifications", userId] as const,
@@ -59,17 +69,32 @@ export const queryKeys = {
     search: (query: string) => ["users", "search", query] as const,
   },
   search: {
-    global: (query: string) => ["search", "global", query] as const,
+    global: (query: string, leagueId?: number) =>
+      ["search", "global", query, leagueId ?? "all"] as const,
   },
   requests: {
     all: () => ["requests"] as const,
     chief: () => ["requests", "chief"] as const,
   },
   ai: {
-    history: () => ["ai", "history"] as const,
-    narrative: (date: string) => ["ai", "narrative", date] as const,
+    history: (leagueId: number) => ["ai", leagueId, "history"] as const,
+    narrative: (leagueId: number, date: string) => ["ai", leagueId, "narrative", date] as const,
   },
   activities: {
-    feed: (limit: number) => ["activities", "feed", limit] as const,
+    feed: (leagueId: number | undefined, limit: number) =>
+      ["activities", "feed", leagueId ?? "all", limit] as const,
+  },
+  reports: {
+    final: (leagueId: number) => ["reports", leagueId, "final"] as const,
+  },
+  admin: {
+    requests: (leagueId: number) => ["admin", leagueId, "requests"] as const,
+  },
+  leagues: {
+    all: () => ["leagues"] as const,
+    detail: (id: number) => ["leagues", id] as const,
+    my: () => ["leagues", "my"] as const,
+    membership: (id: number) => ["leagues", id, "membership"] as const,
+    members: (id: number) => ["leagues", id, "members"] as const,
   },
 } as const;

@@ -7,6 +7,7 @@ A multi-sport competition management system designed for generic sporting events
 ## Features
 
 ### Core
+
 - **Delegation management** — create delegations with code, flag, chief, and member roster
 - **Sports** — Football, Volleyball, Basketball, Athletics, Judo, Handball, Swimming, Beach Volleyball, Table Tennis, and Karate — each with sport-specific rules, statistics, and tiebreak criteria
 - **Athlete & coach management** — linked to delegations and modalities, with full transfer history
@@ -17,6 +18,7 @@ A multi-sport competition management system designed for generic sporting events
 - **AI generation** — delegations, athletes, calendar, results, and daily narrative generated via LLM
 
 ### Competition Cycle
+
 - Weekly format: 6 competition days (Tuesday–Sunday) + 1 transfer window (Monday)
 - Transfer window opens **Monday 00:00** and closes **Tuesday 00:00** (UTC-3 / São Paulo) — automatic, no admin action required
 - Calendar locks **automatically** when the first event's start time passes — match schedule is generated from approved enrollments at that moment
@@ -24,13 +26,14 @@ A multi-sport competition management system designed for generic sporting events
 - Historical records always reflect the delegation a player represented **at the time of the match**
 
 ### Users
-| Role | Access |
-|------|--------|
-| Admin | Full system control, AI generation, approve chief requests |
-| Delegation Chief | Manage own delegation, invite members, submit enrollments |
-| Coach / Manager | View delegation schedule and results |
-| Athlete | View own schedule, results, and delegation history |
-| Public | View medal board, calendar, and results (no auth required) |
+
+| Role             | Access                                                     |
+| ---------------- | ---------------------------------------------------------- |
+| Admin            | Full system control, AI generation, approve chief requests |
+| Delegation Chief | Manage own delegation, invite members, submit enrollments  |
+| Coach / Manager  | View delegation schedule and results                       |
+| Athlete          | View own schedule, results, and delegation history         |
+| Public           | View medal board, calendar, and results (no auth required) |
 
 - Users receive **in-app notifications** for invites, approvals, match reminders, and result updates
 - Delegation transfers only on Mondays (transfer window)
@@ -41,27 +44,29 @@ A multi-sport competition management system designed for generic sporting events
 ## Tech Stack
 
 ### Frontend (`apps/web`)
-| Technology | Role |
-|---|---|
-| [TanStack Start](https://tanstack.com/start) | Full-stack React framework, SSR + selective SPA |
-| [TanStack Router](https://tanstack.com/router) | File-based routing, type-safe, auth guards |
-| [TanStack Query](https://tanstack.com/query) | Server state, query caching for instant navigation |
-| [Tailwind CSS v4](https://tailwindcss.com) | Utility-first styling |
-| [shadcn/ui](https://ui.shadcn.com) + [@base-ui/react](https://base-ui.com) | Component library |
-| [Cloudflare Workers](https://workers.cloudflare.com) | Edge deployment via [Alchemy](https://alchemy.run) |
+
+| Technology                                                                 | Role                                               |
+| -------------------------------------------------------------------------- | -------------------------------------------------- |
+| [TanStack Start](https://tanstack.com/start)                               | Full-stack React framework, SSR + selective SPA    |
+| [TanStack Router](https://tanstack.com/router)                             | File-based routing, type-safe, auth guards         |
+| [TanStack Query](https://tanstack.com/query)                               | Server state, query caching for instant navigation |
+| [Tailwind CSS v4](https://tailwindcss.com)                                 | Utility-first styling                              |
+| [shadcn/ui](https://ui.shadcn.com) + [@base-ui/react](https://base-ui.com) | Component library                                  |
+| [Cloudflare Workers](https://workers.cloudflare.com)                       | Edge deployment via [Alchemy](https://alchemy.run) |
 
 ### Backend (`apps/api`)
-| Technology | Role |
-|---|---|
-| [FastAPI](https://fastapi.tiangolo.com) | Python REST API |
-| [SQLModel](https://sqlmodel.tiangolo.com) | ORM (SQLAlchemy + Pydantic) |
-| [Alembic](https://alembic.sqlalchemy.org) | Database migrations |
-| PostgreSQL | Primary database + refresh token storage |
-| JWT + FastAPI Users | Auth (access + refresh tokens, Argon2id hashing, OAuth-ready) |
-| sse-starlette | Server-Sent Events — live scores, medal board streaming |
-| slowapi | Rate limiting on auth endpoints (per IP) |
-| orjson | High-performance JSON serialization |
-| APScheduler | Automatic week locking, match generation, notifications |
+
+| Technology                                | Role                                                          |
+| ----------------------------------------- | ------------------------------------------------------------- |
+| [FastAPI](https://fastapi.tiangolo.com)   | Python REST API                                               |
+| [SQLModel](https://sqlmodel.tiangolo.com) | ORM (SQLAlchemy + Pydantic)                                   |
+| [Alembic](https://alembic.sqlalchemy.org) | Database migrations                                           |
+| PostgreSQL                                | Primary database + refresh token storage                      |
+| JWT + FastAPI Users                       | Auth (access + refresh tokens, Argon2id hashing, OAuth-ready) |
+| sse-starlette                             | Server-Sent Events — live scores, medal board streaming       |
+| slowapi                                   | Rate limiting on auth endpoints (per IP)                      |
+| orjson                                    | High-performance JSON serialization                           |
+| APScheduler                               | Automatic week locking, match generation, notifications       |
 
 ---
 
@@ -140,6 +145,7 @@ bun install
 There is **no root `.env` or `.env.example`** in this repo.
 
 Environment files live only in:
+
 - `apps/api`
 - `apps/web`
 - `packages/infra`
@@ -157,6 +163,7 @@ cp packages/infra/.env.example packages/infra/.env
 `apps/api/.env` is the backend source of truth.
 
 Important variables:
+
 - `DATABASE_URL`
 - `SECRET_KEY`
 - `FRONTEND_URL`
@@ -174,18 +181,22 @@ Important variables:
 ### Web env
 
 `apps/web/.env` is the **base web env** and should contain shared/default values:
+
 - `VITE_SERVER_URL`
 - `VITE_TIMEZONE`
 - `CORS_ORIGIN`
 
 There is only one web env example now:
+
 - `apps/web/.env.example`
 
 Current load order in infra is:
+
 1. `packages/infra/.env`
 2. `apps/web/.env`
 
 This means:
+
 - `apps/web/.env` is enough for local frontend development
 - deploy-only overrides such as `VITE_SERVER_URL` and `CORS_ORIGIN` can live in `packages/infra/.env` or the shell/CI environment
 - `apps/web/.env.production` is no longer part of the documented flow
@@ -193,6 +204,7 @@ This means:
 ### Infra env
 
 `packages/infra/.env` is only for Alchemy / Cloudflare infra values:
+
 - `ALCHEMY_PASSWORD`
 - `CLOUDFLARE_API_TOKEN`
 - `VITE_SERVER_URL` optional deploy override
@@ -226,6 +238,7 @@ Frontend: `http://localhost:3001` · Backend: `http://localhost:3000` · Swagger
 > `bun dev` requires Cloudflare credentials (`CLOUDFLARE_API_TOKEN`) for the infra watcher. Use `bun run dev:web` + `bun run dev:backend` without them.
 
 **First-time setup:**
+
 ```bash
 # JS dependencies
 bun install
@@ -266,19 +279,19 @@ Infra config: `packages/infra/alchemy.run.ts`. It loads `packages/infra/.env` fi
 
 ## Scripts Reference
 
-| Script | Description |
-|--------|-------------|
-| `bun dev` | Start frontend + backend + infra watcher |
-| `bun run dev:web` | Start frontend only |
-| `bun run dev:backend` | Start FastAPI backend only |
-| `bun run build` | Build all apps |
-| `bun run check-types` | TypeScript check across workspace |
-| `bun run check` | Lint (oxlint) + format (oxfmt) |
-| `bun run deploy` | Deploy to Cloudflare Workers |
-| `bun run destroy` | Destroy Cloudflare resources |
-| `bun run db:up` | Run database migrations (upgrade head) |
-| `bun run db:new "msg"` | Create new migration with autogenerate |
-| `bun run db:down` | Roll back last migration |
+| Script                             | Description                                   |
+| ---------------------------------- | --------------------------------------------- |
+| `bun dev`                          | Start frontend + backend + infra watcher      |
+| `bun run dev:web`                  | Start frontend only                           |
+| `bun run dev:backend`              | Start FastAPI backend only                    |
+| `bun run build`                    | Build all apps                                |
+| `bun run check-types`              | TypeScript check across workspace             |
+| `bun run check`                    | Lint (oxlint) + format (oxfmt)                |
+| `bun run deploy`                   | Deploy to Cloudflare Workers                  |
+| `bun run destroy`                  | Destroy Cloudflare resources                  |
+| `bun run db:up`                    | Run database migrations (upgrade head)        |
+| `bun run db:new "msg"`             | Create new migration with autogenerate        |
+| `bun run db:down`                  | Roll back last migration                      |
 | `bun run --cwd apps/web gen:types` | Regenerate frontend types from OpenAPI schema |
 
 ---
@@ -330,17 +343,17 @@ import { Button } from "@sports-system/ui/components/button";
 
 ## Sports Supported
 
-| Sport | Type | Players |
-|-------|------|---------|
-| Football (Futebol) | Team | 11 |
-| Volleyball (Vôlei) | Team | 6 |
-| Basketball (Basquete) | Team | 5 |
-| Athletics (Atletismo) | Individual / Relay | 1–4 |
-| Judo (Judô) | Individual | 1 |
-| Handball (Handebol) | Team | 7 |
-| Swimming (Natação) | Individual / Relay | 1–4 |
-| Beach Volleyball (Vôlei de Praia) | Team | 2 |
-| Table Tennis (Tênis de Mesa) | Individual / Doubles | 1–2 |
-| Karate (Karatê) | Individual | 1 |
+| Sport                             | Type                 | Players |
+| --------------------------------- | -------------------- | ------- |
+| Football (Futebol)                | Team                 | 11      |
+| Volleyball (Vôlei)                | Team                 | 6       |
+| Basketball (Basquete)             | Team                 | 5       |
+| Athletics (Atletismo)             | Individual / Relay   | 1–4     |
+| Judo (Judô)                       | Individual           | 1       |
+| Handball (Handebol)               | Team                 | 7       |
+| Swimming (Natação)                | Individual / Relay   | 1–4     |
+| Beach Volleyball (Vôlei de Praia) | Team                 | 2       |
+| Table Tennis (Tênis de Mesa)      | Individual / Doubles | 1–2     |
+| Karate (Karatê)                   | Individual           | 1       |
 
 Each sport has custom statistics, tiebreak rules, and competition phases. See [FEATURES.md](./FEATURES.md) for full rules.

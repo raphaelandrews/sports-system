@@ -49,9 +49,7 @@ export function SportRulesForm({
     <Card className="border border-border/70">
       <CardHeader>
         <CardTitle>Regras do esporte</CardTitle>
-        <CardDescription>
-          Admin pode ajustar `rules_json` sem alterar codigo.
-        </CardDescription>
+        <CardDescription>Admin pode ajustar `rules_json` sem alterar codigo.</CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -73,7 +71,8 @@ export function SportRulesForm({
                   onChange={(event) => field.handleChange(event.target.value)}
                 />
                 <FieldDescription>
-                  Exemplo: {`{"roster_size": 18, "substitutes": 7, "schedule_conflict_check": true}`}
+                  Exemplo:{" "}
+                  {`{"roster_size": 18, "substitutes": 7, "schedule_conflict_check": true}`}
                 </FieldDescription>
               </Field>
             )}

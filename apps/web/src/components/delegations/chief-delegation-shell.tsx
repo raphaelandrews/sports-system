@@ -19,6 +19,7 @@ import type { DelegationSummary } from "@/types/delegations";
 interface ChiefDelegationShellProps {
   title: string;
   description: string;
+  leagueId: string;
   delegation: DelegationSummary | null;
   children: ReactNode;
 }
@@ -26,6 +27,7 @@ interface ChiefDelegationShellProps {
 export function ChiefDelegationShell({
   title,
   description,
+  leagueId,
   delegation,
   children,
 }: ChiefDelegationShellProps) {
@@ -79,28 +81,32 @@ export function ChiefDelegationShell({
           </CardHeader>
           <CardContent className="space-y-3">
             <Link
-              to="/dashboard/my-delegation"
+              to="/leagues/$leagueId/dashboard/my-delegation"
+              params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-between")}
             >
               Visao geral
               <ArrowRight className="size-4" />
             </Link>
             <Link
-              to="/dashboard/my-delegation/members"
+              to="/leagues/$leagueId/dashboard/my-delegation/members"
+              params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-between")}
             >
               Membros e convites
               <ArrowRight className="size-4" />
             </Link>
             <Link
-              to="/dashboard/my-delegation/invite"
+              to="/leagues/$leagueId/dashboard/my-delegation/invite"
+              params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-between")}
             >
               Convidar usuario
               <ArrowRight className="size-4" />
             </Link>
             <Link
-              to="/dashboard/my-delegation/transfers"
+              to="/leagues/$leagueId/dashboard/my-delegation/transfers"
+              params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-between")}
             >
               Transferencias

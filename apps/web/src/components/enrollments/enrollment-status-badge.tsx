@@ -17,10 +17,6 @@ const labelByStatus: Record<EnrollmentStatus, string> = {
   REJECTED: "Rejeitada",
 };
 
-export function EnrollmentStatusBadge({
-  status,
-}: {
-  status: EnrollmentStatus;
-}) {
+export function EnrollmentStatusBadge({ status }: { status: EnrollmentStatus }) {
   return <Badge variant={variantByStatus[status]}>{labelByStatus[status]}</Badge>;
 }

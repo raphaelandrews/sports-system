@@ -26,7 +26,7 @@ export function LoginForm() {
         const tokens = await loginFn({ data: value });
         syncAccessTokenCookie(tokens.access_token);
         await router.invalidate();
-        await navigate({ to: "/dashboard" });
+        await navigate({ to: "/leagues" });
       } catch (err) {
         if (err instanceof Error) {
           setServerError(err.message);
@@ -56,8 +56,7 @@ export function LoginForm() {
       <form.Field
         name="email"
         validators={{
-          onChange: ({ value }) =>
-            !value.trim() ? "E-mail obrigatório" : undefined,
+          onChange: ({ value }) => (!value.trim() ? "E-mail obrigatório" : undefined),
         }}
       >
         {(field) => (
