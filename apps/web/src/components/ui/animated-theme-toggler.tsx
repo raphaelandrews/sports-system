@@ -1,5 +1,5 @@
 import { useCallback, useRef } from "react"
-import { Flame, Leaf } from "lucide-react"
+import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { flushSync } from "react-dom"
 
@@ -27,8 +27,8 @@ export const AnimatedThemeToggler = ({
   const toggleTheme = useCallback(async () => {
     if (!buttonRef.current) return
 
-    const currentTheme = resolvedTheme === "moss" ? "moss" : "ember"
-    const nextTheme = currentTheme === "moss" ? "ember" : "moss"
+    const currentTheme = resolvedTheme === "dark" ? "dark" : "light"
+    const nextTheme = currentTheme === "dark" ? "light" : "dark"
 
     if (!("startViewTransition" in document)) {
       setTheme(nextTheme)
@@ -67,7 +67,7 @@ export const AnimatedThemeToggler = ({
     )
   }, [duration, resolvedTheme, setTheme])
 
-  const isMoss = resolvedTheme === "moss"
+  const isDark = resolvedTheme === "dark"
 
   return (
     <Tooltip>
@@ -83,11 +83,11 @@ export const AnimatedThemeToggler = ({
           />
         }
       >
-        {isMoss ? <Leaf size={16} /> : <Flame size={16} />}
+        {isDark ? <Sun size={16} /> : <Moon size={16} />}
         <span className="sr-only">Toggle theme</span>
       </TooltipTrigger>
       <TooltipContent>
-        <p>{isMoss ? "Alternar para Ember" : "Alternar para Moss"}</p>
+        <p>{isDark ? "Alternar para claro" : "Alternar para escuro"}</p>
       </TooltipContent>
     </Tooltip>
   )

@@ -11,13 +11,12 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "next-themes";
 
-import Header from "@/components/layout/header";
+import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import { getSessionFn } from "@/server/auth";
 
 import appCss from "@/index.css?url";
 
-const AUTH_PATHS = ["/login", "/register"];
-const FULL_PAGE_PREFIXES = ["/dashboard"];
+const AUTH_PATHS = ["/login", "/register", "/auth/oauth/callback"]
 
 export interface RouterAppContext {
   queryClient: QueryClient;
@@ -42,10 +41,9 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 });
 
 function RootDocument() {
+  const { session } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isAuthPage = AUTH_PATHS.includes(pathname);
-  const isFullPage =
-    isAuthPage || FULL_PAGE_PREFIXES.some((p) => pathname.startsWith(p));
+  const isAuthPage = AUTH_PATHS.some((p) => pathname.startsWith(p));
 
   return (
     <html lang="pt-BR" suppressHydrationWarning>
@@ -55,18 +53,16 @@ function RootDocument() {
       <body>
         <ThemeProvider
           attribute="class"
-          defaultTheme="ember"
+          defaultTheme="dark"
           enableSystem={false}
-          themes={["ember", "moss"]}
-          disableTransitionOnChange
+          themes={["light", "dark"]}
         >
-          {isFullPage ? (
+          {isAuthPage ? (
             <Outlet />
           ) : (
-            <div className="grid h-svh grid-rows-[auto_1fr]">
-              <Header />
+            <DashboardLayout session={session ?? null}>
               <Outlet />
-            </div>
+            </DashboardLayout>
           )}
           <Toaster richColors />
           <ReactQueryDevtools buttonPosition="bottom-right" />

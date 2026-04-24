@@ -7,7 +7,7 @@ import {
   FieldSeparator,
   Field,
 } from "@sports-system/ui/components/field";
-import authImage from "@/components/assets/auth-image.webp";
+import authImage from "@/assets/auth-image.webp";
 import { buildApiUrl } from "@/lib/url";
 import type React from "react";
 

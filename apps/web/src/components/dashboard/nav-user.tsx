@@ -2,10 +2,11 @@ import {
   BadgeCheck,
   Bell,
   ChevronsUpDown,
+  LogIn,
   LogOut,
   ShieldCheck,
 } from "lucide-react"
-import { useRouter } from "@tanstack/react-router"
+import { Link, useRouter } from "@tanstack/react-router"
 import { toast } from "sonner"
 
 import {
@@ -30,7 +31,20 @@ import {
 import { logoutFn } from "@/server/auth"
 import type { Session } from "@/types/auth"
 
-export function NavUser({ user }: { user: Session }) {
+export function NavUser({ user }: { user: Session | null }) {
+  if (!user) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton render={<Link to="/login" />} size="lg">
+            <LogIn className="size-4" />
+            <span>Entrar</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    )
+  }
+
   const { isMobile } = useSidebar()
   const router = useRouter()
 

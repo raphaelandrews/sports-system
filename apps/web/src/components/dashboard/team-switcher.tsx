@@ -94,9 +94,28 @@ const roleMeta: Record<Session["role"], WorkspaceItem[]> = {
   ],
 }
 
-export function TeamSwitcher({ session }: { session: Session }) {
+export function TeamSwitcher({ session }: { session: Session | null }) {
   const { isMobile } = useSidebar()
   const pathname = useRouterState({ select: (state) => state.location.pathname })
+
+  if (!session) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg">
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              <Trophy className="size-4" />
+            </div>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold">Sports System</span>
+              <span className="truncate text-xs text-sidebar-foreground/70">Competição esportiva</span>
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    )
+  }
+
   const workspaces = roleMeta[session.role]
   const activeWorkspace =
     workspaces.find(

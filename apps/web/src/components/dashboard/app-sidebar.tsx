@@ -6,6 +6,7 @@ import {
   Flag,
   Home,
   Medal,
+  Rss,
   Search,
   Shield,
   Settings,
@@ -27,6 +28,16 @@ import {
   SidebarRail,
 } from "@sports-system/ui/components/sidebar"
 import type { Session } from "@/types/auth"
+
+const publicNav: NavItem[] = [
+  { title: "Início", url: "/", icon: Home },
+  { title: "Semanas", url: "/weeks", icon: CalendarDays },
+  { title: "Resultados", url: "/results", icon: Medal },
+  { title: "Feed ao vivo", url: "/feed", icon: Rss },
+  { title: "Calendário", url: "/calendar", icon: CalendarDays },
+  { title: "Delegações", url: "/delegations", icon: Flag },
+  { title: "Esportes", url: "/sports", icon: Trophy },
+]
 
 const commonNav: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
@@ -108,10 +119,7 @@ function getNavItems(role: Session["role"]): NavItem[] {
 export function AppSidebar({
   session,
   ...props
-}: React.ComponentProps<typeof Sidebar> & { session: Session }) {
-  const roleNav = getNavItems(session.role)
-  const quickNav = supportNav[session.role]
-
+}: React.ComponentProps<typeof Sidebar> & { session: Session | null }) {
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
       <SidebarHeader>
@@ -119,9 +127,15 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        <NavMain items={commonNav} label="Competição" />
-        <NavMain items={roleNav} label="Área restrita" />
-        <NavMain items={quickNav} label="Atalhos" />
+        {session ? (
+          <>
+            <NavMain items={commonNav} label="Competição" />
+            <NavMain items={getNavItems(session.role)} label="Área restrita" />
+            <NavMain items={supportNav[session.role]} label="Atalhos" />
+          </>
+        ) : (
+          <NavMain items={publicNav} label="Navegação" />
+        )}
       </SidebarContent>
 
       <SidebarFooter>

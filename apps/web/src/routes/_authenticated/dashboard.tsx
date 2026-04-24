@@ -1,6 +1,5 @@
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
-import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import { adminRequestsQueryOptions } from "@/queries/admin";
 import { activityFeedQueryOptions } from "@/queries/activities";
 import { athleteListQueryOptions } from "@/queries/athletes";
@@ -43,11 +42,5 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function DashboardPage() {
-  const { session } = Route.useRouteContext();
-
-  return (
-    <DashboardLayout session={session}>
-      <Outlet />
-    </DashboardLayout>
-  );
+  return <Outlet />;
 }

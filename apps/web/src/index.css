@@ -1,14 +1,14 @@
 @font-face {
-  font-family: "Geist Sans";
-  src: url("./components/assets/fonts/Geist[wght].woff2") format("woff2");
+  font-family: "Geist";
+  src: url("./assets/fonts/Geist[wght].woff2") format("woff2");
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Geist Sans";
-  src: url("./components/assets/fonts/Geist-Italic[wght].woff2") format("woff2");
+  font-family: "Geist";
+  src: url("./assets/fonts/Geist-Italic[wght].woff2") format("woff2");
   font-style: italic;
   font-weight: 100 900;
   font-display: swap;
@@ -16,7 +16,7 @@
 
 @font-face {
   font-family: "Geist Mono";
-  src: url("./components/assets/fonts/GeistMono[wght].woff2") format("woff2");
+  src: url("./assets/fonts/GeistMono[wght].woff2") format("woff2");
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
@@ -24,7 +24,7 @@
 
 @font-face {
   font-family: "Geist Mono";
-  src: url("./components/assets/fonts/GeistMono-Italic[wght].woff2") format("woff2");
+  src: url("./assets/fonts/GeistMono-Italic[wght].woff2") format("woff2");
   font-style: italic;
   font-weight: 100 900;
   font-display: swap;

@@ -1,7 +1,6 @@
-import { Button } from "@sports-system/ui/components/button";
 import { Input } from "@sports-system/ui/components/input";
+import { Field, FieldLabel } from "@sports-system/ui/components/field";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { Search } from "lucide-react";
 import { startTransition, useEffect, useState } from "react";
 
 export function GlobalSearchForm() {
@@ -20,7 +19,6 @@ export function GlobalSearchForm() {
 
   return (
     <form
-      className="flex w-full max-w-md items-center gap-2"
       onSubmit={(event) => {
         event.preventDefault();
         const nextQuery = value.trim();
@@ -32,18 +30,16 @@ export function GlobalSearchForm() {
         });
       }}
     >
-      <div className="relative flex-1">
-        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+      <Field className="w-full max-w-md">
+        <FieldLabel htmlFor="global-search" className="sr-only">Buscar</FieldLabel>
         <Input
+          id="global-search"
+          className="rounded-full px-4"
           value={value}
           onChange={(event) => setValue(event.target.value)}
-          placeholder="Buscar atletas, delegações, eventos"
-          className="pl-9"
+          placeholder="Buscar atletas, delegações, eventos..."
         />
-      </div>
-      <Button type="submit" variant="outline">
-        Buscar
-      </Button>
+      </Field>
     </form>
   );
 }
