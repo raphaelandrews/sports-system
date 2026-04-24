@@ -5,12 +5,12 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.league import LeagueMember, LeagueMemberRole
 from app.models.athlete import Athlete, AthleteModality
 from app.models.delegation import Delegation, DelegationMember
 from app.models.enrollment import Enrollment, EnrollmentStatus
 from app.models.event import Event
 from app.models.sport import Modality, Sport
-from app.models.user import User, UserRole
 from app.models.competition import Competition, CompetitionStatus
 from app.repositories import enrollment_repository
 from app.repositories.delegation_repository import get_current_delegation_id
@@ -52,7 +52,9 @@ def _resolve_max_athletes(modality: Modality, sport: Sport | None) -> int:
 
 async def list_enrollments(
     session: AsyncSession,
-    current_user: User,
+    league_id: int,
+    current_user_id: int,
+    membership: LeagueMember,
     delegation_id: int | None,
     event_id: int | None,
     enrollment_status: EnrollmentStatus | None,
@@ -60,19 +62,19 @@ async def list_enrollments(
     per_page: int,
 ) -> PaginatedResponse[EnrollmentResponse]:
     offset = (page - 1) * per_page
-    if current_user.role == UserRole.ADMIN:
+    if membership.role == LeagueMemberRole.LEAGUE_ADMIN:
         enrollments, total = await enrollment_repository.list_all(
-            session, offset, per_page,
+            session, league_id, offset, per_page,
             event_id=event_id,
             status=enrollment_status,
             delegation_id=delegation_id,
         )
     else:
-        chief_delegation_id = await get_current_delegation_id(session, current_user.id)
+        chief_delegation_id = await get_current_delegation_id(session, current_user_id, league_id)
         if chief_delegation_id is None:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User has no delegation")
         enrollments, total = await enrollment_repository.list_by_delegation(
-            session, chief_delegation_id, offset, per_page,
+            session, league_id, chief_delegation_id, offset, per_page,
             event_id=event_id,
             status=enrollment_status,
         )
@@ -154,25 +156,42 @@ async def _validate(
 
 async def create_enrollment(
     session: AsyncSession,
-    current_user: User,
+    league_id: int,
+    current_user_id: int,
+    membership: LeagueMember,
     data: EnrollmentCreate,
 ) -> EnrollmentResponse:
-    if current_user.role != UserRole.ADMIN:
-        chief_delegation_id = await get_current_delegation_id(session, current_user.id)
+    if membership.role != LeagueMemberRole.LEAGUE_ADMIN:
+        chief_delegation_id = await get_current_delegation_id(session, current_user_id, league_id)
         if chief_delegation_id != data.delegation_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Cannot enroll athletes for another delegation",
             )
 
+    if not await enrollment_repository.delegation_in_league(session, league_id, data.delegation_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Delegation not found")
+
     athlete_result = await session.execute(
-        select(Athlete).where(Athlete.id == data.athlete_id, Athlete.is_active == True)  # noqa: E712
+        select(Athlete).where(
+            Athlete.id == data.athlete_id,
+            Athlete.league_id == league_id,
+            Athlete.is_active == True,  # noqa: E712
+        )
     )
     athlete = athlete_result.scalar_one_or_none()
     if athlete is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Athlete not found")
 
-    event = await session.get(Event, data.event_id)
+    event_result = await session.execute(
+        select(Event)
+        .join(Competition, Competition.id == Event.competition_id)
+        .where(
+            Event.id == data.event_id,
+            Competition.league_id == league_id,
+        )
+    )
+    event = event_result.scalar_one_or_none()
     if event is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
 
@@ -192,7 +211,7 @@ async def create_enrollment(
     if existing is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Athlete already enrolled in this event")
 
-    await _validate(session, athlete, event, modality, sport, week, data.delegation_id)
+    await _validate(session, athlete, event, modality, sport, competition, data.delegation_id)
 
     enrollment = Enrollment(
         athlete_id=data.athlete_id,
@@ -207,15 +226,17 @@ async def create_enrollment(
 
 async def cancel_enrollment(
     session: AsyncSession,
-    current_user: User,
+    league_id: int,
+    current_user_id: int,
+    membership: LeagueMember,
     enrollment_id: int,
 ) -> None:
-    enrollment = await enrollment_repository.get_by_id(session, enrollment_id)
+    enrollment = await enrollment_repository.get_by_id_in_league(session, league_id, enrollment_id)
     if enrollment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Enrollment not found")
 
-    if current_user.role != UserRole.ADMIN:
-        chief_delegation_id = await get_current_delegation_id(session, current_user.id)
+    if membership.role != LeagueMemberRole.LEAGUE_ADMIN:
+        chief_delegation_id = await get_current_delegation_id(session, current_user_id, league_id)
         if chief_delegation_id != enrollment.delegation_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -237,10 +258,11 @@ async def cancel_enrollment(
 
 async def review_enrollment(
     session: AsyncSession,
+    league_id: int,
     enrollment_id: int,
     data: EnrollmentReview,
 ) -> EnrollmentResponse:
-    enrollment = await enrollment_repository.get_by_id(session, enrollment_id)
+    enrollment = await enrollment_repository.get_by_id_in_league(session, league_id, enrollment_id)
     if enrollment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Enrollment not found")
 
@@ -257,10 +279,13 @@ async def review_enrollment(
     return EnrollmentResponse.model_validate(enrollment)
 
 
-async def ai_generate(session: AsyncSession) -> list[EnrollmentResponse]:
+async def ai_generate(session: AsyncSession, league_id: int) -> list[EnrollmentResponse]:
     competitions_result = await session.execute(
         select(Competition)
-        .where(Competition.status.in_([CompetitionStatus.DRAFT, CompetitionStatus.SCHEDULED]))
+        .where(
+            Competition.league_id == league_id,
+            Competition.status.in_([CompetitionStatus.DRAFT, CompetitionStatus.SCHEDULED]),
+        )
         .order_by(Competition.number.desc())
         .limit(1)
     )
@@ -282,7 +307,10 @@ async def ai_generate(session: AsyncSession) -> list[EnrollmentResponse]:
         )
 
     delegations_result = await session.execute(
-        select(Delegation).where(Delegation.is_active == True)  # noqa: E712
+        select(Delegation).where(
+            Delegation.league_id == league_id,
+            Delegation.is_active == True,  # noqa: E712
+        )
     )
     delegations = list(delegations_result.scalars().all())
     if not delegations:
@@ -313,6 +341,7 @@ async def ai_generate(session: AsyncSession) -> list[EnrollmentResponse]:
 
             athletes_result = await session.execute(
                 select(Athlete).where(
+                    Athlete.league_id == league_id,
                     Athlete.user_id.in_(member_user_ids),
                     Athlete.is_active == True,  # noqa: E712
                 ).limit(max_athletes)

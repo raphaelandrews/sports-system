@@ -5,6 +5,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import sse
+from app.models.competition import Competition
 from app.models.event import Event, Match, MatchEvent, MatchStatus
 from app.models.competition import CompetitionStatus
 from app.repositories import competition_repository, event_repository
@@ -28,8 +29,19 @@ logger = logging.getLogger(__name__)
 _LOCKED_OR_LATER = {CompetitionStatus.LOCKED, CompetitionStatus.ACTIVE, CompetitionStatus.COMPLETED}
 
 
+async def _get_match_league_id(session: AsyncSession, match: Match) -> int | None:
+    event = await session.get(Event, match.event_id)
+    if event is None:
+        return None
+    competition = await session.get(Competition, event.competition_id)
+    if competition is None:
+        return None
+    return competition.league_id
+
+
 async def list_events(
     session: AsyncSession,
+    league_id: int,
     competition_id: int | None,
     sport_id: int | None,
     event_date,
@@ -37,23 +49,25 @@ async def list_events(
     per_page: int,
 ) -> PaginatedResponse[EventResponse]:
     offset = (page - 1) * per_page
-    events, total = await event_repository.list_events(session, competition_id, sport_id, event_date, offset, per_page)
+    events, total = await event_repository.list_events(
+        session, league_id, competition_id, sport_id, event_date, offset, per_page
+    )
     return PaginatedResponse(
         data=[EventResponse.model_validate(e) for e in events],
         meta=Meta(total=total, page=page, per_page=per_page),
     )
 
 
-async def get_event(session: AsyncSession, event_id: int) -> EventDetailResponse:
-    event = await _get_event_or_404(session, event_id)
+async def get_event(session: AsyncSession, league_id: int, event_id: int) -> EventDetailResponse:
+    event = await _get_event_or_404(session, league_id, event_id)
     matches = await event_repository.get_matches_for_event(session, event_id)
     resp = EventDetailResponse.model_validate(event)
     resp.matches = [MatchResponse.model_validate(m) for m in matches]
     return resp
 
 
-async def create_event(session: AsyncSession, data: EventCreate) -> EventResponse:
-    competition = await competition_repository.get_by_id(session, data.competition_id)
+async def create_event(session: AsyncSession, league_id: int, data: EventCreate) -> EventResponse:
+    competition = await competition_repository.get_by_id(session, league_id, data.competition_id)
     if competition is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Competition not found")
     event = Event(
@@ -69,9 +83,11 @@ async def create_event(session: AsyncSession, data: EventCreate) -> EventRespons
     return EventResponse.model_validate(event)
 
 
-async def update_event(session: AsyncSession, event_id: int, data: EventUpdate) -> EventResponse:
-    event = await _get_event_or_404(session, event_id)
-    competition = await competition_repository.get_by_id(session, event.competition_id)
+async def update_event(
+    session: AsyncSession, league_id: int, event_id: int, data: EventUpdate
+) -> EventResponse:
+    event = await _get_event_or_404(session, league_id, event_id)
+    competition = await competition_repository.get_by_id(session, league_id, event.competition_id)
     if competition and competition.status in _LOCKED_OR_LATER:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -92,10 +108,10 @@ async def update_event(session: AsyncSession, event_id: int, data: EventUpdate) 
     return EventResponse.model_validate(event)
 
 
-async def cancel_event(session: AsyncSession, event_id: int) -> None:
+async def cancel_event(session: AsyncSession, league_id: int, event_id: int) -> None:
     from app.models.event import EventStatus
-    event = await _get_event_or_404(session, event_id)
-    competition = await competition_repository.get_by_id(session, event.competition_id)
+    event = await _get_event_or_404(session, league_id, event_id)
+    competition = await competition_repository.get_by_id(session, league_id, event.competition_id)
     if competition and competition.status in _LOCKED_OR_LATER:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -145,7 +161,10 @@ async def add_match_event(
         "delegation_id_at_time": data.delegation_id_at_time,
     }
     await sse.broadcast(match_id, payload)
-    await sse.broadcast_activity_feed(
+    league_id = await _get_match_league_id(session, match)
+    if league_id is not None:
+        await sse.broadcast_activity_feed(
+            league_id,
         ActivityFeedItem(
             id=f"match-event-{match_event.id}",
             item_type=ActivityFeedItemType.MATCH_EVENT,
@@ -157,7 +176,7 @@ async def add_match_event(
             delegation_id=data.delegation_id_at_time,
             minute=data.minute,
         ).model_dump(mode="json")
-    )
+        )
     return MatchEventResponse.model_validate(match_event)
 
 
@@ -181,7 +200,10 @@ async def start_match(session: AsyncSession, match_id: int) -> MatchResponse:
     match = await event_repository.save_match(session, match)
     await session.commit()
     await sse.broadcast(match_id, {"type": "match_started", "match_id": match_id})
-    await sse.broadcast_activity_feed(
+    league_id = await _get_match_league_id(session, match)
+    if league_id is not None:
+        await sse.broadcast_activity_feed(
+            league_id,
         ActivityFeedItem(
             id=f"match-started-{match.id}-{match.started_at.isoformat()}",
             item_type=ActivityFeedItemType.MATCH_STARTED,
@@ -191,7 +213,7 @@ async def start_match(session: AsyncSession, match_id: int) -> MatchResponse:
             match_id=match.id,
             event_id=match.event_id,
         ).model_dump(mode="json")
-    )
+        )
     return MatchResponse.model_validate(match)
 
 
@@ -218,7 +240,10 @@ async def finish_match(session: AsyncSession, match_id: int) -> MatchResponse:
     await session.commit()
     # Phase 9: simulation_service.generate_results(match, session)
     await sse.broadcast(match_id, {"type": "match_finished", "match_id": match_id, "status": "COMPLETED"})
-    await sse.broadcast_activity_feed(
+    league_id = await _get_match_league_id(session, match)
+    if league_id is not None:
+        await sse.broadcast_activity_feed(
+            league_id,
         ActivityFeedItem(
             id=f"match-finished-{match.id}-{match.ended_at.isoformat()}",
             item_type=ActivityFeedItemType.MATCH_FINISHED,
@@ -228,12 +253,14 @@ async def finish_match(session: AsyncSession, match_id: int) -> MatchResponse:
             match_id=match.id,
             event_id=match.event_id,
         ).model_dump(mode="json")
-    )
+        )
     return MatchResponse.model_validate(match)
 
 
-async def ai_generate_schedule(session: AsyncSession, competition_id: int) -> list[EventResponse]:
-    competition = await competition_repository.get_by_id(session, competition_id)
+async def ai_generate_schedule(
+    session: AsyncSession, league_id: int, competition_id: int
+) -> list[EventResponse]:
+    competition = await competition_repository.get_by_id(session, league_id, competition_id)
     if competition is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Competition not found")
     if competition.status in _LOCKED_OR_LATER:
@@ -251,8 +278,8 @@ async def lock_and_generate_bracket(session: AsyncSession, competition_id: int) 
     return await bracket_service.generate(session, competition_id)
 
 
-async def _get_event_or_404(session: AsyncSession, event_id: int) -> Event:
-    event = await event_repository.get_event_by_id(session, event_id)
+async def _get_event_or_404(session: AsyncSession, league_id: int, event_id: int) -> Event:
+    event = await event_repository.get_event_by_id_in_league(session, league_id, event_id)
     if event is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
     return event

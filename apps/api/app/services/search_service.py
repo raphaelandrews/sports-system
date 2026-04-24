@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import User
 from app.repositories import athlete_repository, delegation_repository, event_repository
 from app.schemas.search import (
     GlobalSearchAthleteItem,
@@ -12,7 +11,7 @@ from app.schemas.search import (
 
 async def global_search(
     session: AsyncSession,
-    current_user: User,
+    league_id: int,
     query: str,
     limit: int,
 ) -> GlobalSearchResponse:
@@ -21,8 +20,9 @@ async def global_search(
         return GlobalSearchResponse(query=normalized, athletes=[], delegations=[], events=[])
 
     athletes = await athlete_repository.search(session, normalized, limit)
-    delegations = await delegation_repository.search(session, normalized, limit)
-    events = await event_repository.search(session, normalized, limit)
+    athletes = [item for item in athletes if getattr(item, "league_id", None) == league_id]
+    delegations = await delegation_repository.search(session, league_id, normalized, limit)
+    events = await event_repository.search(session, league_id, normalized, limit)
 
     return GlobalSearchResponse(
         query=normalized,

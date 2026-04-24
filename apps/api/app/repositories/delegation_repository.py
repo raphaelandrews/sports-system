@@ -13,13 +13,31 @@ async def get_by_id(session: AsyncSession, delegation_id: int) -> Delegation | N
     return await session.get(Delegation, delegation_id)
 
 
-async def get_by_code(session: AsyncSession, code: str) -> Delegation | None:
-    result = await session.execute(select(Delegation).where(Delegation.code == code))
+async def get_by_id_in_league(
+    session: AsyncSession, league_id: int, delegation_id: int
+) -> Delegation | None:
+    result = await session.execute(
+        select(Delegation).where(
+            Delegation.id == delegation_id,
+            Delegation.league_id == league_id,
+        )
+    )
+    return result.scalar_one_or_none()
+
+
+async def get_by_code(session: AsyncSession, league_id: int, code: str) -> Delegation | None:
+    result = await session.execute(
+        select(Delegation).where(
+            Delegation.league_id == league_id,
+            Delegation.code == code,
+        )
+    )
     return result.scalar_one_or_none()
 
 
 async def search(
     session: AsyncSession,
+    league_id: int,
     query: str,
     limit: int = 8,
 ) -> list[Delegation]:
@@ -27,6 +45,7 @@ async def search(
     result = await session.execute(
         select(Delegation)
         .where(
+            Delegation.league_id == league_id,
             or_(
                 Delegation.name.ilike(pattern),
                 Delegation.code.ilike(pattern),
@@ -39,16 +58,20 @@ async def search(
 
 
 async def list_active(
-    session: AsyncSession, page: int = 1, per_page: int = 20
+    session: AsyncSession, league_id: int, page: int = 1, per_page: int = 20
 ) -> tuple[list[Delegation], int]:
     offset = (page - 1) * per_page
     count_result = await session.execute(
-        select(func.count()).select_from(Delegation).where(Delegation.is_active == True)  # noqa: E712
+        select(func.count()).select_from(Delegation).where(
+            Delegation.league_id == league_id,
+            Delegation.is_active == True,  # noqa: E712
+        )
     )
     total = count_result.scalar_one()
     result = await session.execute(
         select(Delegation)
         .where(Delegation.is_active == True)  # noqa: E712
+        .where(Delegation.league_id == league_id)
         .order_by(Delegation.name)
         .offset(offset)
         .limit(per_page)
@@ -95,11 +118,16 @@ async def get_member_history_with_users(
     return result.all()  # type: ignore[return-value]
 
 
-async def get_active_membership(session: AsyncSession, user_id: int) -> DelegationMember | None:
+async def get_active_membership(
+    session: AsyncSession, user_id: int, league_id: int
+) -> DelegationMember | None:
     result = await session.execute(
-        select(DelegationMember).where(
+        select(DelegationMember)
+        .join(Delegation, Delegation.id == DelegationMember.delegation_id)
+        .where(
             DelegationMember.user_id == user_id,
             DelegationMember.left_at == None,  # noqa: E711
+            Delegation.league_id == league_id,
         )
     )
     return result.scalar_one_or_none()
@@ -145,12 +173,19 @@ async def save_invite(session: AsyncSession, invite: DelegationInvite) -> Delega
     return invite
 
 
-async def get_current_delegation_id(session: AsyncSession, user_id: int) -> int | None:
+async def get_current_delegation_id(
+    session: AsyncSession, user_id: int, league_id: int | None = None
+) -> int | None:
+    query = select(DelegationMember.delegation_id).join(
+        Delegation, Delegation.id == DelegationMember.delegation_id
+    ).where(
+        DelegationMember.user_id == user_id,
+        DelegationMember.left_at == None,  # noqa: E711
+    )
+    if league_id is not None:
+        query = query.where(Delegation.league_id == league_id)
     result = await session.execute(
-        select(DelegationMember.delegation_id).where(
-            DelegationMember.user_id == user_id,
-            DelegationMember.left_at == None,  # noqa: E711
-        )
+        query
     )
     return result.scalar_one_or_none()
 

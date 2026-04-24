@@ -92,11 +92,11 @@ def _map_record(item: dict) -> ActivityFeedItem:
     )
 
 
-async def list_feed(session: AsyncSession, limit: int) -> list[ActivityFeedItem]:
+async def list_feed(session: AsyncSession, league_id: int, limit: int) -> list[ActivityFeedItem]:
     fetch_limit = max(limit * 3, 30)
-    match_events = await activity_repository.list_recent_match_events(session, fetch_limit)
-    state_changes = await activity_repository.list_recent_match_state_changes(session, fetch_limit)
-    records = await activity_repository.list_recent_records(session, fetch_limit)
+    match_events = await activity_repository.list_recent_match_events(session, league_id, fetch_limit)
+    state_changes = await activity_repository.list_recent_match_state_changes(session, league_id, fetch_limit)
+    records = await activity_repository.list_recent_records(session, league_id, fetch_limit)
 
     items = [
         *(_map_match_event(item) for item in match_events),

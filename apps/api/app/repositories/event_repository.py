@@ -13,15 +13,32 @@ async def get_event_by_id(session: AsyncSession, event_id: int) -> Optional[Even
     return await session.get(Event, event_id)
 
 
+async def get_event_by_id_in_league(
+    session: AsyncSession, league_id: int, event_id: int
+) -> Optional[Event]:
+    result = await session.execute(
+        select(Event)
+        .join(Competition, Competition.id == Event.competition_id)
+        .where(
+            Event.id == event_id,
+            Competition.league_id == league_id,
+        )
+    )
+    return result.scalar_one_or_none()
+
+
 async def list_events(
     session: AsyncSession,
+    league_id: int,
     competition_id: Optional[int],
     sport_id: Optional[int],
     event_date: Optional[date_type],
     offset: int,
     limit: int,
 ) -> tuple[list[Event], int]:
-    q = select(Event)
+    q = select(Event).join(Competition, Competition.id == Event.competition_id).where(
+        Competition.league_id == league_id
+    )
     if competition_id is not None:
         q = q.where(Event.competition_id == competition_id)
     if sport_id is not None:
@@ -95,6 +112,7 @@ async def create_match_event(session: AsyncSession, match_event: MatchEvent) -> 
 
 async def search(
     session: AsyncSession,
+    league_id: int,
     query: str,
     limit: int = 8,
 ) -> list[dict]:
@@ -116,6 +134,7 @@ async def search(
         .join(Modality, Modality.id == Event.modality_id)
         .join(Sport, Sport.id == Modality.sport_id)
         .where(
+            Competition.league_id == league_id,
             or_(
                 Sport.name.ilike(pattern),
                 Modality.name.ilike(pattern),

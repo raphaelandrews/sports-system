@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import sse
 from app.models.athlete import Athlete
+from app.models.competition import Competition
 from app.models.delegation import Delegation
 from app.models.event import Event, Match, MatchStatus
 from app.models.result import Result
@@ -21,6 +22,7 @@ from app.schemas.result import (
 
 async def list_results(
     session: AsyncSession,
+    league_id: int,
     competition_id: int | None,
     sport_id: int | None,
     delegation_id: int | None,
@@ -29,7 +31,7 @@ async def list_results(
 ) -> PaginatedResponse[ResultResponse]:
     offset = (page - 1) * per_page
     results, total = await result_repository.list_all(
-        session, offset, per_page, competition_id=competition_id, sport_id=sport_id, delegation_id=delegation_id
+        session, league_id, offset, per_page, competition_id=competition_id, sport_id=sport_id, delegation_id=delegation_id
     )
     return PaginatedResponse(
         data=[ResultResponse.model_validate(r) for r in results],
@@ -37,9 +39,15 @@ async def list_results(
     )
 
 
-async def create_result(session: AsyncSession, data: ResultCreate) -> ResultResponse:
+async def create_result(session: AsyncSession, league_id: int, data: ResultCreate) -> ResultResponse:
     match = await session.get(Match, data.match_id)
     if match is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Match not found")
+    event = await session.get(Event, match.event_id)
+    if event is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+    competition = await session.get(Competition, event.competition_id)
+    if competition is None or competition.league_id != league_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Match not found")
     result = Result(
         match_id=data.match_id,
@@ -51,12 +59,14 @@ async def create_result(session: AsyncSession, data: ResultCreate) -> ResultResp
     )
     result = await result_repository.create(session, result)
     await session.commit()
-    await sse.broadcast_medal_board({"type": "medal_board_updated", "match_id": data.match_id})
+    await sse.broadcast_medal_board(league_id, {"type": "medal_board_updated", "match_id": data.match_id})
     return ResultResponse.model_validate(result)
 
 
-async def update_result(session: AsyncSession, result_id: int, data: ResultUpdate) -> ResultResponse:
-    result = await result_repository.get_by_id(session, result_id)
+async def update_result(
+    session: AsyncSession, league_id: int, result_id: int, data: ResultUpdate
+) -> ResultResponse:
+    result = await result_repository.get_by_id_in_league(session, league_id, result_id)
     if result is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Result not found")
     if data.rank is not None:
@@ -67,12 +77,12 @@ async def update_result(session: AsyncSession, result_id: int, data: ResultUpdat
         result.value_json = data.value_json
     result = await result_repository.save(session, result)
     await session.commit()
-    await sse.broadcast_medal_board({"type": "medal_board_updated"})
+    await sse.broadcast_medal_board(league_id, {"type": "medal_board_updated"})
     return ResultResponse.model_validate(result)
 
 
-async def get_medal_board(session: AsyncSession) -> list[MedalBoardEntry]:
-    rows = await result_repository.get_medal_board(session)
+async def get_medal_board(session: AsyncSession, league_id: int) -> list[MedalBoardEntry]:
+    rows = await result_repository.get_medal_board(session, league_id)
     board: list[MedalBoardEntry] = []
     for row in rows:
         delegation = await session.get(Delegation, row.delegation_id)
@@ -90,8 +100,10 @@ async def get_medal_board(session: AsyncSession) -> list[MedalBoardEntry]:
     return board
 
 
-async def get_medal_board_by_sport(session: AsyncSession, sport_id: int) -> list[MedalBoardEntry]:
-    rows = await result_repository.get_medal_board_by_sport(session, sport_id)
+async def get_medal_board_by_sport(
+    session: AsyncSession, league_id: int, sport_id: int
+) -> list[MedalBoardEntry]:
+    rows = await result_repository.get_medal_board_by_sport(session, league_id, sport_id)
     board: list[MedalBoardEntry] = []
     for row in rows:
         delegation = await session.get(Delegation, row.delegation_id)
@@ -109,8 +121,10 @@ async def get_medal_board_by_sport(session: AsyncSession, sport_id: int) -> list
     return board
 
 
-async def get_standings(session: AsyncSession, modality_id: int) -> list[SportStandingEntry]:
-    results = await result_repository.get_standings_for_modality(session, modality_id)
+async def get_standings(
+    session: AsyncSession, league_id: int, modality_id: int
+) -> list[SportStandingEntry]:
+    results = await result_repository.get_standings_for_modality(session, league_id, modality_id)
     entries: list[SportStandingEntry] = []
     for r in results:
         delegation_name = None
@@ -133,8 +147,10 @@ async def get_standings(session: AsyncSession, modality_id: int) -> list[SportSt
     return entries
 
 
-async def get_records(session: AsyncSession, modality_id: int | None = None) -> list[RecordResponse]:
-    records = await result_repository.get_records(session, modality_id)
+async def get_records(
+    session: AsyncSession, league_id: int, modality_id: int | None = None
+) -> list[RecordResponse]:
+    records = await result_repository.get_records(session, league_id, modality_id)
     entries: list[RecordResponse] = []
     for r in records:
         modality = await session.get(Modality, r.modality_id)
@@ -154,9 +170,12 @@ async def get_records(session: AsyncSession, modality_id: int | None = None) -> 
     return entries
 
 
-async def ai_generate(session: AsyncSession, event_id: int) -> list[ResultResponse]:
+async def ai_generate(session: AsyncSession, league_id: int, event_id: int) -> list[ResultResponse]:
     event = await session.get(Event, event_id)
     if event is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+    competition = await session.get(Competition, event.competition_id)
+    if competition is None or competition.league_id != league_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
 
     matches_result = await session.execute(

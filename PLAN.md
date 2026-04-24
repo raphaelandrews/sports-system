@@ -204,11 +204,11 @@ Matches routes (`/matches/{id}/*`) stay global — league inferred via FK chain.
 - Public reads: no auth, but responses scoped to league
 
 ### Service updates (all gain `league_id` param)
-- [ ] `competition_service.py`, `delegation_service.py`, `athlete_service.py`
-- [ ] `enrollment_service.py`, `result_service.py`, `simulation_service.py`
-- [ ] `report_service.py`, `narrative_service.py`, `search_service.py`, `activity_service.py`
-- [ ] `delegation_service.py`: transfer window check reads `league.transfer_window_enabled`
-- [ ] `simulation_service.py`: SSE broadcast scoped to league channel
+- [x] `competition_service.py`, `delegation_service.py`, `athlete_service.py`
+- [x] `enrollment_service.py`, `result_service.py`, `simulation_service.py`
+- [x] `report_service.py`, `narrative_service.py`, `search_service.py`, `activity_service.py`
+- [x] `delegation_service.py`: transfer window check reads `league.transfer_window_enabled`
+- [x] `simulation_service.py`: SSE broadcast scoped to league channel
 
 ### Repository updates
 - [ ] All repositories filter queries by `league_id`

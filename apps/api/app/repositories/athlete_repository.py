@@ -14,6 +14,18 @@ async def get_by_id(session: AsyncSession, athlete_id: int) -> Optional[Athlete]
     return result.scalar_one_or_none()
 
 
+async def get_by_id_in_league(
+    session: AsyncSession, league_id: int, athlete_id: int
+) -> Optional[Athlete]:
+    result = await session.execute(
+        select(Athlete).where(
+            Athlete.id == athlete_id,
+            Athlete.league_id == league_id,
+        )
+    )
+    return result.scalar_one_or_none()
+
+
 async def get_by_code(session: AsyncSession, code: str) -> Optional[Athlete]:
     result = await session.execute(select(Athlete).where(Athlete.code == code))
     return result.scalar_one_or_none()
@@ -21,11 +33,12 @@ async def get_by_code(session: AsyncSession, code: str) -> Optional[Athlete]:
 
 async def list_all(
     session: AsyncSession,
+    league_id: int,
     offset: int = 0,
     limit: int = 20,
     active_only: bool = True,
 ) -> tuple[list[Athlete], int]:
-    q = select(Athlete)
+    q = select(Athlete).where(Athlete.league_id == league_id)
     if active_only:
         q = q.where(Athlete.is_active == True)  # noqa: E712
     total_result = await session.execute(select(func.count()).select_from(q.subquery()))
@@ -36,6 +49,7 @@ async def list_all(
 
 async def list_by_delegation(
     session: AsyncSession,
+    league_id: int,
     delegation_id: int,
     offset: int = 0,
     limit: int = 20,
@@ -49,6 +63,7 @@ async def list_by_delegation(
         .scalar_subquery()
     )
     q = select(Athlete).where(
+        Athlete.league_id == league_id,
         Athlete.user_id.in_(active_member_user_ids),
         Athlete.is_active == True,  # noqa: E712
     )

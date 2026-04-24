@@ -16,13 +16,73 @@ type RequestOptions = Omit<RequestInit, "body"> & {
   params?: Record<string, string | number | boolean | undefined | null>;
 };
 
+type LeagueSummary = {
+  id: number;
+  is_showcase?: boolean;
+};
+
+const LEGACY_LEAGUE_SCOPED_PREFIXES = [
+  "/competitions",
+  "/delegations",
+  "/athletes",
+  "/events",
+  "/enrollments",
+  "/results",
+  "/report",
+  "/narrative",
+  "/ai/generation-history",
+  "/search",
+  "/activities",
+  "/admin",
+] as const;
+
+let defaultLeagueIdPromise: Promise<number | null> | null = null;
+
+function isLeagueScopedLegacyPath(path: string) {
+  return LEGACY_LEAGUE_SCOPED_PREFIXES.some(
+    (prefix) => path === prefix || path.startsWith(`${prefix}/`),
+  );
+}
+
+async function getDefaultLeagueId(): Promise<number | null> {
+  if (defaultLeagueIdPromise) return defaultLeagueIdPromise;
+
+  defaultLeagueIdPromise = (async () => {
+    const res = await fetch(buildApiUrl("/leagues"), {
+      credentials: "include",
+    });
+    if (!res.ok) return null;
+
+    const leagues = (await res.json()) as LeagueSummary[];
+    if (!Array.isArray(leagues) || leagues.length === 0) return null;
+
+    return leagues.find((league) => league.is_showcase)?.id ?? leagues[0]?.id ?? null;
+  })();
+
+  return defaultLeagueIdPromise;
+}
+
+async function resolveApiPath(path: string): Promise<string> {
+  if (!isLeagueScopedLegacyPath(path) || path.startsWith("/leagues/")) {
+    return path;
+  }
+
+  const leagueId = await getDefaultLeagueId();
+  if (leagueId == null) {
+    return path;
+  }
+
+  return `/leagues/${leagueId}${path}`;
+}
+
 export async function apiFetch<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
   const { body, params, headers, ...rest } = options;
 
-  let url = buildApiUrl(path);
+  const resolvedPath = await resolveApiPath(path);
+  let url = buildApiUrl(resolvedPath);
 
   if (params) {
     const search = new URLSearchParams();
@@ -73,6 +133,7 @@ export async function apiFetch<T>(
 }
 
 export async function apiFetchBlob(path: string): Promise<Blob> {
+  const resolvedPath = await resolveApiPath(path);
   let authHeader: Record<string, string> = {};
   if (typeof document !== "undefined") {
     const match = document.cookie
@@ -83,7 +144,7 @@ export async function apiFetchBlob(path: string): Promise<Blob> {
     }
   }
 
-  const res = await fetch(buildApiUrl(path), {
+  const res = await fetch(buildApiUrl(resolvedPath), {
     credentials: "include",
     headers: authHeader,
   });

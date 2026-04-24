@@ -22,10 +22,16 @@ from app.repositories import league_repository
 router = APIRouter(prefix="/leagues", tags=["leagues"])
 
 
+def _build_league_response(league, member_count: int) -> LeagueResponse:
+    payload = LeagueResponse.model_validate(league).model_dump()
+    payload["member_count"] = member_count
+    return LeagueResponse(**payload)
+
+
 async def _to_league_response(session: AsyncSession, league_id: int) -> LeagueResponse:
     league = await league_service.get_league_or_404(session, league_id)
     member_count = await league_repository.get_member_count(session, league_id)
-    return LeagueResponse.model_validate(league, update={"member_count": member_count})
+    return _build_league_response(league, member_count)
 
 
 @router.get("", response_model=list[LeagueResponse])
@@ -36,7 +42,7 @@ async def list_leagues(
     responses: list[LeagueResponse] = []
     for league in leagues:
         member_count = await league_repository.get_member_count(session, league.id)
-        responses.append(LeagueResponse.model_validate(league, update={"member_count": member_count}))
+        responses.append(_build_league_response(league, member_count))
     return responses
 
 
@@ -60,7 +66,7 @@ async def get_my_leagues(
     responses: list[LeagueResponse] = []
     for league in leagues:
         member_count = await league_repository.get_member_count(session, league.id)
-        responses.append(LeagueResponse.model_validate(league, update={"member_count": member_count}))
+        responses.append(_build_league_response(league, member_count))
     return responses
 
 
@@ -140,4 +146,3 @@ async def remove_member(
 ) -> None:
     await league_service.remove_member(session, league_id, user_id, current_user)
     await session.commit()
-

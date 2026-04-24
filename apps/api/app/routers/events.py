@@ -8,8 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sse_starlette.sse import EventSourceResponse
 
 from app.core import sse
-from app.core.deps import get_current_user, require_admin
+from app.core.deps import require_admin, require_league_admin
 from app.database import get_session
+from app.models.league import LeagueMember
 from app.models.user import User
 from app.schemas.common import PaginatedResponse
 from app.schemas.event import (
@@ -24,7 +25,7 @@ from app.schemas.event import (
 )
 from app.services import event_service
 
-events_router = APIRouter(prefix="/events", tags=["events"])
+events_router = APIRouter(prefix="/leagues/{league_id}/events", tags=["events"])
 matches_router = APIRouter(prefix="/matches", tags=["matches"])
 
 
@@ -32,6 +33,7 @@ matches_router = APIRouter(prefix="/matches", tags=["matches"])
 
 @events_router.get("", response_model=PaginatedResponse[EventResponse])
 async def list_events(
+    league_id: int,
     competition_id: Optional[int] = Query(None),
     sport_id: Optional[int] = Query(None),
     event_date: Optional[date] = Query(None),
@@ -39,52 +41,59 @@ async def list_events(
     per_page: int = Query(20, ge=1, le=500),
     session: AsyncSession = Depends(get_session),
 ) -> PaginatedResponse[EventResponse]:
-    return await event_service.list_events(session, competition_id, sport_id, event_date, page, per_page)
+    return await event_service.list_events(
+        session, league_id, competition_id, sport_id, event_date, page, per_page
+    )
 
 
 @events_router.post("/ai-generate", response_model=list[EventResponse], status_code=status.HTTP_201_CREATED)
 async def ai_generate_schedule(
+    league_id: int,
     competition_id: int,
     session: AsyncSession = Depends(get_session),
-    _: User = Depends(require_admin),
+    _: LeagueMember = Depends(require_league_admin()),
 ) -> list[EventResponse]:
-    return await event_service.ai_generate_schedule(session, competition_id)
+    return await event_service.ai_generate_schedule(session, league_id, competition_id)
 
 
 @events_router.post("", response_model=EventResponse, status_code=status.HTTP_201_CREATED)
 async def create_event(
+    league_id: int,
     data: EventCreate,
     session: AsyncSession = Depends(get_session),
-    _: User = Depends(require_admin),
+    _: LeagueMember = Depends(require_league_admin()),
 ) -> EventResponse:
-    return await event_service.create_event(session, data)
+    return await event_service.create_event(session, league_id, data)
 
 
 @events_router.get("/{event_id}", response_model=EventDetailResponse)
 async def get_event(
+    league_id: int,
     event_id: int,
     session: AsyncSession = Depends(get_session),
 ) -> EventDetailResponse:
-    return await event_service.get_event(session, event_id)
+    return await event_service.get_event(session, league_id, event_id)
 
 
 @events_router.patch("/{event_id}", response_model=EventResponse)
 async def update_event(
+    league_id: int,
     event_id: int,
     data: EventUpdate,
     session: AsyncSession = Depends(get_session),
-    _: User = Depends(require_admin),
+    _: LeagueMember = Depends(require_league_admin()),
 ) -> EventResponse:
-    return await event_service.update_event(session, event_id, data)
+    return await event_service.update_event(session, league_id, event_id, data)
 
 
 @events_router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def cancel_event(
+    league_id: int,
     event_id: int,
     session: AsyncSession = Depends(get_session),
-    _: User = Depends(require_admin),
+    _: LeagueMember = Depends(require_league_admin()),
 ) -> None:
-    await event_service.cancel_event(session, event_id)
+    await event_service.cancel_event(session, league_id, event_id)
 
 
 # --- Matches ---

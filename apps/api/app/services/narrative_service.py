@@ -20,13 +20,14 @@ _NARRATIVE_SYSTEM = (
 )
 
 
-async def _build_context(session: AsyncSession, target_date: date) -> str:
+async def _build_context(session: AsyncSession, league_id: int, target_date: date) -> str:
     matches_result = await session.execute(
         select(Match, Event, Modality, Sport)
         .join(Event, Event.id == Match.event_id)
+        .join(Competition, Competition.id == Event.competition_id)
         .join(Modality, Modality.id == Event.modality_id)
         .join(Sport, Sport.id == Modality.sport_id)
-        .where(Event.event_date == target_date, Match.status == MatchStatus.COMPLETED)
+        .where(Competition.league_id == league_id, Event.event_date == target_date, Match.status == MatchStatus.COMPLETED)
     )
     rows = matches_result.all()
 
@@ -50,7 +51,8 @@ async def _build_context(session: AsyncSession, target_date: date) -> str:
         select(Result)
         .join(Match, Match.id == Result.match_id)
         .join(Event, Event.id == Match.event_id)
-        .where(Event.event_date == target_date, Result.medal.is_not(None))
+        .join(Competition, Competition.id == Event.competition_id)
+        .where(Competition.league_id == league_id, Event.event_date == target_date, Result.medal.is_not(None))
     )
     medals = results_result.scalars().all()
     if medals:
@@ -61,25 +63,25 @@ async def _build_context(session: AsyncSession, target_date: date) -> str:
     return "\n".join(lines)
 
 
-async def get_for_date(session: AsyncSession, target_date: date) -> Narrative | None:
+async def get_for_date(session: AsyncSession, league_id: int, target_date: date) -> Narrative | None:
     result = await session.execute(
-        select(Narrative).where(Narrative.narrative_date == target_date)
+        select(Narrative).where(Narrative.league_id == league_id, Narrative.narrative_date == target_date)
     )
     return result.scalar_one_or_none()
 
 
-async def get_today(session: AsyncSession) -> Narrative | None:
+async def get_today(session: AsyncSession, league_id: int) -> Narrative | None:
     today = datetime.now(UTC).replace(tzinfo=None).date()
-    return await get_for_date(session, today)
+    return await get_for_date(session, league_id, today)
 
 
-async def generate(session: AsyncSession, target_date: date | None = None) -> Narrative:
+async def generate(session: AsyncSession, league_id: int, target_date: date | None = None) -> Narrative:
     if target_date is None:
         target_date = datetime.now(UTC).replace(tzinfo=None).date()
 
-    existing = await get_for_date(session, target_date)
+    existing = await get_for_date(session, league_id, target_date)
 
-    context = await _build_context(session, target_date)
+    context = await _build_context(session, league_id, target_date)
     user_prompt = f"Gere a narrativa do dia para {target_date}:\n\n{context}"
     content = await ai_service.generate_text(_NARRATIVE_SYSTEM, user_prompt, max_tokens=800)
 
@@ -89,18 +91,18 @@ async def generate(session: AsyncSession, target_date: date | None = None) -> Na
         session.add(existing)
         narrative = existing
     else:
-        narrative = Narrative(narrative_date=target_date, content=content)
+        narrative = Narrative(league_id=league_id, narrative_date=target_date, content=content)
         session.add(narrative)
 
-    session.add(AIGeneration(generation_type="narrative", count=1))
+    session.add(AIGeneration(league_id=league_id, generation_type="narrative", count=1))
     await session.commit()
     await session.refresh(narrative)
     logger.info("narrative_generated date=%s", target_date)
     return narrative
 
 
-async def get_history(session: AsyncSession) -> list[AIGeneration]:
+async def get_history(session: AsyncSession, league_id: int) -> list[AIGeneration]:
     result = await session.execute(
-        select(AIGeneration).order_by(AIGeneration.created_at.desc()).limit(100)
+        select(AIGeneration).where(AIGeneration.league_id == league_id).order_by(AIGeneration.created_at.desc()).limit(100)
     )
     return list(result.scalars().all())

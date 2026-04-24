@@ -11,7 +11,7 @@ from app.models.result import Record
 from app.models.sport import Modality, Sport
 
 
-async def list_recent_match_events(session: AsyncSession, limit: int) -> list[dict[str, Any]]:
+async def list_recent_match_events(session: AsyncSession, league_id: int, limit: int) -> list[dict[str, Any]]:
     result = await session.execute(
         select(
             MatchEvent.id.label("activity_id"),
@@ -40,13 +40,14 @@ async def list_recent_match_events(session: AsyncSession, limit: int) -> list[di
         .join(Sport, Sport.id == Modality.sport_id)
         .outerjoin(Athlete, Athlete.id == MatchEvent.athlete_id)
         .outerjoin(Delegation, Delegation.id == MatchEvent.delegation_id_at_time)
+        .where(Competition.league_id == league_id)
         .order_by(MatchEvent.created_at.desc())
         .limit(limit)
     )
     return [dict(row) for row in result.mappings().all()]
 
 
-async def list_recent_match_state_changes(session: AsyncSession, limit: int) -> list[dict[str, Any]]:
+async def list_recent_match_state_changes(session: AsyncSession, league_id: int, limit: int) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
 
     started_result = await session.execute(
@@ -67,7 +68,7 @@ async def list_recent_match_state_changes(session: AsyncSession, limit: int) -> 
         .join(Competition, Competition.id == Event.competition_id)
         .join(Modality, Modality.id == Event.modality_id)
         .join(Sport, Sport.id == Modality.sport_id)
-        .where(Match.started_at.is_not(None))
+        .where(Competition.league_id == league_id, Match.started_at.is_not(None))
         .order_by(Match.started_at.desc())
         .limit(limit)
     )
@@ -94,7 +95,7 @@ async def list_recent_match_state_changes(session: AsyncSession, limit: int) -> 
         .join(Competition, Competition.id == Event.competition_id)
         .join(Modality, Modality.id == Event.modality_id)
         .join(Sport, Sport.id == Modality.sport_id)
-        .where(Match.ended_at.is_not(None))
+        .where(Competition.league_id == league_id, Match.ended_at.is_not(None))
         .order_by(Match.ended_at.desc())
         .limit(limit)
     )
@@ -106,7 +107,7 @@ async def list_recent_match_state_changes(session: AsyncSession, limit: int) -> 
     return rows
 
 
-async def list_recent_records(session: AsyncSession, limit: int) -> list[dict[str, Any]]:
+async def list_recent_records(session: AsyncSession, league_id: int, limit: int) -> list[dict[str, Any]]:
     result = await session.execute(
         select(
             Record.id.label("activity_id"),
@@ -128,6 +129,7 @@ async def list_recent_records(session: AsyncSession, limit: int) -> list[dict[st
         .join(Sport, Sport.id == Modality.sport_id)
         .join(Athlete, Athlete.id == Record.athlete_id)
         .join(Delegation, Delegation.id == Record.delegation_id_at_time)
+        .where(Competition.league_id == league_id)
         .order_by(Record.set_at.desc())
         .limit(limit)
     )

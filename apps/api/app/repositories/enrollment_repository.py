@@ -6,21 +6,44 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.enrollment import Enrollment, EnrollmentStatus
 from app.models.event import Event
+from app.models.competition import Competition
+from app.models.delegation import Delegation
 
 
 async def get_by_id(session: AsyncSession, enrollment_id: int) -> Optional[Enrollment]:
     return await session.get(Enrollment, enrollment_id)
 
 
+async def get_by_id_in_league(
+    session: AsyncSession, league_id: int, enrollment_id: int
+) -> Optional[Enrollment]:
+    result = await session.execute(
+        select(Enrollment)
+        .join(Event, Event.id == Enrollment.event_id)
+        .join(Competition, Competition.id == Event.competition_id)
+        .where(
+            Enrollment.id == enrollment_id,
+            Competition.league_id == league_id,
+        )
+    )
+    return result.scalar_one_or_none()
+
+
 async def list_all(
     session: AsyncSession,
+    league_id: int,
     offset: int,
     limit: int,
     event_id: int | None = None,
     status: EnrollmentStatus | None = None,
     delegation_id: int | None = None,
 ) -> tuple[list[Enrollment], int]:
-    q = select(Enrollment)
+    q = (
+        select(Enrollment)
+        .join(Event, Event.id == Enrollment.event_id)
+        .join(Competition, Competition.id == Event.competition_id)
+        .where(Competition.league_id == league_id)
+    )
     if event_id is not None:
         q = q.where(Enrollment.event_id == event_id)
     if status is not None:
@@ -35,13 +58,22 @@ async def list_all(
 
 async def list_by_delegation(
     session: AsyncSession,
+    league_id: int,
     delegation_id: int,
     offset: int,
     limit: int,
     event_id: int | None = None,
     status: EnrollmentStatus | None = None,
 ) -> tuple[list[Enrollment], int]:
-    q = select(Enrollment).where(Enrollment.delegation_id == delegation_id)
+    q = (
+        select(Enrollment)
+        .join(Event, Event.id == Enrollment.event_id)
+        .join(Competition, Competition.id == Event.competition_id)
+        .where(
+            Competition.league_id == league_id,
+            Enrollment.delegation_id == delegation_id,
+        )
+    )
     if event_id is not None:
         q = q.where(Enrollment.event_id == event_id)
     if status is not None:
@@ -77,6 +109,18 @@ async def get_by_athlete_and_event(
         )
     )
     return result.scalar_one_or_none()
+
+
+async def delegation_in_league(
+    session: AsyncSession, league_id: int, delegation_id: int
+) -> bool:
+    result = await session.execute(
+        select(Delegation.id).where(
+            Delegation.id == delegation_id,
+            Delegation.league_id == league_id,
+        )
+    )
+    return result.scalar_one_or_none() is not None
 
 
 async def count_by_event_and_delegation(

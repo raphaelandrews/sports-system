@@ -7,6 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import sse
+from app.models.competition import Competition
 from app.models.enrollment import Enrollment, EnrollmentStatus
 from app.models.event import Event, EventPhase, Match, MatchEvent, MatchEventType, MatchStatus
 from app.models.result import AthleteStatistic, Medal, Record, Result
@@ -203,6 +204,7 @@ async def simulate_match(session: AsyncSession, match_id: int) -> None:
         return
 
     event = await session.get(Event, match.event_id)
+    competition = await session.get(Competition, event.competition_id)
     modality = await session.get(Modality, event.modality_id)
     sport = await session.get(Sport, modality.sport_id)
 
@@ -316,7 +318,8 @@ async def simulate_match(session: AsyncSession, match_id: int) -> None:
         "score_b": score_b,
         "winner_delegation_id": winner_id,
     })
-    await sse.broadcast_medal_board({"type": "medal_board_updated", "match_id": match_id})
+    if competition is not None:
+        await sse.broadcast_medal_board(competition.league_id, {"type": "medal_board_updated", "match_id": match_id})
 
     logger.info(
         "simulate_match match_id=%s sport=%s score=%s-%s winner=%s",

@@ -29,25 +29,30 @@ _TRANSITIONS = {
 
 
 async def list_competitions(
-    session: AsyncSession, page: int, per_page: int
+    session: AsyncSession, league_id: int, page: int, per_page: int
 ) -> PaginatedResponse[CompetitionResponse]:
     offset = (page - 1) * per_page
-    competitions, total = await competition_repository.list_all(session, offset, per_page)
+    competitions, total = await competition_repository.list_all(session, league_id, offset, per_page)
     return PaginatedResponse(
         data=[CompetitionResponse.model_validate(c) for c in competitions],
         meta=Meta(total=total, page=page, per_page=per_page),
     )
 
 
-async def get_competition(session: AsyncSession, competition_id: int) -> CompetitionResponse:
-    competition = await competition_repository.get_by_id(session, competition_id)
+async def get_competition(
+    session: AsyncSession, league_id: int, competition_id: int
+) -> CompetitionResponse:
+    competition = await competition_repository.get_by_id(session, league_id, competition_id)
     if competition is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Competition not found")
     return CompetitionResponse.model_validate(competition)
 
 
-async def create_competition(session: AsyncSession, data: CompetitionCreate) -> CompetitionResponse:
+async def create_competition(
+    session: AsyncSession, league_id: int, data: CompetitionCreate
+) -> CompetitionResponse:
     competition = Competition(
+        league_id=league_id,
         number=data.number,
         start_date=data.start_date,
         end_date=data.end_date,
@@ -59,9 +64,9 @@ async def create_competition(session: AsyncSession, data: CompetitionCreate) -> 
 
 
 async def update_competition(
-    session: AsyncSession, competition_id: int, data: CompetitionUpdate
+    session: AsyncSession, league_id: int, competition_id: int, data: CompetitionUpdate
 ) -> CompetitionResponse:
-    competition = await _get_or_404(session, competition_id)
+    competition = await _get_or_404(session, league_id, competition_id)
     if competition.status in _LOCKED_OR_LATER:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -80,9 +85,11 @@ async def update_competition(
     return CompetitionResponse.model_validate(competition)
 
 
-async def _transition(session: AsyncSession, competition_id: int, action: str) -> CompetitionResponse:
+async def _transition(
+    session: AsyncSession, league_id: int, competition_id: int, action: str
+) -> CompetitionResponse:
     from_status, to_status = _TRANSITIONS[action]
-    competition = await _get_or_404(session, competition_id)
+    competition = await _get_or_404(session, league_id, competition_id)
     if competition.status != from_status:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -98,12 +105,16 @@ async def _transition(session: AsyncSession, competition_id: int, action: str) -
     return CompetitionResponse.model_validate(competition)
 
 
-async def publish_competition(session: AsyncSession, competition_id: int) -> CompetitionResponse:
-    return await _transition(session, competition_id, "publish")
+async def publish_competition(
+    session: AsyncSession, league_id: int, competition_id: int
+) -> CompetitionResponse:
+    return await _transition(session, league_id, competition_id, "publish")
 
 
-async def lock_competition(session: AsyncSession, competition_id: int) -> CompetitionResponse:
-    result = await _transition(session, competition_id, "lock")
+async def lock_competition(
+    session: AsyncSession, league_id: int, competition_id: int
+) -> CompetitionResponse:
+    result = await _transition(session, league_id, competition_id, "lock")
     from app.services.event_service import lock_and_generate_bracket
     matches_created = await lock_and_generate_bracket(session, competition_id)
     await session.commit()
@@ -114,18 +125,22 @@ async def lock_competition(session: AsyncSession, competition_id: int) -> Compet
     return result
 
 
-async def activate_competition(session: AsyncSession, competition_id: int) -> CompetitionResponse:
-    return await _transition(session, competition_id, "activate")
+async def activate_competition(
+    session: AsyncSession, league_id: int, competition_id: int
+) -> CompetitionResponse:
+    return await _transition(session, league_id, competition_id, "activate")
 
 
-async def complete_competition(session: AsyncSession, competition_id: int) -> CompetitionResponse:
-    return await _transition(session, competition_id, "complete")
+async def complete_competition(
+    session: AsyncSession, league_id: int, competition_id: int
+) -> CompetitionResponse:
+    return await _transition(session, league_id, competition_id, "complete")
 
 
 async def generate_schedule_preview(
-    session: AsyncSession, competition_id: int
+    session: AsyncSession, league_id: int, competition_id: int
 ) -> GenerateSchedulePreview:
-    competition = await _get_or_404(session, competition_id)
+    competition = await _get_or_404(session, league_id, competition_id)
 
     events_result = await session.execute(
         select(Event).where(Event.competition_id == competition.id)
@@ -155,8 +170,8 @@ async def generate_schedule_preview(
     return GenerateSchedulePreview(competition_id=competition_id, matches=preview_matches)
 
 
-async def _get_or_404(session: AsyncSession, competition_id: int) -> Competition:
-    competition = await competition_repository.get_by_id(session, competition_id)
+async def _get_or_404(session: AsyncSession, league_id: int, competition_id: int) -> Competition:
+    competition = await competition_repository.get_by_id(session, league_id, competition_id)
     if competition is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Competition not found")
     return competition
