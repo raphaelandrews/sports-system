@@ -18,6 +18,7 @@ class Competition(SQLModel, table=True):
     __tablename__ = "competitions"
 
     id: Optional[int] = Field(default=None, primary_key=True)
+    league_id: int = Field(foreign_key="leagues.id")
     number: int
     start_date: date
     end_date: date

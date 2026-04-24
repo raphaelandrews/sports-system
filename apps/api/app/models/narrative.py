@@ -9,6 +9,7 @@ class Narrative(SQLModel, table=True):
     __tablename__ = "narratives"
 
     id: Optional[int] = Field(default=None, primary_key=True)
+    league_id: Optional[int] = Field(default=None, foreign_key="leagues.id")
     narrative_date: date = Field(sa_column=Column("narrative_date", Date, nullable=False, unique=True))
     content: str = Field(sa_column=Column(Text, nullable=False))
     generated_at: datetime = Field(
@@ -20,6 +21,7 @@ class AIGeneration(SQLModel, table=True):
     __tablename__ = "ai_generations"
 
     id: Optional[int] = Field(default=None, primary_key=True)
+    league_id: Optional[int] = Field(default=None, foreign_key="leagues.id")
     generation_type: str
     count: int = Field(default=0)
     created_at: datetime = Field(

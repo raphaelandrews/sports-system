@@ -104,42 +104,42 @@ class LeagueMember(SQLModel, table=True):
 **Goal:** Add League and LeagueMember models; migrate existing data; rework UserRole.
 
 ### 1.1 New models
-- [ ] Create `app/models/league.py`:
+- [x] Create `app/models/league.py`:
   - `LeagueStatus` enum: `ACTIVE`, `ARCHIVED`
   - `LeagueMemberRole` enum: `LEAGUE_ADMIN`, `CHIEF`, `COACH`, `ATHLETE`
   - `League` SQLModel with all fields above
   - `LeagueMember` SQLModel with all fields above
-- [ ] Add to `app/models/__init__.py`
+- [x] Add to `app/models/__init__.py`
 
 ### 1.2 Update existing models
-- [ ] `app/models/competition.py`: add `league_id: int = Field(foreign_key="leagues.id")`
-- [ ] `app/models/delegation.py`: add `league_id: int = Field(foreign_key="leagues.id")`
-- [ ] `app/models/athlete.py`: add `league_id: int = Field(foreign_key="leagues.id")`
-- [ ] `app/models/user.py`: add `SUPERADMIN`, `USER` to `UserRole` enum; keep old values in DB (Postgres limitation)
-- [ ] `app/models/narrative.py`: add `league_id: int | None` to both `Narrative` and `AIGeneration`
-- [ ] `ChiefRequest` model: add `league_id: int`
+- [x] `app/models/competition.py`: add `league_id: int = Field(foreign_key="leagues.id")`
+- [x] `app/models/delegation.py`: add `league_id: int = Field(foreign_key="leagues.id")`
+- [x] `app/models/athlete.py`: add `league_id: int = Field(foreign_key="leagues.id")`
+- [x] `app/models/user.py`: add `SUPERADMIN`, `USER` to `UserRole` enum; keep old values in DB (Postgres limitation)
+- [x] `app/models/narrative.py`: add `league_id: int | None` to both `Narrative` and `AIGeneration`
+- [x] `ChiefRequest` model: add `league_id: int`
 
 ### 1.3 Alembic migrations (3 files)
 
 **Migration A — `add_leagues_and_league_members`**
-- [ ] Create `leagues` table
-- [ ] Create `league_members` table (composite unique on `league_id + user_id` where `left_at IS NULL`)
+- [x] Create `leagues` table
+- [x] Create `league_members` table (composite unique on `league_id + user_id` where `left_at IS NULL`)
 
 **Migration B — `add_league_id_to_scoped_tables`**
-- [ ] Add nullable `league_id` to: `competitions`, `delegations`, `athletes`, `chief_requests`, `narratives`, `ai_generations`
-- [ ] Insert showcase league row (`is_showcase=True`, `auto_simulate=True`, `transfer_window_enabled=True`, all 10 sports)
-- [ ] Backfill `league_id = <showcase_id>` on all existing rows
-- [ ] Make `league_id` NOT NULL on `competitions`, `delegations`, `athletes`, `chief_requests`
-- [ ] Migrate existing `delegation_members` CHIEF/COACH/ATHLETE entries → `league_members` for showcase league
+- [x] Add nullable `league_id` to: `competitions`, `delegations`, `athletes`, `chief_requests`, `narratives`, `ai_generations`
+- [x] Insert showcase league row (`is_showcase=True`, `auto_simulate=True`, `transfer_window_enabled=True`, all 10 sports)
+- [x] Backfill `league_id = <showcase_id>` on all existing rows
+- [x] Make `league_id` NOT NULL on `competitions`, `delegations`, `athletes`, `chief_requests`
+- [x] Migrate existing `delegation_members` CHIEF/COACH/ATHLETE entries → `league_members` for showcase league
 
 **Migration C — `rework_user_roles`**
-- [ ] Add `SUPERADMIN`, `USER` to `userrole` enum
-- [ ] `UPDATE users SET role='SUPERADMIN' WHERE role='ADMIN'`
-- [ ] `UPDATE users SET role='USER' WHERE role IN ('CHIEF', 'COACH', 'ATHLETE')`
+- [x] Add `SUPERADMIN`, `USER` to `userrole` enum
+- [x] `UPDATE users SET role='SUPERADMIN' WHERE role='ADMIN'`
+- [x] `UPDATE users SET role='USER' WHERE role IN ('CHIEF', 'COACH', 'ATHLETE')`
 
 ### 1.4 New schemas (`app/schemas/league.py`)
-- [ ] `LeagueCreate`, `LeagueUpdate`, `LeagueResponse` (+ `member_count`)
-- [ ] `LeagueMemberResponse`, `LeagueMemberRoleUpdate`
+- [x] `LeagueCreate`, `LeagueUpdate`, `LeagueResponse` (+ `member_count`)
+- [x] `LeagueMemberResponse`, `LeagueMemberRoleUpdate`
 
 ---
 

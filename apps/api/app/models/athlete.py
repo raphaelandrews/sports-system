@@ -14,6 +14,7 @@ class Athlete(SQLModel, table=True):
     __tablename__ = "athletes"
 
     id: Optional[int] = Field(default=None, primary_key=True)
+    league_id: int = Field(foreign_key="leagues.id")
     user_id: Optional[int] = Field(default=None, foreign_key="users.id")
     name: str
     gender: Optional[AthleteGender] = None

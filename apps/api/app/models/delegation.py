@@ -21,6 +21,7 @@ class Delegation(SQLModel, table=True):
     __tablename__ = "delegations"
 
     id: Optional[int] = Field(default=None, primary_key=True)
+    league_id: int = Field(foreign_key="leagues.id")
     code: str = Field(unique=True)
     name: str
     flag_url: Optional[str] = None

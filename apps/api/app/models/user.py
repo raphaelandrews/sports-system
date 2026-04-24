@@ -9,6 +9,8 @@ from sqlmodel import Field, SQLModel
 
 class UserRole(str, Enum):
     ADMIN = "ADMIN"
+    SUPERADMIN = "SUPERADMIN"
+    USER = "USER"
     CHIEF = "CHIEF"
     COACH = "COACH"
     ATHLETE = "ATHLETE"
@@ -57,6 +59,7 @@ class ChiefRequest(SQLModel, table=True):
     __tablename__ = "chief_requests"
 
     id: Optional[int] = Field(default=None, primary_key=True)
+    league_id: int = Field(foreign_key="leagues.id")
     user_id: int = Field(foreign_key="users.id")
     delegation_name: str
     message: Optional[str] = None
