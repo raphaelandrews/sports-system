@@ -1,1 +1,11 @@
 @import "@sports-system/ui/globals.css";
+
+.container {
+  @apply max-w-245 mx-auto px-8;
+}
+
+@media (max-width: 640px) {
+  .container {
+    @apply px-3;
+  }
+}

@@ -93,7 +93,7 @@ function NotificationItem({ notif, onMarkRead }: NotificationItemProps) {
             {formatEventDate(notif.created_at)}
           </p>
         </div>
-        {!notif.read && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1 flex-shrink-0" />}
+        {!notif.read && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1 shrink-0" />}
       </div>
       {isInvite && !notif.read && (
         <div className="flex gap-2 mt-2">

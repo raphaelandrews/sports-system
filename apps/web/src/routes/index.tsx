@@ -26,7 +26,7 @@ function HomePage() {
   const others = leagues.filter((l) => !l.is_showcase);
 
   return (
-    <main className="container mx-auto max-w-5xl px-4 py-10 space-y-12">
+    <div className="container mx-auto max-w-5xl px-4 py-10 space-y-12">
       <section className="text-center space-y-3">
         <h1 className="text-4xl font-bold tracking-tight">Ligas Esportivas</h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -107,6 +107,6 @@ function HomePage() {
           </div>
         </section>
       )}
-    </main>
+    </div>
   );
 }

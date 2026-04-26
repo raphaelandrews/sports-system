@@ -11,15 +11,15 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "next-themes";
 
+import { AppLayout } from "@/shared/components/layouts/app-layout";
 import { DashboardViewportLoading } from "@/shared/components/layouts/dashboard-content-loading";
-import { DashboardLayout } from "@/shared/components/layouts/dashboard-layout";
 import { ErrorScreen } from "@/shared/components/layouts/error-screen";
 import { NotFoundScreen } from "@/shared/components/layouts/not-found-screen";
 import { getSessionFn } from "@/features/auth/server/auth";
 
 import appCss from "@/index.css?url";
 
-const AUTH_PATHS = ["/login", "/register", "/auth/oauth/callback"];
+const SHELL_LESS_ROUTE_IDS = new Set(["/auth/oauth/callback"]);
 
 export interface RouterAppContext {
   queryClient: QueryClient;
@@ -48,8 +48,8 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 
 function RootDocument() {
   const { session } = Route.useRouteContext();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isAuthPage = AUTH_PATHS.some((p) => pathname.startsWith(p));
+  const routeIds = useRouterState({ select: (state) => state.matches.map((match) => match.routeId) });
+  const isShellLessPage = routeIds.some((routeId) => SHELL_LESS_ROUTE_IDS.has(routeId));
 
   return (
     <html lang="pt-BR" suppressHydrationWarning>
@@ -63,12 +63,12 @@ function RootDocument() {
           enableSystem={false}
           themes={["light", "dark"]}
         >
-          {isAuthPage ? (
+          {isShellLessPage ? (
             <Outlet />
           ) : (
-            <DashboardLayout session={session ?? null}>
+            <AppLayout session={session ?? null}>
               <Outlet />
-            </DashboardLayout>
+            </AppLayout>
           )}
           <Toaster richColors />
           <ReactQueryDevtools buttonPosition="bottom-right" />
