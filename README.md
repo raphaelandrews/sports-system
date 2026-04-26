@@ -1,346 +1,238 @@
-# Sports Competition System
+# Sports System
 
-A multi-sport competition management system designed for generic sporting events — school olympics, university tournaments, inter-club competitions. Delegations compete across sports over weekly competition cycles, with medal boards, athlete management, enrollment validation, and AI-powered content generation.
+Multi-league sports competition platform.
 
----
+## Repo
 
-## Features
-
-### Core
-- **Delegation management** — create delegations with code, flag, chief, and member roster
-- **Sports** — Football, Volleyball, Basketball, Athletics, Judo, Handball, Swimming, Beach Volleyball, Table Tennis, and Karate — each with sport-specific rules, statistics, and tiebreak criteria
-- **Athlete & coach management** — linked to delegations and modalities, with full transfer history
-- **Enrollment system** — per-event enrollment with automatic rule validation (weight category, gender, schedule conflicts, eligibility)
-- **Competition calendar** — weekly schedule with phases (groups, knockout), venues, and match times
-- **Live results & medal board** — real-time updates via SSE; in showcase mode (`AUTO_SIMULATE=true`) matches start and finish automatically with generated results, events, and statistics
-- **Final report** — complete medal standings, per-sport classifications, records, and best marks
-- **AI generation** — delegations, athletes, calendar, results, and daily narrative generated via LLM
-
-### Competition Cycle
-- Weekly format: 6 competition days (Tuesday–Sunday) + 1 transfer window (Monday)
-- Transfer window opens **Monday 00:00** and closes **Tuesday 00:00** (UTC-3 / São Paulo) — automatic, no admin action required
-- Calendar locks **automatically** when the first event's start time passes — match schedule is generated from approved enrollments at that moment
-- New teams and athletes registered after lock-in are eligible from the next week
-- Historical records always reflect the delegation a player represented **at the time of the match**
-
-### Users
-| Role | Access |
-|------|--------|
-| Admin | Full system control, AI generation, approve chief requests |
-| Delegation Chief | Manage own delegation, invite members, submit enrollments |
-| Coach / Manager | View delegation schedule and results |
-| Athlete | View own schedule, results, and delegation history |
-| Public | View medal board, calendar, and results (no auth required) |
-
-- Users receive **in-app notifications** for invites, approvals, match reminders, and result updates
-- Delegation transfers only on Mondays (transfer window)
-- Chief access requires admin approval
-
----
-
-## Tech Stack
-
-### Frontend (`apps/web`)
-| Technology | Role |
-|---|---|
-| [TanStack Start](https://tanstack.com/start) | Full-stack React framework, SSR + selective SPA |
-| [TanStack Router](https://tanstack.com/router) | File-based routing, type-safe, auth guards |
-| [TanStack Query](https://tanstack.com/query) | Server state, query caching for instant navigation |
-| [Tailwind CSS v4](https://tailwindcss.com) | Utility-first styling |
-| [shadcn/ui](https://ui.shadcn.com) + [@base-ui/react](https://base-ui.com) | Component library |
-| [Cloudflare Workers](https://workers.cloudflare.com) | Edge deployment via [Alchemy](https://alchemy.run) |
-
-### Backend (`apps/api`)
-| Technology | Role |
-|---|---|
-| [FastAPI](https://fastapi.tiangolo.com) | Python REST API |
-| [SQLModel](https://sqlmodel.tiangolo.com) | ORM (SQLAlchemy + Pydantic) |
-| [Alembic](https://alembic.sqlalchemy.org) | Database migrations |
-| PostgreSQL | Primary database + refresh token storage |
-| JWT + FastAPI Users | Auth (access + refresh tokens, Argon2id hashing, OAuth-ready) |
-| sse-starlette | Server-Sent Events — live scores, medal board streaming |
-| slowapi | Rate limiting on auth endpoints (per IP) |
-| orjson | High-performance JSON serialization |
-| APScheduler | Automatic week locking, match generation, notifications |
-
----
-
-## Project Structure
-
-```
-sports-system/
-├── apps/
-│   └── web/                    # TanStack Start frontend
-│       ├── src/
-│       │   ├── routes/         # File-based routes (TanStack Router)
-│       │   │   ├── __root.tsx          # App shell + session loader
-│       │   │   ├── index.tsx           # Landing page (SSR)
-│       │   │   ├── login.tsx
-│       │   │   ├── register.tsx
-│       │   │   ├── (public)/           # Public SSR pages
-│       │   │   └── _authenticated/     # Auth-guarded routes
-│       │   │       ├── _admin/         # Admin-only routes
-│       │   │       └── _chief/         # Chief/admin routes
-│       │   ├── components/
-│       │   │   ├── layout/     # Structural layout pieces
-│       │   │   └── ui/         # Generic app-level UI primitives
-│       │   ├── lib/
-│       │   │   └── api.ts      # Typed FastAPI client
-│       │   ├── queries/        # TanStack Query options + key factory per domain
-│       │   ├── server/         # Server functions (createServerFn)
-│       │   └── types/          # Shared TypeScript response types per domain
-│       ├── vite.config.ts
-│       └── package.json
-│
-├── packages/
-│   ├── ui/                     # Shared shadcn/ui component library
-│   ├── env/                    # Environment variable validation (t3-env)
-│   └── config/                 # Shared TypeScript config
-│
-│   └── api/                    # FastAPI backend
-│       ├── app/
-│       │   ├── routers/        # Route handlers per domain
-│       │   ├── services/       # Business logic
-│       │   ├── repositories/   # Database queries
-│       │   ├── models/         # SQLModel database models
-│       │   └── schemas/        # Pydantic request/response schemas
-│       └── alembic/            # Database migrations
-│
-├── FEATURES.md                 # Full feature spec (PT-BR) with phased tasks
-├── turbo.json                  # Turborepo pipeline
-└── package.json                # Workspace root (Bun)
+```text
+apps/web/            TanStack Start frontend
+apps/api/            FastAPI backend
+packages/ui/         shared shadcn/ui components
+packages/contracts/  shared API contracts (Zod schemas for forms)
+packages/env/        env validation
+packages/config/     shared TS config
+packages/infra/      Cloudflare/Alchemy deploy code
 ```
 
----
+## Stack
 
-## Prerequisites
+- Frontend: TanStack Start, TanStack Router, TanStack Query, Tailwind v4, shadcn/ui, openapi-fetch
+- Backend: FastAPI, SQLModel, Alembic, PostgreSQL, JWT auth, APScheduler, SSE
+- Tooling: Bun workspace, uv for Python, Turbo, oxlint, oxfmt
 
-- [Bun](https://bun.sh) >= 1.3.1
-- [Python](https://python.org) >= 3.12
-- [uv](https://docs.astral.sh/uv/) (Python package manager)
-- [Cloudflare account](https://dash.cloudflare.com) (for deployment)
+## Setup
 
----
+Prereqs:
 
-## Installation
+- Bun `>=1.3.1`
+- Python `>=3.12`
+- `uv`
+- PostgreSQL
+
+Install:
 
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd sports-system
-
-# Install all workspace dependencies
 bun install
-```
-
----
-
-## Environment Variables
-
-There is **no root `.env` or `.env.example`** in this repo.
-
-Environment files live only in:
-- `apps/api`
-- `apps/web`
-- `packages/infra`
-
-Initial setup:
-
-```bash
+cd apps/api && uv sync
+cd /home/raphael/Documents/projects/sports-system
 cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env
 cp packages/infra/.env.example packages/infra/.env
 ```
 
-### API env
+Minimum backend env:
 
-`apps/api/.env` is the backend source of truth.
-
-Important variables:
 - `DATABASE_URL`
 - `SECRET_KEY`
-- `FRONTEND_URL`
-- `BACKEND_PUBLIC_URL`
-- `PORT`
-- `TIMEZONE`
-- `DEBUG`
-- `AUTO_SIMULATE`
-- `LLM_API_KEY`
-- `GOOGLE_OAUTH_CLIENT_ID`
-- `GOOGLE_OAUTH_CLIENT_SECRET`
-- `GITHUB_OAUTH_CLIENT_ID`
-- `GITHUB_OAUTH_CLIENT_SECRET`
+- `FRONTEND_URL=http://localhost:3001`
+- `BACKEND_PUBLIC_URL=http://localhost:3000`
+- `TIMEZONE=America/Sao_Paulo`
 
-### Web env
-
-`apps/web/.env` is the **base web env** and should contain shared/default values:
-- `VITE_SERVER_URL`
-- `VITE_TIMEZONE`
-- `CORS_ORIGIN`
-
-There is only one web env example now:
-- `apps/web/.env.example`
-
-Current load order in infra is:
-1. `packages/infra/.env`
-2. `apps/web/.env`
-
-This means:
-- `apps/web/.env` is enough for local frontend development
-- deploy-only overrides such as `VITE_SERVER_URL` and `CORS_ORIGIN` can live in `packages/infra/.env` or the shell/CI environment
-- `apps/web/.env.production` is no longer part of the documented flow
-
-### Infra env
-
-`packages/infra/.env` is only for Alchemy / Cloudflare infra values:
-- `ALCHEMY_PASSWORD`
-- `CLOUDFLARE_API_TOKEN`
-- `VITE_SERVER_URL` optional deploy override
-- `CORS_ORIGIN` optional deploy override
-
----
-
-## Development
+Run migrations:
 
 ```bash
-# Start everything (frontend + backend + infra watcher)
-bun dev
-
-# Start frontend only
-bun run dev:web
-
-# Start backend only (port 3000)
-bun run dev:backend
-
-# Type checking across all packages
-bun run check-types
-
-# Lint + format
-bun run check
-```
-
-Frontend: `http://localhost:3001` · Backend: `http://localhost:3000` · Swagger UI: `http://localhost:3000/docs` · ReDoc: `http://localhost:3000/redoc`
-
-> Swagger UI and ReDoc are only served when `DEBUG=true` (default in dev). Set `DEBUG=false` in production env vars to disable.
-
-> `bun dev` requires Cloudflare credentials (`CLOUDFLARE_API_TOKEN`) for the infra watcher. Use `bun run dev:web` + `bun run dev:backend` without them.
-
-**First-time setup:**
-```bash
-# JS dependencies
-bun install
-
-# Backend dependencies
-cd apps/api && uv sync
-
-# Environment variables
-cp apps/api/.env.example apps/api/.env
-cp apps/web/.env.example apps/web/.env
-cp packages/infra/.env.example packages/infra/.env
-
-# Edit apps/api/.env — at minimum set DATABASE_URL, SECRET_KEY, FRONTEND_URL, BACKEND_PUBLIC_URL
-# Edit apps/web/.env — set VITE_SERVER_URL, VITE_TIMEZONE, CORS_ORIGIN
-# Edit packages/infra/.env only if deploy needs overrides or Cloudflare credentials
-
-# Run database migrations
 bun run db:up
 ```
 
----
-
-## Deployment
-
-Deploys to Cloudflare Workers via Alchemy:
+Run dev:
 
 ```bash
-# Deploy frontend
-bun run deploy
-
-# Destroy deployed resources
-bun run destroy
+bun dev
 ```
 
-Infra config: `packages/infra/alchemy.run.ts`. It loads `packages/infra/.env` first and then `apps/web/.env`. Because `dotenv` does not override existing variables by default, deploy-specific values can be set in `packages/infra/.env` while `apps/web/.env` remains the default local source.
-
----
-
-## Scripts Reference
-
-| Script | Description |
-|--------|-------------|
-| `bun dev` | Start frontend + backend + infra watcher |
-| `bun run dev:web` | Start frontend only |
-| `bun run dev:backend` | Start FastAPI backend only |
-| `bun run build` | Build all apps |
-| `bun run check-types` | TypeScript check across workspace |
-| `bun run check` | Lint (oxlint) + format (oxfmt) |
-| `bun run deploy` | Deploy to Cloudflare Workers |
-| `bun run destroy` | Destroy Cloudflare resources |
-| `bun run db:up` | Run database migrations (upgrade head) |
-| `bun run db:new "msg"` | Create new migration with autogenerate |
-| `bun run db:down` | Roll back last migration |
-| `bun run --cwd apps/web gen:types` | Regenerate frontend types from OpenAPI schema |
-
----
-
-## API Types
-
-Frontend types in `apps/web/src/types/` are generated from the FastAPI OpenAPI schema. The source of truth is `apps/web/src/types/api.gen.ts` — never edit it manually.
-
-**Regenerate after changing a Pydantic schema:**
+Useful commands:
 
 ```bash
-# Backend must be running on localhost:3000
-bun run dev:backend   # in one terminal
-
-# In another terminal
-bun run --cwd apps/web gen:types
+bun run dev:web
+bun run dev:backend
+bun run check-types
+bun run check
 ```
 
-All domain type files (`weeks.ts`, `athletes.ts`, etc.) re-export from `api.gen.ts`, so existing imports throughout the codebase remain unchanged after regeneration.
+### API Type Generation
 
-**Using the types:**
-
-```ts
-import type { WeekResponse, WeekStatus } from "@/types/weeks";
-
-// or directly from the generated file:
-import type { ApiSchemas } from "@/types/api.gen";
-type WeekResponse = ApiSchemas["WeekResponse"];
-```
-
----
-
-## UI Customization
-
-Shared UI primitives live in `packages/ui`. Add new shadcn components:
+Frontend types are generated from the backend OpenAPI spec:
 
 ```bash
-# From project root — adds to shared UI package
-npx shadcn@latest add table dialog sheet -c packages/ui
+cd apps/web
+bun run gen:types  # generates src/types/api.gen.ts from localhost:3000/openapi.json
 ```
 
-Import shared components:
+Add to CI to detect schema drift:
 
-```tsx
-import { Button } from "@sports-system/ui/components/button";
+```bash
+bun run check:api  # fails if backend spec differs from committed types
 ```
 
----
+## Frontend Architecture
 
-## Sports Supported
+Feature-based vertical slices:
 
-| Sport | Type | Players |
-|-------|------|---------|
-| Football (Futebol) | Team | 11 |
-| Volleyball (Vôlei) | Team | 6 |
-| Basketball (Basquete) | Team | 5 |
-| Athletics (Atletismo) | Individual / Relay | 1–4 |
-| Judo (Judô) | Individual | 1 |
-| Handball (Handebol) | Team | 7 |
-| Swimming (Natação) | Individual / Relay | 1–4 |
-| Beach Volleyball (Vôlei de Praia) | Team | 2 |
-| Table Tennis (Tênis de Mesa) | Individual / Doubles | 1–2 |
-| Karate (Karatê) | Individual | 1 |
+```text
+apps/web/src/
+  app/              # TanStack Router shell (routes stay here)
+    routes/...      # file-based routes, never edit routeTree.gen.ts
+  features/         # domain vertical slices
+    auth/
+      api/queries.ts
+      components/
+      server/       # server functions
+    leagues/
+    athletes/
+    ...
+  shared/
+    components/     # layouts, generic UI
+    lib/            # api client, url builder, date utils
+    hooks/
+  types/
+    api.gen.ts      # auto-generated from OpenAPI (DO NOT EDIT)
+```
 
-Each sport has custom statistics, tiebreak rules, and competition phases. See [FEATURES.md](./FEATURES.md) for full rules.
+API client uses `openapi-fetch` for end-to-end type safety:
+
+```typescript
+import { client, unwrap } from "@/shared/lib/api";
+
+// Path, params, and response are all typed from api.gen.ts
+const data = await unwrap(
+  client.GET("/leagues/{league_id}", {
+    params: { path: { league_id: 1 } }
+  })
+);
+```
+
+## Backend Architecture
+
+Domain-driven layers:
+
+```text
+apps/api/app/
+  main.py           # composition root (wire routers, middleware)
+  domain/
+    models/         # SQLModel tables
+    schemas/        # Pydantic request/response schemas
+  features/         # domain vertical slices
+    auth/
+      router.py
+      service.py
+      user_repository.py
+      token_repository.py
+    leagues/
+    athletes/
+    ...
+  shared/
+    core/           # auth, security, limiter, scheduler, sse, deps
+```
+
+Layering: `router -> service -> repository -> domain model`
+
+## Auth And Roles
+
+Current auth entrypoints:
+
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /auth/oauth/{provider}/start`
+
+Current behavior:
+
+- Password registration creates a user with global role `ATHLETE`
+- OAuth login creates a user if missing
+- League permissions are handled separately through `league_members`
+- Showcase seeding requires an existing global `SUPERADMIN` or legacy `ADMIN`
+
+No API currently promotes a user to `SUPERADMIN`. First superadmin bootstrap is manual in the database.
+
+## Seeds
+
+Startup flow in [`apps/api/app/main.py`](/home/raphael/Documents/projects/sports-system/apps/api/app/main.py:67):
+
+1. Alembic runs on app startup
+2. `seed_sports()` inserts canonical sports/modalities once
+3. `seed_showcase_league()` creates the showcase league if a superadmin already exists
+
+Detailed seed docs: [`SEED.md`](/home/raphael/Documents/projects/sports-system/SEED.md)
+
+### First Superadmin
+
+Recommended bootstrap:
+
+1. Start API once so migrations and `seed_sports()` run
+2. Register an account in UI or via API
+3. Promote that row in the database
+4. Restart API so `seed_showcase_league()` can create the showcase league
+
+Register example:
+
+```bash
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "owner@example.com",
+    "name": "Platform Owner",
+    "password": "ChangeMe!1"
+  }'
+```
+
+Promote example:
+
+```sql
+UPDATE users
+SET role = 'SUPERADMIN'
+WHERE email = 'owner@example.com';
+```
+
+Then restart backend:
+
+```bash
+bun run dev:backend
+```
+
+On next startup the backend will create:
+
+- showcase league with `slug="showcase"`
+- `LeagueMember` entry for that superadmin as `LEAGUE_ADMIN`
+- `sports_config` containing all active sports
+- `auto_simulate=true`
+- `transfer_window_enabled=true`
+
+### Manual Demo Seed
+
+Endpoint:
+
+- `POST /leagues/{league_id}/admin/seed`
+
+Behavior:
+
+- requires league admin membership
+- creates 4 demo delegations
+- creates demo chiefs and athletes
+- creates one completed competition and sample results
+- returns `409` if that league already has delegations
+
+## Notes
+
+- Backend docs UI: `/docs` and `/redoc` only when `DEBUG=true`
+- SSE must connect browser -> backend directly; do not proxy SSE through Workers
+- Railway backend must run one `uvicorn` process only
+- Frontend types are generated from backend OpenAPI spec; run `gen:types` after schema changes

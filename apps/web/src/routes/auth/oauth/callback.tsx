@@ -1,11 +1,17 @@
 import { Button } from "@sports-system/ui/components/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@sports-system/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@sports-system/ui/components/card";
 import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
-import { finalizeOAuthFn } from "@/server/auth";
+import { finalizeOAuthFn } from "@/features/auth/server/auth";
 
 const callbackSearchSchema = z.object({
   token: z.string().optional(),
@@ -16,7 +22,7 @@ export const Route = createFileRoute("/auth/oauth/callback")({
   validateSearch: callbackSearchSchema,
   beforeLoad: ({ context }) => {
     if (context.session) {
-      throw redirect({ to: "/dashboard" });
+      throw redirect({ to: "/leagues" });
     }
   },
   component: OAuthCallbackPage,
@@ -42,7 +48,7 @@ function OAuthCallbackPage() {
         await finalizeOAuthFn({ data: { token: search.token! } });
         if (cancelled) return;
         await router.invalidate();
-        await navigate({ to: "/dashboard" });
+        await navigate({ to: "/leagues" });
       } catch (err) {
         if (cancelled) return;
         setError(err instanceof Error ? err.message : "OAuth login failed");
@@ -63,7 +69,11 @@ function OAuthCallbackPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>
-            {isLoading ? "Finalizando login OAuth" : error ? "Falha no login OAuth" : "Login concluído"}
+            {isLoading
+              ? "Finalizando login OAuth"
+              : error
+                ? "Falha no login OAuth"
+                : "Login concluído"}
           </CardTitle>
           <CardDescription>
             {isLoading
@@ -86,9 +96,7 @@ function OAuthCallbackPage() {
               <Button variant="outline" onClick={() => navigate({ to: "/login" })}>
                 Ir para login
               </Button>
-              <Button onClick={() => navigate({ to: "/register" })}>
-                Ir para cadastro
-              </Button>
+              <Button onClick={() => navigate({ to: "/register" })}>Ir para cadastro</Button>
             </div>
           ) : null}
         </CardContent>

@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
 
-import { ApiError } from "@/lib/api";
-import { formatEventDate } from "@/lib/date";
-import { chiefRequestQueryOptions } from "@/queries/notifications";
+import { ApiError } from "@/shared/lib/api";
+import { formatEventDate } from "@/shared/lib/date";
+import { chiefRequestQueryOptions } from "@/features/notifications/api/queries";
 
 export const Route = createFileRoute("/_authenticated/request-chief/status")({
   component: RequestChiefStatusPage,
@@ -46,8 +46,7 @@ function RequestChiefStatusPage() {
       icon: <Clock className="h-8 w-8 text-yellow-500" />,
       label: "Em análise",
       variant: "secondary" as const,
-      message:
-        "Sua solicitação foi recebida e está aguardando revisão do administrador.",
+      message: "Sua solicitação foi recebida e está aguardando revisão do administrador.",
     },
     APPROVED: {
       icon: <CheckCircle className="h-8 w-8 text-green-500" />,
@@ -59,8 +58,7 @@ function RequestChiefStatusPage() {
       icon: <XCircle className="h-8 w-8 text-destructive" />,
       label: "Rejeitada",
       variant: "destructive" as const,
-      message:
-        "Sua solicitação foi rejeitada. Você pode enviar uma nova solicitação.",
+      message: "Sua solicitação foi rejeitada. Você pode enviar uma nova solicitação.",
     },
   };
 
@@ -88,9 +86,7 @@ function RequestChiefStatusPage() {
 
         {request.message && (
           <div className="pt-2 border-t">
-            <p className="text-xs text-muted-foreground mb-1">
-              Sua mensagem:
-            </p>
+            <p className="text-xs text-muted-foreground mb-1">Sua mensagem:</p>
             <p className="text-sm">{request.message}</p>
           </div>
         )}
@@ -109,7 +105,7 @@ function RequestChiefStatusPage() {
       )}
 
       <div className="mt-4">
-        <Link to="/dashboard">
+        <Link to="/leagues">
           <Button variant="ghost" className="text-muted-foreground">
             Voltar ao dashboard
           </Button>

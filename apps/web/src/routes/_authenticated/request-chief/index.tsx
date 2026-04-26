@@ -5,8 +5,7 @@ import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { apiFetch } from "@/lib/api";
-import type { ChiefRequestResponse } from "@/types/auth";
+import { client, unwrap } from "@/shared/lib/api";
 
 export const Route = createFileRoute("/_authenticated/request-chief/")({
   component: RequestChiefPage,
@@ -18,15 +17,16 @@ function RequestChiefPage() {
   const form = useForm({
     defaultValues: { delegation_name: "", message: "" },
     onSubmit: async ({ value }) => {
-      await apiFetch<ChiefRequestResponse>("/requests/chief", {
-        method: "POST",
-        body: {
-          delegation_name: value.delegation_name,
-          message: value.message || undefined,
-        },
-      });
+      await unwrap(
+        client.POST("/requests/chief", {
+          body: {
+            delegation_name: value.delegation_name,
+            message: value.message || undefined,
+          },
+        }),
+      );
       toast.success("Solicitação enviada com sucesso!");
-      await router.navigate({ to: "/dashboard" });
+      await router.navigate({ to: "/leagues" });
     },
   });
 
@@ -49,8 +49,7 @@ function RequestChiefPage() {
         <form.Field
           name="delegation_name"
           validators={{
-            onChange: ({ value }) =>
-              !value.trim() ? "Nome da delegação obrigatório" : undefined,
+            onChange: ({ value }) => (!value.trim() ? "Nome da delegação obrigatório" : undefined),
           }}
         >
           {(field) => (
@@ -64,9 +63,7 @@ function RequestChiefPage() {
                 placeholder="Ex: Delegação Brasil"
               />
               {field.state.meta.errors.length > 0 && (
-                <p className="text-destructive text-sm">
-                  {field.state.meta.errors[0]}
-                </p>
+                <p className="text-destructive text-sm">{field.state.meta.errors[0]}</p>
               )}
             </div>
           )}
@@ -90,9 +87,7 @@ function RequestChiefPage() {
         <form.Subscribe selector={(s) => [s.isSubmitting, s.errors] as const}>
           {([isSubmitting, errors]) => (
             <>
-              {errors.length > 0 && (
-                <p className="text-destructive text-sm">{String(errors[0])}</p>
-              )}
+              {errors.length > 0 && <p className="text-destructive text-sm">{String(errors[0])}</p>}
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Enviando..." : "Enviar solicitação"}
               </Button>

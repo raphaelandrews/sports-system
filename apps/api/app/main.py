@@ -16,21 +16,25 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from app.config import settings
-from app.core.limiter import limiter
-from app.core.scheduler import setup_scheduler
-from app.routers import admin, auth, health, users
-from app.routers.activities import router as activities_router
-from app.routers.athletes import router as athletes_router
-from app.routers.delegations import invites_router, router as delegations_router
-from app.routers.enrollments import router as enrollments_router
-from app.routers.events import events_router, matches_router
-from app.routers.narratives import router as narratives_router
-from app.routers.reports import router as reports_router
-from app.routers.results import router as results_router
-from app.routers.search import router as search_router
-from app.routers.sports import modalities_router, router as sports_router
-from app.routers.weeks import router as weeks_router
-from app.services.seed_service import seed_sports
+from app.shared.core.limiter import limiter
+from app.shared.core.scheduler import setup_scheduler
+from app.features.admin.router import router as admin_router
+from app.features.auth.router import router as auth_router
+from app.features.health.router import router as health_router
+from app.features.users.router import router as users_router
+from app.features.activities.router import router as activities_router
+from app.features.athletes.router import router as athletes_router
+from app.features.delegations.router import invites_router, router as delegations_router
+from app.features.enrollments.router import router as enrollments_router
+from app.features.events.router import events_router, matches_router
+from app.features.narratives.router import router as narratives_router
+from app.features.reports.router import router as reports_router
+from app.features.results.router import router as results_router
+from app.features.search.router import router as search_router
+from app.features.sports.router import modalities_router, router as sports_router
+from app.features.leagues.router import router as leagues_router
+from app.features.competitions.router import router as competitions_router
+from app.features.admin.service import seed_showcase_league, seed_sports
 
 
 def _configure_logging() -> None:
@@ -70,6 +74,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _configure_logging()
     _run_migrations()
     await seed_sports()
+    await seed_showcase_league()
     sched = setup_scheduler()
     sched.start()
     logging.getLogger(__name__).info("scheduler_started")
@@ -101,7 +106,9 @@ app.add_middleware(
 
 
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException) -> ORJSONResponse:
+async def http_exception_handler(
+    request: Request, exc: HTTPException
+) -> ORJSONResponse:
     return ORJSONResponse(
         status_code=exc.status_code,
         content={
@@ -113,7 +120,9 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> ORJSON
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> ORJSONResponse:
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> ORJSONResponse:
     return ORJSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
@@ -125,7 +134,9 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 @app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception) -> ORJSONResponse:
+async def unhandled_exception_handler(
+    request: Request, exc: Exception
+) -> ORJSONResponse:
     logging.getLogger(__name__).exception("unhandled_error path=%s", request.url.path)
     return ORJSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -137,15 +148,16 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> ORJSO
     )
 
 
-app.include_router(health.router)
-app.include_router(auth.router)
-app.include_router(users.router)
+app.include_router(health_router)
+app.include_router(auth_router)
+app.include_router(users_router)
+app.include_router(leagues_router)
 app.include_router(delegations_router)
 app.include_router(invites_router)
 app.include_router(sports_router)
 app.include_router(modalities_router)
 app.include_router(athletes_router)
-app.include_router(weeks_router)
+app.include_router(competitions_router)
 app.include_router(activities_router)
 app.include_router(events_router)
 app.include_router(matches_router)
@@ -154,7 +166,7 @@ app.include_router(results_router)
 app.include_router(search_router)
 app.include_router(reports_router)
 app.include_router(narratives_router)
-app.include_router(admin.router)
+app.include_router(admin_router)
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=settings.PORT, reload=True)
