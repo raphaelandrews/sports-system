@@ -15,15 +15,15 @@ import { CalendarDays, ShieldCheck, UserPlus, Users } from "lucide-react";
 import {
   ChiefDelegationShell,
   ChiefDelegationUnavailable,
-} from "@/components/delegations/chief-delegation-shell";
-import { findManagedDelegation, isTransferWindowOpen } from "@/lib/chief-delegation";
-import { formatDate, formatEventDate } from "@/lib/date";
+} from "@/features/delegations/components/chief-delegation-shell";
+import { findManagedDelegation, isTransferWindowOpen } from "@/shared/lib/chief-delegation";
+import { formatDate, formatEventDate } from "@/shared/lib/date";
 import {
   delegationDetailQueryOptions,
   delegationInvitesQueryOptions,
   delegationListQueryOptions,
-} from "@/queries/delegations";
-import { competitionListQueryOptions } from "@/queries/competitions";
+} from "@/features/delegations/api/queries";
+import { competitionListQueryOptions } from "@/features/competitions/api/queries";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_chief/my-delegation/",

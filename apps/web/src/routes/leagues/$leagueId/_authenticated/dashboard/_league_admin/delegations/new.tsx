@@ -2,9 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { AdminDelegationForm } from "@/components/delegations/admin-delegation-form";
-import { apiFetch, ApiError } from "@/lib/api";
-import { queryKeys } from "@/queries/keys";
+import { AdminDelegationForm } from "@/features/delegations/components/admin-delegation-form";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { queryKeys } from "@/features/keys";
 import type { DelegationCreateInput, DelegationResponse } from "@/types/delegations";
 
 export const Route = createFileRoute(

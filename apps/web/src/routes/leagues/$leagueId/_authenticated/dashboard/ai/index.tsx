@@ -20,18 +20,21 @@ import {
   SelectValue,
 } from "@sports-system/ui/components/select";
 
-import { AiGenerateButton } from "@/components/ai/ai-generate-button";
-import { apiFetch } from "@/lib/api";
-import { formatDate, formatEventDate, formatTime } from "@/lib/date";
-import { aiGenerationHistoryQueryOptions, narrativeTodayQueryOptions } from "@/queries/ai";
-import { athleteListQueryOptions } from "@/queries/athletes";
-import { competitionListQueryOptions } from "@/queries/competitions";
-import { delegationListQueryOptions } from "@/queries/delegations";
-import { enrollmentListQueryOptions } from "@/queries/enrollments";
-import { allEventsQueryOptions } from "@/queries/events";
-import { queryKeys } from "@/queries/keys";
-import { resultListQueryOptions } from "@/queries/results";
-import { sportListQueryOptions } from "@/queries/sports";
+import { AiGenerateButton } from "@/features/narratives/components/ai-generate-button";
+import { apiFetch } from "@/shared/lib/api";
+import { formatDate, formatEventDate, formatTime } from "@/shared/lib/date";
+import {
+  aiGenerationHistoryQueryOptions,
+  narrativeTodayQueryOptions,
+} from "@/features/narratives/api/queries";
+import { athleteListQueryOptions } from "@/features/athletes/api/queries";
+import { competitionListQueryOptions } from "@/features/competitions/api/queries";
+import { delegationListQueryOptions } from "@/features/delegations/api/queries";
+import { enrollmentListQueryOptions } from "@/features/enrollments/api/queries";
+import { allEventsQueryOptions } from "@/features/events/api/queries";
+import { queryKeys } from "@/features/keys";
+import { resultListQueryOptions } from "@/features/results/api/queries";
+import { sportListQueryOptions } from "@/features/sports/api/queries";
 import type { NarrativeResponse } from "@/types/reports";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/dashboard/ai/")({

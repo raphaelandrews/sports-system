@@ -14,11 +14,11 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 
-import { formatDate } from "@/lib/date";
-import { athleteReportQueryOptions } from "@/queries/athletes";
+import { formatDate } from "@/shared/lib/date";
+import { athleteReportQueryOptions } from "@/features/athletes/api/queries";
 import type { Medal } from "@/types/athletes";
 import { buttonVariants } from "@sports-system/ui/components/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/athletes/$athleteId")({
   ssr: false,

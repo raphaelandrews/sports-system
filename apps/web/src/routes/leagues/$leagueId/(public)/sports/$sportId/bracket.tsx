@@ -23,12 +23,12 @@ import {
   EmptyTitle,
 } from "@sports-system/ui/components/empty";
 
-import { GroupStage } from "@/components/bracketcore/group-stage";
-import { SingleElimination } from "@/components/bracketcore/single-elimination";
-import { competitionListQueryOptions } from "@/queries/competitions";
-import { delegationListQueryOptions } from "@/queries/delegations";
-import { allEventsQueryOptions, eventDetailQueryOptions } from "@/queries/events";
-import { sportDetailQueryOptions } from "@/queries/sports";
+import { GroupStage } from "@/features/bracket/components/group-stage";
+import { SingleElimination } from "@/features/bracket/components/single-elimination";
+import { competitionListQueryOptions } from "@/features/competitions/api/queries";
+import { delegationListQueryOptions } from "@/features/delegations/api/queries";
+import { allEventsQueryOptions, eventDetailQueryOptions } from "@/features/events/api/queries";
+import { sportDetailQueryOptions } from "@/features/sports/api/queries";
 import type {
   Match,
   MatchTeam,
@@ -39,8 +39,7 @@ import type {
   Group,
   GroupStanding,
 } from "@/types/bracketcore";
-import type { EventResponse, EventDetailResponse } from "@/types/events";
-import type { ApiSchemas } from "@/types/api.gen";
+import type { EventResponse, EventDetailResponse, MatchStatus } from "@/types/events";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/sports/$sportId/bracket")({
   loader: async ({ context: { queryClient }, params: { leagueId, sportId } }) => {
@@ -69,7 +68,7 @@ const PHASE_LABEL: Record<string, string> = {
   FINAL: "Final",
 };
 
-function toMatchStatus(s: ApiSchemas["MatchStatus"]): "upcoming" | "live" | "completed" {
+function toMatchStatus(s: MatchStatus): "upcoming" | "live" | "completed" {
   if (s === "IN_PROGRESS") return "live";
   if (s === "COMPLETED") return "completed";
   return "upcoming";
@@ -117,8 +116,18 @@ function buildSingleElimination(
         scheduledAt: event.event_date,
         status: toMatchStatus(match.status),
         teams: [
-          makeMatchTeam(match.team_a_delegation_id, match.score_a, match.winner_delegation_id, delegationById),
-          makeMatchTeam(match.team_b_delegation_id, match.score_b, match.winner_delegation_id, delegationById),
+          makeMatchTeam(
+            match.team_a_delegation_id,
+            match.score_a,
+            match.winner_delegation_id,
+            delegationById,
+          ),
+          makeMatchTeam(
+            match.team_b_delegation_id,
+            match.score_b,
+            match.winner_delegation_id,
+            delegationById,
+          ),
         ],
       });
     });
@@ -147,8 +156,18 @@ function buildGroupFromEvent(
       scheduledAt: event.event_date,
       status: toMatchStatus(match.status),
       teams: [
-        makeMatchTeam(match.team_a_delegation_id, match.score_a, match.winner_delegation_id, delegationById),
-        makeMatchTeam(match.team_b_delegation_id, match.score_b, match.winner_delegation_id, delegationById),
+        makeMatchTeam(
+          match.team_a_delegation_id,
+          match.score_a,
+          match.winner_delegation_id,
+          delegationById,
+        ),
+        makeMatchTeam(
+          match.team_b_delegation_id,
+          match.score_b,
+          match.winner_delegation_id,
+          delegationById,
+        ),
       ],
     });
   });
@@ -157,7 +176,11 @@ function buildGroupFromEvent(
   for (const id of teamIds) {
     standingMap.set(id, {
       team: { id: String(id), name: delegationById.get(id)?.name ?? `Delegação #${id}` },
-      wins: 0, losses: 0, draws: 0, points: 0, differential: 0,
+      wins: 0,
+      losses: 0,
+      draws: 0,
+      points: 0,
+      differential: 0,
     });
   }
 
@@ -176,11 +199,18 @@ function buildGroupFromEvent(
     b.differential += sb - sa;
 
     if (sa > sb) {
-      a.wins++; a.points += 3; b.losses++;
+      a.wins++;
+      a.points += 3;
+      b.losses++;
     } else if (sb > sa) {
-      b.wins++; b.points += 3; a.losses++;
+      b.wins++;
+      b.points += 3;
+      a.losses++;
     } else {
-      a.draws++; a.points++; b.draws++; b.points++;
+      a.draws++;
+      a.points++;
+      b.draws++;
+      b.points++;
     }
   }
 
@@ -252,8 +282,7 @@ function SportBracketPage() {
 
     const format = (modality.rules_json as { bracket_format?: string }).bracket_format;
     const hasGroups =
-      format === "group-stage" ||
-      (!format && mEvents.some((e) => e.phase === "GROUPS"));
+      format === "group-stage" || (!format && mEvents.some((e) => e.phase === "GROUPS"));
     const isDoubleElim = format === "double-elimination";
     const hasElim =
       format === "single-elimination" ||

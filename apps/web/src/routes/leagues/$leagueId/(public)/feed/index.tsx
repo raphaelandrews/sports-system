@@ -9,8 +9,8 @@ import {
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { ActivityFeed } from "@/components/activity/activity-feed";
-import { activityFeedQueryOptions } from "@/queries/activities";
+import { ActivityFeed } from "@/features/activities/components/activity-feed";
+import { activityFeedQueryOptions } from "@/features/activities/api/queries";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/feed/")({
   loader: ({ context: { queryClient }, params: { leagueId } }) =>

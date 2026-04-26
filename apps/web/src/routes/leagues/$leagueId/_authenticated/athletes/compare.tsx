@@ -28,8 +28,11 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 
-import { formatDate } from "@/lib/date";
-import { athleteListQueryOptions, athleteReportQueryOptions } from "@/queries/athletes";
+import { formatDate } from "@/shared/lib/date";
+import {
+  athleteListQueryOptions,
+  athleteReportQueryOptions,
+} from "@/features/athletes/api/queries";
 import type { AthleteReportResponse, Medal as MedalType } from "@/types/athletes";
 
 const compareSearchSchema = z.object({

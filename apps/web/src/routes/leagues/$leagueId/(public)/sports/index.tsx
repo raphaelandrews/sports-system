@@ -11,8 +11,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Dumbbell } from "lucide-react";
 
-import { resolveRosterSize } from "@/lib/sports";
-import { sportListQueryOptions } from "@/queries/sports";
+import { resolveRosterSize } from "@/shared/lib/sports";
+import { sportListQueryOptions } from "@/features/sports/api/queries";
 import type { SportType } from "@/types/sports";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/sports/")({

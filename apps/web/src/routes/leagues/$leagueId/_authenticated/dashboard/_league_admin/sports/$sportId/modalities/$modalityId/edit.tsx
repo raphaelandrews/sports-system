@@ -3,10 +3,10 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { ModalityForm } from "@/components/sports/modality-form";
-import { apiFetch, ApiError } from "@/lib/api";
-import { queryKeys } from "@/queries/keys";
-import { sportDetailQueryOptions } from "@/queries/sports";
+import { ModalityForm } from "@/features/sports/components/modality-form";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { queryKeys } from "@/features/keys";
+import { sportDetailQueryOptions } from "@/features/sports/api/queries";
 import type { Gender } from "@/types/sports";
 
 export const Route = createFileRoute(

@@ -10,8 +10,8 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
-import { formatDate } from "@/lib/date";
-import { competitionListQueryOptions } from "@/queries/competitions";
+import { formatDate } from "@/shared/lib/date";
+import { competitionListQueryOptions } from "@/features/competitions/api/queries";
 import type { CompetitionStatus } from "@/types/competitions";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/competitions/")({

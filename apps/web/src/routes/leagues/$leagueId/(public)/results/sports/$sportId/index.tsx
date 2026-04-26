@@ -16,10 +16,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sports-system/ui/comp
 import { useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { MedalBoard } from "@/components/results/medal-board";
-import { SportStandings } from "@/components/results/sport-standings";
-import { modalityStandingsQueryOptions, sportMedalBoardQueryOptions } from "@/queries/results";
-import { sportDetailQueryOptions } from "@/queries/sports";
+import { MedalBoard } from "@/features/results/components/medal-board";
+import { SportStandings } from "@/features/results/components/sport-standings";
+import {
+  modalityStandingsQueryOptions,
+  sportMedalBoardQueryOptions,
+} from "@/features/results/api/queries";
+import { sportDetailQueryOptions } from "@/features/sports/api/queries";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/results/sports/$sportId/")({
   loader: async ({ context: { queryClient }, params: { leagueId, sportId } }) => {

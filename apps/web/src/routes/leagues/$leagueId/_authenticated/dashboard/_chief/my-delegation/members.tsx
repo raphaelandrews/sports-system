@@ -22,17 +22,17 @@ import {
   ChiefActionButton,
   ChiefDelegationShell,
   ChiefDelegationUnavailable,
-} from "@/components/delegations/chief-delegation-shell";
-import { findManagedDelegation } from "@/lib/chief-delegation";
-import { apiFetch, ApiError } from "@/lib/api";
-import { formatEventDate } from "@/lib/date";
+} from "@/features/delegations/components/chief-delegation-shell";
+import { findManagedDelegation } from "@/shared/lib/chief-delegation";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { formatEventDate } from "@/shared/lib/date";
 import {
   delegationDetailQueryOptions,
   delegationHistoryQueryOptions,
   delegationInvitesQueryOptions,
   delegationListQueryOptions,
-} from "@/queries/delegations";
-import { queryKeys } from "@/queries/keys";
+} from "@/features/delegations/api/queries";
+import { queryKeys } from "@/features/keys";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_chief/my-delegation/members",

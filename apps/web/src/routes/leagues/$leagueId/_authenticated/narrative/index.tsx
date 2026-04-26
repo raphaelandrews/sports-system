@@ -13,12 +13,15 @@ import {
 import { Input } from "@sports-system/ui/components/input";
 import { ScrollArea } from "@sports-system/ui/components/scroll-area";
 
-import { AiGenerateButton } from "@/components/ai/ai-generate-button";
-import { NarrativeRichText } from "@/components/reports/narrative-rich-text";
-import { apiFetch, ApiError } from "@/lib/api";
-import { formatDate, formatEventDate } from "@/lib/date";
-import { aiGenerationHistoryQueryOptions, narrativeTodayQueryOptions } from "@/queries/ai";
-import { queryKeys } from "@/queries/keys";
+import { AiGenerateButton } from "@/features/narratives/components/ai-generate-button";
+import { NarrativeRichText } from "@/features/reports/components/narrative-rich-text";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { formatDate, formatEventDate } from "@/shared/lib/date";
+import {
+  aiGenerationHistoryQueryOptions,
+  narrativeTodayQueryOptions,
+} from "@/features/narratives/api/queries";
+import { queryKeys } from "@/features/keys";
 import type { NarrativeResponse } from "@/types/reports";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/narrative/")({

@@ -1,0 +1,31 @@
+{
+  "name": "@sports-system/contracts",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./auth": "./src/auth.ts",
+    "./users": "./src/users.ts",
+    "./leagues": "./src/leagues.ts",
+    "./athletes": "./src/athletes.ts",
+    "./competitions": "./src/competitions.ts",
+    "./delegations": "./src/delegations.ts",
+    "./enrollments": "./src/enrollments.ts",
+    "./events": "./src/events.ts",
+    "./sports": "./src/sports.ts",
+    "./results": "./src/results.ts",
+    "./activities": "./src/activities.ts",
+    "./reports": "./src/reports.ts",
+    "./search": "./src/search.ts",
+    "./notifications": "./src/notifications.ts",
+    "./common": "./src/common.ts"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@sports-system/config": "workspace:*",
+    "typescript": "^5"
+  }
+}

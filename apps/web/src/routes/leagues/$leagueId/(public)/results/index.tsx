@@ -9,9 +9,9 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
-import { MedalBoard } from "@/components/results/medal-board";
-import { medalBoardQueryOptions } from "@/queries/results";
-import { sportListQueryOptions } from "@/queries/sports";
+import { MedalBoard } from "@/features/results/components/medal-board";
+import { medalBoardQueryOptions } from "@/features/results/api/queries";
+import { sportListQueryOptions } from "@/features/sports/api/queries";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/results/")({
   loader: ({ context: { queryClient }, params: { leagueId } }) =>

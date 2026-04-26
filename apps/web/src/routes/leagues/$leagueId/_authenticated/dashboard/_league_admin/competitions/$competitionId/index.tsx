@@ -12,15 +12,15 @@ import {
 } from "@sports-system/ui/components/card";
 import { cn } from "@sports-system/ui/lib/utils";
 
-import { apiFetch, ApiError } from "@/lib/api";
-import { formatDate } from "@/lib/date";
-import { competitionEventsQueryOptions } from "@/queries/events";
-import { queryKeys } from "@/queries/keys";
-import { sportListQueryOptions } from "@/queries/sports";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { formatDate } from "@/shared/lib/date";
+import { competitionEventsQueryOptions } from "@/features/events/api/queries";
+import { queryKeys } from "@/features/keys";
+import { sportListQueryOptions } from "@/features/sports/api/queries";
 import {
   competitionDetailQueryOptions,
   competitionSchedulePreviewQueryOptions,
-} from "@/queries/competitions";
+} from "@/features/competitions/api/queries";
 import type { CompetitionResponse, CompetitionStatus } from "@/types/competitions";
 
 export const Route = createFileRoute(

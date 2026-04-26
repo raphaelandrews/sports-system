@@ -17,8 +17,8 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { formatEventDate } from "@/lib/date";
-import { recordsQueryOptions } from "@/queries/results";
+import { formatEventDate } from "@/shared/lib/date";
+import { recordsQueryOptions } from "@/features/results/api/queries";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/results/records/")({
   loader: ({ context: { queryClient }, params: { leagueId } }) =>

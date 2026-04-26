@@ -1,6 +1,6 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/shared/lib/api";
 import type { LeagueMemberResponse } from "@/types/leagues";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/dashboard/_league_admin")({

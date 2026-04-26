@@ -32,10 +32,10 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { formatEventDate } from "@/lib/date";
-import { apiFetch, ApiError } from "@/lib/api";
-import { delegationListQueryOptions } from "@/queries/delegations";
-import { queryKeys } from "@/queries/keys";
+import { formatEventDate } from "@/shared/lib/date";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { delegationListQueryOptions } from "@/features/delegations/api/queries";
+import { queryKeys } from "@/features/keys";
 import type { DelegationResponse } from "@/types/delegations";
 
 const PAGE_SIZE = 8;

@@ -2,9 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { AthleteForm } from "@/components/athletes/athlete-form";
-import { apiFetch, ApiError } from "@/lib/api";
-import { queryKeys } from "@/queries/keys";
+import { AthleteForm } from "@/features/athletes/components/athlete-form";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { queryKeys } from "@/features/keys";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/dashboard/athletes/new")({
   ssr: false,

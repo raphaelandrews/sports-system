@@ -22,13 +22,13 @@ import {
 import { cn } from "@sports-system/ui/lib/utils";
 
 import { Button } from "@sports-system/ui/components/button";
-import { MedalBoard } from "@/components/results/medal-board";
-import { apiFetchBlob, ApiError } from "@/lib/api";
-import { SportStandings } from "@/components/results/sport-standings";
-import { formatEventDate } from "@/lib/date";
-import { finalReportQueryOptions } from "@/queries/reports";
-import { modalityStandingsQueryOptions } from "@/queries/results";
-import { sportDetailQueryOptions, sportListQueryOptions } from "@/queries/sports";
+import { MedalBoard } from "@/features/results/components/medal-board";
+import { apiFetchBlob, ApiError } from "@/shared/lib/api";
+import { SportStandings } from "@/features/results/components/sport-standings";
+import { formatEventDate } from "@/shared/lib/date";
+import { finalReportQueryOptions } from "@/features/reports/api/queries";
+import { modalityStandingsQueryOptions } from "@/features/results/api/queries";
+import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sports/api/queries";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/report/")({
   loader: async ({ context: { queryClient }, params: { leagueId } }) => {

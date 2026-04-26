@@ -9,7 +9,7 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
-import { delegationListQueryOptions } from "@/queries/delegations";
+import { delegationListQueryOptions } from "@/features/delegations/api/queries";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/delegations/")({
   loader: ({ context: { queryClient }, params: { leagueId } }) =>

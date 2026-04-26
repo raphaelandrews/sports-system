@@ -1,7 +1,7 @@
-import type { ApiSchemas } from "@/types/api.gen";
-
-export type NotificationType = ApiSchemas["NotificationType"];
-export type NotificationResponse = ApiSchemas["NotificationResponse"];
+export type {
+  NotificationType,
+  NotificationResponse,
+} from "@sports-system/contracts/notifications";
 
 export interface InvitePayload {
   delegation_id: number;

@@ -12,7 +12,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 
-import { leagueDetailQueryOptions } from "@/queries/leagues";
+import { leagueDetailQueryOptions } from "@/features/leagues/api/queries";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/")({
   loader: ({ context: { queryClient }, params: { leagueId } }) =>

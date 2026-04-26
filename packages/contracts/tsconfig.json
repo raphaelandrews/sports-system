@@ -1,0 +1,10 @@
+{
+  "extends": "@sports-system/config/tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@sports-system/contracts/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}

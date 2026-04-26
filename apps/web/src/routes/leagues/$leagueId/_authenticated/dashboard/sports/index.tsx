@@ -30,9 +30,9 @@ import {
 import { cn } from "@sports-system/ui/lib/utils";
 import { Search, Trophy, Users } from "lucide-react";
 
-import { formatEventDate } from "@/lib/date";
-import { resolveRosterSize } from "@/lib/sports";
-import { sportListQueryOptions } from "@/queries/sports";
+import { formatEventDate } from "@/shared/lib/date";
+import { resolveRosterSize } from "@/shared/lib/sports";
+import { sportListQueryOptions } from "@/features/sports/api/queries";
 
 const sportsSearchSchema = z.object({
   q: z.string().optional(),

@@ -20,11 +20,11 @@ import {
 import { cn } from "@sports-system/ui/lib/utils";
 import { toast } from "sonner";
 
-import { SportRulesForm } from "@/components/sports/sport-rules-form";
-import { ApiError, apiFetch } from "@/lib/api";
-import { resolveRosterSize } from "@/lib/sports";
-import { queryKeys } from "@/queries/keys";
-import { sportDetailQueryOptions } from "@/queries/sports";
+import { SportRulesForm } from "@/features/sports/components/sport-rules-form";
+import { ApiError, apiFetch } from "@/shared/lib/api";
+import { resolveRosterSize } from "@/shared/lib/sports";
+import { queryKeys } from "@/features/keys";
+import { sportDetailQueryOptions } from "@/features/sports/api/queries";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_league_admin/sports/$sportId/",

@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { DashboardHome } from "@/components/layouts/dashboard-home";
-import { myLeagueMembershipQueryOptions } from "@/queries/leagues";
+import { DashboardHome } from "@/shared/components/layouts/dashboard-home";
+import { myLeagueMembershipQueryOptions } from "@/features/leagues/api/queries";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/dashboard/")({
   component: DashboardIndexPage,

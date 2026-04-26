@@ -10,8 +10,8 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
-import { resolveRosterSize } from "@/lib/sports";
-import { sportDetailQueryOptions } from "@/queries/sports";
+import { resolveRosterSize } from "@/shared/lib/sports";
+import { sportDetailQueryOptions } from "@/features/sports/api/queries";
 import type { Gender, SportType } from "@/types/sports";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/sports/$sportId")({

@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
 
-import { ApiError } from "@/lib/api";
-import { formatEventDate } from "@/lib/date";
-import { chiefRequestQueryOptions } from "@/queries/notifications";
+import { ApiError } from "@/shared/lib/api";
+import { formatEventDate } from "@/shared/lib/date";
+import { chiefRequestQueryOptions } from "@/features/notifications/api/queries";
 
 export const Route = createFileRoute("/_authenticated/request-chief/status")({
   component: RequestChiefStatusPage,

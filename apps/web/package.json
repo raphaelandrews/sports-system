@@ -10,6 +10,7 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@sports-system/contracts": "workspace:*",
     "@sports-system/env": "workspace:*",
     "@sports-system/ui": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",

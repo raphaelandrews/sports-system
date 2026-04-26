@@ -1,11 +1,11 @@
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
-import { athleteListQueryOptions } from "@/queries/athletes";
-import { delegationListQueryOptions } from "@/queries/delegations";
-import { allEventsQueryOptions } from "@/queries/events";
-import { notificationsQueryOptions } from "@/queries/notifications";
-import { competitionListQueryOptions } from "@/queries/competitions";
-import { medalBoardQueryOptions } from "@/queries/results";
+import { athleteListQueryOptions } from "@/features/athletes/api/queries";
+import { delegationListQueryOptions } from "@/features/delegations/api/queries";
+import { allEventsQueryOptions } from "@/features/events/api/queries";
+import { notificationsQueryOptions } from "@/features/notifications/api/queries";
+import { competitionListQueryOptions } from "@/features/competitions/api/queries";
+import { medalBoardQueryOptions } from "@/features/results/api/queries";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/dashboard")({
   ssr: "data-only",

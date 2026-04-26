@@ -6,10 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/comp
 import { buttonVariants } from "@sports-system/ui/components/button";
 import { cn } from "@sports-system/ui/lib/utils";
 
-import { formatDate, formatTime } from "@/lib/date";
-import { delegationListQueryOptions } from "@/queries/delegations";
-import { competitionEventsQueryOptions, eventDetailQueryOptions } from "@/queries/events";
-import { competitionDetailQueryOptions } from "@/queries/competitions";
+import { formatDate, formatTime } from "@/shared/lib/date";
+import { delegationListQueryOptions } from "@/features/delegations/api/queries";
+import {
+  competitionEventsQueryOptions,
+  eventDetailQueryOptions,
+} from "@/features/events/api/queries";
+import { competitionDetailQueryOptions } from "@/features/competitions/api/queries";
 import type { EventDetailResponse, EventResponse, EventStatus } from "@/types/events";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/calendar/$competitionId/")({

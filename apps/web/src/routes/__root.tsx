@@ -11,11 +11,11 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "next-themes";
 
-import { DashboardViewportLoading } from "@/components/layouts/dashboard-content-loading";
-import { DashboardLayout } from "@/components/layouts/dashboard-layout";
-import { ErrorScreen } from "@/components/layouts/error-screen";
-import { NotFoundScreen } from "@/components/layouts/not-found-screen";
-import { getSessionFn } from "@/server/auth";
+import { DashboardViewportLoading } from "@/shared/components/layouts/dashboard-content-loading";
+import { DashboardLayout } from "@/shared/components/layouts/dashboard-layout";
+import { ErrorScreen } from "@/shared/components/layouts/error-screen";
+import { NotFoundScreen } from "@/shared/components/layouts/not-found-screen";
+import { getSessionFn } from "@/features/auth/server/auth";
 
 import appCss from "@/index.css?url";
 

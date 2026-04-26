@@ -20,7 +20,7 @@ import {
   EmptyTitle,
 } from "@sports-system/ui/components/empty";
 import { cn } from "@sports-system/ui/lib/utils";
-import { leagueListQueryOptions } from "@/queries/leagues";
+import { leagueListQueryOptions } from "@/features/leagues/api/queries";
 
 export const Route = createFileRoute("/leagues/")({
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(leagueListQueryOptions()),

@@ -31,10 +31,10 @@ import {
   SelectValue,
 } from "@sports-system/ui/components/select";
 
-import { apiFetch, ApiError } from "@/lib/api";
-import { queryKeys } from "@/queries/keys";
-import { competitionListQueryOptions } from "@/queries/competitions";
-import { sportDetailQueryOptions, sportListQueryOptions } from "@/queries/sports";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { queryKeys } from "@/features/keys";
+import { competitionListQueryOptions } from "@/features/competitions/api/queries";
+import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sports/api/queries";
 import type { EventCreate, EventPhase } from "@/types/events";
 import type { ModalityResponse } from "@/types/sports";
 

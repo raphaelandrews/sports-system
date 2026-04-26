@@ -25,12 +25,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sports-system/ui/components/select";
-import { apiFetch, ApiError } from "@/lib/api";
-import { buildApiUrl } from "@/lib/url";
-import { athleteListQueryOptions } from "@/queries/athletes";
-import { delegationListQueryOptions } from "@/queries/delegations";
-import { matchDetailQueryOptions } from "@/queries/matches";
-import { queryKeys } from "@/queries/keys";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { buildApiUrl } from "@/shared/lib/url";
+import { athleteListQueryOptions } from "@/features/athletes/api/queries";
+import { delegationListQueryOptions } from "@/features/delegations/api/queries";
+import { matchDetailQueryOptions } from "@/features/matches/api/queries";
+import { queryKeys } from "@/features/keys";
 import type { MatchEventCreate, MatchEventType, MatchParticipantResponse } from "@/types/events";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/matches/$matchId/")({

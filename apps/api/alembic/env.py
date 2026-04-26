@@ -11,7 +11,7 @@ from alembic import context
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.config import settings  # noqa: E402
-import app.models  # noqa: E402, F401 — registers all models with SQLModel metadata
+import app.domain.models  # noqa: E402, F401 — registers all models with SQLModel metadata
 
 config = context.config
 

@@ -11,7 +11,7 @@ import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
-import { finalizeOAuthFn } from "@/server/auth";
+import { finalizeOAuthFn } from "@/features/auth/server/auth";
 
 const callbackSearchSchema = z.object({
   token: z.string().optional(),

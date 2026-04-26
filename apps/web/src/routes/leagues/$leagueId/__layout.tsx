@@ -8,7 +8,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@sports-system/ui/components/empty";
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/shared/lib/api";
 import type { LeagueResponse } from "@/types/leagues";
 
 export const Route = createFileRoute("/leagues/$leagueId/__layout")({

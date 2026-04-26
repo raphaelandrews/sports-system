@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@sports-system/ui/components/card";
 import { cn } from "@sports-system/ui/lib/utils";
-import { leagueListQueryOptions } from "@/queries/leagues";
+import { leagueListQueryOptions } from "@/features/leagues/api/queries";
 
 export const Route = createFileRoute("/")({
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(leagueListQueryOptions()),

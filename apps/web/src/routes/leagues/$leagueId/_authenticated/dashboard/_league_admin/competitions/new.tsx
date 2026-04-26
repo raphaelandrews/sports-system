@@ -2,10 +2,10 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { CompetitionForm } from "@/components/competitions/competition-form";
-import { apiFetch, ApiError } from "@/lib/api";
-import { queryKeys } from "@/queries/keys";
-import { sportListQueryOptions } from "@/queries/sports";
+import { CompetitionForm } from "@/features/competitions/components/competition-form";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { queryKeys } from "@/features/keys";
+import { sportListQueryOptions } from "@/features/sports/api/queries";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_league_admin/competitions/new",

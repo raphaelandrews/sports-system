@@ -15,9 +15,9 @@ import {
   SelectValue,
 } from "@sports-system/ui/components/select";
 
-import { apiFetch, ApiError } from "@/lib/api";
-import { queryKeys } from "@/queries/keys";
-import { sportListQueryOptions } from "@/queries/sports";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { queryKeys } from "@/features/keys";
+import { sportListQueryOptions } from "@/features/sports/api/queries";
 import type { LeagueResponse } from "@/types/leagues";
 
 export const Route = createFileRoute("/leagues/new")({

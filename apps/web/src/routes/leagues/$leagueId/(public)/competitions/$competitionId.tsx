@@ -14,10 +14,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Suspense, useState } from "react";
 
-import { formatDate, formatTime } from "@/lib/date";
-import { delegationListQueryOptions } from "@/queries/delegations";
-import { competitionEventsQueryOptions, eventDetailQueryOptions } from "@/queries/events";
-import { competitionReportQueryOptions } from "@/queries/competitions";
+import { formatDate, formatTime } from "@/shared/lib/date";
+import { delegationListQueryOptions } from "@/features/delegations/api/queries";
+import {
+  competitionEventsQueryOptions,
+  eventDetailQueryOptions,
+} from "@/features/events/api/queries";
+import { competitionReportQueryOptions } from "@/features/competitions/api/queries";
 import type { DelegationSummary } from "@/types/delegations";
 import type { EventResponse, EventStatus, MatchResponse } from "@/types/events";
 

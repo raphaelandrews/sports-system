@@ -20,9 +20,9 @@ import {
 } from "@sports-system/ui/components/table";
 import { cn } from "@sports-system/ui/lib/utils";
 
-import { formatDate } from "@/lib/date";
-import { sportListQueryOptions } from "@/queries/sports";
-import { competitionListQueryOptions } from "@/queries/competitions";
+import { formatDate } from "@/shared/lib/date";
+import { sportListQueryOptions } from "@/features/sports/api/queries";
+import { competitionListQueryOptions } from "@/features/competitions/api/queries";
 import type { CompetitionStatus } from "@/types/competitions";
 
 export const Route = createFileRoute(

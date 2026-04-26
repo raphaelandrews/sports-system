@@ -24,20 +24,20 @@ import { ArrowLeftRight, Clock3 } from "lucide-react";
 import {
   ChiefDelegationShell,
   ChiefDelegationUnavailable,
-} from "@/components/delegations/chief-delegation-shell";
+} from "@/features/delegations/components/chief-delegation-shell";
 import {
   findManagedDelegation,
   getTransferWindowMessage,
   isTransferWindowOpen,
-} from "@/lib/chief-delegation";
-import { apiFetch, ApiError } from "@/lib/api";
-import { formatEventDate } from "@/lib/date";
+} from "@/shared/lib/chief-delegation";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { formatEventDate } from "@/shared/lib/date";
 import {
   delegationHistoryQueryOptions,
   delegationInvitesQueryOptions,
   delegationListQueryOptions,
-} from "@/queries/delegations";
-import { queryKeys } from "@/queries/keys";
+} from "@/features/delegations/api/queries";
+import { queryKeys } from "@/features/keys";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_chief/my-delegation/transfers",

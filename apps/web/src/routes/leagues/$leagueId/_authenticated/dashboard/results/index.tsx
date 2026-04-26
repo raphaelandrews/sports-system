@@ -26,14 +26,14 @@ import {
 } from "@sports-system/ui/components/select";
 import { cn } from "@sports-system/ui/lib/utils";
 
-import { MedalBoard } from "@/components/results/medal-board";
-import { apiFetch, apiFetchBlob, ApiError } from "@/lib/api";
-import { formatDate, formatTime } from "@/lib/date";
-import { allEventsQueryOptions, eventDetailQueryOptions } from "@/queries/events";
-import { queryKeys } from "@/queries/keys";
-import { competitionListQueryOptions } from "@/queries/competitions";
-import { medalBoardQueryOptions } from "@/queries/results";
-import { sportDetailQueryOptions, sportListQueryOptions } from "@/queries/sports";
+import { MedalBoard } from "@/features/results/components/medal-board";
+import { apiFetch, apiFetchBlob, ApiError } from "@/shared/lib/api";
+import { formatDate, formatTime } from "@/shared/lib/date";
+import { allEventsQueryOptions, eventDetailQueryOptions } from "@/features/events/api/queries";
+import { queryKeys } from "@/features/keys";
+import { competitionListQueryOptions } from "@/features/competitions/api/queries";
+import { medalBoardQueryOptions } from "@/features/results/api/queries";
+import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sports/api/queries";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/dashboard/results/")({
   ssr: false,

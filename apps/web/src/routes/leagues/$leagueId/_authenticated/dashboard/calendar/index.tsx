@@ -21,11 +21,11 @@ import {
 } from "@sports-system/ui/components/select";
 import { cn } from "@sports-system/ui/lib/utils";
 
-import { apiFetch, ApiError } from "@/lib/api";
-import { formatDate, formatTime } from "@/lib/date";
-import { allEventsQueryOptions } from "@/queries/events";
-import { queryKeys } from "@/queries/keys";
-import { competitionListQueryOptions } from "@/queries/competitions";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { formatDate, formatTime } from "@/shared/lib/date";
+import { allEventsQueryOptions } from "@/features/events/api/queries";
+import { queryKeys } from "@/features/keys";
+import { competitionListQueryOptions } from "@/features/competitions/api/queries";
 import type { EventStatus } from "@/types/events";
 import type { CompetitionResponse } from "@/types/competitions";
 

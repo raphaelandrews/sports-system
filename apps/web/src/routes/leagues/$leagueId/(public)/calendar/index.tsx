@@ -26,9 +26,9 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { CalendarDays } from "lucide-react";
 import { useState } from "react";
 
-import { formatDate, formatTime } from "@/lib/date";
-import { allEventsQueryOptions } from "@/queries/events";
-import { competitionListQueryOptions } from "@/queries/competitions";
+import { formatDate, formatTime } from "@/shared/lib/date";
+import { allEventsQueryOptions } from "@/features/events/api/queries";
+import { competitionListQueryOptions } from "@/features/competitions/api/queries";
 import type { EventStatus } from "@/types/events";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/calendar/")({

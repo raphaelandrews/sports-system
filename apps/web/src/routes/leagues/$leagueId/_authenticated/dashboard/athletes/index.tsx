@@ -31,10 +31,10 @@ import {
 import { cn } from "@sports-system/ui/lib/utils";
 import { ArrowLeftRight, Bot, Search, UserPlus } from "lucide-react";
 
-import { apiFetch, ApiError } from "@/lib/api";
-import { formatDate } from "@/lib/date";
-import { athleteListQueryOptions } from "@/queries/athletes";
-import { queryKeys } from "@/queries/keys";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { formatDate } from "@/shared/lib/date";
+import { athleteListQueryOptions } from "@/features/athletes/api/queries";
+import { queryKeys } from "@/features/keys";
 import type { AthleteResponse } from "@/types/athletes";
 
 const athletesSearchSchema = z.object({

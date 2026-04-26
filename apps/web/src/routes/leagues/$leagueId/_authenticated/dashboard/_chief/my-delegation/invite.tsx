@@ -19,13 +19,16 @@ import { Search, UserPlus } from "lucide-react";
 import {
   ChiefDelegationShell,
   ChiefDelegationUnavailable,
-} from "@/components/delegations/chief-delegation-shell";
-import { findManagedDelegation } from "@/lib/chief-delegation";
-import { apiFetch, ApiError } from "@/lib/api";
-import { formatEventDate } from "@/lib/date";
-import { delegationInvitesQueryOptions, delegationListQueryOptions } from "@/queries/delegations";
-import { queryKeys } from "@/queries/keys";
-import { userSearchQueryOptions } from "@/queries/users";
+} from "@/features/delegations/components/chief-delegation-shell";
+import { findManagedDelegation } from "@/shared/lib/chief-delegation";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { formatEventDate } from "@/shared/lib/date";
+import {
+  delegationInvitesQueryOptions,
+  delegationListQueryOptions,
+} from "@/features/delegations/api/queries";
+import { queryKeys } from "@/features/keys";
+import { userSearchQueryOptions } from "@/features/users/api/queries";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_chief/my-delegation/invite",

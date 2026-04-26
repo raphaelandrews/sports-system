@@ -27,15 +27,15 @@ import {
 import { Input } from "@sports-system/ui/components/input";
 import { cn } from "@sports-system/ui/lib/utils";
 
-import { apiFetch, ApiError } from "@/lib/api";
-import { formatDate, formatTime } from "@/lib/date";
-import { athleteListQueryOptions } from "@/queries/athletes";
-import { delegationListQueryOptions } from "@/queries/delegations";
-import { eventDetailQueryOptions } from "@/queries/events";
-import { queryKeys } from "@/queries/keys";
-import { matchDetailQueryOptions } from "@/queries/matches";
-import { resultListQueryOptions } from "@/queries/results";
-import { sportDetailQueryOptions, sportListQueryOptions } from "@/queries/sports";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { formatDate, formatTime } from "@/shared/lib/date";
+import { athleteListQueryOptions } from "@/features/athletes/api/queries";
+import { delegationListQueryOptions } from "@/features/delegations/api/queries";
+import { eventDetailQueryOptions } from "@/features/events/api/queries";
+import { queryKeys } from "@/features/keys";
+import { matchDetailQueryOptions } from "@/features/matches/api/queries";
+import { resultListQueryOptions } from "@/features/results/api/queries";
+import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sports/api/queries";
 import type { Medal, ResultResponse } from "@/types/results";
 
 export const Route = createFileRoute(

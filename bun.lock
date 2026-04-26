@@ -22,6 +22,7 @@
     "apps/web": {
       "name": "web",
       "dependencies": {
+        "@sports-system/contracts": "workspace:*",
         "@sports-system/env": "workspace:*",
         "@sports-system/ui": "workspace:*",
         "@tailwindcss/vite": "^4.1.18",
@@ -68,6 +69,17 @@
     "packages/config": {
       "name": "@sports-system/config",
       "version": "0.0.0",
+    },
+    "packages/contracts": {
+      "name": "@sports-system/contracts",
+      "version": "0.1.0",
+      "dependencies": {
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@sports-system/config": "workspace:*",
+        "typescript": "^5",
+      },
     },
     "packages/env": {
       "name": "@sports-system/env",
@@ -751,6 +763,8 @@
     "@speed-highlight/core": ["@speed-highlight/core@1.2.15", "", {}, "sha512-BMq1K3DsElxDWawkX6eLg9+CKJrTVGCBAWVuHXVUV2u0s2711qiChLSId6ikYPfxhdYocLNt3wWwSvDiTvFabw=="],
 
     "@sports-system/config": ["@sports-system/config@workspace:packages/config"],
+
+    "@sports-system/contracts": ["@sports-system/contracts@workspace:packages/contracts"],
 
     "@sports-system/env": ["@sports-system/env@workspace:packages/env"],
 

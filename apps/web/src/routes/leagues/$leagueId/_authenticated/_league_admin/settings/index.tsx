@@ -31,10 +31,13 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 
-import { apiFetch, ApiError } from "@/lib/api";
-import { queryKeys } from "@/queries/keys";
-import { leagueDetailQueryOptions, leagueMembersQueryOptions } from "@/queries/leagues";
-import { sportListQueryOptions } from "@/queries/sports";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { queryKeys } from "@/features/keys";
+import {
+  leagueDetailQueryOptions,
+  leagueMembersQueryOptions,
+} from "@/features/leagues/api/queries";
+import { sportListQueryOptions } from "@/features/sports/api/queries";
 import type { LeagueMemberRole } from "@/types/leagues";
 
 const roleLabel: Record<LeagueMemberRole, string> = {

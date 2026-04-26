@@ -22,9 +22,12 @@ import type { LucideIcon } from "lucide-react";
 import { ArrowUpRight, CalendarDays, Flag, History, Pencil, Users } from "lucide-react";
 import { useMemo } from "react";
 
-import { formatEventDate } from "@/lib/date";
-import { delegationDetailQueryOptions, delegationHistoryQueryOptions } from "@/queries/delegations";
-import { allEventsQueryOptions, eventDetailQueryOptions } from "@/queries/events";
+import { formatEventDate } from "@/shared/lib/date";
+import {
+  delegationDetailQueryOptions,
+  delegationHistoryQueryOptions,
+} from "@/features/delegations/api/queries";
+import { allEventsQueryOptions, eventDetailQueryOptions } from "@/features/events/api/queries";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_league_admin/delegations/$delegationId/",

@@ -5,7 +5,7 @@ import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/shared/lib/api";
 import type { ChiefRequestResponse } from "@/types/auth";
 
 export const Route = createFileRoute("/_authenticated/request-chief/")({

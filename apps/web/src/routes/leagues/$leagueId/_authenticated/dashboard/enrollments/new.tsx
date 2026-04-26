@@ -31,17 +31,17 @@ import {
   SelectValue,
 } from "@sports-system/ui/components/select";
 
-import { findManagedDelegation } from "@/lib/chief-delegation";
-import { apiFetch, ApiError } from "@/lib/api";
-import { formatDate, formatTime } from "@/lib/date";
-import { resolveRosterSize } from "@/lib/sports";
-import { athleteListQueryOptions } from "@/queries/athletes";
-import { competitionListQueryOptions } from "@/queries/competitions";
-import { delegationListQueryOptions } from "@/queries/delegations";
-import { enrollmentListQueryOptions } from "@/queries/enrollments";
-import { allEventsQueryOptions } from "@/queries/events";
-import { queryKeys } from "@/queries/keys";
-import { sportDetailQueryOptions, sportListQueryOptions } from "@/queries/sports";
+import { findManagedDelegation } from "@/shared/lib/chief-delegation";
+import { apiFetch, ApiError } from "@/shared/lib/api";
+import { formatDate, formatTime } from "@/shared/lib/date";
+import { resolveRosterSize } from "@/shared/lib/sports";
+import { athleteListQueryOptions } from "@/features/athletes/api/queries";
+import { competitionListQueryOptions } from "@/features/competitions/api/queries";
+import { delegationListQueryOptions } from "@/features/delegations/api/queries";
+import { enrollmentListQueryOptions } from "@/features/enrollments/api/queries";
+import { allEventsQueryOptions } from "@/features/events/api/queries";
+import { queryKeys } from "@/features/keys";
+import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sports/api/queries";
 import type { CompetitionResponse } from "@/types/competitions";
 import type { EnrollmentCreate } from "@/types/enrollments";
 

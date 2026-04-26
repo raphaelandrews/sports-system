@@ -17,12 +17,12 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { DelegationStatisticsPanel } from "@/components/delegations/delegation-statistics-panel";
-import { formatDate } from "@/lib/date";
+import { DelegationStatisticsPanel } from "@/features/delegations/components/delegation-statistics-panel";
+import { formatDate } from "@/shared/lib/date";
 import {
   delegationDetailQueryOptions,
   delegationStatisticsQueryOptions,
-} from "@/queries/delegations";
+} from "@/features/delegations/api/queries";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/delegations/$delegationId")({
   loader: ({ context: { queryClient }, params: { leagueId, delegationId } }) => {
