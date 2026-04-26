@@ -27,7 +27,7 @@ import {
 import { cn } from "@sports-system/ui/lib/utils";
 
 import { MedalBoard } from "@/features/results/components/medal-board";
-import { apiFetch, apiFetchBlob, ApiError } from "@/shared/lib/api";
+import { client, unwrap, unwrapBlob, ApiError } from "@/shared/lib/api";
 import { formatDate, formatTime } from "@/shared/lib/date";
 import { allEventsQueryOptions, eventDetailQueryOptions } from "@/features/events/api/queries";
 import { queryKeys } from "@/features/keys";
@@ -50,13 +50,13 @@ export const Route = createFileRoute("/leagues/$leagueId/_authenticated/dashboar
   component: ResultsPage,
 });
 
-async function triggerCsvDownload() {
-  const blob = await apiFetchBlob("/report/export/csv");
+async function triggerCsvDownload(leagueId: number) {
+  const blob = await unwrapBlob(`/leagues/${leagueId}/report/export/csv`);
   triggerBlobDownload(blob, "results.csv");
 }
 
-async function triggerXlsxDownload() {
-  const blob = await apiFetchBlob("/report/export/xlsx");
+async function triggerXlsxDownload(leagueId: number) {
+  const blob = await unwrapBlob(`/leagues/${leagueId}/report/export/xlsx`);
   triggerBlobDownload(blob, "results.xlsx");
 }
 
@@ -116,9 +116,11 @@ function ResultsPage() {
 
   const aiMutation = useMutation({
     mutationFn: async (selectedEventId: number) =>
-      apiFetch(`/results/ai-generate/${selectedEventId}`, {
-        method: "POST",
-      }),
+      unwrap(
+        client.POST("/leagues/{league_id}/results/ai-generate/{event_id}", {
+          params: { path: { league_id: Number(leagueId), event_id: selectedEventId } },
+        }),
+      ),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.results.all(Number(leagueId)) }),
@@ -132,14 +134,14 @@ function ResultsPage() {
   });
 
   const csvMutation = useMutation({
-    mutationFn: triggerCsvDownload,
+    mutationFn: () => triggerCsvDownload(Number(leagueId)),
     onSuccess: () => toast.success("Exportação CSV iniciada."),
     onError: (error) => {
       toast.error(error instanceof ApiError ? error.message : "Falha ao exportar CSV.");
     },
   });
   const xlsxMutation = useMutation({
-    mutationFn: triggerXlsxDownload,
+    mutationFn: () => triggerXlsxDownload(Number(leagueId)),
     onSuccess: () => toast.success("Exportação XLSX iniciada."),
     onError: (error) => {
       toast.error(error instanceof ApiError ? error.message : "Falha ao exportar XLSX.");

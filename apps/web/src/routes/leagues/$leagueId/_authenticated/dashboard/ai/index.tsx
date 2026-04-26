@@ -21,7 +21,7 @@ import {
 } from "@sports-system/ui/components/select";
 
 import { AiGenerateButton } from "@/features/narratives/components/ai-generate-button";
-import { apiFetch } from "@/shared/lib/api";
+import { client, unwrap } from "@/shared/lib/api";
 import { formatDate, formatEventDate, formatTime } from "@/shared/lib/date";
 import {
   aiGenerationHistoryQueryOptions,
@@ -227,10 +227,14 @@ function AiControlRoomPage() {
                 }
                 errorMessage="Falha ao gerar delegações."
                 onGenerate={() =>
-                  apiFetch<Array<unknown>>("/delegations/ai-generate", {
-                    method: "POST",
-                    params: { count: Number(delegationCount || "5") },
-                  })
+                  unwrap(
+                    client.POST("/leagues/{league_id}/delegations/ai-generate", {
+                      params: {
+                        path: { league_id: Number(leagueId) },
+                        query: { count: Number(delegationCount || "5") },
+                      },
+                    }),
+                  )
                 }
                 onSuccess={async () => {
                   await Promise.all([
@@ -279,10 +283,11 @@ function AiControlRoomPage() {
                 }
                 errorMessage="Falha ao gerar esportes."
                 onGenerate={() =>
-                  apiFetch<Array<unknown>>("/sports/ai-generate", {
-                    method: "POST",
-                    params: { count: Number(sportCount || "3") },
-                  })
+                  unwrap(
+                    client.POST("/sports/ai-generate", {
+                      params: { query: { count: Number(sportCount || "3") } },
+                    }),
+                  )
                 }
                 onSuccess={async () => {
                   await Promise.all([
@@ -318,7 +323,13 @@ function AiControlRoomPage() {
                 ]}
                 successMessage="Atleta gerado com IA."
                 errorMessage="Falha ao gerar atleta."
-                onGenerate={() => apiFetch("/athletes/ai-generate", { method: "POST" })}
+                onGenerate={() =>
+                  unwrap(
+                    client.POST("/leagues/{league_id}/athletes/ai-generate", {
+                      params: { path: { league_id: Number(leagueId) } },
+                    }),
+                  )
+                }
                 onSuccess={async () => {
                   await Promise.all([
                     queryClient.invalidateQueries({
@@ -386,10 +397,14 @@ function AiControlRoomPage() {
                 }
                 errorMessage="Falha ao gerar calendário."
                 onGenerate={() =>
-                  apiFetch<Array<unknown>>("/events/ai-generate", {
-                    method: "POST",
-                    params: { competition_id: Number(selectedCompetitionId) },
-                  })
+                  unwrap(
+                    client.POST("/leagues/{league_id}/events/ai-generate", {
+                      params: {
+                        path: { league_id: Number(leagueId) },
+                        query: { competition_id: Number(selectedCompetitionId) },
+                      },
+                    }),
+                  )
                 }
                 onSuccess={async () => {
                   await Promise.all([
@@ -433,7 +448,11 @@ function AiControlRoomPage() {
                 }
                 errorMessage="Falha ao gerar inscrições."
                 onGenerate={() =>
-                  apiFetch<Array<unknown>>("/enrollments/ai-generate", { method: "POST" })
+                  unwrap(
+                    client.POST("/leagues/{league_id}/enrollments/ai-generate", {
+                      params: { path: { league_id: Number(leagueId) } },
+                    }),
+                  )
                 }
                 onSuccess={async () => {
                   await Promise.all([
@@ -505,9 +524,13 @@ function AiControlRoomPage() {
                 }
                 errorMessage="Falha ao gerar resultados."
                 onGenerate={() =>
-                  apiFetch<Array<unknown>>(`/results/ai-generate/${selectedEventId}`, {
-                    method: "POST",
-                  })
+                  unwrap(
+                    client.POST("/leagues/{league_id}/results/ai-generate/{event_id}", {
+                      params: {
+                        path: { league_id: Number(leagueId), event_id: Number(selectedEventId) },
+                      },
+                    }),
+                  )
                 }
                 onSuccess={async () => {
                   await Promise.all([
@@ -566,10 +589,14 @@ function AiControlRoomPage() {
                 }
                 errorMessage="Falha ao gerar narrativa."
                 onGenerate={() =>
-                  apiFetch("/narrative/generate", {
-                    method: "POST",
-                    params: { target_date: narrativeDate },
-                  })
+                  unwrap(
+                    client.POST("/leagues/{league_id}/narrative/generate", {
+                      params: {
+                        path: { league_id: Number(leagueId) },
+                        query: { target_date: narrativeDate },
+                      },
+                    }),
+                  )
                 }
                 onSuccess={async () => {
                   await invalidateAiSurface();

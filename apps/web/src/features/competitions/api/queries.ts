@@ -1,20 +1,17 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { apiFetch } from "@/shared/lib/api";
-import type {
-  CompetitionReportResponse,
-  CompetitionResponse,
-  GenerateSchedulePreviewResponse,
-} from "@/types/competitions";
+import { client, unwrap } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
 
 export const competitionListQueryOptions = (leagueId: number) =>
   queryOptions({
     queryKey: queryKeys.competitions.all(leagueId),
     queryFn: () =>
-      apiFetch<{ data: CompetitionResponse[] }>(`/leagues/${leagueId}/competitions`, {
-        params: { per_page: 100 },
-      }),
+      unwrap(
+        client.GET("/leagues/{league_id}/competitions", {
+          params: { path: { league_id: leagueId }, query: { per_page: 100 } },
+        }),
+      ),
     staleTime: 2 * 60 * 1000,
   });
 
@@ -22,8 +19,10 @@ export const competitionReportQueryOptions = (leagueId: number, competitionId: n
   queryOptions({
     queryKey: queryKeys.competitions.report(leagueId, competitionId),
     queryFn: () =>
-      apiFetch<CompetitionReportResponse>(
-        `/leagues/${leagueId}/report/competition/${competitionId}`,
+      unwrap(
+        client.GET("/leagues/{league_id}/report/competition/{competition_id}", {
+          params: { path: { league_id: leagueId, competition_id: competitionId } },
+        }),
       ),
     staleTime: 30 * 1000,
   });
@@ -32,7 +31,11 @@ export const competitionDetailQueryOptions = (leagueId: number, competitionId: n
   queryOptions({
     queryKey: queryKeys.competitions.detail(leagueId, competitionId),
     queryFn: () =>
-      apiFetch<CompetitionResponse>(`/leagues/${leagueId}/competitions/${competitionId}`),
+      unwrap(
+        client.GET("/leagues/{league_id}/competitions/{competition_id}", {
+          params: { path: { league_id: leagueId, competition_id: competitionId } },
+        }),
+      ),
     staleTime: 30 * 1000,
   });
 
@@ -40,9 +43,10 @@ export const competitionSchedulePreviewQueryOptions = (leagueId: number, competi
   queryOptions({
     queryKey: [...queryKeys.competitions.detail(leagueId, competitionId), "schedule-preview"],
     queryFn: () =>
-      apiFetch<GenerateSchedulePreviewResponse>(
-        `/leagues/${leagueId}/competitions/${competitionId}/generate-schedule`,
-        { method: "POST" },
+      unwrap(
+        client.POST("/leagues/{league_id}/competitions/{competition_id}/generate-schedule", {
+          params: { path: { league_id: leagueId, competition_id: competitionId } },
+        }),
       ),
     staleTime: 30 * 1000,
   });

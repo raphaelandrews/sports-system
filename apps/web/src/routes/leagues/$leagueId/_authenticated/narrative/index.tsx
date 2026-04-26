@@ -15,7 +15,7 @@ import { ScrollArea } from "@sports-system/ui/components/scroll-area";
 
 import { AiGenerateButton } from "@/features/narratives/components/ai-generate-button";
 import { NarrativeRichText } from "@/features/reports/components/narrative-rich-text";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatDate, formatEventDate } from "@/shared/lib/date";
 import {
   aiGenerationHistoryQueryOptions,
@@ -64,7 +64,11 @@ function NarrativePage() {
     queryKey: queryKeys.ai.narrative(Number(leagueId), selectedDate),
     queryFn: async () => {
       try {
-        return await apiFetch<NarrativeResponse>(`/narrative/${selectedDate}`);
+        return await unwrap(
+          client.GET("/leagues/{league_id}/narrative/{narrative_date}", {
+            params: { path: { league_id: Number(leagueId), narrative_date: selectedDate } },
+          }),
+        );
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           return null;
@@ -151,10 +155,14 @@ function NarrativePage() {
                 }
                 errorMessage="Falha ao gerar narrativa."
                 onGenerate={() =>
-                  apiFetch("/narrative/generate", {
-                    method: "POST",
-                    params: { target_date: selectedDate },
-                  })
+                  unwrap(
+                    client.POST("/leagues/{league_id}/narrative/generate", {
+                      params: {
+                        path: { league_id: Number(leagueId) },
+                        query: { target_date: selectedDate },
+                      },
+                    }),
+                  )
                 }
                 onSuccess={async () => {
                   await Promise.all([

@@ -21,7 +21,7 @@ import {
 } from "@sports-system/ui/components/select";
 import { cn } from "@sports-system/ui/lib/utils";
 
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatDate, formatTime } from "@/shared/lib/date";
 import { allEventsQueryOptions } from "@/features/events/api/queries";
 import { queryKeys } from "@/features/keys";
@@ -79,11 +79,13 @@ function CalendarPage() {
       if (!selectedCompetitionId) {
         throw new Error("Selecione uma competicao antes de gerar.");
       }
-      return apiFetch(
-        `/leagues/${leagueId}/events/ai-generate?competition_id=${selectedCompetitionId}`,
-        {
-          method: "POST",
-        },
+      return unwrap(
+        client.POST("/leagues/{league_id}/events/ai-generate", {
+          params: {
+            path: { league_id: Number(leagueId) },
+            query: { competition_id: selectedCompetitionId },
+          },
+        }),
       );
     },
     onSuccess: async () => {

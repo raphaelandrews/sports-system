@@ -24,7 +24,7 @@ import {
   ChiefDelegationUnavailable,
 } from "@/features/delegations/components/chief-delegation-shell";
 import { findManagedDelegation } from "@/shared/lib/chief-delegation";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatEventDate } from "@/shared/lib/date";
 import {
   delegationDetailQueryOptions,
@@ -66,9 +66,17 @@ function DelegationMembersPage() {
 
   const revokeMutation = useMutation({
     mutationFn: async (inviteId: number) =>
-      apiFetch<void>(`/delegations/${delegationId}/invites/${inviteId}`, {
-        method: "DELETE",
-      }),
+      unwrap(
+        client.DELETE("/leagues/{league_id}/delegations/{delegation_id}/invites/{invite_id}", {
+          params: {
+            path: {
+              league_id: Number(leagueId),
+              delegation_id: delegationId!,
+              invite_id: inviteId,
+            },
+          },
+        }),
+      ),
     onSuccess: async () => {
       if (!delegationId) return;
       await queryClient.invalidateQueries({

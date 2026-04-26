@@ -4,7 +4,7 @@ import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { ModalityForm } from "@/features/sports/components/modality-form";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
 import { sportDetailQueryOptions } from "@/features/sports/api/queries";
 import type { Gender } from "@/types/sports";
@@ -43,10 +43,12 @@ function EditModalityPage() {
       category?: string;
       rules_json: Record<string, unknown>;
     }) =>
-      apiFetch(`/modalities/${modalityNumber}`, {
-        method: "PATCH",
-        body: payload,
-      }),
+      unwrap(
+        client.PATCH("/modalities/{modality_id}", {
+          params: { path: { modality_id: modalityNumber } },
+          body: payload,
+        }),
+      ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.sports.detail(sportNumber),

@@ -21,7 +21,7 @@ import { cn } from "@sports-system/ui/lib/utils";
 import { toast } from "sonner";
 
 import { SportRulesForm } from "@/features/sports/components/sport-rules-form";
-import { ApiError, apiFetch } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { resolveRosterSize } from "@/shared/lib/sports";
 import { queryKeys } from "@/features/keys";
 import { sportDetailQueryOptions } from "@/features/sports/api/queries";
@@ -44,10 +44,12 @@ function SportDetailPage() {
 
   const rulesMutation = useMutation({
     mutationFn: (payload: { rules_json: Record<string, unknown> }) =>
-      apiFetch(`/sports/${sportNumber}`, {
-        method: "PATCH",
-        body: payload,
-      }),
+      unwrap(
+        client.PATCH("/sports/{sport_id}", {
+          params: { path: { sport_id: sportNumber } },
+          body: payload,
+        }),
+      ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.sports.detail(sportNumber),

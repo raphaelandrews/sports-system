@@ -23,7 +23,7 @@ import { cn } from "@sports-system/ui/lib/utils";
 
 import { Button } from "@sports-system/ui/components/button";
 import { MedalBoard } from "@/features/results/components/medal-board";
-import { apiFetchBlob, ApiError } from "@/shared/lib/api";
+import { unwrapBlob, ApiError } from "@/shared/lib/api";
 import { SportStandings } from "@/features/results/components/sport-standings";
 import { formatEventDate } from "@/shared/lib/date";
 import { finalReportQueryOptions } from "@/features/reports/api/queries";
@@ -43,13 +43,13 @@ export const Route = createFileRoute("/leagues/$leagueId/(public)/report/")({
   component: PublicReportPage,
 });
 
-async function triggerCsvDownload() {
-  const blob = await apiFetchBlob("/report/export/csv");
+async function triggerCsvDownload(leagueId: number) {
+  const blob = await unwrapBlob(`/leagues/${leagueId}/report/export/csv`);
   triggerBlobDownload(blob, "results.csv");
 }
 
-async function triggerXlsxDownload() {
-  const blob = await apiFetchBlob("/report/export/xlsx");
+async function triggerXlsxDownload(leagueId: number) {
+  const blob = await unwrapBlob(`/leagues/${leagueId}/report/export/xlsx`);
   triggerBlobDownload(blob, "results.xlsx");
 }
 
@@ -67,14 +67,14 @@ function PublicReportPage() {
   const numericLeagueId = Number(leagueId);
   const { data: report } = useSuspenseQuery(finalReportQueryOptions(numericLeagueId));
   const csvMutation = useMutation({
-    mutationFn: triggerCsvDownload,
+    mutationFn: () => triggerCsvDownload(numericLeagueId),
     onSuccess: () => toast.success("Exportação CSV iniciada."),
     onError: (error) => {
       toast.error(error instanceof ApiError ? error.message : "Falha ao exportar CSV.");
     },
   });
   const xlsxMutation = useMutation({
-    mutationFn: triggerXlsxDownload,
+    mutationFn: () => triggerXlsxDownload(numericLeagueId),
     onSuccess: () => toast.success("Exportação XLSX iniciada."),
     onError: (error) => {
       toast.error(error instanceof ApiError ? error.message : "Falha ao exportar XLSX.");

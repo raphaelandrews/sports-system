@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@sports-system/ui/components/select";
 
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
 import { sportListQueryOptions } from "@/features/sports/api/queries";
 import type { LeagueResponse } from "@/types/leagues";
@@ -54,11 +54,7 @@ function NewLeaguePage() {
       sports_config: number[];
       transfer_window_enabled: boolean;
       auto_simulate: boolean;
-    }) =>
-      apiFetch<LeagueResponse>("/leagues", {
-        method: "POST",
-        body: payload,
-      }),
+    }) => unwrap(client.POST("/leagues", { body: payload })),
     onSuccess: async (data: LeagueResponse) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.leagues.all() });
       toast.success("Liga criada com sucesso.");

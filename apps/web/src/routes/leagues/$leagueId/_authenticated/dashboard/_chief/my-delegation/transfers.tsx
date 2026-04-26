@@ -30,7 +30,7 @@ import {
   getTransferWindowMessage,
   isTransferWindowOpen,
 } from "@/shared/lib/chief-delegation";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatEventDate } from "@/shared/lib/date";
 import {
   delegationHistoryQueryOptions,
@@ -72,9 +72,17 @@ function TransferPanelPage() {
 
   const transferMutation = useMutation({
     mutationFn: async (targetUserId: number) =>
-      apiFetch(`/delegations/${delegationId}/transfer/${targetUserId}`, {
-        method: "POST",
-      }),
+      unwrap(
+        client.POST("/leagues/{league_id}/delegations/{delegation_id}/transfer/{user_id}", {
+          params: {
+            path: {
+              league_id: Number(leagueId),
+              delegation_id: delegationId!,
+              user_id: targetUserId,
+            },
+          },
+        }),
+      ),
     onSuccess: async () => {
       if (!delegationId) return;
       setUserId("");

@@ -1,26 +1,40 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { apiFetch } from "@/shared/lib/api";
+import { client, unwrap } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
-import type { AIGenerationResponse, NarrativeResponse } from "@/types/reports";
 
 export const aiGenerationHistoryQueryOptions = (leagueId: number) =>
   queryOptions({
     queryKey: queryKeys.ai.history(leagueId),
-    queryFn: () => apiFetch<AIGenerationResponse[]>(`/leagues/${leagueId}/ai/generation-history`),
+    queryFn: () =>
+      unwrap(
+        client.GET("/leagues/{league_id}/ai/generation-history", {
+          params: { path: { league_id: leagueId } },
+        }),
+      ),
     staleTime: 30_000,
   });
 
 export const narrativeTodayQueryOptions = (leagueId: number) =>
   queryOptions({
     queryKey: queryKeys.ai.narrative(leagueId, "today"),
-    queryFn: () => apiFetch<NarrativeResponse | null>(`/leagues/${leagueId}/narrative/today`),
+    queryFn: () =>
+      unwrap(
+        client.GET("/leagues/{league_id}/narrative/today", {
+          params: { path: { league_id: leagueId } },
+        }),
+      ),
     staleTime: 30_000,
   });
 
 export const narrativeByDateQueryOptions = (leagueId: number, targetDate: string) =>
   queryOptions({
     queryKey: queryKeys.ai.narrative(leagueId, targetDate),
-    queryFn: () => apiFetch<NarrativeResponse>(`/leagues/${leagueId}/narrative/${targetDate}`),
+    queryFn: () =>
+      unwrap(
+        client.GET("/leagues/{league_id}/narrative/{narrative_date}", {
+          params: { path: { league_id: leagueId, narrative_date: targetDate } },
+        }),
+      ),
     staleTime: 30_000,
   });

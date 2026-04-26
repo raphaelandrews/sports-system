@@ -38,7 +38,7 @@ import { cn } from "@sports-system/ui/lib/utils";
 
 import { EnrollmentStatusBadge } from "@/features/enrollments/components/enrollment-status-badge";
 import { findManagedDelegation } from "@/shared/lib/chief-delegation";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatDate, formatTime } from "@/shared/lib/date";
 import { athleteListQueryOptions } from "@/features/athletes/api/queries";
 import { competitionListQueryOptions } from "@/features/competitions/api/queries";
@@ -48,7 +48,7 @@ import { allEventsQueryOptions } from "@/features/events/api/queries";
 import { queryKeys } from "@/features/keys";
 import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sports/api/queries";
 import type { CompetitionResponse } from "@/types/competitions";
-import type { EnrollmentReview, EnrollmentStatus, EnrollmentResponse } from "@/types/enrollments";
+import type { EnrollmentReview, EnrollmentStatus } from "@/types/enrollments";
 
 const enrollmentsSearchSchema = z.object({
   q: z.string().optional(),
@@ -218,10 +218,12 @@ function EnrollmentsPage() {
       enrollmentId: number;
       payload: EnrollmentReview;
     }) =>
-      apiFetch<EnrollmentResponse>(`/enrollments/${enrollmentId}/review`, {
-        method: "PATCH",
-        body: payload,
-      }),
+      unwrap(
+        client.PATCH("/leagues/{league_id}/enrollments/{enrollment_id}/review", {
+          params: { path: { league_id: Number(leagueId), enrollment_id: enrollmentId } },
+          body: payload,
+        }),
+      ),
     onSuccess: async (_, variables) => {
       await refresh();
       toast.success(
@@ -235,9 +237,11 @@ function EnrollmentsPage() {
 
   const aiMutation = useMutation({
     mutationFn: async () =>
-      apiFetch<EnrollmentResponse[]>("/enrollments/ai-generate", {
-        method: "POST",
-      }),
+      unwrap(
+        client.POST("/leagues/{league_id}/enrollments/ai-generate", {
+          params: { path: { league_id: Number(leagueId) } },
+        }),
+      ),
     onSuccess: async (created) => {
       await refresh();
       toast.success(
@@ -253,9 +257,11 @@ function EnrollmentsPage() {
 
   const cancelMutation = useMutation({
     mutationFn: async (enrollmentId: number) =>
-      apiFetch<void>(`/enrollments/${enrollmentId}`, {
-        method: "DELETE",
-      }),
+      unwrap(
+        client.DELETE("/leagues/{league_id}/enrollments/{enrollment_id}", {
+          params: { path: { league_id: Number(leagueId), enrollment_id: enrollmentId } },
+        }),
+      ),
     onSuccess: async () => {
       await refresh();
       toast.success("Inscrição cancelada.");

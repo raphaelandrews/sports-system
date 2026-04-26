@@ -32,7 +32,7 @@ import {
 } from "@sports-system/ui/components/select";
 
 import { findManagedDelegation } from "@/shared/lib/chief-delegation";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatDate, formatTime } from "@/shared/lib/date";
 import { resolveRosterSize } from "@/shared/lib/sports";
 import { athleteListQueryOptions } from "@/features/athletes/api/queries";
@@ -278,10 +278,12 @@ function NewEnrollmentPage() {
 
   const mutation = useMutation({
     mutationFn: async (payload: EnrollmentCreate) =>
-      apiFetch("/enrollments", {
-        method: "POST",
-        body: payload,
-      }),
+      unwrap(
+        client.POST("/leagues/{league_id}/enrollments", {
+          params: { path: { league_id: Number(leagueId) } },
+          body: payload,
+        }),
+      ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.enrollments.all(Number(leagueId)),

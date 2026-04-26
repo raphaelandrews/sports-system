@@ -7,6 +7,7 @@
     "serve": "vite preview",
     "dev:bare": "vite dev",
     "gen:types": "openapi-typescript http://localhost:3000/openapi.json -o src/types/api.gen.ts",
+    "check:api": "openapi-typescript http://localhost:3000/openapi.json -o /tmp/api.gen.ts && diff -u src/types/api.gen.ts /tmp/api.gen.ts",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
@@ -27,6 +28,7 @@
     "lucide-react": "catalog:",
     "motion": "^12.38.0",
     "next-themes": "catalog:",
+    "openapi-fetch": "^0.17.0",
     "react": "catalog:",
     "react-dom": "catalog:",
     "sonner": "catalog:",

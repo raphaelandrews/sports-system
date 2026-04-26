@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sports-system/ui/components/select";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { buildApiUrl } from "@/shared/lib/url";
 import { athleteListQueryOptions } from "@/features/athletes/api/queries";
 import { delegationListQueryOptions } from "@/features/delegations/api/queries";
@@ -94,10 +94,12 @@ function MatchLivePage() {
 
   const eventMutation = useMutation({
     mutationFn: (payload: MatchEventCreate) =>
-      apiFetch(`/matches/${numericMatchId}/events`, {
-        method: "POST",
-        body: payload,
-      }),
+      unwrap(
+        client.POST("/matches/{match_id}/events", {
+          params: { path: { match_id: numericMatchId } },
+          body: payload,
+        }),
+      ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.matches.detail(numericMatchId) });
       toast.success("Evento registrado.");
@@ -110,13 +112,17 @@ function MatchLivePage() {
   const lifecycleMutation = useMutation({
     mutationFn: async (action: "start" | "finish" | "simulate") => {
       if (action === "simulate") {
-        return apiFetch(`/admin/simulate/match/${numericMatchId}`, {
-          method: "POST",
-        });
+        return unwrap(
+          client.POST("/leagues/{league_id}/admin/simulate/match/{match_id}", {
+            params: { path: { league_id: Number(leagueId), match_id: numericMatchId } },
+          }),
+        );
       }
-      return apiFetch(`/matches/${numericMatchId}/${action}`, {
-        method: "POST",
-      });
+      return unwrap(
+        client.POST(`/matches/{match_id}/${action}`, {
+          params: { path: { match_id: numericMatchId } },
+        }),
+      );
     },
     onSuccess: async (_, action) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.matches.detail(numericMatchId) });

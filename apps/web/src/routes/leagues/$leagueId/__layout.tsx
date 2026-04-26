@@ -8,12 +8,15 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@sports-system/ui/components/empty";
-import { apiFetch } from "@/shared/lib/api";
-import type { LeagueResponse } from "@/types/leagues";
+import { client, unwrap } from "@/shared/lib/api";
 
 export const Route = createFileRoute("/leagues/$leagueId/__layout")({
   beforeLoad: async ({ params }) => {
-    const league = await apiFetch<LeagueResponse>(`/leagues/${params.leagueId}`);
+    const league = await unwrap(
+      client.GET("/leagues/{league_id}", {
+        params: { path: { league_id: Number(params.leagueId) } },
+      }),
+    );
     return { league };
   },
   errorComponent: LeagueNotFound,

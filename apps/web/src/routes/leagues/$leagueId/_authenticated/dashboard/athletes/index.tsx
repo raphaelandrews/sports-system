@@ -31,11 +31,10 @@ import {
 import { cn } from "@sports-system/ui/lib/utils";
 import { ArrowLeftRight, Bot, Search, UserPlus } from "lucide-react";
 
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatDate } from "@/shared/lib/date";
 import { athleteListQueryOptions } from "@/features/athletes/api/queries";
 import { queryKeys } from "@/features/keys";
-import type { AthleteResponse } from "@/types/athletes";
 
 const athletesSearchSchema = z.object({
   q: z.string().optional(),
@@ -75,7 +74,12 @@ function AthletesPage() {
   const dir = searchState.dir ?? "asc";
 
   const aiMutation = useMutation({
-    mutationFn: async () => apiFetch<AthleteResponse>("/athletes/ai-generate", { method: "POST" }),
+    mutationFn: async () =>
+      unwrap(
+        client.POST("/leagues/{league_id}/athletes/ai-generate", {
+          params: { path: { league_id: Number(leagueId) } },
+        }),
+      ),
     onSuccess: async (athlete) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.athletes.all(Number(leagueId)) });
       toast.success(`Atleta gerado com IA: ${athlete.name}.`);

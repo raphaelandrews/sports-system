@@ -1,23 +1,32 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { apiFetch } from "@/shared/lib/api";
-import type { EventDetailResponse, EventResponse } from "@/types/events";
+import { client, unwrap } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
 
 export const competitionEventsQueryOptions = (leagueId: number, competitionId: number) =>
   queryOptions({
     queryKey: queryKeys.events.byCompetition(leagueId, competitionId),
     queryFn: () =>
-      apiFetch<{ data: EventResponse[] }>(`/leagues/${leagueId}/events`, {
-        params: { competition_id: competitionId, per_page: 100 },
-      }),
+      unwrap(
+        client.GET("/leagues/{league_id}/events", {
+          params: {
+            path: { league_id: leagueId },
+            query: { competition_id: competitionId, per_page: 100 },
+          },
+        }),
+      ),
     staleTime: 2 * 60 * 1000,
   });
 
 export const eventDetailQueryOptions = (leagueId: number, eventId: number) =>
   queryOptions({
     queryKey: queryKeys.events.detail(leagueId, eventId),
-    queryFn: () => apiFetch<EventDetailResponse>(`/leagues/${leagueId}/events/${eventId}`),
+    queryFn: () =>
+      unwrap(
+        client.GET("/leagues/{league_id}/events/{event_id}", {
+          params: { path: { league_id: leagueId, event_id: eventId } },
+        }),
+      ),
     staleTime: 2 * 60 * 1000,
   });
 
@@ -34,8 +43,13 @@ export const allEventsQueryOptions = (
   queryOptions({
     queryKey: [...queryKeys.events.all(leagueId), params ?? {}],
     queryFn: () =>
-      apiFetch<{ data: EventResponse[]; meta: { total: number } }>(`/leagues/${leagueId}/events`, {
-        params: { per_page: 20, ...params },
-      }),
+      unwrap(
+        client.GET("/leagues/{league_id}/events", {
+          params: {
+            path: { league_id: leagueId },
+            query: { per_page: 20, ...params },
+          },
+        }),
+      ),
     staleTime: 2 * 60 * 1000,
   });

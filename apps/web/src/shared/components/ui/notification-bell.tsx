@@ -6,7 +6,7 @@ import { ScrollArea } from "@sports-system/ui/components/scroll-area";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notificationsQueryOptions } from "@/features/notifications/api/queries";
 import { queryKeys } from "@/features/keys";
-import { apiFetch } from "@/shared/lib/api";
+import { client, unwrap } from "@/shared/lib/api";
 import { formatEventDate } from "@/shared/lib/date";
 import type { InvitePayload, NotificationResponse, NotificationType } from "@/types/notifications";
 
@@ -57,9 +57,9 @@ function NotificationItem({ notif, onMarkRead }: NotificationItemProps) {
 
   const acceptMutation = useMutation({
     mutationFn: (inviteId: number) =>
-      apiFetch<{ status: string }>(`/invites/${inviteId}/accept`, {
-        method: "POST",
-      }),
+      unwrap(
+        client.POST("/invites/{invite_id}/accept", { params: { path: { invite_id: inviteId } } }),
+      ),
     onSuccess: () => {
       onMarkRead(notif.id);
       void queryClient.invalidateQueries({
@@ -70,9 +70,9 @@ function NotificationItem({ notif, onMarkRead }: NotificationItemProps) {
 
   const refuseMutation = useMutation({
     mutationFn: (inviteId: number) =>
-      apiFetch<{ status: string }>(`/invites/${inviteId}/refuse`, {
-        method: "POST",
-      }),
+      unwrap(
+        client.POST("/invites/{invite_id}/refuse", { params: { path: { invite_id: inviteId } } }),
+      ),
     onSuccess: () => onMarkRead(notif.id),
   });
 
@@ -133,7 +133,11 @@ export function NotificationBell({ userId }: NotificationBellProps) {
 
   const markReadMutation = useMutation({
     mutationFn: (notifId: number) =>
-      apiFetch(`/users/notifications/${notifId}/read`, { method: "PATCH" }),
+      unwrap(
+        client.PATCH("/users/notifications/{notification_id}/read", {
+          params: { path: { notification_id: notifId } },
+        }),
+      ),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.notifications.list(userId),
@@ -142,10 +146,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
   });
 
   const markAllReadMutation = useMutation({
-    mutationFn: () =>
-      apiFetch<{ updated: number }>("/users/notifications/read-all", {
-        method: "PATCH",
-      }),
+    mutationFn: () => unwrap(client.PATCH("/users/notifications/read-all")),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.notifications.list(userId),

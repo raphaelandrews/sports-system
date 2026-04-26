@@ -1,13 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { apiFetch } from "@/shared/lib/api";
+import { client, unwrap } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
-import type { EnrollmentResponse, EnrollmentStatus } from "@/types/enrollments";
-
-interface PaginatedResponse<T> {
-  data: T[];
-  meta: { total: number; page: number; per_page: number };
-}
+import type { EnrollmentStatus } from "@/types/enrollments";
 
 export const enrollmentListQueryOptions = (
   leagueId: number,
@@ -22,8 +17,13 @@ export const enrollmentListQueryOptions = (
   queryOptions({
     queryKey: queryKeys.enrollments.list(leagueId, params),
     queryFn: () =>
-      apiFetch<PaginatedResponse<EnrollmentResponse>>(`/leagues/${leagueId}/enrollments`, {
-        params: { page: 1, per_page: 50, ...params },
-      }),
+      unwrap(
+        client.GET("/leagues/{league_id}/enrollments", {
+          params: {
+            path: { league_id: leagueId },
+            query: { page: 1, per_page: 50, ...params },
+          },
+        }),
+      ),
     staleTime: 60_000,
   });

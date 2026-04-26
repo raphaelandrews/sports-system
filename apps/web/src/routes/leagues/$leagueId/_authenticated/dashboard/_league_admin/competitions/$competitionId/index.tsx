@@ -12,7 +12,7 @@ import {
 } from "@sports-system/ui/components/card";
 import { cn } from "@sports-system/ui/lib/utils";
 
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatDate } from "@/shared/lib/date";
 import { competitionEventsQueryOptions } from "@/features/events/api/queries";
 import { queryKeys } from "@/features/keys";
@@ -21,7 +21,7 @@ import {
   competitionDetailQueryOptions,
   competitionSchedulePreviewQueryOptions,
 } from "@/features/competitions/api/queries";
-import type { CompetitionResponse, CompetitionStatus } from "@/types/competitions";
+import type { CompetitionStatus } from "@/types/competitions";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_league_admin/competitions/$competitionId/",
@@ -80,9 +80,11 @@ function CompetitionDetailPage() {
 
   const transitionMutation = useMutation({
     mutationFn: async (action: "publish" | "lock" | "activate" | "complete") =>
-      apiFetch<CompetitionResponse>(`/competitions/${competitionNumber}/${action}`, {
-        method: "POST",
-      }),
+      unwrap(
+        client.POST(`/leagues/{league_id}/competitions/{competition_id}/${action}`, {
+          params: { path: { league_id: Number(leagueId), competition_id: competitionNumber } },
+        }),
+      ),
     onSuccess: async (_, action) => {
       await refreshCompetition();
       toast.success(`Competicao ${transitionVerb[action]} com sucesso.`);

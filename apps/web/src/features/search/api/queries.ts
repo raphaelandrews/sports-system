@@ -1,18 +1,21 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { apiFetch } from "@/shared/lib/api";
+import { client, unwrap } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
-import type { GlobalSearchResponse } from "@/types/search";
 
 export const globalSearchQueryOptions = (query: string, leagueId?: number) =>
   queryOptions({
     queryKey: queryKeys.search.global(query, leagueId),
-    queryFn: () =>
-      apiFetch<GlobalSearchResponse>(
-        leagueId ? `/leagues/${leagueId}/search/global` : "/search/global",
-        {
-          params: { q: query, limit: 8 },
-        },
-      ),
+    queryFn: () => {
+      if (!leagueId) throw new Error("leagueId is required");
+      return unwrap(
+        client.GET("/leagues/{league_id}/search/global", {
+          params: {
+            path: { league_id: leagueId },
+            query: { q: query, limit: 8 },
+          },
+        }),
+      );
+    },
     staleTime: 30 * 1000,
   });

@@ -3,10 +3,10 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { toast } from "sonner";
 
 import { AdminDelegationForm } from "@/features/delegations/components/admin-delegation-form";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { delegationDetailQueryOptions } from "@/features/delegations/api/queries";
 import { queryKeys } from "@/features/keys";
-import type { DelegationResponse, DelegationUpdateInput } from "@/types/delegations";
+import type { DelegationUpdateInput } from "@/types/delegations";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_league_admin/delegations/$delegationId/edit",
@@ -31,10 +31,12 @@ function EditDelegationPage() {
 
   const mutation = useMutation({
     mutationFn: (payload: DelegationUpdateInput) =>
-      apiFetch<DelegationResponse>(`/delegations/${delegationNumber}`, {
-        method: "PATCH",
-        body: payload,
-      }),
+      unwrap(
+        client.PATCH("/leagues/{league_id}/delegations/{delegation_id}", {
+          params: { path: { league_id: Number(leagueId), delegation_id: delegationNumber } },
+          body: payload,
+        }),
+      ),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({

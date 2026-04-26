@@ -11,7 +11,7 @@ Backend startup runs this sequence inside FastAPI `lifespan`:
 Source:
 
 - [`apps/api/app/main.py`](/home/raphael/Documents/projects/sports-system/apps/api/app/main.py:67)
-- [`apps/api/app/services/seed_service.py`](/home/raphael/Documents/projects/sports-system/apps/api/app/services/seed_service.py:774)
+- [`apps/api/app/features/admin/service.py`](/home/raphael/Documents/projects/sports-system/apps/api/app/features/admin/service.py:774)
 
 ## `seed_sports()`
 
@@ -81,7 +81,7 @@ curl -X POST http://localhost:3000/auth/register \
   }'
 ```
 
-Password rules from [`apps/api/app/schemas/auth.py`](/home/raphael/Documents/projects/sports-system/apps/api/app/schemas/auth.py:6):
+Password rules from [`apps/api/app/domain/schemas/auth.py`](/home/raphael/Documents/projects/sports-system/apps/api/app/domain/schemas/auth.py:6):
 
 - at least 8 chars
 - at least 1 uppercase letter
@@ -105,7 +105,7 @@ Endpoint:
 
 Source:
 
-- [`apps/api/app/routers/admin.py`](/home/raphael/Documents/projects/sports-system/apps/api/app/routers/admin.py:49)
+- [`apps/api/app/features/admin/router.py`](/home/raphael/Documents/projects/sports-system/apps/api/app/features/admin/router.py:49)
 
 Requirements:
 

@@ -294,7 +294,113 @@ export interface paths {
     patch: operations["mark_notification_read_users_notifications__notification_id__read_patch"];
     trace?: never;
   };
-  "/delegations": {
+  "/leagues": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Leagues */
+    get: operations["list_leagues_leagues_get"];
+    put?: never;
+    /** Create League */
+    post: operations["create_league_leagues_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/leagues/my": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get My Leagues */
+    get: operations["get_my_leagues_leagues_my_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/leagues/{league_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get League */
+    get: operations["get_league_leagues__league_id__get"];
+    put?: never;
+    post?: never;
+    /** Archive League */
+    delete: operations["archive_league_leagues__league_id__delete"];
+    options?: never;
+    head?: never;
+    /** Update League */
+    patch: operations["update_league_leagues__league_id__patch"];
+    trace?: never;
+  };
+  "/leagues/{league_id}/members": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Members */
+    get: operations["list_members_leagues__league_id__members_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/leagues/{league_id}/members/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get My Membership */
+    get: operations["get_my_membership_leagues__league_id__members_me_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/leagues/{league_id}/members/{user_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Remove Member */
+    delete: operations["remove_member_leagues__league_id__members__user_id__delete"];
+    options?: never;
+    head?: never;
+    /** Update Member Role */
+    patch: operations["update_member_role_leagues__league_id__members__user_id__patch"];
+    trace?: never;
+  };
+  "/leagues/{league_id}/delegations": {
     parameters: {
       query?: never;
       header?: never;
@@ -302,17 +408,17 @@ export interface paths {
       cookie?: never;
     };
     /** List Delegations */
-    get: operations["list_delegations_delegations_get"];
+    get: operations["list_delegations_leagues__league_id__delegations_get"];
     put?: never;
     /** Create Delegation */
-    post: operations["create_delegation_delegations_post"];
+    post: operations["create_delegation_leagues__league_id__delegations_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/delegations/ai-generate": {
+  "/leagues/{league_id}/delegations/ai-generate": {
     parameters: {
       query?: never;
       header?: never;
@@ -322,14 +428,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Ai Generate Delegations */
-    post: operations["ai_generate_delegations_delegations_ai_generate_post"];
+    post: operations["ai_generate_delegations_leagues__league_id__delegations_ai_generate_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/delegations/{delegation_id}": {
+  "/leagues/{league_id}/delegations/{delegation_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -337,18 +443,18 @@ export interface paths {
       cookie?: never;
     };
     /** Get Delegation */
-    get: operations["get_delegation_delegations__delegation_id__get"];
+    get: operations["get_delegation_leagues__league_id__delegations__delegation_id__get"];
     put?: never;
     post?: never;
     /** Archive Delegation */
-    delete: operations["archive_delegation_delegations__delegation_id__delete"];
+    delete: operations["archive_delegation_leagues__league_id__delegations__delegation_id__delete"];
     options?: never;
     head?: never;
     /** Update Delegation */
-    patch: operations["update_delegation_delegations__delegation_id__patch"];
+    patch: operations["update_delegation_leagues__league_id__delegations__delegation_id__patch"];
     trace?: never;
   };
-  "/delegations/{delegation_id}/statistics": {
+  "/leagues/{league_id}/delegations/{delegation_id}/statistics": {
     parameters: {
       query?: never;
       header?: never;
@@ -356,7 +462,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Delegation Statistics */
-    get: operations["get_delegation_statistics_delegations__delegation_id__statistics_get"];
+    get: operations["get_delegation_statistics_leagues__league_id__delegations__delegation_id__statistics_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -365,7 +471,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/delegations/{delegation_id}/history": {
+  "/leagues/{league_id}/delegations/{delegation_id}/history": {
     parameters: {
       query?: never;
       header?: never;
@@ -373,7 +479,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Member History */
-    get: operations["get_member_history_delegations__delegation_id__history_get"];
+    get: operations["get_member_history_leagues__league_id__delegations__delegation_id__history_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -382,7 +488,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/delegations/{delegation_id}/invite": {
+  "/leagues/{league_id}/delegations/{delegation_id}/invite": {
     parameters: {
       query?: never;
       header?: never;
@@ -392,14 +498,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Invite User */
-    post: operations["invite_user_delegations__delegation_id__invite_post"];
+    post: operations["invite_user_leagues__league_id__delegations__delegation_id__invite_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/delegations/{delegation_id}/invites": {
+  "/leagues/{league_id}/delegations/{delegation_id}/invites": {
     parameters: {
       query?: never;
       header?: never;
@@ -407,7 +513,7 @@ export interface paths {
       cookie?: never;
     };
     /** List Invites */
-    get: operations["list_invites_delegations__delegation_id__invites_get"];
+    get: operations["list_invites_leagues__league_id__delegations__delegation_id__invites_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -416,7 +522,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/delegations/{delegation_id}/invites/{invite_id}": {
+  "/leagues/{league_id}/delegations/{delegation_id}/invites/{invite_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -427,13 +533,13 @@ export interface paths {
     put?: never;
     post?: never;
     /** Revoke Invite */
-    delete: operations["revoke_invite_delegations__delegation_id__invites__invite_id__delete"];
+    delete: operations["revoke_invite_leagues__league_id__delegations__delegation_id__invites__invite_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/delegations/{delegation_id}/transfer/{user_id}": {
+  "/leagues/{league_id}/delegations/{delegation_id}/transfer/{user_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -443,7 +549,7 @@ export interface paths {
     get?: never;
     put?: never;
     /** Transfer Athlete */
-    post: operations["transfer_athlete_delegations__delegation_id__transfer__user_id__post"];
+    post: operations["transfer_athlete_leagues__league_id__delegations__delegation_id__transfer__user_id__post"];
     delete?: never;
     options?: never;
     head?: never;
@@ -573,7 +679,7 @@ export interface paths {
     patch: operations["update_modality_modalities__modality_id__patch"];
     trace?: never;
   };
-  "/athletes": {
+  "/leagues/{league_id}/athletes": {
     parameters: {
       query?: never;
       header?: never;
@@ -581,17 +687,17 @@ export interface paths {
       cookie?: never;
     };
     /** List Athletes */
-    get: operations["list_athletes_athletes_get"];
+    get: operations["list_athletes_leagues__league_id__athletes_get"];
     put?: never;
     /** Create Athlete */
-    post: operations["create_athlete_athletes_post"];
+    post: operations["create_athlete_leagues__league_id__athletes_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/athletes/ai-generate": {
+  "/leagues/{league_id}/athletes/ai-generate": {
     parameters: {
       query?: never;
       header?: never;
@@ -601,14 +707,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Ai Generate */
-    post: operations["ai_generate_athletes_ai_generate_post"];
+    post: operations["ai_generate_leagues__league_id__athletes_ai_generate_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/athletes/{athlete_id}": {
+  "/leagues/{league_id}/athletes/{athlete_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -616,18 +722,18 @@ export interface paths {
       cookie?: never;
     };
     /** Get Athlete */
-    get: operations["get_athlete_athletes__athlete_id__get"];
+    get: operations["get_athlete_leagues__league_id__athletes__athlete_id__get"];
     put?: never;
     post?: never;
     /** Archive Athlete */
-    delete: operations["archive_athlete_athletes__athlete_id__delete"];
+    delete: operations["archive_athlete_leagues__league_id__athletes__athlete_id__delete"];
     options?: never;
     head?: never;
     /** Update Athlete */
-    patch: operations["update_athlete_athletes__athlete_id__patch"];
+    patch: operations["update_athlete_leagues__league_id__athletes__athlete_id__patch"];
     trace?: never;
   };
-  "/athletes/{athlete_id}/history": {
+  "/leagues/{league_id}/athletes/{athlete_id}/history": {
     parameters: {
       query?: never;
       header?: never;
@@ -635,7 +741,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get History */
-    get: operations["get_history_athletes__athlete_id__history_get"];
+    get: operations["get_history_leagues__league_id__athletes__athlete_id__history_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -644,7 +750,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/athletes/{athlete_id}/statistics": {
+  "/leagues/{league_id}/athletes/{athlete_id}/statistics": {
     parameters: {
       query?: never;
       header?: never;
@@ -652,7 +758,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Statistics */
-    get: operations["get_statistics_athletes__athlete_id__statistics_get"];
+    get: operations["get_statistics_leagues__league_id__athletes__athlete_id__statistics_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -661,7 +767,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/competitions": {
+  "/leagues/{league_id}/competitions": {
     parameters: {
       query?: never;
       header?: never;
@@ -669,17 +775,17 @@ export interface paths {
       cookie?: never;
     };
     /** List Competitions */
-    get: operations["list_competitions_competitions_get"];
+    get: operations["list_competitions_leagues__league_id__competitions_get"];
     put?: never;
     /** Create Competition */
-    post: operations["create_competition_competitions_post"];
+    post: operations["create_competition_leagues__league_id__competitions_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/competitions/{competition_id}": {
+  "/leagues/{league_id}/competitions/{competition_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -687,17 +793,17 @@ export interface paths {
       cookie?: never;
     };
     /** Get Competition */
-    get: operations["get_competition_competitions__competition_id__get"];
+    get: operations["get_competition_leagues__league_id__competitions__competition_id__get"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
     /** Update Competition */
-    patch: operations["update_competition_competitions__competition_id__patch"];
+    patch: operations["update_competition_leagues__league_id__competitions__competition_id__patch"];
     trace?: never;
   };
-  "/competitions/{competition_id}/publish": {
+  "/leagues/{league_id}/competitions/{competition_id}/publish": {
     parameters: {
       query?: never;
       header?: never;
@@ -707,14 +813,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Publish Competition */
-    post: operations["publish_competition_competitions__competition_id__publish_post"];
+    post: operations["publish_competition_leagues__league_id__competitions__competition_id__publish_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/competitions/{competition_id}/lock": {
+  "/leagues/{league_id}/competitions/{competition_id}/lock": {
     parameters: {
       query?: never;
       header?: never;
@@ -724,14 +830,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Lock Competition */
-    post: operations["lock_competition_competitions__competition_id__lock_post"];
+    post: operations["lock_competition_leagues__league_id__competitions__competition_id__lock_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/competitions/{competition_id}/activate": {
+  "/leagues/{league_id}/competitions/{competition_id}/activate": {
     parameters: {
       query?: never;
       header?: never;
@@ -741,14 +847,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Activate Competition */
-    post: operations["activate_competition_competitions__competition_id__activate_post"];
+    post: operations["activate_competition_leagues__league_id__competitions__competition_id__activate_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/competitions/{competition_id}/complete": {
+  "/leagues/{league_id}/competitions/{competition_id}/complete": {
     parameters: {
       query?: never;
       header?: never;
@@ -758,14 +864,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Complete Competition */
-    post: operations["complete_competition_competitions__competition_id__complete_post"];
+    post: operations["complete_competition_leagues__league_id__competitions__competition_id__complete_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/competitions/{competition_id}/generate-schedule": {
+  "/leagues/{league_id}/competitions/{competition_id}/generate-schedule": {
     parameters: {
       query?: never;
       header?: never;
@@ -775,14 +881,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Generate Schedule Preview */
-    post: operations["generate_schedule_preview_competitions__competition_id__generate_schedule_post"];
+    post: operations["generate_schedule_preview_leagues__league_id__competitions__competition_id__generate_schedule_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/activities": {
+  "/leagues/{league_id}/activities": {
     parameters: {
       query?: never;
       header?: never;
@@ -790,7 +896,7 @@ export interface paths {
       cookie?: never;
     };
     /** List Activity Feed */
-    get: operations["list_activity_feed_activities_get"];
+    get: operations["list_activity_feed_leagues__league_id__activities_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -799,7 +905,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/activities/stream": {
+  "/leagues/{league_id}/activities/stream": {
     parameters: {
       query?: never;
       header?: never;
@@ -807,7 +913,7 @@ export interface paths {
       cookie?: never;
     };
     /** Stream Activity Feed */
-    get: operations["stream_activity_feed_activities_stream_get"];
+    get: operations["stream_activity_feed_leagues__league_id__activities_stream_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -816,7 +922,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/events": {
+  "/leagues/{league_id}/events": {
     parameters: {
       query?: never;
       header?: never;
@@ -824,17 +930,17 @@ export interface paths {
       cookie?: never;
     };
     /** List Events */
-    get: operations["list_events_events_get"];
+    get: operations["list_events_leagues__league_id__events_get"];
     put?: never;
     /** Create Event */
-    post: operations["create_event_events_post"];
+    post: operations["create_event_leagues__league_id__events_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/events/ai-generate": {
+  "/leagues/{league_id}/events/ai-generate": {
     parameters: {
       query?: never;
       header?: never;
@@ -844,14 +950,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Ai Generate Schedule */
-    post: operations["ai_generate_schedule_events_ai_generate_post"];
+    post: operations["ai_generate_schedule_leagues__league_id__events_ai_generate_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/events/{event_id}": {
+  "/leagues/{league_id}/events/{event_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -859,15 +965,15 @@ export interface paths {
       cookie?: never;
     };
     /** Get Event */
-    get: operations["get_event_events__event_id__get"];
+    get: operations["get_event_leagues__league_id__events__event_id__get"];
     put?: never;
     post?: never;
     /** Cancel Event */
-    delete: operations["cancel_event_events__event_id__delete"];
+    delete: operations["cancel_event_leagues__league_id__events__event_id__delete"];
     options?: never;
     head?: never;
     /** Update Event */
-    patch: operations["update_event_events__event_id__patch"];
+    patch: operations["update_event_leagues__league_id__events__event_id__patch"];
     trace?: never;
   };
   "/matches/{match_id}": {
@@ -956,7 +1062,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/enrollments": {
+  "/leagues/{league_id}/enrollments": {
     parameters: {
       query?: never;
       header?: never;
@@ -964,17 +1070,17 @@ export interface paths {
       cookie?: never;
     };
     /** List Enrollments */
-    get: operations["list_enrollments_enrollments_get"];
+    get: operations["list_enrollments_leagues__league_id__enrollments_get"];
     put?: never;
     /** Create Enrollment */
-    post: operations["create_enrollment_enrollments_post"];
+    post: operations["create_enrollment_leagues__league_id__enrollments_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/enrollments/ai-generate": {
+  "/leagues/{league_id}/enrollments/ai-generate": {
     parameters: {
       query?: never;
       header?: never;
@@ -984,14 +1090,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Ai Generate */
-    post: operations["ai_generate_enrollments_ai_generate_post"];
+    post: operations["ai_generate_leagues__league_id__enrollments_ai_generate_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/enrollments/{enrollment_id}": {
+  "/leagues/{league_id}/enrollments/{enrollment_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1002,13 +1108,13 @@ export interface paths {
     put?: never;
     post?: never;
     /** Cancel Enrollment */
-    delete: operations["cancel_enrollment_enrollments__enrollment_id__delete"];
+    delete: operations["cancel_enrollment_leagues__league_id__enrollments__enrollment_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/enrollments/{enrollment_id}/review": {
+  "/leagues/{league_id}/enrollments/{enrollment_id}/review": {
     parameters: {
       query?: never;
       header?: never;
@@ -1022,10 +1128,10 @@ export interface paths {
     options?: never;
     head?: never;
     /** Review Enrollment */
-    patch: operations["review_enrollment_enrollments__enrollment_id__review_patch"];
+    patch: operations["review_enrollment_leagues__league_id__enrollments__enrollment_id__review_patch"];
     trace?: never;
   };
-  "/results": {
+  "/leagues/{league_id}/results": {
     parameters: {
       query?: never;
       header?: never;
@@ -1033,17 +1139,17 @@ export interface paths {
       cookie?: never;
     };
     /** List Results */
-    get: operations["list_results_results_get"];
+    get: operations["list_results_leagues__league_id__results_get"];
     put?: never;
     /** Create Result */
-    post: operations["create_result_results_post"];
+    post: operations["create_result_leagues__league_id__results_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/results/medal-board": {
+  "/leagues/{league_id}/results/medal-board": {
     parameters: {
       query?: never;
       header?: never;
@@ -1051,7 +1157,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Medal Board */
-    get: operations["get_medal_board_results_medal_board_get"];
+    get: operations["get_medal_board_leagues__league_id__results_medal_board_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1060,7 +1166,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/results/medal-board/stream": {
+  "/leagues/{league_id}/results/medal-board/stream": {
     parameters: {
       query?: never;
       header?: never;
@@ -1068,7 +1174,7 @@ export interface paths {
       cookie?: never;
     };
     /** Stream Medal Board */
-    get: operations["stream_medal_board_results_medal_board_stream_get"];
+    get: operations["stream_medal_board_leagues__league_id__results_medal_board_stream_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1077,7 +1183,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/results/medal-board/{sport_id}": {
+  "/leagues/{league_id}/results/medal-board/{sport_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1085,7 +1191,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Medal Board By Sport */
-    get: operations["get_medal_board_by_sport_results_medal_board__sport_id__get"];
+    get: operations["get_medal_board_by_sport_leagues__league_id__results_medal_board__sport_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1094,7 +1200,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/results/records": {
+  "/leagues/{league_id}/results/records": {
     parameters: {
       query?: never;
       header?: never;
@@ -1102,7 +1208,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Records */
-    get: operations["get_records_results_records_get"];
+    get: operations["get_records_leagues__league_id__results_records_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1111,7 +1217,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/results/standings/{modality_id}": {
+  "/leagues/{league_id}/results/standings/{modality_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1119,7 +1225,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Standings */
-    get: operations["get_standings_results_standings__modality_id__get"];
+    get: operations["get_standings_leagues__league_id__results_standings__modality_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1128,7 +1234,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/results/ai-generate/{event_id}": {
+  "/leagues/{league_id}/results/ai-generate/{event_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1138,14 +1244,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Ai Generate */
-    post: operations["ai_generate_results_ai_generate__event_id__post"];
+    post: operations["ai_generate_leagues__league_id__results_ai_generate__event_id__post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/results/{result_id}": {
+  "/leagues/{league_id}/results/{result_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1159,10 +1265,10 @@ export interface paths {
     options?: never;
     head?: never;
     /** Update Result */
-    patch: operations["update_result_results__result_id__patch"];
+    patch: operations["update_result_leagues__league_id__results__result_id__patch"];
     trace?: never;
   };
-  "/search/global": {
+  "/leagues/{league_id}/search/global": {
     parameters: {
       query?: never;
       header?: never;
@@ -1170,7 +1276,7 @@ export interface paths {
       cookie?: never;
     };
     /** Global Search */
-    get: operations["global_search_search_global_get"];
+    get: operations["global_search_leagues__league_id__search_global_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1179,7 +1285,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/report/final": {
+  "/leagues/{league_id}/report/final": {
     parameters: {
       query?: never;
       header?: never;
@@ -1187,7 +1293,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Final Report */
-    get: operations["get_final_report_report_final_get"];
+    get: operations["get_final_report_leagues__league_id__report_final_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1196,7 +1302,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/report/competition/{competition_id}": {
+  "/leagues/{league_id}/report/competition/{competition_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1204,7 +1310,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Competition Report */
-    get: operations["get_competition_report_report_competition__competition_id__get"];
+    get: operations["get_competition_report_leagues__league_id__report_competition__competition_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1213,7 +1319,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/report/athlete/{athlete_id}": {
+  "/leagues/{league_id}/report/athlete/{athlete_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1221,7 +1327,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Athlete Report */
-    get: operations["get_athlete_report_report_athlete__athlete_id__get"];
+    get: operations["get_athlete_report_leagues__league_id__report_athlete__athlete_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1230,7 +1336,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/report/export/csv": {
+  "/leagues/{league_id}/report/export/csv": {
     parameters: {
       query?: never;
       header?: never;
@@ -1238,7 +1344,7 @@ export interface paths {
       cookie?: never;
     };
     /** Export Csv */
-    get: operations["export_csv_report_export_csv_get"];
+    get: operations["export_csv_leagues__league_id__report_export_csv_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1247,7 +1353,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/report/export/xlsx": {
+  "/leagues/{league_id}/report/export/xlsx": {
     parameters: {
       query?: never;
       header?: never;
@@ -1255,7 +1361,7 @@ export interface paths {
       cookie?: never;
     };
     /** Export Xlsx */
-    get: operations["export_xlsx_report_export_xlsx_get"];
+    get: operations["export_xlsx_leagues__league_id__report_export_xlsx_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1264,7 +1370,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/narrative/today": {
+  "/leagues/{league_id}/narrative/today": {
     parameters: {
       query?: never;
       header?: never;
@@ -1272,7 +1378,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Today */
-    get: operations["get_today_narrative_today_get"];
+    get: operations["get_today_leagues__league_id__narrative_today_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1281,7 +1387,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/narrative/{narrative_date}": {
+  "/leagues/{league_id}/narrative/{narrative_date}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1289,7 +1395,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get For Date */
-    get: operations["get_for_date_narrative__narrative_date__get"];
+    get: operations["get_for_date_leagues__league_id__narrative__narrative_date__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1298,7 +1404,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/narrative/generate": {
+  "/leagues/{league_id}/narrative/generate": {
     parameters: {
       query?: never;
       header?: never;
@@ -1308,14 +1414,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Generate Narrative */
-    post: operations["generate_narrative_narrative_generate_post"];
+    post: operations["generate_narrative_leagues__league_id__narrative_generate_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/ai/generation-history": {
+  "/leagues/{league_id}/ai/generation-history": {
     parameters: {
       query?: never;
       header?: never;
@@ -1323,7 +1429,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Generation History */
-    get: operations["get_generation_history_ai_generation_history_get"];
+    get: operations["get_generation_history_leagues__league_id__ai_generation_history_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1332,7 +1438,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/admin/demo-seed": {
+  "/leagues/{league_id}/admin/seed": {
     parameters: {
       query?: never;
       header?: never;
@@ -1341,15 +1447,15 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Demo Seed */
-    post: operations["demo_seed_admin_demo_seed_post"];
+    /** Seed */
+    post: operations["seed_leagues__league_id__admin_seed_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/admin/simulate/match/{match_id}": {
+  "/leagues/{league_id}/admin/simulate/match/{match_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1359,7 +1465,7 @@ export interface paths {
     get?: never;
     put?: never;
     /** Simulate Match */
-    post: operations["simulate_match_admin_simulate_match__match_id__post"];
+    post: operations["simulate_match_leagues__league_id__admin_simulate_match__match_id__post"];
     delete?: never;
     options?: never;
     head?: never;
@@ -2090,6 +2196,115 @@ export interface components {
      * @enum {string}
      */
     InviteStatus: "PENDING" | "ACCEPTED" | "REFUSED";
+    /** LeagueCreate */
+    LeagueCreate: {
+      /** Name */
+      name: string;
+      /** Slug */
+      slug: string;
+      /** Description */
+      description?: string | null;
+      /** Sports Config */
+      sports_config?: number[];
+      /**
+       * Auto Simulate
+       * @default false
+       */
+      auto_simulate: boolean;
+      /**
+       * Transfer Window Enabled
+       * @default false
+       */
+      transfer_window_enabled: boolean;
+      /**
+       * Timezone
+       * @default America/Sao_Paulo
+       */
+      timezone: string;
+    };
+    /** LeagueMemberResponse */
+    LeagueMemberResponse: {
+      /** Id */
+      id: number;
+      /** League Id */
+      league_id: number;
+      /** User Id */
+      user_id: number;
+      role: components["schemas"]["LeagueMemberRole"];
+      /**
+       * Joined At
+       * Format: date-time
+       */
+      joined_at: string;
+      /** Left At */
+      left_at: string | null;
+    };
+    /**
+     * LeagueMemberRole
+     * @enum {string}
+     */
+    LeagueMemberRole: "LEAGUE_ADMIN" | "CHIEF" | "COACH" | "ATHLETE";
+    /** LeagueMemberRoleUpdate */
+    LeagueMemberRoleUpdate: {
+      role: components["schemas"]["LeagueMemberRole"];
+    };
+    /** LeagueResponse */
+    LeagueResponse: {
+      /** Id */
+      id: number;
+      /** Name */
+      name: string;
+      /** Slug */
+      slug: string;
+      /** Description */
+      description: string | null;
+      /** Created By Id */
+      created_by_id: number;
+      /** Sports Config */
+      sports_config: number[];
+      /** Is Showcase */
+      is_showcase: boolean;
+      /** Auto Simulate */
+      auto_simulate: boolean;
+      /** Transfer Window Enabled */
+      transfer_window_enabled: boolean;
+      /** Timezone */
+      timezone: string;
+      status: components["schemas"]["LeagueStatus"];
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /**
+       * Member Count
+       * @default 0
+       */
+      member_count: number;
+    };
+    /**
+     * LeagueStatus
+     * @enum {string}
+     */
+    LeagueStatus: "ACTIVE" | "ARCHIVED";
+    /** LeagueUpdate */
+    LeagueUpdate: {
+      /** Name */
+      name?: string | null;
+      /** Slug */
+      slug?: string | null;
+      /** Description */
+      description?: string | null;
+      /** Sports Config */
+      sports_config?: number[] | null;
+      /** Auto Simulate */
+      auto_simulate?: boolean | null;
+      /** Transfer Window Enabled */
+      transfer_window_enabled?: boolean | null;
+      /** Timezone */
+      timezone?: string | null;
+      status?: components["schemas"]["LeagueStatus"] | null;
+    };
     /** LoginRequest */
     LoginRequest: {
       /** Email */
@@ -2694,7 +2909,7 @@ export interface components {
      * UserRole
      * @enum {string}
      */
-    UserRole: "SUPERADMIN" | "USER" | "ADMIN" | "CHIEF" | "COACH" | "ATHLETE";
+    UserRole: "ADMIN" | "SUPERADMIN" | "USER" | "CHIEF" | "COACH" | "ATHLETE";
     /** UserSearchResponse */
     UserSearchResponse: {
       /** Id */
@@ -2732,8 +2947,6 @@ export interface components {
   headers: never;
   pathItems: never;
 }
-
-export type ApiSchemas = components["schemas"];
 export type $defs = Record<string, never>;
 export interface operations {
   health_health_get: {
@@ -3276,14 +3489,312 @@ export interface operations {
       };
     };
   };
-  list_delegations_delegations_get: {
+  list_leagues_leagues_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LeagueResponse"][];
+        };
+      };
+    };
+  };
+  create_league_leagues_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LeagueCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LeagueResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_my_leagues_leagues_my_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LeagueResponse"][];
+        };
+      };
+    };
+  };
+  get_league_leagues__league_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        league_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LeagueResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  archive_league_leagues__league_id__delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        league_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_league_leagues__league_id__patch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        league_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LeagueUpdate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LeagueResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_members_leagues__league_id__members_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        league_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LeagueMemberResponse"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_my_membership_leagues__league_id__members_me_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        league_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LeagueMemberResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  remove_member_leagues__league_id__members__user_id__delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        league_id: number;
+        user_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_member_role_leagues__league_id__members__user_id__patch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        league_id: number;
+        user_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LeagueMemberRoleUpdate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LeagueMemberResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_delegations_leagues__league_id__delegations_get: {
     parameters: {
       query?: {
         page?: number;
         per_page?: number;
       };
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -3308,11 +3819,13 @@ export interface operations {
       };
     };
   };
-  create_delegation_delegations_post: {
+  create_delegation_leagues__league_id__delegations_post: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody: {
@@ -3341,13 +3854,15 @@ export interface operations {
       };
     };
   };
-  ai_generate_delegations_delegations_ai_generate_post: {
+  ai_generate_delegations_leagues__league_id__delegations_ai_generate_post: {
     parameters: {
       query?: {
         count?: number;
       };
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -3372,11 +3887,12 @@ export interface operations {
       };
     };
   };
-  get_delegation_delegations__delegation_id__get: {
+  get_delegation_leagues__league_id__delegations__delegation_id__get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         delegation_id: number;
       };
       cookie?: never;
@@ -3403,11 +3919,12 @@ export interface operations {
       };
     };
   };
-  archive_delegation_delegations__delegation_id__delete: {
+  archive_delegation_leagues__league_id__delegations__delegation_id__delete: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         delegation_id: number;
       };
       cookie?: never;
@@ -3432,11 +3949,12 @@ export interface operations {
       };
     };
   };
-  update_delegation_delegations__delegation_id__patch: {
+  update_delegation_leagues__league_id__delegations__delegation_id__patch: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         delegation_id: number;
       };
       cookie?: never;
@@ -3467,11 +3985,12 @@ export interface operations {
       };
     };
   };
-  get_delegation_statistics_delegations__delegation_id__statistics_get: {
+  get_delegation_statistics_leagues__league_id__delegations__delegation_id__statistics_get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         delegation_id: number;
       };
       cookie?: never;
@@ -3498,11 +4017,12 @@ export interface operations {
       };
     };
   };
-  get_member_history_delegations__delegation_id__history_get: {
+  get_member_history_leagues__league_id__delegations__delegation_id__history_get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         delegation_id: number;
       };
       cookie?: never;
@@ -3529,11 +4049,12 @@ export interface operations {
       };
     };
   };
-  invite_user_delegations__delegation_id__invite_post: {
+  invite_user_leagues__league_id__delegations__delegation_id__invite_post: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         delegation_id: number;
       };
       cookie?: never;
@@ -3564,11 +4085,12 @@ export interface operations {
       };
     };
   };
-  list_invites_delegations__delegation_id__invites_get: {
+  list_invites_leagues__league_id__delegations__delegation_id__invites_get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         delegation_id: number;
       };
       cookie?: never;
@@ -3595,11 +4117,12 @@ export interface operations {
       };
     };
   };
-  revoke_invite_delegations__delegation_id__invites__invite_id__delete: {
+  revoke_invite_leagues__league_id__delegations__delegation_id__invites__invite_id__delete: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         delegation_id: number;
         invite_id: number;
       };
@@ -3625,11 +4148,12 @@ export interface operations {
       };
     };
   };
-  transfer_athlete_delegations__delegation_id__transfer__user_id__post: {
+  transfer_athlete_leagues__league_id__delegations__delegation_id__transfer__user_id__post: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         delegation_id: number;
         user_id: number;
       };
@@ -4013,14 +4537,16 @@ export interface operations {
       };
     };
   };
-  list_athletes_athletes_get: {
+  list_athletes_leagues__league_id__athletes_get: {
     parameters: {
       query?: {
         page?: number;
         per_page?: number;
       };
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -4045,11 +4571,13 @@ export interface operations {
       };
     };
   };
-  create_athlete_athletes_post: {
+  create_athlete_leagues__league_id__athletes_post: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody: {
@@ -4078,11 +4606,13 @@ export interface operations {
       };
     };
   };
-  ai_generate_athletes_ai_generate_post: {
+  ai_generate_leagues__league_id__athletes_ai_generate_post: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -4096,13 +4626,23 @@ export interface operations {
           "application/json": components["schemas"]["AthleteResponse"];
         };
       };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
     };
   };
-  get_athlete_athletes__athlete_id__get: {
+  get_athlete_leagues__league_id__athletes__athlete_id__get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         athlete_id: number;
       };
       cookie?: never;
@@ -4129,11 +4669,12 @@ export interface operations {
       };
     };
   };
-  archive_athlete_athletes__athlete_id__delete: {
+  archive_athlete_leagues__league_id__athletes__athlete_id__delete: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         athlete_id: number;
       };
       cookie?: never;
@@ -4158,11 +4699,12 @@ export interface operations {
       };
     };
   };
-  update_athlete_athletes__athlete_id__patch: {
+  update_athlete_leagues__league_id__athletes__athlete_id__patch: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         athlete_id: number;
       };
       cookie?: never;
@@ -4193,11 +4735,12 @@ export interface operations {
       };
     };
   };
-  get_history_athletes__athlete_id__history_get: {
+  get_history_leagues__league_id__athletes__athlete_id__history_get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         athlete_id: number;
       };
       cookie?: never;
@@ -4224,11 +4767,12 @@ export interface operations {
       };
     };
   };
-  get_statistics_athletes__athlete_id__statistics_get: {
+  get_statistics_leagues__league_id__athletes__athlete_id__statistics_get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         athlete_id: number;
       };
       cookie?: never;
@@ -4255,14 +4799,16 @@ export interface operations {
       };
     };
   };
-  list_competitions_competitions_get: {
+  list_competitions_leagues__league_id__competitions_get: {
     parameters: {
       query?: {
         page?: number;
         per_page?: number;
       };
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -4287,11 +4833,13 @@ export interface operations {
       };
     };
   };
-  create_competition_competitions_post: {
+  create_competition_leagues__league_id__competitions_post: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody: {
@@ -4320,11 +4868,12 @@ export interface operations {
       };
     };
   };
-  get_competition_competitions__competition_id__get: {
+  get_competition_leagues__league_id__competitions__competition_id__get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         competition_id: number;
       };
       cookie?: never;
@@ -4351,11 +4900,12 @@ export interface operations {
       };
     };
   };
-  update_competition_competitions__competition_id__patch: {
+  update_competition_leagues__league_id__competitions__competition_id__patch: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         competition_id: number;
       };
       cookie?: never;
@@ -4386,11 +4936,12 @@ export interface operations {
       };
     };
   };
-  publish_competition_competitions__competition_id__publish_post: {
+  publish_competition_leagues__league_id__competitions__competition_id__publish_post: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         competition_id: number;
       };
       cookie?: never;
@@ -4417,11 +4968,12 @@ export interface operations {
       };
     };
   };
-  lock_competition_competitions__competition_id__lock_post: {
+  lock_competition_leagues__league_id__competitions__competition_id__lock_post: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         competition_id: number;
       };
       cookie?: never;
@@ -4448,11 +5000,12 @@ export interface operations {
       };
     };
   };
-  activate_competition_competitions__competition_id__activate_post: {
+  activate_competition_leagues__league_id__competitions__competition_id__activate_post: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         competition_id: number;
       };
       cookie?: never;
@@ -4479,11 +5032,12 @@ export interface operations {
       };
     };
   };
-  complete_competition_competitions__competition_id__complete_post: {
+  complete_competition_leagues__league_id__competitions__competition_id__complete_post: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         competition_id: number;
       };
       cookie?: never;
@@ -4510,11 +5064,12 @@ export interface operations {
       };
     };
   };
-  generate_schedule_preview_competitions__competition_id__generate_schedule_post: {
+  generate_schedule_preview_leagues__league_id__competitions__competition_id__generate_schedule_post: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         competition_id: number;
       };
       cookie?: never;
@@ -4541,13 +5096,15 @@ export interface operations {
       };
     };
   };
-  list_activity_feed_activities_get: {
+  list_activity_feed_leagues__league_id__activities_get: {
     parameters: {
       query?: {
         limit?: number;
       };
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -4572,11 +5129,13 @@ export interface operations {
       };
     };
   };
-  stream_activity_feed_activities_stream_get: {
+  stream_activity_feed_leagues__league_id__activities_stream_get: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -4590,9 +5149,18 @@ export interface operations {
           "application/json": unknown;
         };
       };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
     };
   };
-  list_events_events_get: {
+  list_events_leagues__league_id__events_get: {
     parameters: {
       query?: {
         competition_id?: number | null;
@@ -4602,7 +5170,9 @@ export interface operations {
         per_page?: number;
       };
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -4627,11 +5197,13 @@ export interface operations {
       };
     };
   };
-  create_event_events_post: {
+  create_event_leagues__league_id__events_post: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody: {
@@ -4660,13 +5232,15 @@ export interface operations {
       };
     };
   };
-  ai_generate_schedule_events_ai_generate_post: {
+  ai_generate_schedule_leagues__league_id__events_ai_generate_post: {
     parameters: {
       query: {
         competition_id: number;
       };
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -4691,11 +5265,12 @@ export interface operations {
       };
     };
   };
-  get_event_events__event_id__get: {
+  get_event_leagues__league_id__events__event_id__get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         event_id: number;
       };
       cookie?: never;
@@ -4722,11 +5297,12 @@ export interface operations {
       };
     };
   };
-  cancel_event_events__event_id__delete: {
+  cancel_event_leagues__league_id__events__event_id__delete: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         event_id: number;
       };
       cookie?: never;
@@ -4751,11 +5327,12 @@ export interface operations {
       };
     };
   };
-  update_event_events__event_id__patch: {
+  update_event_leagues__league_id__events__event_id__patch: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         event_id: number;
       };
       cookie?: never;
@@ -4976,7 +5553,7 @@ export interface operations {
       };
     };
   };
-  list_enrollments_enrollments_get: {
+  list_enrollments_leagues__league_id__enrollments_get: {
     parameters: {
       query?: {
         page?: number;
@@ -4986,7 +5563,9 @@ export interface operations {
         status?: components["schemas"]["EnrollmentStatus"] | null;
       };
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5011,11 +5590,13 @@ export interface operations {
       };
     };
   };
-  create_enrollment_enrollments_post: {
+  create_enrollment_leagues__league_id__enrollments_post: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody: {
@@ -5044,11 +5625,13 @@ export interface operations {
       };
     };
   };
-  ai_generate_enrollments_ai_generate_post: {
+  ai_generate_leagues__league_id__enrollments_ai_generate_post: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5062,13 +5645,23 @@ export interface operations {
           "application/json": components["schemas"]["EnrollmentResponse"][];
         };
       };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
     };
   };
-  cancel_enrollment_enrollments__enrollment_id__delete: {
+  cancel_enrollment_leagues__league_id__enrollments__enrollment_id__delete: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         enrollment_id: number;
       };
       cookie?: never;
@@ -5093,11 +5686,12 @@ export interface operations {
       };
     };
   };
-  review_enrollment_enrollments__enrollment_id__review_patch: {
+  review_enrollment_leagues__league_id__enrollments__enrollment_id__review_patch: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         enrollment_id: number;
       };
       cookie?: never;
@@ -5128,7 +5722,7 @@ export interface operations {
       };
     };
   };
-  list_results_results_get: {
+  list_results_leagues__league_id__results_get: {
     parameters: {
       query?: {
         competition_id?: number | null;
@@ -5138,7 +5732,9 @@ export interface operations {
         per_page?: number;
       };
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5163,11 +5759,13 @@ export interface operations {
       };
     };
   };
-  create_result_results_post: {
+  create_result_leagues__league_id__results_post: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody: {
@@ -5196,11 +5794,13 @@ export interface operations {
       };
     };
   };
-  get_medal_board_results_medal_board_get: {
+  get_medal_board_leagues__league_id__results_medal_board_get: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5214,13 +5814,24 @@ export interface operations {
           "application/json": components["schemas"]["MedalBoardEntry"][];
         };
       };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
     };
   };
-  stream_medal_board_results_medal_board_stream_get: {
+  stream_medal_board_leagues__league_id__results_medal_board_stream_get: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5234,13 +5845,23 @@ export interface operations {
           "application/json": unknown;
         };
       };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
     };
   };
-  get_medal_board_by_sport_results_medal_board__sport_id__get: {
+  get_medal_board_by_sport_leagues__league_id__results_medal_board__sport_id__get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         sport_id: number;
       };
       cookie?: never;
@@ -5267,13 +5888,15 @@ export interface operations {
       };
     };
   };
-  get_records_results_records_get: {
+  get_records_leagues__league_id__results_records_get: {
     parameters: {
       query?: {
         modality_id?: number | null;
       };
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5298,11 +5921,12 @@ export interface operations {
       };
     };
   };
-  get_standings_results_standings__modality_id__get: {
+  get_standings_leagues__league_id__results_standings__modality_id__get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         modality_id: number;
       };
       cookie?: never;
@@ -5329,11 +5953,12 @@ export interface operations {
       };
     };
   };
-  ai_generate_results_ai_generate__event_id__post: {
+  ai_generate_leagues__league_id__results_ai_generate__event_id__post: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         event_id: number;
       };
       cookie?: never;
@@ -5360,11 +5985,12 @@ export interface operations {
       };
     };
   };
-  update_result_results__result_id__patch: {
+  update_result_leagues__league_id__results__result_id__patch: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         result_id: number;
       };
       cookie?: never;
@@ -5395,14 +6021,16 @@ export interface operations {
       };
     };
   };
-  global_search_search_global_get: {
+  global_search_leagues__league_id__search_global_get: {
     parameters: {
       query?: {
         q?: string;
         limit?: number;
       };
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5427,11 +6055,13 @@ export interface operations {
       };
     };
   };
-  get_final_report_report_final_get: {
+  get_final_report_leagues__league_id__report_final_get: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5445,13 +6075,23 @@ export interface operations {
           "application/json": components["schemas"]["FinalReportResponse"];
         };
       };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
     };
   };
-  get_competition_report_report_competition__competition_id__get: {
+  get_competition_report_leagues__league_id__report_competition__competition_id__get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         competition_id: number;
       };
       cookie?: never;
@@ -5478,11 +6118,12 @@ export interface operations {
       };
     };
   };
-  get_athlete_report_report_athlete__athlete_id__get: {
+  get_athlete_report_leagues__league_id__report_athlete__athlete_id__get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         athlete_id: number;
       };
       cookie?: never;
@@ -5509,11 +6150,13 @@ export interface operations {
       };
     };
   };
-  export_csv_report_export_csv_get: {
+  export_csv_leagues__league_id__report_export_csv_get: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5527,13 +6170,24 @@ export interface operations {
           "application/json": unknown;
         };
       };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
     };
   };
-  export_xlsx_report_export_xlsx_get: {
+  export_xlsx_leagues__league_id__report_export_xlsx_get: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5547,13 +6201,24 @@ export interface operations {
           "application/json": unknown;
         };
       };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
     };
   };
-  get_today_narrative_today_get: {
+  get_today_leagues__league_id__narrative_today_get: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5567,13 +6232,23 @@ export interface operations {
           "application/json": components["schemas"]["NarrativeResponse"] | null;
         };
       };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
     };
   };
-  get_for_date_narrative__narrative_date__get: {
+  get_for_date_leagues__league_id__narrative__narrative_date__get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         narrative_date: string;
       };
       cookie?: never;
@@ -5600,13 +6275,15 @@ export interface operations {
       };
     };
   };
-  generate_narrative_narrative_generate_post: {
+  generate_narrative_leagues__league_id__narrative_generate_post: {
     parameters: {
       query?: {
         target_date?: string | null;
       };
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5631,11 +6308,13 @@ export interface operations {
       };
     };
   };
-  get_generation_history_ai_generation_history_get: {
+  get_generation_history_leagues__league_id__ai_generation_history_get: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5649,13 +6328,24 @@ export interface operations {
           "application/json": components["schemas"]["AIGenerationResponse"][];
         };
       };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
     };
   };
-  demo_seed_admin_demo_seed_post: {
+  seed_leagues__league_id__admin_seed_post: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        league_id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5671,13 +6361,23 @@ export interface operations {
           };
         };
       };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
     };
   };
-  simulate_match_admin_simulate_match__match_id__post: {
+  simulate_match_leagues__league_id__admin_simulate_match__match_id__post: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        league_id: number;
         match_id: number;
       };
       cookie?: never;

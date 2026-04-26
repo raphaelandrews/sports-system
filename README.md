@@ -2,16 +2,21 @@
 
 Multi-league sports competition platform.
 
-- `apps/web`: TanStack Start frontend on `http://localhost:3001`
-- `apps/api`: FastAPI backend on `http://localhost:3000`
-- `packages/ui`: shared shadcn/ui components
-- `packages/env`: shared env validation
-- `packages/config`: shared TS config
-- `packages/infra`: Cloudflare/Alchemy deploy code
+## Repo
+
+```text
+apps/web/            TanStack Start frontend
+apps/api/            FastAPI backend
+packages/ui/         shared shadcn/ui components
+packages/contracts/  shared API contracts (Zod schemas for forms)
+packages/env/        env validation
+packages/config/     shared TS config
+packages/infra/      Cloudflare/Alchemy deploy code
+```
 
 ## Stack
 
-- Frontend: TanStack Start, TanStack Router, TanStack Query, Tailwind v4, shadcn/ui
+- Frontend: TanStack Start, TanStack Router, TanStack Query, Tailwind v4, shadcn/ui, openapi-fetch
 - Backend: FastAPI, SQLModel, Alembic, PostgreSQL, JWT auth, APScheduler, SSE
 - Tooling: Bun workspace, uv for Python, Turbo, oxlint, oxfmt
 
@@ -63,6 +68,83 @@ bun run dev:backend
 bun run check-types
 bun run check
 ```
+
+### API Type Generation
+
+Frontend types are generated from the backend OpenAPI spec:
+
+```bash
+cd apps/web
+bun run gen:types  # generates src/types/api.gen.ts from localhost:3000/openapi.json
+```
+
+Add to CI to detect schema drift:
+
+```bash
+bun run check:api  # fails if backend spec differs from committed types
+```
+
+## Frontend Architecture
+
+Feature-based vertical slices:
+
+```text
+apps/web/src/
+  app/              # TanStack Router shell (routes stay here)
+    routes/...      # file-based routes, never edit routeTree.gen.ts
+  features/         # domain vertical slices
+    auth/
+      api/queries.ts
+      components/
+      server/       # server functions
+    leagues/
+    athletes/
+    ...
+  shared/
+    components/     # layouts, generic UI
+    lib/            # api client, url builder, date utils
+    hooks/
+  types/
+    api.gen.ts      # auto-generated from OpenAPI (DO NOT EDIT)
+```
+
+API client uses `openapi-fetch` for end-to-end type safety:
+
+```typescript
+import { client, unwrap } from "@/shared/lib/api";
+
+// Path, params, and response are all typed from api.gen.ts
+const data = await unwrap(
+  client.GET("/leagues/{league_id}", {
+    params: { path: { league_id: 1 } }
+  })
+);
+```
+
+## Backend Architecture
+
+Domain-driven layers:
+
+```text
+apps/api/app/
+  main.py           # composition root (wire routers, middleware)
+  domain/
+    models/         # SQLModel tables
+    schemas/        # Pydantic request/response schemas
+  features/         # domain vertical slices
+    auth/
+      router.py
+      service.py
+      user_repository.py
+      token_repository.py
+    leagues/
+    athletes/
+    ...
+  shared/
+    core/           # auth, security, limiter, scheduler, sse, deps
+```
+
+Layering: `router -> service -> repository -> domain model`
 
 ## Auth And Roles
 
@@ -153,3 +235,4 @@ Behavior:
 - Backend docs UI: `/docs` and `/redoc` only when `DEBUG=true`
 - SSE must connect browser -> backend directly; do not proxy SSE through Workers
 - Railway backend must run one `uvicorn` process only
+- Frontend types are generated from backend OpenAPI spec; run `gen:types` after schema changes

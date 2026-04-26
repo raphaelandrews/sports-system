@@ -27,7 +27,7 @@ import {
 import { Input } from "@sports-system/ui/components/input";
 import { cn } from "@sports-system/ui/lib/utils";
 
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatDate, formatTime } from "@/shared/lib/date";
 import { athleteListQueryOptions } from "@/features/athletes/api/queries";
 import { delegationListQueryOptions } from "@/features/delegations/api/queries";
@@ -36,7 +36,7 @@ import { queryKeys } from "@/features/keys";
 import { matchDetailQueryOptions } from "@/features/matches/api/queries";
 import { resultListQueryOptions } from "@/features/results/api/queries";
 import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sports/api/queries";
-import type { Medal, ResultResponse } from "@/types/results";
+import type { Medal } from "@/types/results";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/results/$matchId/new",
@@ -144,27 +144,31 @@ function MatchResultEntryPage() {
     mutationFn: async () => {
       const parsed = parseValueJson(valueJsonText);
       if (editable) {
-        return apiFetch<ResultResponse>(`/results/${editable.id}`, {
-          method: "PATCH",
+        return unwrap(
+          client.PATCH("/leagues/{league_id}/results/{result_id}", {
+            params: { path: { league_id: Number(leagueId), result_id: editable.id } },
+            body: {
+              rank: Number(rank),
+              medal: medal === "NONE" ? null : medal,
+              value_json: parsed,
+            },
+          }),
+        );
+      }
+
+      return unwrap(
+        client.POST("/leagues/{league_id}/results", {
+          params: { path: { league_id: Number(leagueId) } },
           body: {
+            match_id: numericMatchId,
+            delegation_id: delegationId ? Number(delegationId) : null,
+            athlete_id: athleteId ? Number(athleteId) : null,
             rank: Number(rank),
             medal: medal === "NONE" ? null : medal,
             value_json: parsed,
           },
-        });
-      }
-
-      return apiFetch<ResultResponse>("/results", {
-        method: "POST",
-        body: {
-          match_id: numericMatchId,
-          delegation_id: delegationId ? Number(delegationId) : null,
-          athlete_id: athleteId ? Number(athleteId) : null,
-          rank: Number(rank),
-          medal: medal === "NONE" ? null : medal,
-          value_json: parsed,
-        },
-      });
+        }),
+      );
     },
     onSuccess: async () => {
       await refresh();
@@ -177,9 +181,11 @@ function MatchResultEntryPage() {
 
   const aiMutation = useMutation({
     mutationFn: async () =>
-      apiFetch(`/results/ai-generate/${event.id}`, {
-        method: "POST",
-      }),
+      unwrap(
+        client.POST("/leagues/{league_id}/results/ai-generate/{event_id}", {
+          params: { path: { league_id: Number(leagueId), event_id: event.id } },
+        }),
+      ),
     onSuccess: async () => {
       await refresh();
       toast.success("Resultados gerados com IA para o evento.");

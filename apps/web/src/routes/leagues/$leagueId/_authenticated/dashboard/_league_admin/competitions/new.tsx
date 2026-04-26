@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { CompetitionForm } from "@/features/competitions/components/competition-form";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
 import { sportListQueryOptions } from "@/features/sports/api/queries";
 
@@ -30,10 +30,12 @@ function NewWeekPage() {
       end_date: string;
       sport_focus: number[];
     }) =>
-      apiFetch("/competitions", {
-        method: "POST",
-        body: payload,
-      }),
+      unwrap(
+        client.POST("/leagues/{league_id}/competitions", {
+          params: { path: { league_id: Number(leagueId) } },
+          body: payload,
+        }),
+      ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.competitions.all(Number(leagueId)),

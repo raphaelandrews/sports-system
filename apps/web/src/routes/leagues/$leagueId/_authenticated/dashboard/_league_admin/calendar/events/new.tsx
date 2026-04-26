@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from "@sports-system/ui/components/select";
 
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
 import { competitionListQueryOptions } from "@/features/competitions/api/queries";
 import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sports/api/queries";
@@ -90,10 +90,12 @@ function NewCalendarEventPage() {
 
   const mutation = useMutation({
     mutationFn: (payload: EventCreate) =>
-      apiFetch("/events", {
-        method: "POST",
-        body: payload,
-      }),
+      unwrap(
+        client.POST("/leagues/{league_id}/events", {
+          params: { path: { league_id: Number(leagueId) } },
+          body: payload,
+        }),
+      ),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.events.all(Number(leagueId)) }),

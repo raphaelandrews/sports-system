@@ -33,10 +33,9 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { formatEventDate } from "@/shared/lib/date";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { delegationListQueryOptions } from "@/features/delegations/api/queries";
 import { queryKeys } from "@/features/keys";
-import type { DelegationResponse } from "@/types/delegations";
 
 const PAGE_SIZE = 8;
 const delegationsSearchSchema = z.object({
@@ -74,10 +73,11 @@ function DelegationsPage() {
 
   const aiMutation = useMutation({
     mutationFn: async () =>
-      apiFetch<DelegationResponse[]>("/delegations/ai-generate", {
-        method: "POST",
-        params: { count: Number(aiCount) },
-      }),
+      unwrap(
+        client.POST("/leagues/{league_id}/delegations/ai-generate", {
+          params: { path: { league_id: Number(leagueId) }, query: { count: Number(aiCount) } },
+        }),
+      ),
     onSuccess: async (created) => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.delegations.all(Number(leagueId)),

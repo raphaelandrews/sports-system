@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { ModalityForm } from "@/features/sports/components/modality-form";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
 import { sportDetailQueryOptions } from "@/features/sports/api/queries";
 import type { Gender } from "@/types/sports";
@@ -32,10 +32,12 @@ function NewModalityPage() {
       category?: string;
       rules_json: Record<string, unknown>;
     }) =>
-      apiFetch(`/sports/${sportNumber}/modalities`, {
-        method: "POST",
-        body: payload,
-      }),
+      unwrap(
+        client.POST("/sports/{sport_id}/modalities", {
+          params: { path: { sport_id: sportNumber } },
+          body: payload,
+        }),
+      ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.sports.detail(sportNumber),

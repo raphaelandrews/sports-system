@@ -1,16 +1,17 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { apiFetch } from "@/shared/lib/api";
+import { client, unwrap } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
-import type { UserSearchResponse } from "@/types/users";
 
 export const userSearchQueryOptions = (query: string) =>
   queryOptions({
     queryKey: queryKeys.users.search(query),
     queryFn: () =>
-      apiFetch<UserSearchResponse[]>("/users/search", {
-        params: { q: query, limit: 12 },
-      }),
+      unwrap(
+        client.GET("/users/search", {
+          params: { query: { q: query, limit: 12 } },
+        }),
+      ),
     enabled: query.trim().length >= 2,
     staleTime: 30 * 1000,
   });

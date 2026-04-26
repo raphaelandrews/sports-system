@@ -3,9 +3,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { AdminDelegationForm } from "@/features/delegations/components/admin-delegation-form";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
-import type { DelegationCreateInput, DelegationResponse } from "@/types/delegations";
+import type { DelegationCreateInput } from "@/types/delegations";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_league_admin/delegations/new",
@@ -21,10 +21,12 @@ function NewDelegationPage() {
 
   const mutation = useMutation({
     mutationFn: (payload: DelegationCreateInput) =>
-      apiFetch<DelegationResponse>("/delegations", {
-        method: "POST",
-        body: payload,
-      }),
+      unwrap(
+        client.POST("/leagues/{league_id}/delegations", {
+          params: { path: { league_id: Number(leagueId) } },
+          body: payload,
+        }),
+      ),
     onSuccess: async (delegation) => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.delegations.all(Number(leagueId)),

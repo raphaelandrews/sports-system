@@ -5,8 +5,7 @@ import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { apiFetch } from "@/shared/lib/api";
-import type { ChiefRequestResponse } from "@/types/auth";
+import { client, unwrap } from "@/shared/lib/api";
 
 export const Route = createFileRoute("/_authenticated/request-chief/")({
   component: RequestChiefPage,
@@ -18,13 +17,14 @@ function RequestChiefPage() {
   const form = useForm({
     defaultValues: { delegation_name: "", message: "" },
     onSubmit: async ({ value }) => {
-      await apiFetch<ChiefRequestResponse>("/requests/chief", {
-        method: "POST",
-        body: {
-          delegation_name: value.delegation_name,
-          message: value.message || undefined,
-        },
-      });
+      await unwrap(
+        client.POST("/requests/chief", {
+          body: {
+            delegation_name: value.delegation_name,
+            message: value.message || undefined,
+          },
+        }),
+      );
       toast.success("Solicitação enviada com sucesso!");
       await router.navigate({ to: "/leagues" });
     },

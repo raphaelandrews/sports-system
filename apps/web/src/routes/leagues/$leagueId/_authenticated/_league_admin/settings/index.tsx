@@ -31,7 +31,7 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
 import {
   leagueDetailQueryOptions,
@@ -79,10 +79,12 @@ function LeagueSettingsPage() {
       transfer_window_enabled: boolean;
       auto_simulate: boolean;
     }) =>
-      apiFetch(`/leagues/${lid}`, {
-        method: "PATCH",
-        body: payload,
-      }),
+      unwrap(
+        client.PATCH("/leagues/{league_id}", {
+          params: { path: { league_id: lid } },
+          body: payload,
+        }),
+      ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.leagues.detail(lid) });
       toast.success("Liga atualizada com sucesso.");
@@ -94,9 +96,7 @@ function LeagueSettingsPage() {
 
   const archiveMutation = useMutation({
     mutationFn: () =>
-      apiFetch(`/leagues/${lid}`, {
-        method: "DELETE",
-      }),
+      unwrap(client.DELETE("/leagues/{league_id}", { params: { path: { league_id: lid } } })),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.leagues.all() });
       toast.success("Liga arquivada com sucesso.");
@@ -109,10 +109,12 @@ function LeagueSettingsPage() {
 
   const updateRoleMutation = useMutation({
     mutationFn: ({ userId, role }: { userId: number; role: LeagueMemberRole }) =>
-      apiFetch(`/leagues/${lid}/members/${userId}`, {
-        method: "PATCH",
-        body: { role },
-      }),
+      unwrap(
+        client.PATCH("/leagues/{league_id}/members/{user_id}", {
+          params: { path: { league_id: lid, user_id: userId } },
+          body: { role },
+        }),
+      ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.leagues.members(lid) });
       toast.success("Função atualizada com sucesso.");
@@ -124,9 +126,11 @@ function LeagueSettingsPage() {
 
   const removeMemberMutation = useMutation({
     mutationFn: (userId: number) =>
-      apiFetch(`/leagues/${lid}/members/${userId}`, {
-        method: "DELETE",
-      }),
+      unwrap(
+        client.DELETE("/leagues/{league_id}/members/{user_id}", {
+          params: { path: { league_id: lid, user_id: userId } },
+        }),
+      ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.leagues.members(lid) });
       toast.success("Membro removido com sucesso.");
@@ -180,7 +184,7 @@ function LeagueSettingsPage() {
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
             <div className="space-y-2">

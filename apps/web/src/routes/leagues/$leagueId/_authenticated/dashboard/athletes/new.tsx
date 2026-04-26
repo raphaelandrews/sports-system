@@ -3,7 +3,7 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { AthleteForm } from "@/features/athletes/components/athlete-form";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/dashboard/athletes/new")({
@@ -33,10 +33,12 @@ function NewAthletePage() {
       birthdate?: string;
       user_id?: number;
     }) =>
-      apiFetch("/athletes", {
-        method: "POST",
-        body: payload,
-      }),
+      unwrap(
+        client.POST("/leagues/{league_id}/athletes", {
+          params: { path: { league_id: Number(leagueId) } },
+          body: payload,
+        }),
+      ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.athletes.all(Number(leagueId)) });
       toast.success("Atleta cadastrado com sucesso.");

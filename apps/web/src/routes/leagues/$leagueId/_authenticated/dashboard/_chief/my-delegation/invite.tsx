@@ -21,7 +21,7 @@ import {
   ChiefDelegationUnavailable,
 } from "@/features/delegations/components/chief-delegation-shell";
 import { findManagedDelegation } from "@/shared/lib/chief-delegation";
-import { apiFetch, ApiError } from "@/shared/lib/api";
+import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatEventDate } from "@/shared/lib/date";
 import {
   delegationInvitesQueryOptions,
@@ -62,10 +62,12 @@ function InviteUserPage() {
 
   const inviteMutation = useMutation({
     mutationFn: async (targetUserId: number) =>
-      apiFetch(`/delegations/${delegationId}/invite`, {
-        method: "POST",
-        body: { user_id: targetUserId },
-      }),
+      unwrap(
+        client.POST("/leagues/{league_id}/delegations/{delegation_id}/invite", {
+          params: { path: { league_id: Number(leagueId), delegation_id: delegationId! } },
+          body: { user_id: targetUserId },
+        }),
+      ),
     onSuccess: async () => {
       if (!delegationId) return;
       await queryClient.invalidateQueries({
