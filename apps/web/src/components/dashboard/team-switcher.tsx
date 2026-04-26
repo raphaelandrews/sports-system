@@ -1,6 +1,7 @@
 import * as React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useRouterState } from "@tanstack/react-router";
-import { ChevronsUpDown, Crown, Sparkles, Trophy } from "lucide-react";
+import { ChevronsUpDown, Compass, Crown, Shield, Sparkles, Trophy } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -18,7 +19,9 @@ import {
   useSidebar,
 } from "@sports-system/ui/components/sidebar";
 
+import { leagueListQueryOptions, myLeagueMembershipQueryOptions, myLeaguesQueryOptions } from "@/queries/leagues";
 import type { Session } from "@/types/auth";
+import type { LeagueResponse } from "@/types/leagues";
 
 type WorkspaceItem = {
   name: string;
@@ -29,36 +32,55 @@ type WorkspaceItem = {
 
 type PlatformRole = Session["role"] | "SUPERADMIN" | "USER";
 
-const defaultWorkspaces: WorkspaceItem[] = [
-  {
-    name: "Painel",
-    meta: "Visão geral",
-    icon: Trophy,
-    href: "/dashboard",
-  },
-];
+function buildWorkspaces(
+  role: PlatformRole,
+  leagues: LeagueResponse[],
+  leagueId?: string,
+): WorkspaceItem[] {
+  const currentLeague = leagues.find((league) => String(league.id) === leagueId);
 
-const roleMeta: Partial<Record<PlatformRole, WorkspaceItem[]>> = {
-  SUPERADMIN: [
-    {
-      name: "Central Admin",
-      meta: "Operação geral",
-      icon: Crown,
-      href: "/dashboard",
-    },
-    {
-      name: "Ligas",
-      meta: "Gestão da plataforma",
-      icon: Sparkles,
-      href: "/dashboard",
-    },
-  ],
-  USER: defaultWorkspaces,
-};
+  if (currentLeague) {
+    return [
+      {
+        name: currentLeague.name,
+        meta: currentLeague.is_showcase ? "Showcase" : currentLeague.timezone,
+        icon: currentLeague.is_showcase ? Crown : Trophy,
+        href: `/leagues/${currentLeague.id}`,
+      },
+      {
+        name: "Painel da liga",
+        meta: "Área autenticada",
+        icon: Shield,
+        href: `/leagues/${currentLeague.id}/dashboard`,
+      },
+    ];
+  }
 
-export function TeamSwitcher({ session }: { session: Session | null }) {
+  const base: WorkspaceItem[] = [
+    { name: "Explorar ligas", meta: "Catálogo público", icon: Compass, href: "/leagues" },
+    { name: "Minhas ligas", meta: "Acessos rápidos", icon: Shield, href: "/my-leagues" },
+  ];
+
+  if (role === "SUPERADMIN") {
+    return [{ name: "Central Admin", meta: "Operação geral", icon: Crown, href: "/" }, ...base];
+  }
+
+  return [{ name: "Painel pessoal", meta: "Visão geral", icon: Sparkles, href: "/" }, ...base];
+}
+
+export function TeamSwitcher({ session, leagueId }: { session: Session | null; leagueId?: string }) {
   const { isMobile } = useSidebar();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const leaguesQuery = useQuery(leagueListQueryOptions());
+  const myLeaguesQuery = useQuery({
+    ...myLeaguesQueryOptions(),
+    enabled: Boolean(session),
+  });
+  const membershipQuery = useQuery({
+    ...myLeagueMembershipQueryOptions(leagueId ?? "0"),
+    enabled: Boolean(session && leagueId),
+    retry: false,
+  });
 
   if (!session) {
     return (
@@ -81,10 +103,11 @@ export function TeamSwitcher({ session }: { session: Session | null }) {
   }
 
   const role = session.role as PlatformRole;
-  const workspaces = roleMeta[role] ?? defaultWorkspaces;
+  const leagues = myLeaguesQuery.data?.length ? myLeaguesQuery.data : leaguesQuery.data ?? [];
+  const workspaces = buildWorkspaces(role, leagues, leagueId);
   const activeWorkspace =
     workspaces.find(
-      (workspace) => pathname === workspace.href || pathname.startsWith(`${workspace.href}/`),
+      (workspace: WorkspaceItem) => pathname === workspace.href || pathname.startsWith(`${workspace.href}/`),
     ) ?? workspaces[0];
 
   if (!activeWorkspace) return null;
@@ -107,7 +130,9 @@ export function TeamSwitcher({ session }: { session: Session | null }) {
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">Sports System</span>
               <span className="truncate text-xs text-sidebar-foreground/70">
-                {activeWorkspace.name}
+                {membershipQuery.data?.role
+                  ? `${activeWorkspace.name} · ${membershipQuery.data.role}`
+                  : activeWorkspace.name}
               </span>
             </div>
             <ChevronsUpDown className="ml-auto size-4" />
@@ -122,7 +147,7 @@ export function TeamSwitcher({ session }: { session: Session | null }) {
               <DropdownMenuLabel className="text-xs text-muted-foreground">
                 Áreas rápidas
               </DropdownMenuLabel>
-              {workspaces.map((workspace) => (
+              {workspaces.map((workspace: WorkspaceItem) => (
                 <DropdownMenuItem
                   key={workspace.name}
                   render={<a href={workspace.href} />}
@@ -140,6 +165,15 @@ export function TeamSwitcher({ session }: { session: Session | null }) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              <DropdownMenuItem className="gap-3 p-2" render={<a href="/leagues/new" />}>
+                <div className="flex size-7 items-center justify-center rounded-md border bg-background">
+                  <Sparkles className="size-4" />
+                </div>
+                <div className="grid leading-tight">
+                  <span className="font-medium">Criar nova liga</span>
+                  <span className="text-xs text-muted-foreground">Abrir configuração inicial</span>
+                </div>
+              </DropdownMenuItem>
               <DropdownMenuItem className="gap-3 p-2">
                 <div className="flex size-7 items-center justify-center rounded-md border bg-background">
                   <Sparkles className="size-4" />

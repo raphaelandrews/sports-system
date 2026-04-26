@@ -1,5 +1,13 @@
 import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { MapPin } from "lucide-react";
 
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@sports-system/ui/components/empty";
 import { apiFetch } from "@/lib/api";
 import type { LeagueResponse } from "@/types/leagues";
 
@@ -14,9 +22,18 @@ export const Route = createFileRoute("/leagues/$leagueId/__layout")({
 
 function LeagueNotFound() {
   return (
-    <div className="container mx-auto px-4 py-10 text-center">
-      <h1 className="text-2xl font-bold">League not found</h1>
-      <p className="text-muted-foreground mt-2">The league you are looking for does not exist.</p>
+    <div className="flex min-h-[60vh] items-center justify-center px-4">
+      <Empty className="max-w-sm">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <MapPin />
+          </EmptyMedia>
+          <EmptyTitle>Liga não encontrada</EmptyTitle>
+          <EmptyDescription>
+            A liga que você está procurando não existe ou foi removida.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     </div>
   );
 }

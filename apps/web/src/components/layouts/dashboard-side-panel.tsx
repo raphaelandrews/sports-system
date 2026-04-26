@@ -1,0 +1,161 @@
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { motion } from "motion/react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
+
+// w-72 (288px) + pl-2 (8px)
+export const SIDE_PANEL_WIDTH = 296;
+
+type SidePanelState = {
+  node: HTMLDivElement | null;
+  collapsed: boolean;
+  hasContent: boolean;
+  toggle: () => void;
+};
+
+const SidePanelContext = createContext<SidePanelState>({
+  node: null,
+  collapsed: false,
+  hasContent: false,
+  toggle: () => {},
+});
+
+export function useSidePanelSlot() {
+  const [node, setNode] = useState<HTMLDivElement | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
+  const [hasContent, setHasContent] = useState(false);
+  const toggle = useCallback(() => setCollapsed((current) => !current), []);
+
+  return {
+    node,
+    setNode,
+    collapsed,
+    hasContent,
+    setHasContent,
+    toggle,
+  } as const;
+}
+
+export function SidePanelProvider({
+  value,
+  children,
+}: {
+  value: SidePanelState;
+  children: React.ReactNode;
+}) {
+  return <SidePanelContext.Provider value={value}>{children}</SidePanelContext.Provider>;
+}
+
+export function SidePanelPortal({ children }: { children: React.ReactNode }) {
+  const { node } = useContext(SidePanelContext);
+  if (!node) return null;
+  return createPortal(children, node);
+}
+
+export function SidePanelSlot({
+  slotRef,
+  collapsed,
+  onHasContent,
+}: {
+  slotRef: (el: HTMLDivElement | null) => void;
+  collapsed: boolean;
+  onHasContent: (value: boolean) => void;
+}) {
+  const [hasChildren, setHasChildren] = useState(false);
+  const innerRef = useRef<HTMLDivElement | null>(null);
+  const ghostRef = useRef<HTMLDivElement | null>(null);
+  const exitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const refCallback = useCallback(
+    (element: HTMLDivElement | null) => {
+      innerRef.current = element;
+      slotRef(element);
+    },
+    [slotRef],
+  );
+
+  useEffect(() => {
+    const element = innerRef.current;
+    if (!element) return;
+
+    const check = () => {
+      const has = element.childNodes.length > 0;
+      setHasChildren(has);
+      onHasContent(has);
+    };
+
+    check();
+    const observer = new MutationObserver((mutations) => {
+      const has = element.childNodes.length > 0;
+
+      if (!has && ghostRef.current) {
+        ghostRef.current.innerHTML = "";
+        for (const mutation of mutations) {
+          for (const node of mutation.removedNodes) {
+            ghostRef.current.appendChild(node.cloneNode(true));
+          }
+        }
+        if (exitTimer.current) clearTimeout(exitTimer.current);
+        exitTimer.current = setTimeout(() => {
+          if (ghostRef.current) ghostRef.current.innerHTML = "";
+        }, 500);
+      } else if (has && ghostRef.current) {
+        ghostRef.current.innerHTML = "";
+        if (exitTimer.current) clearTimeout(exitTimer.current);
+      }
+
+      setHasChildren(has);
+      onHasContent(has);
+    });
+
+    observer.observe(element, { childList: true });
+    element.addEventListener("sidepanel-content", check);
+
+    return () => {
+      observer.disconnect();
+      element.removeEventListener("sidepanel-content", check);
+      if (exitTimer.current) clearTimeout(exitTimer.current);
+    };
+  }, [onHasContent]);
+
+  const show = hasChildren && !collapsed;
+
+  return (
+    <div className="hidden overflow-hidden xl:block">
+      <motion.div
+        animate={{ opacity: show ? 1 : 0 }}
+        transition={{ duration: show ? 0.2 : 0.1, delay: show ? 0.1 : 0 }}
+        className="h-full overflow-x-hidden overflow-y-auto pb-2 pl-2"
+      >
+        <div ref={refCallback} />
+        <div ref={ghostRef} className="pointer-events-none" aria-hidden />
+      </motion.div>
+    </div>
+  );
+}
+
+export function SidePanelToggle() {
+  const { collapsed, toggle, hasContent } = useContext(SidePanelContext);
+  if (!hasContent) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      className="absolute top-1/2 right-0 hidden -translate-y-1/2 items-center justify-center rounded-l-md border border-r-0 bg-muted py-2.5 pl-0.5 pr-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground xl:flex"
+    >
+      {collapsed ? (
+        <ChevronLeftIcon size={12} strokeWidth={2} />
+      ) : (
+        <ChevronRightIcon size={12} strokeWidth={2} />
+      )}
+    </button>
+  );
+}

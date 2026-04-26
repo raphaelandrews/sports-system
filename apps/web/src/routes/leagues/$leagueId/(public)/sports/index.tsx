@@ -1,7 +1,15 @@
 import { Badge } from "@sports-system/ui/components/badge";
 import { Card, CardHeader, CardTitle } from "@sports-system/ui/components/card";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@sports-system/ui/components/empty";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { Dumbbell } from "lucide-react";
 
 import { resolveRosterSize } from "@/lib/sports";
 import { sportListQueryOptions } from "@/queries/sports";
@@ -50,9 +58,19 @@ function SportsPage() {
           </Link>
         ))}
         {data.data.length === 0 && (
-          <p className="text-muted-foreground col-span-full text-center py-12">
-            Nenhum esporte cadastrado.
-          </p>
+          <div className="col-span-full">
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <Dumbbell />
+                </EmptyMedia>
+                <EmptyTitle>Nenhum esporte cadastrado</EmptyTitle>
+                <EmptyDescription>
+                  Os esportes ainda não foram configurados nesta liga.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          </div>
         )}
       </div>
     </div>

@@ -11,7 +11,10 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "next-themes";
 
-import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
+import { DashboardViewportLoading } from "@/components/layouts/dashboard-content-loading";
+import { DashboardLayout } from "@/components/layouts/dashboard-layout";
+import { ErrorScreen } from "@/components/layouts/error-screen";
+import { NotFoundScreen } from "@/components/layouts/not-found-screen";
 import { getSessionFn } from "@/server/auth";
 
 import appCss from "@/index.css?url";
@@ -27,6 +30,9 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
     const session = await getSessionFn();
     return { session };
   },
+  errorComponent: ErrorScreen,
+  notFoundComponent: NotFoundScreen,
+  pendingComponent: DashboardViewportLoading,
 
   head: () => ({
     meta: [

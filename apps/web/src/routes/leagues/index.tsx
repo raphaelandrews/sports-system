@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { Trophy } from "lucide-react";
 
 import { Badge } from "@sports-system/ui/components/badge";
 import { buttonVariants } from "@sports-system/ui/components/button";
@@ -10,6 +11,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@sports-system/ui/components/card";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@sports-system/ui/components/empty";
 import { cn } from "@sports-system/ui/lib/utils";
 import { leagueListQueryOptions } from "@/queries/leagues";
 
@@ -62,7 +71,20 @@ function LeaguesPage() {
       </div>
 
       {leagues.length === 0 && (
-        <p className="text-center text-muted-foreground">Nenhuma liga cadastrada.</p>
+        <Empty className="mt-8">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Trophy />
+            </EmptyMedia>
+            <EmptyTitle>Nenhuma liga cadastrada</EmptyTitle>
+            <EmptyDescription>Crie a primeira liga para começar.</EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Link to="/leagues/new" className={cn(buttonVariants())}>
+              Criar liga
+            </Link>
+          </EmptyContent>
+        </Empty>
       )}
     </div>
   );

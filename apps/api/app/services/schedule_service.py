@@ -60,12 +60,17 @@ async def generate_events(
         if idx >= len(slots):
             break
         event_date, start_time = slots[idx]
+        bracket_format = mod.rules_json.get("bracket_format", "group-stage")
+        if bracket_format in ("single-elimination", "double-elimination"):
+            phase = EventPhase.QUARTER
+        else:
+            phase = EventPhase.GROUPS
         event = Event(
             competition_id=competition.id,
             modality_id=mod.id,
             event_date=event_date,
             start_time=start_time,
-            phase=EventPhase.GROUPS,
+            phase=phase,
             status=EventStatus.SCHEDULED,
         )
         session.add(event)

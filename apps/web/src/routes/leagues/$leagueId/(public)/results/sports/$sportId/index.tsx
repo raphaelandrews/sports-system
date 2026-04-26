@@ -6,6 +6,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@sports-system/ui/components/card";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@sports-system/ui/components/empty";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sports-system/ui/components/tabs";
 import { useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -88,9 +94,14 @@ function SportResultsPage() {
         </CardHeader>
         <CardContent>
           {sport.modalities.length === 0 ? (
-            <div className="py-8 text-center text-sm text-muted-foreground">
-              Nenhuma modalidade cadastrada.
-            </div>
+            <Empty>
+              <EmptyHeader>
+                <EmptyTitle>Nenhuma modalidade cadastrada</EmptyTitle>
+                <EmptyDescription>
+                  Este esporte ainda não possui modalidades configuradas.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
           ) : (
             <Tabs defaultValue={defaultTab}>
               <TabsList className="flex h-auto flex-wrap gap-2 bg-transparent p-0">

@@ -4,7 +4,7 @@
 
 Multi-sport competition management system. Delegations compete across 10 sports in weekly cycles. Features medal boards, athlete management, enrollment validation, AI content generation.
 
-Full spec: `FEATURES.md` | Phased task list: `FEATURES.md` (backend phases 1–10, frontend phases 1–14)
+Primary docs: `README.md` | Seed/bootstrap: `SEED.md`
 
 ## Monorepo Structure
 
@@ -53,8 +53,8 @@ First-time backend setup: `cd apps/api && uv sync && bun run db:up`
 - Layer order: `router → service → repository → model`
 - SQLModel + Alembic — configured; `apps/api/alembic/` has migrations at head
 - PostgreSQL (refresh tokens table for JWT invalidation; SSE via asyncio.Queue)
-- JWT auth — custom access + refresh tokens; FastAPI Users for user management (Argon2id hashing via pwdlib), OAuth-ready via `app/core/auth.py`
-- APScheduler: auto-lock weeks, auto-generate matches, 24h match notifications
+- JWT auth — custom access + refresh tokens, password auth, Google/GitHub OAuth via `app/services/auth_service.py`
+- APScheduler: auto-lock competitions, auto-generate matches, 24h match notifications
 - SSE via `sse-starlette` — `EventSourceResponse(generator, ping=20)`, no manual heartbeat needed
 - slowapi rate limiting — `app/core/limiter.py` singleton; apply with `@limiter.limit("N/minute")` + `request: Request` as first param
 - orjson — `default_response_class=ORJSONResponse` on the app; all exception handlers return `ORJSONResponse`
@@ -101,10 +101,10 @@ First-time backend setup: `cd apps/api && uv sync && bun run db:up`
 
 - `queryOptions()` factory shared between route loader and `useSuspenseQuery`
 - `staleTime` by data type: lists 2min, medal board 30s, AI responses 10min
-- Route guards: `_authenticated.tsx` → `_admin.tsx` / `_chief.tsx` via `beforeLoad`
+- Route guards: use `beforeLoad` on auth-sensitive route groups
 - SSR strategy per route: public pages full SSR, auth pages `data-only`, live/AI pages `ssr: false`
 - Shared UI components live in `packages/ui`, import as `@sports-system/ui/components/...`
-- All imports within `apps/web/src/` must use the `@/` alias (e.g. `@/lib/api`, `@/queries/weeks`) — no relative `../` paths. Exception: auto-generated `routeTree.gen.ts` (never edit manually)
+- All imports within `apps/web/src/` must use the `@/` alias (e.g. `@/lib/api`, `@/queries/competitions`) — no relative `../` paths. Exception: auto-generated `routeTree.gen.ts` (never edit manually)
 - `routeTree.gen.ts` is **auto-generated** by `@tanstack/router-plugin` on `vite dev` startup — never edit manually, never commit stale version
 - Route group folders `(public)/` are filesystem-only organization — no layout file needed or supported in this router version
 
@@ -128,5 +128,5 @@ First-time backend setup: `cd apps/api && uv sync && bun run db:up`
 - Key vars: `TIMEZONE=America/Sao_Paulo` (api)
 - `packages/infra/.env` only needed for `bun run deploy` — contains `ALCHEMY_PASSWORD` and `CLOUDFLARE_API_TOKEN`
 - `apps/web/.env` — dev URLs (`VITE_SERVER_URL=http://localhost:3000`, `CORS_ORIGIN=http://localhost:3001`)
-- `apps/web/.env.production` — prod URLs (Railway API, Cloudflare Workers domain); loaded automatically by `alchemy.run.ts` when `NODE_ENV=production`
-- `bun run deploy` sets `NODE_ENV=production` — no manual env switching needed
+- `packages/infra/.env` can override deploy-only frontend vars such as `VITE_SERVER_URL` and `CORS_ORIGIN`
+- `bun run deploy` sets `NODE_ENV=production`

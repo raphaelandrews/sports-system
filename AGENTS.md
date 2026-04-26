@@ -69,6 +69,7 @@ packages/infra/ Cloudflare deploy
 
 ## References
 
-- `FEATURES.md`
+- `README.md`
+- `SEED.md`
 - `CLAUDE.md`
 - `TIMEZONE=America/Sao_Paulo`

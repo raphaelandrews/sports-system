@@ -1,5 +1,12 @@
 import { Badge } from "@sports-system/ui/components/badge";
 import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@sports-system/ui/components/empty";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -16,6 +23,7 @@ import {
 } from "@sports-system/ui/components/table";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { CalendarDays } from "lucide-react";
 import { useState } from "react";
 
 import { formatDate, formatTime } from "@/lib/date";
@@ -93,7 +101,15 @@ function CalendarPage() {
       </div>
 
       {sortedDays.length === 0 && (
-        <p className="text-muted-foreground text-center py-12">Nenhum evento encontrado.</p>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <CalendarDays />
+            </EmptyMedia>
+            <EmptyTitle>Nenhum evento encontrado</EmptyTitle>
+            <EmptyDescription>Ainda não há eventos agendados para esta liga.</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       )}
 
       <div className="space-y-8">

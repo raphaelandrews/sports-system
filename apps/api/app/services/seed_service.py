@@ -59,6 +59,8 @@ _SPORTS: list[dict[str, Any]] = [
                     "substitutes": 5,
                     "gender": "M",
                     "schedule_conflict_check": True,
+                    "bracket_format": "group-stage",
+                    "teams_per_group": 4,
                 },
             },
             {
@@ -69,6 +71,8 @@ _SPORTS: list[dict[str, Any]] = [
                     "substitutes": 5,
                     "gender": "F",
                     "schedule_conflict_check": True,
+                    "bracket_format": "group-stage",
+                    "teams_per_group": 4,
                 },
             },
         ],
@@ -106,6 +110,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "substitutes": 6,
                     "gender": "M",
                     "schedule_conflict_check": True,
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -116,6 +121,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "substitutes": 6,
                     "gender": "F",
                     "schedule_conflict_check": True,
+                    "bracket_format": "single-elimination",
                 },
             },
         ],
@@ -157,6 +163,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "substitutes": 7,
                     "gender": "M",
                     "schedule_conflict_check": True,
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -167,6 +174,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "substitutes": 7,
                     "gender": "F",
                     "schedule_conflict_check": True,
+                    "bracket_format": "single-elimination",
                 },
             },
         ],
@@ -198,6 +206,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "M",
                     "schedule_conflict_check": True,
                     "metric": "time",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -207,6 +216,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "F",
                     "schedule_conflict_check": True,
                     "metric": "time",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -216,6 +226,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "M",
                     "schedule_conflict_check": True,
                     "metric": "time",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -225,6 +236,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "F",
                     "schedule_conflict_check": True,
                     "metric": "time",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -235,6 +247,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "schedule_conflict_check": True,
                     "metric": "distance",
                     "attempts": 3,
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -245,6 +258,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "schedule_conflict_check": True,
                     "metric": "distance",
                     "attempts": 3,
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -255,6 +269,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "max_athletes": 4,
                     "schedule_conflict_check": True,
                     "metric": "time",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -265,6 +280,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "max_athletes": 4,
                     "schedule_conflict_check": True,
                     "metric": "time",
+                    "bracket_format": "single-elimination",
                 },
             },
         ],
@@ -314,6 +330,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "M",
                     "weight_category": "até 66kg",
                     "schedule_conflict_check": True,
+                    "bracket_format": "double-elimination",
                 },
             },
             {
@@ -324,6 +341,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "M",
                     "weight_category": "até 81kg",
                     "schedule_conflict_check": True,
+                    "bracket_format": "double-elimination",
                 },
             },
             {
@@ -334,6 +352,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "M",
                     "weight_category": "+90kg",
                     "schedule_conflict_check": True,
+                    "bracket_format": "double-elimination",
                 },
             },
             {
@@ -344,6 +363,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "F",
                     "weight_category": "até 57kg",
                     "schedule_conflict_check": True,
+                    "bracket_format": "double-elimination",
                 },
             },
             {
@@ -354,6 +374,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "F",
                     "weight_category": "até 70kg",
                     "schedule_conflict_check": True,
+                    "bracket_format": "double-elimination",
                 },
             },
             {
@@ -364,6 +385,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "F",
                     "weight_category": "+70kg",
                     "schedule_conflict_check": True,
+                    "bracket_format": "double-elimination",
                 },
             },
         ],
@@ -411,6 +433,8 @@ _SPORTS: list[dict[str, Any]] = [
                     "substitutes": 7,
                     "gender": "M",
                     "schedule_conflict_check": True,
+                    "bracket_format": "group-stage",
+                    "teams_per_group": 4,
                 },
             },
             {
@@ -421,6 +445,8 @@ _SPORTS: list[dict[str, Any]] = [
                     "substitutes": 7,
                     "gender": "F",
                     "schedule_conflict_check": True,
+                    "bracket_format": "group-stage",
+                    "teams_per_group": 4,
                 },
             },
         ],
@@ -451,6 +477,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "schedule_conflict_check": True,
                     "distance": 50,
                     "stroke": "livre",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -461,6 +488,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "schedule_conflict_check": True,
                     "distance": 50,
                     "stroke": "livre",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -471,6 +499,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "schedule_conflict_check": True,
                     "distance": 100,
                     "stroke": "livre",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -481,6 +510,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "schedule_conflict_check": True,
                     "distance": 100,
                     "stroke": "livre",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -491,6 +521,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "schedule_conflict_check": True,
                     "distance": 50,
                     "stroke": "costas",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -501,6 +532,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "schedule_conflict_check": True,
                     "distance": 50,
                     "stroke": "costas",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -511,6 +543,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "schedule_conflict_check": True,
                     "distance": 100,
                     "stroke": "medley",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -521,6 +554,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "schedule_conflict_check": True,
                     "distance": 100,
                     "stroke": "medley",
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -532,6 +566,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "schedule_conflict_check": True,
                     "distance": 50,
                     "stroke": "livre",
+                    "bracket_format": "single-elimination",
                 },
             },
         ],
@@ -568,6 +603,8 @@ _SPORTS: list[dict[str, Any]] = [
                     "max_athletes": 2,
                     "gender": "M",
                     "schedule_conflict_check": True,
+                    "bracket_format": "group-stage",
+                    "teams_per_group": 4,
                 },
             },
             {
@@ -577,6 +614,8 @@ _SPORTS: list[dict[str, Any]] = [
                     "max_athletes": 2,
                     "gender": "F",
                     "schedule_conflict_check": True,
+                    "bracket_format": "group-stage",
+                    "teams_per_group": 4,
                 },
             },
             {
@@ -586,6 +625,8 @@ _SPORTS: list[dict[str, Any]] = [
                     "max_athletes": 2,
                     "gender": "MIXED",
                     "schedule_conflict_check": True,
+                    "bracket_format": "group-stage",
+                    "teams_per_group": 4,
                 },
             },
         ],
@@ -615,12 +656,20 @@ _SPORTS: list[dict[str, Any]] = [
             {
                 "name": "Tênis de Mesa Simples Masculino",
                 "gender": Gender.M,
-                "rules_json": {"gender": "M", "schedule_conflict_check": True},
+                "rules_json": {
+                    "gender": "M",
+                    "schedule_conflict_check": True,
+                    "bracket_format": "single-elimination",
+                },
             },
             {
                 "name": "Tênis de Mesa Simples Feminino",
                 "gender": Gender.F,
-                "rules_json": {"gender": "F", "schedule_conflict_check": True},
+                "rules_json": {
+                    "gender": "F",
+                    "schedule_conflict_check": True,
+                    "bracket_format": "single-elimination",
+                },
             },
             {
                 "name": "Tênis de Mesa Duplas Mistas",
@@ -629,6 +678,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "MIXED",
                     "max_athletes": 2,
                     "schedule_conflict_check": True,
+                    "bracket_format": "single-elimination",
                 },
             },
         ],
@@ -666,6 +716,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "M",
                     "modality_type": "kata",
                     "schedule_conflict_check": True,
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -676,6 +727,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "gender": "F",
                     "modality_type": "kata",
                     "schedule_conflict_check": True,
+                    "bracket_format": "single-elimination",
                 },
             },
             {
@@ -687,6 +739,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "modality_type": "kumite",
                     "weight_category": "leve",
                     "schedule_conflict_check": True,
+                    "bracket_format": "double-elimination",
                 },
             },
             {
@@ -698,6 +751,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "modality_type": "kumite",
                     "weight_category": "médio",
                     "schedule_conflict_check": True,
+                    "bracket_format": "double-elimination",
                 },
             },
             {
@@ -709,6 +763,7 @@ _SPORTS: list[dict[str, Any]] = [
                     "modality_type": "kumite",
                     "weight_category": "leve",
                     "schedule_conflict_check": True,
+                    "bracket_format": "double-elimination",
                 },
             },
         ],

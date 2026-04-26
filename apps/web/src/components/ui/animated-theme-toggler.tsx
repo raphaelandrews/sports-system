@@ -8,7 +8,7 @@ import { cn } from "@sports-system/ui/lib/utils";
 import { Button } from "@sports-system/ui/components/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@sports-system/ui/components/tooltip";
 
-interface AnimatedThemeTogglerProps extends React.ComponentPropsWithoutRef<"button"> {
+interface AnimatedThemeTogglerProps extends React.ComponentProps<typeof Button> {
   duration?: number;
 }
 

@@ -1,5 +1,5 @@
-import { BadgeCheck, Bell, ChevronsUpDown, LogIn, LogOut, ShieldCheck } from "lucide-react";
-import { Link, useRouter } from "@tanstack/react-router";
+import { ChevronsUpDown, LogIn, LogOut, ShieldCheck, Trophy, UserRoundPlus } from "lucide-react";
+import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback } from "@sports-system/ui/components/avatar";
@@ -37,6 +37,8 @@ export function NavUser({ user }: { user: Session | null }) {
 
   const { isMobile } = useSidebar();
   const router = useRouter();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const leagueId = pathname.match(/^\/leagues\/(\d+)/)?.[1];
 
   const initials = user.name
     .split(" ")
@@ -105,14 +107,26 @@ export function NavUser({ user }: { user: Session | null }) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Meu perfil
+              <DropdownMenuItem render={<Link to="/my-leagues" />}>
+                <>
+                  <Trophy />
+                  Minhas ligas
+                </>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notificações
+              <DropdownMenuItem render={<Link to="/request-chief" />}>
+                <>
+                  <UserRoundPlus />
+                  Solicitar chefe
+                </>
               </DropdownMenuItem>
+              {leagueId ? (
+                <DropdownMenuItem render={<Link to="/leagues/$leagueId" params={{ leagueId }} />}>
+                  <>
+                    <ShieldCheck />
+                    Liga atual
+                  </>
+                </DropdownMenuItem>
+              ) : null}
               <DropdownMenuItem>
                 <ShieldCheck />
                 {roleLabel[user.role]}
