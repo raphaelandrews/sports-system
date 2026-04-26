@@ -82,7 +82,7 @@ export function ChiefDashboard({ session, leagueId }: { session: Session; league
         description="Monitore o ritmo da sua delegação, o fluxo de inscrições e os avisos que pedem ação antes do próximo ciclo de competição."
       />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Delegação"
           value={myDelegation?.code ?? "—"}
@@ -109,96 +109,102 @@ export function ChiefDashboard({ session, leagueId }: { session: Session; league
         />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card className="border-border/70 bg-card/85 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <CalendarDays className="h-4 w-4" />
-              Próximas partidas
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {upcomingMatches.length === 0 ? (
-              <EmptyState text="Nenhum lembrete de partida disponível no momento." />
-            ) : (
-              upcomingMatches.map((match) => (
-                <div
-                  key={match.match_id}
-                  className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3"
-                >
-                  <div className="text-sm font-medium">{match.event_name}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    {formatEventDate(match.start_time)}
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium text-muted-foreground">Próximos alertas</h2>
+        <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+          <Card className="border-border/70 bg-card/85 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <CalendarDays className="h-4 w-4" />
+                Próximas partidas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {upcomingMatches.length === 0 ? (
+                <EmptyState text="Nenhum lembrete de partida disponível no momento." />
+              ) : (
+                upcomingMatches.map((match) => (
+                  <div
+                    key={match.match_id}
+                    className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3"
+                  >
+                    <div className="text-sm font-medium">{match.event_name}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {formatEventDate(match.start_time)}
+                    </div>
                   </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+                ))
+              )}
+            </CardContent>
+          </Card>
 
-        <Card className="border-border/70 bg-card/85 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <ShieldAlert className="h-4 w-4" />
-              Avisos
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {unreadNotices.length === 0 ? (
-              <EmptyState text="Sem avisos não lidos no momento." />
-            ) : (
-              unreadNotices.map((notification) => (
-                <div
-                  key={notification.id}
-                  className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3"
-                >
-                  <div className="text-sm font-medium">
-                    {notification.notification_type === "MATCH_REMINDER"
-                      ? "Lembrete de partida"
-                      : notification.notification_type === "RESULT"
-                        ? "Resultado publicado"
-                        : "Atualização da competição"}
+          <Card className="border-border/70 bg-card/85 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ShieldAlert className="h-4 w-4" />
+                Avisos
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {unreadNotices.length === 0 ? (
+                <EmptyState text="Sem avisos não lidos no momento." />
+              ) : (
+                unreadNotices.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3"
+                  >
+                    <div className="text-sm font-medium">
+                      {notification.notification_type === "MATCH_REMINDER"
+                        ? "Lembrete de partida"
+                        : notification.notification_type === "RESULT"
+                          ? "Resultado publicado"
+                          : "Atualização da competição"}
+                    </div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {formatEventDate(notification.created_at)}
+                    </div>
                   </div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    {formatEventDate(notification.created_at)}
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
-      <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card className="border-border/70 bg-card/85 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Activity className="h-4 w-4" />
-              Status das inscrições
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <StatusBar label="Aprovadas" value={approvedEnrollments} tone="bg-emerald-500" />
-            <StatusBar label="Pendentes" value={pendingEnrollments} tone="bg-amber-500" />
-            <StatusBar label="Rejeitadas" value={rejectedEnrollments} tone="bg-rose-500" />
-          </CardContent>
-        </Card>
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium text-muted-foreground">Ações da delegação</h2>
+        <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+          <Card className="border-border/70 bg-card/85 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Activity className="h-4 w-4" />
+                Status das inscrições
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <StatusBar label="Aprovadas" value={approvedEnrollments} tone="bg-emerald-500" />
+              <StatusBar label="Pendentes" value={pendingEnrollments} tone="bg-amber-500" />
+              <StatusBar label="Rejeitadas" value={rejectedEnrollments} tone="bg-rose-500" />
+            </CardContent>
+          </Card>
 
-        <Card className="border-border/70 bg-card/85 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <ArrowRight className="h-4 w-4" />
-              Atalhos rápidos
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <ActionLink to="/dashboard/my-delegation" label="Abrir visão geral da delegação" />
-            <ActionLink to="/dashboard/my-delegation/members" label="Ver membros e convites" />
-            <ActionLink to="/dashboard/enrollments" label="Acompanhar inscrições" />
-            <ActionLink to="/results" label="Comparar posição no quadro de medalhas" />
-          </CardContent>
-        </Card>
-      </div>
+          <Card className="border-border/70 bg-card/85 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ArrowRight className="h-4 w-4" />
+                Atalhos rápidos
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <ActionLink to="/dashboard/my-delegation" label="Abrir visão geral da delegação" />
+              <ActionLink to="/dashboard/my-delegation/members" label="Ver membros e convites" />
+              <ActionLink to="/dashboard/enrollments" label="Acompanhar inscrições" />
+              <ActionLink to="/results" label="Comparar posição no quadro de medalhas" />
+            </CardContent>
+          </Card>
+        </div>
+      </section>
     </DashboardShell>
   );
 }

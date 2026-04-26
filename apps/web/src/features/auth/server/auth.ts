@@ -4,6 +4,31 @@ import { deleteCookie, getCookie, setCookie } from "@tanstack/react-start/server
 import type { LoginRequest, RegisterRequest, Session, TokenResponse } from "@/types/auth";
 import { buildApiUrl } from "@/shared/lib/url";
 
+function toConnectionError(error: unknown): Error {
+  if (error instanceof Error) {
+    const lower = error.message.toLowerCase();
+    if (
+      lower.includes("fetch failed") ||
+      lower.includes("failed to fetch") ||
+      lower.includes("econnrefused") ||
+      lower.includes("network")
+    ) {
+      return new Error("Could not reach the API server. Check if the backend is running.");
+    }
+  }
+  return error instanceof Error
+    ? error
+    : new Error("Could not reach the API server. Check if the backend is running.");
+}
+
+async function fetchAuthJson(path: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(buildApiUrl(path), init);
+  } catch (error) {
+    throw toConnectionError(error);
+  }
+}
+
 function setAuthCookies(tokens: TokenResponse) {
   setCookie("access_token", tokens.access_token, {
     httpOnly: false,
@@ -36,7 +61,7 @@ export const getSessionFn = createServerFn().handler(async (): Promise<Session |
 export const loginFn = createServerFn({ method: "POST" })
   .inputValidator((data: LoginRequest) => data)
   .handler(async ({ data }) => {
-    const res = await fetch(buildApiUrl("/auth/login"), {
+    const res = await fetchAuthJson("/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -54,7 +79,7 @@ export const loginFn = createServerFn({ method: "POST" })
 export const registerFn = createServerFn({ method: "POST" })
   .inputValidator((data: RegisterRequest) => data)
   .handler(async ({ data }) => {
-    const res = await fetch(buildApiUrl("/auth/register"), {
+    const res = await fetchAuthJson("/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -85,7 +110,7 @@ export const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
 export const finalizeOAuthFn = createServerFn({ method: "POST" })
   .inputValidator((data: { token: string }) => data)
   .handler(async ({ data }) => {
-    const res = await fetch(buildApiUrl("/auth/oauth/finalize"), {
+    const res = await fetchAuthJson("/auth/oauth/finalize", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),

@@ -41,7 +41,7 @@ export function SearchCommand({
   leagues,
 }: {
   leagueId?: string;
-  session: Session;
+  session: Session | null;
   membershipRole?: LeagueMemberRole;
   leagues: LeagueResponse[];
 }) {
@@ -49,8 +49,8 @@ export function SearchCommand({
   const [query, setQuery] = useState("");
   const trimmedQuery = query.trim();
   const canSearchUsers =
-    session.role === "ADMIN" ||
-    session.role === "SUPERADMIN" ||
+    session?.role === "ADMIN" ||
+    session?.role === "SUPERADMIN" ||
     membershipRole === "LEAGUE_ADMIN" ||
     membershipRole === "CHIEF";
 
@@ -74,37 +74,51 @@ export function SearchCommand({
   }, [open]);
 
   const quickActions = useMemo<QuickAction[]>(
-    () =>
-      leagueId
-        ? [
-            {
-              label: "Calendário",
-              description: "Abrir agenda oficial da liga",
-              href: `/leagues/${leagueId}/dashboard/calendar`,
-              icon: CalendarDays,
-            },
-            {
-              label: "Delegações",
-              description: "Ir para gestão e consulta de delegações",
-              href: `/leagues/${leagueId}/dashboard/delegations`,
-              icon: Users,
-            },
-            {
-              label: "Narrativa",
-              description: "Abrir acompanhamento narrativo da competição",
-              href: `/leagues/${leagueId}/narrative`,
-              icon: Sparkles,
-            },
-          ]
-        : [
-            {
-              label: "Explorar ligas",
-              description: "Abrir a lista pública de ligas",
-              href: "/leagues",
-              icon: Globe,
-            },
-          ],
-    [leagueId],
+    () => {
+      if (!leagueId) {
+        return [
+          {
+            label: "Explorar ligas",
+            description: "Abrir a lista pública de ligas",
+            href: "/leagues",
+            icon: Globe,
+          },
+        ];
+      }
+
+      const actions: QuickAction[] = [
+        {
+          label: "Visão geral",
+          description: "Voltar para a página principal da liga",
+          href: `/leagues/${leagueId}`,
+          icon: Globe,
+        },
+        {
+          label: "Calendário",
+          description: "Abrir agenda oficial da liga",
+          href: `/leagues/${leagueId}/calendar`,
+          icon: CalendarDays,
+        },
+      ];
+
+      if (session && membershipRole) {
+        actions.push({
+          label: "Painel",
+          description: "Entrar na área operacional da liga",
+          href: `/leagues/${leagueId}/dashboard`,
+          icon: Users,
+        });
+        actions.push({
+          label: "Narrativa",
+          description: "Abrir acompanhamento narrativo da competição",
+          href: `/leagues/${leagueId}/narrative`,
+          icon: Sparkles,
+        });
+      }
+
+      return actions;
+    },
+    [leagueId, membershipRole, session],
   );
 
   const leagueResults = leagueSearchQuery.data;
@@ -139,7 +153,7 @@ export function SearchCommand({
 
   return (
     <>
-      <Button variant="secondary" size="sm" onClick={() => setOpen(true)}>
+      <Button variant="secondary" size="sm" className="text-muted-foreground" onClick={() => setOpen(true)}>
         <Search className="size-4" />
         Buscar
       </Button>

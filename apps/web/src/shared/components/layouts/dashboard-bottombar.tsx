@@ -6,24 +6,11 @@ import { roleLabel, type ShellScope } from "@/shared/components/layouts/shell-na
 import type { Session } from "@/types/auth";
 import type { LeagueMemberResponse, LeagueResponse } from "@/types/leagues";
 
-type BarAction =
-  | {
-      kind: "link";
-      href: string;
-      label: string;
-    }
-  | {
-      kind: "button";
-      label: string;
-      onClick: () => void;
-    };
-
 type BarItem = {
   id: string;
   message: string;
   severity: "neutral" | "warning" | "error";
   dismissible?: boolean;
-  action?: BarAction;
 };
 
 export function DashboardBottomBar({
@@ -51,22 +38,12 @@ export function DashboardBottomBar({
         message: membership
           ? `${roleLabel(membership.role)} em ${league.name} · ${league.timezone}`
           : `${league.name} · ${league.timezone}`,
-        action: {
-          kind: "link",
-          href: `/leagues/${league.id}`,
-          label: scope === "league-authenticated" ? "Ver página pública" : "Abrir liga",
-        },
       });
     } else if (session) {
       nextItems.push({
         id: "platform-context",
         severity: "neutral",
         message: `${roleLabel(session.role)} conectado · plataforma ativa`,
-        action: {
-          kind: "link",
-          href: "/my-leagues",
-          label: "Minhas ligas",
-        },
       });
     }
 
@@ -75,11 +52,6 @@ export function DashboardBottomBar({
         id: "auth-required",
         severity: "warning",
         message: "Entre para acessar ações privadas e navegar pela sua área.",
-        action: {
-          kind: "link",
-          href: "/login",
-          label: "Entrar",
-        },
       });
     }
 
@@ -89,11 +61,6 @@ export function DashboardBottomBar({
         severity: "error",
         message: "Contexto autenticado da liga indisponível. Navegação pública mantida.",
         dismissible: true,
-        action: {
-          kind: "link",
-          href: `/leagues/${league.id}`,
-          label: "Ir para área pública",
-        },
       });
     }
 
@@ -103,11 +70,6 @@ export function DashboardBottomBar({
         severity: "warning",
         message: "Crie uma liga nova ou entre em uma existente para liberar o modo competição.",
         dismissible: true,
-        action: {
-          kind: "link",
-          href: "/leagues/new",
-          label: "Criar liga",
-        },
       });
     }
 
@@ -140,38 +102,6 @@ export function DashboardBottomBar({
           >
             <AlertCircleIcon size={14} strokeWidth={2} className="shrink-0" />
             <span className="min-w-0 flex-1">{item.message}</span>
-            {item.action ? (
-              item.action.kind === "link" ? (
-                <a
-                  href={item.action.href}
-                  className={cn(
-                    "shrink-0 rounded-md px-2 py-0.5 font-medium transition-colors",
-                    isError
-                      ? "bg-white/15 hover:bg-white/25"
-                      : isWarning
-                        ? "bg-yellow-950/10 hover:bg-yellow-950/20"
-                        : "bg-background/70 text-foreground hover:bg-background",
-                  )}
-                >
-                  {item.action.label}
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  onClick={item.action.onClick}
-                  className={cn(
-                    "shrink-0 rounded-md px-2 py-0.5 font-medium transition-colors",
-                    isError
-                      ? "bg-white/15 hover:bg-white/25"
-                      : isWarning
-                        ? "bg-yellow-950/10 hover:bg-yellow-950/20"
-                        : "bg-background/70 text-foreground hover:bg-background",
-                  )}
-                >
-                  {item.action.label}
-                </button>
-              )
-            ) : null}
             {item.dismissible && (
               <button
                 type="button"

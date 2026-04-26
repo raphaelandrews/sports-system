@@ -2,18 +2,136 @@
 Runs only when the sports table is empty (idempotent).
 """
 
+from datetime import date, datetime, time, timedelta
 import logging
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import async_session_factory
-from app.domain.models.league import League, LeagueMember, LeagueMemberRole
-from app.domain.models.sport import Gender, Modality, Sport, SportStatisticsSchema, SportType
+from app.shared.core.security import hash_password
+from app.domain.models.athlete import Athlete, AthleteGender, AthleteModality
+from app.domain.models.delegation import (
+    Delegation,
+    DelegationMember,
+    DelegationMemberRole,
+)
+from app.domain.models.competition import Competition, CompetitionStatus
+from app.domain.models.enrollment import Enrollment, EnrollmentStatus
+from app.domain.models.event import Event, EventPhase, EventStatus
+from app.domain.models.league import (
+    League,
+    LeagueMember,
+    LeagueMemberRole,
+    LeagueStatus,
+)
+from app.domain.models.sport import (
+    Gender,
+    Modality,
+    Sport,
+    SportStatisticsSchema,
+    SportType,
+)
 from app.domain.models.user import User, UserRole
 
 logger = logging.getLogger(__name__)
+
+_SHOWCASE_SUPERADMIN_EMAIL = "test1@gmail.com"
+_SHOWCASE_DELEGATIONS = [
+    ("BRA", "Brasil"),
+    ("ARG", "Argentina"),
+    ("POR", "Portugal"),
+    ("ESP", "Espanha"),
+    ("USA", "Estados Unidos"),
+    ("FRA", "Franca"),
+    ("GER", "Alemanha"),
+    ("ITA", "Italia"),
+    ("JPN", "Japao"),
+    ("NGA", "Nigeria"),
+    ("CAN", "Canada"),
+    ("MEX", "Mexico"),
+    ("COL", "Colombia"),
+    ("CHL", "Chile"),
+    ("URU", "Uruguai"),
+    ("PER", "Peru"),
+    ("BOL", "Bolivia"),
+    ("PAR", "Paraguai"),
+    ("VEN", "Venezuela"),
+    ("ECU", "Equador"),
+    ("ENG", "Inglaterra"),
+    ("NED", "Holanda"),
+    ("BEL", "Belgica"),
+    ("CRO", "Croacia"),
+    ("SRB", "Servia"),
+    ("SWI", "Suica"),
+    ("SWE", "Suecia"),
+    ("NOR", "Noruega"),
+    ("DEN", "Dinamarca"),
+    ("AUS", "Australia"),
+    ("KOR", "Coreia do Sul"),
+    ("CHN", "China"),
+    ("IND", "India"),
+    ("RSA", "Africa do Sul"),
+    ("EGY", "Egito"),
+    ("MAR", "Marrocos"),
+    ("TUN", "Tunisia"),
+    ("SEN", "Senegal"),
+    ("GHA", "Gana"),
+    ("CMR", "Camaroes"),
+    ("CIV", "Costa do Marfim"),
+    ("ALG", "Argelia"),
+    ("RUS", "Russia"),
+    ("UKR", "Ucrania"),
+    ("POL", "Polonia"),
+    ("CZE", "Republica Tcheca"),
+    ("TUR", "Turquia"),
+    ("GRE", "Grecia"),
+    ("HUN", "Hungria"),
+    ("ROU", "Romenia"),
+    ("AUT", "Austria"),
+    ("IRL", "Irlanda"),
+    ("SCO", "Escocia"),
+    ("WAL", "Pais de Gales"),
+    ("NZL", "Nova Zelandia"),
+    ("IRN", "Ira"),
+    ("IRQ", "Iraque"),
+    ("KSA", "Arabia Saudita"),
+    ("UAE", "Emirados Arabes"),
+    ("QAT", "Catar"),
+    ("THA", "Tailandia"),
+    ("VIE", "Vietna"),
+    ("MAS", "Malasia"),
+    ("IDN", "Indonesia"),
+    ("PHI", "Filipinas"),
+    ("PAK", "Paquistao"),
+    ("BAN", "Bangladesh"),
+]
+_SHOWCASE_NAME_PARTS_M = [
+    "Lucas",
+    "Mateus",
+    "Rafael",
+    "Joao",
+    "Gabriel",
+    "Caio",
+    "Thiago",
+    "Henrique",
+    "Pedro",
+    "Daniel",
+]
+_SHOWCASE_NAME_PARTS_F = [
+    "Ana",
+    "Beatriz",
+    "Camila",
+    "Daniela",
+    "Fernanda",
+    "Giovana",
+    "Helena",
+    "Isabela",
+    "Julia",
+    "Larissa",
+]
 
 _SPORTS: list[dict[str, Any]] = [
     {
@@ -798,12 +916,529 @@ async def seed_sports() -> None:
         await session.commit()
 
 
+async def seed_showcase_superadmin() -> None:
+    async with async_session_factory() as session:
+        user_result = await session.execute(
+            select(User).where(User.email == _SHOWCASE_SUPERADMIN_EMAIL).limit(1)
+        )
+        user = user_result.scalar_one_or_none()
+        if user is None:
+            logger.warning(
+                "seed_showcase_superadmin: user email=%s not found, skipping promotion",
+                _SHOWCASE_SUPERADMIN_EMAIL,
+            )
+            return
+
+        if user.role == UserRole.SUPERADMIN and user.is_superuser:
+            return
+
+        user.role = UserRole.SUPERADMIN
+        user.is_superuser = True
+        session.add(user)
+        await session.commit()
+        logger.info(
+            "seed_showcase_superadmin: promoted user id=%s email=%s",
+            user.id,
+            user.email,
+        )
+
+
+async def seed_demo_league_data(
+    session: AsyncSession,
+    league_id: int,
+) -> dict[str, object] | None:
+    existing = await session.execute(
+        select(Delegation.id).where(Delegation.league_id == league_id).limit(1)
+    )
+    if existing.scalar_one_or_none() is not None:
+        return None
+
+    today = date.today()
+    competition_start = today - timedelta(days=today.weekday())
+
+    sports_result = await session.execute(
+        select(Sport).where(Sport.is_active == True).order_by(Sport.id)  # noqa: E712
+    )
+    sports = list(sports_result.scalars().all())
+    if not sports:
+        raise RuntimeError(
+            "Sports not seeded. Restart the server to trigger the startup seed."
+        )
+
+    modalities: list[Modality] = []
+    for sport in sports:
+        mod_result = await session.execute(
+            select(Modality)
+            .where(Modality.sport_id == sport.id, Modality.is_active == True)  # noqa: E712
+            .order_by(Modality.id)
+        )
+        modalities.extend(list(mod_result.scalars().all()))
+
+    male_modalities = [m for m in modalities if m.gender == Gender.M]
+    female_modalities = [m for m in modalities if m.gender == Gender.F]
+    mixed_modalities = [m for m in modalities if m.gender == Gender.MIXED]
+
+    delegations: list[Delegation] = []
+    all_athletes: list[Athlete] = []
+
+    def _build_athlete_name(
+        gender: AthleteGender, index: int, delegation_code: str
+    ) -> str:
+        parts = (
+            _SHOWCASE_NAME_PARTS_M
+            if gender == AthleteGender.M
+            else _SHOWCASE_NAME_PARTS_F
+        )
+        first = parts[index % len(parts)]
+        family = delegation_code.lower().capitalize()
+        return f"{first} {family} {index + 1:02d}"
+
+    async def _create_athlete(
+        delegation: Delegation,
+        delegation_code: str,
+        gender: AthleteGender,
+        index: int,
+        modality_links: list[Modality],
+    ) -> Athlete:
+        athlete_user = User(
+            email=f"athlete.{league_id}.{delegation_code.lower()}.{gender.value.lower()}.{index + 1}@sports.local",
+            name=_build_athlete_name(gender, index, delegation_code),
+            hashed_password=hash_password("athlete123"),
+            role=UserRole.USER,
+        )
+        session.add(athlete_user)
+        await session.flush()
+
+        session.add(
+            LeagueMember(
+                league_id=league_id,
+                user_id=athlete_user.id,
+                role=LeagueMemberRole.ATHLETE,
+            )
+        )
+
+        athlete = Athlete(
+            league_id=league_id,
+            user_id=athlete_user.id,
+            name=_build_athlete_name(gender, index, delegation_code),
+            code=f"ATL-{league_id}-{delegation_code}-{gender.value}-{index + 1:03d}",
+            gender=gender,
+            birthdate=date(1996 + (index % 8), ((index % 12) + 1), ((index % 27) + 1)),
+        )
+        session.add(athlete)
+        await session.flush()
+
+        session.add(
+            DelegationMember(
+                delegation_id=delegation.id,
+                user_id=athlete_user.id,
+                role=DelegationMemberRole.ATHLETE,
+            )
+        )
+        for modality in modality_links:
+            session.add(AthleteModality(athlete_id=athlete.id, modality_id=modality.id))
+
+        all_athletes.append(athlete)
+        return athlete
+
+    for delegation_index, (code, name) in enumerate(_SHOWCASE_DELEGATIONS):
+        chief_user = User(
+            email=f"chief.{league_id}.{code.lower()}@sports.local",
+            name=f"Chefe {name}",
+            hashed_password=hash_password("chief123"),
+            role=UserRole.USER,
+        )
+        session.add(chief_user)
+        await session.flush()
+
+        session.add(
+            LeagueMember(
+                league_id=league_id,
+                user_id=chief_user.id,
+                role=LeagueMemberRole.CHIEF,
+            )
+        )
+
+        delegation = Delegation(
+            league_id=league_id,
+            code=f"{code}{league_id}",
+            name=name,
+            chief_id=chief_user.id,
+        )
+        session.add(delegation)
+        await session.flush()
+        delegations.append(delegation)
+
+        session.add(
+            DelegationMember(
+                delegation_id=delegation.id,
+                user_id=chief_user.id,
+                role=DelegationMemberRole.CHIEF,
+            )
+        )
+
+        for athlete_index, modality in enumerate(male_modalities):
+            await _create_athlete(
+                delegation=delegation,
+                delegation_code=code,
+                gender=AthleteGender.M,
+                index=athlete_index,
+                modality_links=[modality],
+            )
+        for athlete_index, modality in enumerate(female_modalities):
+            await _create_athlete(
+                delegation=delegation,
+                delegation_code=code,
+                gender=AthleteGender.F,
+                index=athlete_index,
+                modality_links=[modality],
+            )
+        mixed_offset = max(len(male_modalities), len(female_modalities))
+        for athlete_index, modality in enumerate(mixed_modalities):
+            await _create_athlete(
+                delegation=delegation,
+                delegation_code=code,
+                gender=AthleteGender.M,
+                index=mixed_offset + athlete_index,
+                modality_links=[modality],
+            )
+            await _create_athlete(
+                delegation=delegation,
+                delegation_code=code,
+                gender=AthleteGender.F,
+                index=mixed_offset + athlete_index,
+                modality_links=[modality],
+            )
+
+    await session.commit()
+
+    return {
+        "seeded": True,
+        "league_id": league_id,
+        "delegations": len(delegations),
+        "athletes": len(all_athletes),
+        "sports_referenced": len(sports),
+    }
+
+
+def _current_week_bounds(timezone_name: str) -> tuple[date, date]:
+    local_today = datetime.now(ZoneInfo(timezone_name)).date()
+    monday = local_today - timedelta(days=local_today.weekday())
+    return monday, monday + timedelta(days=6)
+
+
+async def _showcase_weekly_sport_focus(
+    session: AsyncSession,
+    league: League,
+) -> list[int]:
+    configured_ids = [int(sport_id) for sport_id in (league.sports_config or [])]
+    sports_query = select(Sport).where(Sport.is_active == True)  # noqa: E712
+    if configured_ids:
+        sports_query = sports_query.where(Sport.id.in_(configured_ids))
+    sports_result = await session.execute(sports_query.order_by(Sport.id))
+    sports = list(sports_result.scalars().all())
+    return [sport.id for sport in sports]
+
+
+async def _seed_showcase_weekly_roster(
+    session: AsyncSession,
+    league: League,
+    competition_id: int,
+) -> bool:
+    existing = await session.execute(
+        select(Enrollment.id)
+        .join(Event, Enrollment.event_id == Event.id)
+        .where(Event.competition_id == competition_id)
+        .limit(1)
+    )
+    if existing.scalar_one_or_none() is not None:
+        return False
+
+    event_rows = (
+        await session.execute(
+            select(Event, Modality)
+            .join(Modality, Modality.id == Event.modality_id)
+            .where(Event.competition_id == competition_id)
+            .order_by(Event.id)
+        )
+    ).all()
+    if not event_rows:
+        return False
+
+    athlete_rows = (
+        await session.execute(
+            select(Athlete, DelegationMember.delegation_id, AthleteModality.modality_id)
+            .join(DelegationMember, DelegationMember.user_id == Athlete.user_id)
+            .join(AthleteModality, AthleteModality.athlete_id == Athlete.id)
+            .join(Delegation, Delegation.id == DelegationMember.delegation_id)
+            .where(
+                Athlete.league_id == league.id,
+                Athlete.is_active == True,  # noqa: E712
+                Delegation.league_id == league.id,
+                DelegationMember.left_at == None,  # noqa: E711
+            )
+            .order_by(DelegationMember.delegation_id, Athlete.id)
+        )
+    ).all()
+    if not athlete_rows:
+        return False
+
+    for event, modality in event_rows:
+        for athlete, delegation_id, athlete_modality_id in athlete_rows:
+            if athlete_modality_id != modality.id:
+                continue
+            if modality.gender == Gender.M and athlete.gender != AthleteGender.M:
+                continue
+            if modality.gender == Gender.F and athlete.gender != AthleteGender.F:
+                continue
+            session.add(
+                Enrollment(
+                    athlete_id=athlete.id,
+                    event_id=event.id,
+                    delegation_id=delegation_id,
+                    status=EnrollmentStatus.APPROVED,
+                )
+            )
+
+    await session.flush()
+    return True
+
+
+async def _copy_weekly_enrollments(
+    session: AsyncSession,
+    source_competition_id: int,
+    target_competition_id: int,
+) -> bool:
+    existing = await session.execute(
+        select(Enrollment.id)
+        .join(Event, Enrollment.event_id == Event.id)
+        .where(Event.competition_id == target_competition_id)
+        .limit(1)
+    )
+    if existing.scalar_one_or_none() is not None:
+        return False
+
+    source_rows = (
+        await session.execute(
+            select(Enrollment, Event.modality_id)
+            .join(Event, Enrollment.event_id == Event.id)
+            .where(
+                Event.competition_id == source_competition_id,
+                Enrollment.status == EnrollmentStatus.APPROVED,
+            )
+            .order_by(Enrollment.id)
+        )
+    ).all()
+    if not source_rows:
+        return False
+
+    target_events = list(
+        (
+            await session.execute(
+                select(Event)
+                .where(Event.competition_id == target_competition_id)
+                .order_by(Event.id)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not target_events:
+        return False
+
+    target_event_by_modality: dict[int, int] = {}
+    for event in target_events:
+        target_event_by_modality.setdefault(event.modality_id, event.id)
+
+    copied = False
+    seen: set[tuple[int, int, int]] = set()
+    for enrollment, modality_id in source_rows:
+        target_event_id = target_event_by_modality.get(modality_id)
+        if target_event_id is None:
+            continue
+        key = (enrollment.athlete_id, target_event_id, enrollment.delegation_id)
+        if key in seen:
+            continue
+        seen.add(key)
+        session.add(
+            Enrollment(
+                athlete_id=enrollment.athlete_id,
+                event_id=target_event_id,
+                delegation_id=enrollment.delegation_id,
+                status=EnrollmentStatus.APPROVED,
+            )
+        )
+        copied = True
+
+    await session.flush()
+    return copied
+
+
+async def _ensure_showcase_weekly_competition(
+    session: AsyncSession,
+    league: League,
+) -> bool:
+    week_start, week_end = _current_week_bounds(league.timezone)
+    competition = (
+        await session.execute(
+            select(Competition)
+            .where(
+                Competition.league_id == league.id,
+                Competition.start_date == week_start,
+                Competition.end_date == week_end,
+            )
+            .order_by(Competition.id.desc())
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+
+    created = False
+    if competition is None:
+        latest = (
+            await session.execute(
+                select(Competition)
+                .where(Competition.league_id == league.id)
+                .order_by(Competition.number.desc())
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+        sport_focus = await _showcase_weekly_sport_focus(session, league)
+        if not sport_focus:
+            return False
+
+        competition = Competition(
+            league_id=league.id,
+            number=(latest.number + 1) if latest is not None else 1,
+            start_date=week_start,
+            end_date=week_end,
+            status=CompetitionStatus.SCHEDULED,
+            sport_focus=sport_focus,
+        )
+        session.add(competition)
+        await session.flush()
+
+        from app.features.competitions import schedule as schedule_service
+
+        await schedule_service.generate_events(session, competition)
+        created = True
+
+    previous = (
+        await session.execute(
+            select(Competition)
+            .where(
+                Competition.league_id == league.id,
+                Competition.start_date < competition.start_date,
+            )
+            .order_by(Competition.start_date.desc(), Competition.number.desc())
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+
+    copied = False
+    if previous is not None:
+        copied = await _copy_weekly_enrollments(session, previous.id, competition.id)
+
+    if not copied:
+        await _seed_showcase_weekly_roster(session, league, competition.id)
+
+    await session.commit()
+    return created
+
+
+async def ensure_showcase_weekly_competitions() -> None:
+    async with async_session_factory() as session:
+        leagues = list(
+            (
+                await session.execute(
+                    select(League).where(
+                        League.status == LeagueStatus.ACTIVE,
+                        League.is_showcase == True,  # noqa: E712
+                        League.auto_simulate == True,  # noqa: E712
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        for league in leagues:
+            created = await _ensure_showcase_weekly_competition(session, league)
+            if created:
+                logger.info(
+                    "ensure_showcase_weekly_competitions: created competition league_id=%s",
+                    league.id,
+                )
+
+
+async def create_showcase_league(
+    session: AsyncSession,
+    name: str,
+    mode: str,
+    sports_config: list[int],
+    created_by_id: int,
+) -> League:
+    from app.domain.models.league import LeagueMode
+
+    mode_enum = LeagueMode(mode.upper())
+    is_speed = mode_enum == LeagueMode.SPEED
+
+    # Auto-calculate timing config
+    match_duration = 15 if is_speed else 300
+    schedule_interval = 10 if is_speed else 300
+
+    # Generate unique slug
+    base_slug = name.lower().replace(" ", "-").replace("_", "-")
+    slug = base_slug
+    suffix = 1
+    while True:
+        existing = await session.execute(select(League).where(League.slug == slug))
+        if existing.scalar_one_or_none() is None:
+            break
+        slug = f"{base_slug}-{suffix}"
+        suffix += 1
+
+    league = League(
+        name=name,
+        slug=slug,
+        description=f"Showcase league ({mode.lower()} mode) with full automation",
+        created_by_id=created_by_id,
+        sports_config=sports_config,
+        is_showcase=True,
+        auto_simulate=True,
+        transfer_window_enabled=not is_speed,
+        timezone="America/Sao_Paulo",
+        mode=mode_enum,
+        match_duration_seconds=match_duration,
+        schedule_interval_seconds=schedule_interval,
+    )
+    session.add(league)
+    await session.flush()
+
+    session.add(
+        LeagueMember(
+            league_id=league.id,
+            user_id=created_by_id,
+            role=LeagueMemberRole.LEAGUE_ADMIN,
+        )
+    )
+    await session.commit()
+    logger.info("create_showcase_league: created league_id=%s mode=%s", league.id, mode)
+    return league
+
+
 async def seed_showcase_league() -> None:
     async with async_session_factory() as session:
         existing = await session.execute(
             select(League).where(League.is_showcase == True)
         )  # noqa: E712
-        if existing.scalar_one_or_none() is not None:
+        existing_league = existing.scalar_one_or_none()
+        if existing_league is not None:
+            seeded = await seed_demo_league_data(session, existing_league.id)
+            if seeded is not None:
+                logger.info(
+                    "seed_showcase_league: seeded showcase demo data league_id=%s",
+                    existing_league.id,
+                )
+            await ensure_showcase_weekly_competitions()
             return
 
         superadmin_result = await session.execute(
@@ -825,27 +1460,19 @@ async def seed_showcase_league() -> None:
         sports = list(sports_result.scalars().all())
         sports_config = [s.id for s in sports]
 
-        league = League(
+        league = await create_showcase_league(
+            session=session,
             name="Showcase League",
-            slug="showcase",
-            description="Default showcase league with full automation",
-            created_by_id=superadmin.id,
+            mode="NORMAL",
             sports_config=sports_config,
-            is_showcase=True,
-            auto_simulate=True,
-            transfer_window_enabled=True,
-            timezone="America/Sao_Paulo",
+            created_by_id=superadmin.id,
         )
-        session.add(league)
-        await session.flush()
 
-        session.add(
-            LeagueMember(
-                league_id=league.id,
-                user_id=superadmin.id,
-                role=LeagueMemberRole.LEAGUE_ADMIN,
+    async with async_session_factory() as session:
+        seeded = await seed_demo_league_data(session, league.id)
+        if seeded is not None:
+            logger.info(
+                "seed_showcase_league: seeded showcase demo data league_id=%s",
+                league.id,
             )
-        )
-
-        await session.commit()
-        logger.info("seed_showcase_league: created showcase league id=%s", league.id)
+    await ensure_showcase_weekly_competitions()

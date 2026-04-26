@@ -14,7 +14,7 @@ export function DashboardHome({
   leagueId: number;
   membership: LeagueMemberResponse;
 }) {
-  if (membership.role === "LEAGUE_ADMIN") return <AdminDashboard leagueId={leagueId} />;
+  if (membership.role === "LEAGUE_ADMIN") return <AdminDashboard session={session} leagueId={leagueId} />;
   if (membership.role === "CHIEF") return <ChiefDashboard session={session} leagueId={leagueId} />;
   return <AthleteCoachDashboard session={session} leagueId={leagueId} />;
 }

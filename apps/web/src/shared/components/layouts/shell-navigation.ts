@@ -7,7 +7,6 @@ import {
   Flag,
   Home,
   Medal,
-  Newspaper,
   PlusCircle,
   Settings,
   Shield,
@@ -98,10 +97,9 @@ function buildPublicNav(leagueBase: string): ShellNavItem[] {
   }
 
   return [
-    { href: leagueBase, label: "Início", icon: Home, exact: true },
+    { href: leagueBase, label: "Visão geral", icon: Home, exact: true },
     { href: `${leagueBase}/competitions`, label: "Competições", icon: CalendarDays },
     { href: `${leagueBase}/results`, label: "Resultados", icon: Medal },
-    { href: `${leagueBase}/feed`, label: "Feed ao vivo", icon: Newspaper },
     { href: `${leagueBase}/calendar`, label: "Calendário", icon: CalendarDays },
     { href: `${leagueBase}/delegations`, label: "Delegações", icon: Flag },
     { href: `${leagueBase}/sports`, label: "Esportes", icon: Trophy },
@@ -117,27 +115,19 @@ function buildGlobalNav(): ShellNavItem[] {
   ];
 }
 
-function buildMemberNav(dash: string, leagueBase: string): ShellNavItem[] {
+function buildMemberNav(dash: string): ShellNavItem[] {
   return [
-    { href: dash, label: "Dashboard", icon: Home, exact: true },
-    { href: `${dash}/calendar`, label: "Calendário", icon: CalendarDays },
-    { href: `${dash}/results`, label: "Resultados", icon: Medal },
-    { href: `${dash}/delegations`, label: "Delegações", icon: Flag },
-    { href: `${dash}/sports`, label: "Esportes", icon: Trophy },
-    { href: `${leagueBase}/feed`, label: "Feed ao vivo", icon: Newspaper },
-    { href: `${leagueBase}/narrative`, label: "Narrativa", icon: Sparkles },
+    { href: dash, label: "Painel", icon: Shield, exact: true },
+    { href: `${dash}/calendar`, label: "Agenda operacional", icon: CalendarDays },
+    { href: `${dash}/results`, label: "Operar resultados", icon: Medal },
   ];
 }
 
 function buildAdminNav(dash: string, leagueBase: string): ShellNavItem[] {
   return [
     { href: `${dash}/competitions`, label: "Competições", icon: Settings },
-    { href: `${dash}/calendar`, label: "Calendário admin", icon: CalendarDays },
-    { href: `${dash}/delegations`, label: "Delegações admin", icon: Flag },
-    { href: `${dash}/sports`, label: "Esportes admin", icon: Trophy },
     { href: `${dash}/athletes`, label: "Atletas", icon: UserCheck },
     { href: `${dash}/enrollments`, label: "Inscrições", icon: Medal },
-    { href: `${dash}/results`, label: "Resultados admin", icon: Medal },
     { href: `${dash}/ai`, label: "Geração IA", icon: Sparkles },
     { href: `${leagueBase}/settings`, label: "Configurações", icon: Settings },
     { href: `${leagueBase}/report`, label: "Relatório Final", icon: BarChart3 },
@@ -158,14 +148,15 @@ function buildChiefNav(dash: string): ShellNavItem[] {
 function buildSupportNav(role: PlatformRole, dash: string): ShellNavItem[] {
   if (role === "SUPERADMIN") {
     return [
-      { href: `${dash}/report`, label: "Centro analítico", icon: ChartColumn },
+      { href: dash, label: "Painel", icon: Shield, exact: true },
       { href: `${dash}/ai`, label: "Automação IA", icon: Sparkles },
+      { href: `${dash}/report`, label: "Centro analítico", icon: ChartColumn },
     ];
   }
-  if (role === "USER") {
+  if (dash) {
     return [
-      { href: `${dash}/calendar`, label: "Calendário oficial", icon: CalendarDays },
-      { href: dash, label: "Meu painel", icon: Shield },
+      { href: dash, label: "Painel", icon: Shield, exact: true },
+      { href: `${dash.replace("/dashboard", "")}/narrative`, label: "Narrativa", icon: Sparkles },
     ];
   }
   return [];
@@ -186,7 +177,7 @@ export function buildMembershipNav(args: {
 
   if (membershipRole === "LEAGUE_ADMIN") {
     return {
-      primary: buildMemberNav(dash, leagueBase),
+      primary: buildPublicNav(leagueBase),
       secondary: buildAdminNav(dash, leagueBase),
       support: buildSupportNav(platformRole ?? "USER", dash),
     };
@@ -194,7 +185,7 @@ export function buildMembershipNav(args: {
 
   if (membershipRole === "CHIEF") {
     return {
-      primary: buildMemberNav(dash, leagueBase),
+      primary: buildPublicNav(leagueBase),
       secondary: buildChiefNav(dash),
       support: buildSupportNav(platformRole ?? "USER", dash),
     };
@@ -202,16 +193,24 @@ export function buildMembershipNav(args: {
 
   if (membershipRole === "COACH" || membershipRole === "ATHLETE") {
     return {
-      primary: buildMemberNav(dash, leagueBase),
-      secondary: [{ href: `${leagueBase}/report`, label: "Relatório Final", icon: BarChart3 }],
+      primary: buildPublicNav(leagueBase),
+      secondary: buildMemberNav(dash),
       support: buildSupportNav(platformRole ?? "USER", dash),
     };
   }
 
+  if (leagueId) {
+    return {
+      primary: buildPublicNav(leagueBase),
+      secondary: [],
+      support: [],
+    };
+  }
+
   return {
-    primary: [],
+    primary: buildPublicNav(leagueBase),
     secondary: [],
-    support: buildPublicNav(leagueBase),
+    support: [],
   };
 }
 
@@ -251,15 +250,22 @@ export function buildQuickActions(args: {
 
   if (scope === "league-authenticated" && membershipRole === "LEAGUE_ADMIN") {
     return [
+      { href: dashBase, label: "Painel", icon: Shield, exact: true },
       { href: `${dashBase}/competitions/new`, label: "Nova competição", icon: PlusCircle },
-      { href: `${leagueBase}/settings`, label: "Configurações", icon: Shield },
     ];
   }
 
   if (scope === "league-authenticated" && membershipRole === "CHIEF") {
     return [
-      { href: `${dashBase}/my-delegation/invite`, label: "Convidar", icon: PlusCircle },
-      { href: `${dashBase}/my-delegation/transfers`, label: "Transferências", icon: Compass },
+      { href: dashBase, label: "Painel", icon: Shield, exact: true },
+      { href: `${dashBase}/my-delegation`, label: "Minha delegação", icon: UserCheck },
+    ];
+  }
+
+  if (scope === "league-authenticated") {
+    return [
+      { href: dashBase, label: "Painel", icon: Shield, exact: true },
+      { href: `${leagueBase}/narrative`, label: "Narrativa", icon: Sparkles },
     ];
   }
 
@@ -315,33 +321,4 @@ export function buildWorkspaces(args: {
   }
 
   return [{ name: "Painel pessoal", meta: "Visão geral", icon: Sparkles, href: "/" }, ...base];
-}
-
-export function shellTitle(args: { scope: ShellScope; league?: LeagueResponse }): {
-  title: string;
-  subtitle: string;
-} {
-  const { scope, league } = args;
-
-  if (league) {
-    return {
-      title: league.name,
-      subtitle:
-        scope === "league-authenticated"
-          ? "Área operacional da liga"
-          : "Acompanhamento público da competição",
-    };
-  }
-
-  if (scope === "site-authenticated") {
-    return {
-      title: "Sports System",
-      subtitle: "Operação e acompanhamento de ligas",
-    };
-  }
-
-  return {
-    title: "Sports System",
-    subtitle: "Descubra e acompanhe ligas esportivas",
-  };
 }

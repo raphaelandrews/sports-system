@@ -2,33 +2,26 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import {
   CirclePlusIcon,
-  ExternalLinkIcon,
-  HomeIcon,
   LogOutIcon,
   MoreHorizontalIcon,
   SearchIcon,
-  SettingsIcon,
   ShieldIcon,
-  TrophyIcon,
   UserCircleIcon,
   UsersIcon,
 } from "lucide-react";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
-import { DashboardTabs } from "@/shared/components/layouts/dashboard-tabs";
 import { SearchCommand } from "@/shared/components/layouts/search-command";
 import {
-  buildPrimaryNav,
   buildMembershipNav,
+  buildPrimaryNav,
   buildWorkspaces,
   getLeagueIdFromPath,
-  roleLabel,
-  shellTitle,
+  type ShellNavItem,
   type ShellScope,
 } from "@/shared/components/layouts/shell-navigation";
 import { leagueListQueryOptions, myLeaguesQueryOptions } from "@/features/leagues/api/queries";
-import { notificationsQueryOptions } from "@/features/notifications/api/queries";
 import { logoutFn } from "@/features/auth/server/auth";
 import type { Session } from "@/types/auth";
 import type { LeagueMemberResponse, LeagueResponse } from "@/types/leagues";
@@ -53,15 +46,6 @@ interface DashboardTopbarProps {
   membership?: LeagueMemberResponse;
 }
 
-type NavItem = {
-  to: string;
-  label: string;
-  icon: typeof HomeIcon;
-  count?: number;
-  dot?: boolean;
-  exact?: boolean;
-};
-
 function initialsFor(session: Session) {
   const displayName = session.name ?? session.email;
   return displayName
@@ -72,55 +56,31 @@ function initialsFor(session: Session) {
     .toUpperCase();
 }
 
-function topbarNavItems(args: {
+function getUtilityAction(args: {
   scope: ShellScope;
-  pathname: string;
-  league?: LeagueResponse;
-  membership?: LeagueMemberResponse;
-  unreadCount: number;
-  platformRole?: Session["role"];
-}): NavItem[] {
-  const { scope, pathname, league, membership, unreadCount, platformRole } = args;
-  const leagueId = league ? String(league.id) : getLeagueIdFromPath(pathname);
-  const primary = buildPrimaryNav({
-    scope,
-    leagueId,
-    membershipRole: membership?.role,
-    platformRole: platformRole ?? "USER",
-  });
+  leagueId?: string;
+  hasMembership: boolean;
+}): ShellNavItem | null {
+  const { scope, leagueId, hasMembership } = args;
 
-  if (scope === "site-public") {
-    return [
-      { to: "/", label: "Início", icon: HomeIcon, exact: true },
-      { to: "/leagues", label: "Ligas", icon: TrophyIcon },
-    ];
+  if (leagueId && hasMembership) {
+    return {
+      href: `/leagues/${leagueId}/dashboard`,
+      label: "Painel",
+      icon: ShieldIcon,
+      exact: scope === "league-authenticated",
+    };
   }
 
   if (scope === "site-authenticated") {
-    return [
-      { to: "/", label: "Início", icon: HomeIcon, exact: true },
-      { to: "/leagues", label: "Explorar", icon: SearchIcon },
-      { to: "/my-leagues", label: "Minhas ligas", icon: ShieldIcon },
-      { to: "/leagues/new", label: "Criar liga", icon: CirclePlusIcon },
-      { to: "/request-chief", label: "Solicitar chefe", icon: UsersIcon, dot: unreadCount > 0 },
-    ];
+    return {
+      href: "/my-leagues",
+      label: "Minhas ligas",
+      icon: UsersIcon,
+    };
   }
 
-  return primary.slice(0, 5).map((item, index) => ({
-    to: item.href,
-    label: item.label,
-    icon:
-      index === 0
-        ? HomeIcon
-        : item.href.includes("/search")
-          ? SearchIcon
-          : item.href.includes("/deleg")
-            ? UsersIcon
-            : item.href.includes("/sport")
-              ? TrophyIcon
-              : ShieldIcon,
-    exact: item.exact,
-  }));
+  return null;
 }
 
 export function DashboardTopbar({
@@ -131,22 +91,11 @@ export function DashboardTopbar({
   membership,
 }: DashboardTopbarProps) {
   const router = useRouter();
-  const routerRef = useRef(router);
-  routerRef.current = router;
-
-  const notificationsQuery = useQuery({
-    ...notificationsQueryOptions(session?.id ?? 0),
-    enabled: Boolean(session),
-  });
   const leaguesQuery = useQuery(leagueListQueryOptions());
   const myLeaguesQuery = useQuery({
     ...myLeaguesQueryOptions(),
     enabled: Boolean(session),
   });
-  const unreadCount =
-    notificationsQuery.data?.data.filter((notification) => !notification.read).length ?? 0;
-  const tabsReady = true;
-  const title = shellTitle({ scope, league });
   const leagueId = league ? String(league.id) : getLeagueIdFromPath(pathname);
   const platformRole = (session?.role as Session["role"] | undefined) ?? "USER";
   const membershipNav = buildMembershipNav({
@@ -158,23 +107,35 @@ export function DashboardTopbar({
     session && myLeaguesQuery.data?.length ? myLeaguesQuery.data : (leaguesQuery.data ?? []);
   const workspaces = session
     ? buildWorkspaces({
-        role: platformRole,
-        leagues: workspaceLeagues,
-        leagueId,
-      })
+      role: platformRole,
+      leagues: workspaceLeagues,
+      leagueId,
+    })
     : [];
-  const navItems = useMemo(
-    () =>
-      topbarNavItems({
-        scope,
-        pathname,
-        league,
-        membership,
-        unreadCount,
-        platformRole: session?.role,
-      }),
-    [scope, pathname, league, membership, unreadCount, session?.role],
-  );
+  const navItems = buildPrimaryNav({
+    scope,
+    leagueId,
+    membershipRole: membership?.role,
+    platformRole,
+  });
+  const utilityAction = getUtilityAction({
+    scope,
+    leagueId,
+    hasMembership: Boolean(session && membership),
+  });
+  const overflowItems = useMemo(() => {
+    const blocked = new Set([
+      ...navItems.map((item) => item.href),
+      ...(utilityAction ? [utilityAction.href] : []),
+    ]);
+
+    return [...membershipNav.support, ...membershipNav.secondary].filter((item, index, list) => {
+      if (blocked.has(item.href)) {
+        return false;
+      }
+      return list.findIndex((candidate) => candidate.href === item.href) === index;
+    });
+  }, [membershipNav.secondary, membershipNav.support, navItems, utilityAction]);
 
   async function handleLogout() {
     await logoutFn();
@@ -184,8 +145,8 @@ export function DashboardTopbar({
   }
 
   return (
-    <nav className="flex min-w-0 items-center gap-3 overflow-hidden px-3 py-2">
-      <div className="hidden md:block">
+    <nav className="flex min-w-0 items-center gap-3 px-3 py-2">
+      <div className="hidden min-w-0 items-center gap-3 md:flex">
         <DropdownMenu>
           <DropdownMenuTrigger
             className="flex size-8 items-center justify-center rounded-full"
@@ -197,7 +158,7 @@ export function DashboardTopbar({
               </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
+          <DropdownMenuContent align="start" className="w-60">
             <DropdownMenuGroup>
               <DropdownMenuLabel className="flex items-center gap-3 py-2">
                 <Avatar className="size-8 border border-border">
@@ -205,14 +166,6 @@ export function DashboardTopbar({
                     {session ? initialsFor(session) : "SS"}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-foreground">
-                    {session?.name ?? title.title}
-                  </span>
-                  <span className="text-xs font-normal text-muted-foreground">
-                    {session ? roleLabel(membership?.role ?? session.role) : title.subtitle}
-                  </span>
-                </div>
               </DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -232,11 +185,11 @@ export function DashboardTopbar({
                 </>
               ) : (
                 <>
-                  <DropdownMenuItem render={<a href="/login" />}>
+                  <DropdownMenuItem render={<Link to="/login" />}>
                     <UserCircleIcon size={16} strokeWidth={2} />
                     Entrar
                   </DropdownMenuItem>
-                  <DropdownMenuItem render={<a href="/register" />}>
+                  <DropdownMenuItem render={<Link to="/register" />}>
                     <CirclePlusIcon size={16} strokeWidth={2} />
                     Criar conta
                   </DropdownMenuItem>
@@ -250,7 +203,7 @@ export function DashboardTopbar({
                 Sair
               </DropdownMenuItem>
             ) : (
-              <DropdownMenuItem render={<a href="/leagues" />}>
+              <DropdownMenuItem render={<Link to="/leagues" />}>
                 <SearchIcon size={16} strokeWidth={2} />
                 Explorar ligas
               </DropdownMenuItem>
@@ -259,55 +212,61 @@ export function DashboardTopbar({
         </DropdownMenu>
       </div>
 
-      <div
-        aria-hidden={!tabsReady}
-        className={`hidden shrink-0 items-center gap-0.5 transition-[opacity,transform] duration-300 ease-out md:flex ${
-          tabsReady ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-0.5 opacity-0"
-        }`}
-      >
-        {navItems.map((item) => (
-          <Button
-            key={item.label}
-            variant="ghost"
-            size="sm"
-            render={
-              <Link
-                to={item.to}
-                activeProps={{ className: "active" }}
-                activeOptions={{ exact: item.exact ?? false }}
-              />
-            }
-            className="text-muted-foreground hover:bg-surface-1! [&.active]:hover:bg-surface-1 [&.active]:bg-surface-1 [&.active]:text-foreground"
-          >
-            <span className="flex items-center gap-2">
-              <item.icon size={15} strokeWidth={2} />
-              <span>{item.label}</span>
-              {item.dot ? (
-                <span className="size-1.5 translate-y-px rounded-full bg-blue-500" />
-              ) : typeof item.count === "number" ? (
-                <span data-slot="tab-count" className="tabular-nums text-muted-foreground">
-                  {item.count}
-                </span>
-              ) : null}
-            </span>
-          </Button>
-        ))}
-      </div>
-
-      <div className="min-w-0 flex-1 overflow-hidden">
-        <DashboardTabs tabsReady={tabsReady} routerRef={routerRef} />
+      <div className="min-w-0 flex-1 overflow-x-auto">
+        <div className="flex min-w-max items-center gap-0.5">
+          {navItems.map((item) => (
+            <Button
+              key={item.href}
+              variant="ghost"
+              size="sm"
+              render={
+                <Link
+                  to={item.href}
+                  activeProps={{ className: "active" }}
+                  activeOptions={{ exact: item.exact ?? false }}
+                />
+              }
+              className="text-muted-foreground hover:bg-surface-1! [&.active]:hover:bg-surface-1 [&.active]:bg-surface-1 [&.active]:text-foreground"
+            >
+              <span className="flex items-center gap-2">
+                <item.icon size={15} strokeWidth={2} />
+                <span>{item.label}</span>
+              </span>
+            </Button>
+          ))}
+        </div>
       </div>
 
       <div className="hidden shrink-0 items-center gap-2 md:flex">
-        {session ? (
-          <SearchCommand
-            leagueId={leagueId}
-            session={session}
-            membershipRole={membership?.role}
-            leagues={workspaceLeagues}
-          />
+        <SearchCommand
+          leagueId={leagueId}
+          session={session}
+          membershipRole={membership?.role}
+          leagues={workspaceLeagues}
+        />
+        {utilityAction ? (
+          <Button
+            variant="outline"
+            size="sm"
+            render={
+              <Link
+                to={utilityAction.href}
+                activeProps={{ className: "active" }}
+                activeOptions={{ exact: utilityAction.exact ?? false }}
+              />
+            }
+            className="gap-2 [&.active]:border-border [&.active]:bg-muted"
+          >
+            <utilityAction.icon size={15} strokeWidth={2} />
+            {utilityAction.label}
+          </Button>
         ) : null}
-        <AnimatedThemeToggler />
+        <AnimatedThemeToggler
+          variant="outline"
+          size="icon"
+          className="size-8 text-muted-foreground hover:bg-muted"
+        />
+        
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
@@ -315,49 +274,35 @@ export function DashboardTopbar({
                 variant="ghost"
                 size="icon"
                 className="size-8 text-muted-foreground hover:bg-muted"
-                aria-label="More actions"
+                aria-label="Mais ações"
               />
             }
           >
             <MoreHorizontalIcon className="size-5" strokeWidth={2} />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            {membershipNav.secondary.slice(0, 4).map((item) => (
+          <DropdownMenuContent align="end" className="w-52">
+            {overflowItems.map((item) => (
               <DropdownMenuItem key={item.href} render={<a href={item.href} />}>
                 <item.icon size={16} strokeWidth={2} />
                 {item.label}
               </DropdownMenuItem>
             ))}
-            {membershipNav.support.slice(0, 3).map((item) => (
-              <DropdownMenuItem key={item.href} render={<a href={item.href} />}>
-                <item.icon size={16} strokeWidth={2} />
-                {item.label}
-              </DropdownMenuItem>
-            ))}
-            {membershipNav.secondary.length > 0 || membershipNav.support.length > 0 ? (
+            {overflowItems.length > 0 &&
+              ((session && !navItems.some((item) => item.href === "/leagues/new")) || !session) ? (
               <DropdownMenuSeparator />
             ) : null}
-            {league ? (
-              <DropdownMenuItem render={<a href={`/leagues/${league.id}`} />}>
-                <ExternalLinkIcon size={16} strokeWidth={2} />
-                Abrir liga
-              </DropdownMenuItem>
-            ) : null}
-            <DropdownMenuItem render={<a href="/leagues" />}>
-              <SearchIcon size={16} strokeWidth={2} />
-              Explorar ligas
-            </DropdownMenuItem>
-            {session ? (
-              <DropdownMenuItem render={<a href="/leagues/new" />}>
+            {session && !navItems.some((item) => item.href === "/leagues/new") ? (
+              <DropdownMenuItem render={<Link to="/leagues/new" />}>
                 <CirclePlusIcon size={16} strokeWidth={2} />
                 Criar liga
               </DropdownMenuItem>
             ) : null}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem render={<a href={league ? `/leagues/${league.id}` : "/"} />}>
-              <SettingsIcon size={16} strokeWidth={2} />
-              {league ? "Ver contexto atual" : "Voltar ao início"}
-            </DropdownMenuItem>
+            {!session ? (
+              <DropdownMenuItem render={<Link to="/login" />}>
+                <UserCircleIcon size={16} strokeWidth={2} />
+                Entrar
+              </DropdownMenuItem>
+            ) : null}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

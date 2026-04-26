@@ -52,7 +52,7 @@ export function AthleteCoachDashboard({
         description="Veja o que vem pela frente, acompanhe seus resultados recentes e navegue rápido para o calendário e para a página pública de resultados."
       />
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-2 md:grid-cols-3">
         <StatCard
           title="Competição atual"
           value={currentCompetition ? `#${currentCompetition.number}` : "—"}
@@ -75,104 +75,110 @@ export function AthleteCoachDashboard({
         />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-        <Card className="border-border/70 bg-card/85 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Activity className="h-4 w-4" />
-              Minhas próximas partidas
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {upcomingMatches.length === 0 ? (
-              <EmptyState text="Ainda não há lembretes de partida para mostrar." />
-            ) : (
-              upcomingMatches.map((match) => (
-                <div
-                  key={match.match_id}
-                  className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3"
-                >
-                  <div className="text-sm font-medium">{match.event_name}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    {formatEventDate(match.start_time)}
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/70 bg-card/85 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Medal className="h-4 w-4" />
-              Meus resultados recentes
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {recentResults.length === 0 ? (
-              <EmptyState text="Nenhum resultado recente vinculado ao seu usuário." />
-            ) : (
-              recentResults.map((result) => (
-                <div
-                  key={result.match_id}
-                  className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3"
-                >
-                  <div className="text-sm font-medium">{result.event_name}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    Atualizado via central de resultados
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-        <Card className="border-border/70 bg-card/85 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <UserRound className="h-4 w-4" />
-              Atalhos
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <ActionLink to="/calendar" label="Abrir calendário da competição" />
-            <ActionLink to="/results" label="Ver quadro de medalhas" />
-            <ActionLink to="/sports" label="Explorar modalidades e esportes" />
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/70 bg-card/85 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <CalendarDays className="h-4 w-4" />
-              Agenda geral em destaque
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {nextEvents.length === 0 ? (
-              <EmptyState text="Nenhum evento destacado no calendário público." />
-            ) : (
-              nextEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className="flex items-center justify-between rounded-2xl border border-border/70 bg-background/80 px-4 py-3"
-                >
-                  <div>
-                    <div className="text-sm font-medium">{event.phase}</div>
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium text-muted-foreground">Minha atividade</h2>
+        <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+          <Card className="border-border/70 bg-card/85 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Activity className="h-4 w-4" />
+                Minhas próximas partidas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {upcomingMatches.length === 0 ? (
+                <EmptyState text="Ainda não há lembretes de partida para mostrar." />
+              ) : (
+                upcomingMatches.map((match) => (
+                  <div
+                    key={match.match_id}
+                    className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3"
+                  >
+                    <div className="text-sm font-medium">{match.event_name}</div>
                     <div className="mt-1 text-xs text-muted-foreground">
-                      {event.venue ?? "Local a definir"}
+                      {formatEventDate(match.start_time)}
                     </div>
                   </div>
-                  <Badge variant="outline">{formatDate(event.event_date)}</Badge>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/70 bg-card/85 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Medal className="h-4 w-4" />
+                Meus resultados recentes
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {recentResults.length === 0 ? (
+                <EmptyState text="Nenhum resultado recente vinculado ao seu usuário." />
+              ) : (
+                recentResults.map((result) => (
+                  <div
+                    key={result.match_id}
+                    className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3"
+                  >
+                    <div className="text-sm font-medium">{result.event_name}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      Atualizado via central de resultados
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium text-muted-foreground">Acessos rápidos</h2>
+        <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+          <Card className="border-border/70 bg-card/85 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <UserRound className="h-4 w-4" />
+                Atalhos
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <ActionLink to="/calendar" label="Abrir calendário da competição" />
+              <ActionLink to="/results" label="Ver quadro de medalhas" />
+              <ActionLink to="/sports" label="Explorar modalidades e esportes" />
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/70 bg-card/85 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <CalendarDays className="h-4 w-4" />
+                Agenda geral em destaque
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {nextEvents.length === 0 ? (
+                <EmptyState text="Nenhum evento destacado no calendário público." />
+              ) : (
+                nextEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="flex items-center justify-between rounded-2xl border border-border/70 bg-background/80 px-4 py-3"
+                  >
+                    <div>
+                      <div className="text-sm font-medium">{event.phase}</div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        {event.venue ?? "Local a definir"}
+                      </div>
+                    </div>
+                    <Badge variant="outline">{formatDate(event.event_date)}</Badge>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
     </DashboardShell>
   );
 }

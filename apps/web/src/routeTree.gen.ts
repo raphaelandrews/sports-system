@@ -9,7 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -71,9 +73,19 @@ import { Route as LeaguesLeagueIdAuthenticatedDashboardLeague_adminCalendarEvent
 import { Route as LeaguesLeagueIdAuthenticatedDashboardLeague_adminSportsSportIdModalitiesNewRouteImport } from './routes/leagues/$leagueId/_authenticated/dashboard/_league_admin/sports/$sportId/modalities/new'
 import { Route as LeaguesLeagueIdAuthenticatedDashboardLeague_adminSportsSportIdModalitiesModalityIdEditRouteImport } from './routes/leagues/$leagueId/_authenticated/dashboard/_league_admin/sports/$sportId/modalities/$modalityId/edit'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -468,7 +480,9 @@ const LeaguesLeagueIdAuthenticatedDashboardLeague_adminSportsSportIdModalitiesMo
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
+  '/terms': typeof TermsRoute
   '/request-chief': typeof AuthenticatedRequestChiefRouteWithChildren
   '/leagues/new': typeof LeaguesNewRoute
   '/leagues/': typeof LeaguesIndexRoute
@@ -527,7 +541,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
+  '/terms': typeof TermsRoute
   '/leagues/new': typeof LeaguesNewRoute
   '/leagues': typeof LeaguesIndexRoute
   '/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
@@ -585,7 +601,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/request-chief': typeof AuthenticatedRequestChiefRouteWithChildren
   '/leagues/new': typeof LeaguesNewRoute
   '/leagues/': typeof LeaguesIndexRoute
@@ -649,7 +667,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/privacy'
     | '/register'
+    | '/terms'
     | '/request-chief'
     | '/leagues/new'
     | '/leagues/'
@@ -708,7 +728,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/privacy'
     | '/register'
+    | '/terms'
     | '/leagues/new'
     | '/leagues'
     | '/request-chief/status'
@@ -765,7 +787,9 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/login'
+    | '/privacy'
     | '/register'
+    | '/terms'
     | '/_authenticated/request-chief'
     | '/leagues/new'
     | '/leagues/'
@@ -829,7 +853,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  PrivacyRoute: typeof PrivacyRoute
   RegisterRoute: typeof RegisterRoute
+  TermsRoute: typeof TermsRoute
   LeaguesNewRoute: typeof LeaguesNewRoute
   LeaguesIndexRoute: typeof LeaguesIndexRoute
   AuthOauthCallbackRoute: typeof AuthOauthCallbackRoute
@@ -853,11 +879,25 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1479,7 +1519,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
+  PrivacyRoute: PrivacyRoute,
   RegisterRoute: RegisterRoute,
+  TermsRoute: TermsRoute,
   LeaguesNewRoute: LeaguesNewRoute,
   LeaguesIndexRoute: LeaguesIndexRoute,
   AuthOauthCallbackRoute: AuthOauthCallbackRoute,

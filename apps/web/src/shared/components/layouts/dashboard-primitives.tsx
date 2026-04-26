@@ -1,7 +1,6 @@
 import type { ElementType, ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card";
 import type {
   MatchReminderPayload,
   NotificationResponse,
@@ -67,16 +66,16 @@ export function StatCard({
   icon: ElementType;
 }) {
   return (
-    <Card className="border-border/70 bg-card/80 shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-3xl font-semibold tracking-tight">{value}</div>
-        <p className="mt-1 text-xs text-muted-foreground">{sub}</p>
-      </CardContent>
-    </Card>
+    <div className="flex items-center gap-3 rounded-xl bg-muted/60 px-3.5 py-3 transition-colors hover:bg-muted">
+      <div className="flex shrink-0 items-center justify-center text-muted-foreground">
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="min-w-0">
+        <p className="font-semibold leading-tight tabular-nums">{value}</p>
+        <p className="truncate text-xs text-muted-foreground">{title}</p>
+        <p className="truncate text-[11px] text-muted-foreground/80">{sub}</p>
+      </div>
+    </div>
   );
 }
 
@@ -90,25 +89,24 @@ export function SectionHeader({
   description: string;
 }) {
   return (
-    <div className="space-y-2">
-      <div className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+    <div className="flex flex-col gap-2">
+      <div className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
         {eyebrow}
       </div>
-      <div className="space-y-1">
-        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">{description}</p>
+      <div className="space-y-1.5">
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>
       </div>
     </div>
   );
 }
 
-export function DashboardShell({ accent, children }: { accent: string; children: ReactNode }) {
+export function DashboardShell({ children }: { children: ReactNode }) {
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-border/60 bg-background">
-      <div
-        className={`pointer-events-none absolute inset-x-0 top-0 h-40 bg-linear-to-r ${accent} opacity-75 blur-3xl`}
-      />
-      <div className="relative space-y-6 p-6">{children}</div>
+    <div className="relative h-full overflow-auto px-6 py-16">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
+        <div className="relative flex flex-col gap-8">{children}</div>
+      </div>
     </div>
   );
 }
@@ -117,7 +115,7 @@ export function ActionLink({ to, label }: { to: string; label: string }) {
   return (
     <a
       href={to}
-      className="group flex items-center justify-between rounded-2xl border border-border/70 bg-background/80 px-4 py-3 text-sm transition hover:border-foreground/20 hover:bg-accent/40"
+      className="group flex items-center justify-between rounded-xl bg-muted/60 px-3.5 py-3 text-sm transition hover:bg-muted"
     >
       <span>{label}</span>
       <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5" />

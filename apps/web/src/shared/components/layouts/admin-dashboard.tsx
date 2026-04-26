@@ -1,13 +1,19 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { CalendarDays, ClipboardCheck, Flag, Sparkles, Target, Trophy, Users } from "lucide-react";
+import { CalendarDays, ClipboardCheck, Flag, Sparkles, Target, Trophy, Users, Zap } from "lucide-react";
+import { useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card";
+import { Button } from "@sports-system/ui/components/button";
+import { Input } from "@sports-system/ui/components/input";
+import { Label } from "@sports-system/ui/components/label";
 import { ActivityFeed } from "@/features/activities/components/activity-feed";
 import { formatDate } from "@/shared/lib/date";
+import { buildApiUrl } from "@/shared/lib/url";
 import { activityFeedQueryOptions } from "@/features/activities/api/queries";
 import { adminRequestsQueryOptions } from "@/features/admin/api/queries";
 import { competitionListQueryOptions } from "@/features/competitions/api/queries";
 import { finalReportQueryOptions } from "@/features/reports/api/queries";
+import type { Session } from "@/types/auth";
 
 import {
   ActionLink,
@@ -154,7 +160,77 @@ function GaugeCard({
   );
 }
 
-export function AdminDashboard({ leagueId }: { leagueId: number }) {
+function ShowcaseLeagueCard({ session }: { session: Session }) {
+  const [name, setName] = useState("");
+  const [mode, setMode] = useState<"normal" | "speed">("normal");
+  const [loading, setLoading] = useState(false);
+
+  const isSuperadmin = session.role === "SUPERADMIN";
+  if (!isSuperadmin) return null;
+
+  const handleCreate = async () => {
+    if (!name.trim()) return;
+    setLoading(true);
+    try {
+      const res = await fetch(buildApiUrl("/admin/showcase-leagues"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), mode }),
+      });
+      if (!res.ok) throw new Error("Failed to create");
+      const data = await res.json();
+      window.location.href = `/leagues/${data.league_id}/dashboard`;
+    } catch {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card className="border-border/70 bg-card/85 shadow-sm">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Zap className="h-4 w-4" />
+          Criar Liga Showcase
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="showcase-name">Nome da liga</Label>
+          <Input
+            id="showcase-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Ex: Liga de Demonstração"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Modo</Label>
+          <div className="flex gap-2">
+            <Button
+              variant={mode === "normal" ? "default" : "outline"}
+              onClick={() => setMode("normal")}
+              size="sm"
+            >
+              Normal (semanal)
+            </Button>
+            <Button
+              variant={mode === "speed" ? "default" : "outline"}
+              onClick={() => setMode("speed")}
+              size="sm"
+            >
+              Speed (10 min)
+            </Button>
+          </div>
+        </div>
+        <Button onClick={handleCreate} disabled={!name.trim() || loading} className="w-full">
+          {loading ? "Criando..." : "Criar liga showcase"}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function AdminDashboard({ session, leagueId }: { session: Session; leagueId: number }) {
   const { data: finalReport } = useSuspenseQuery(finalReportQueryOptions(leagueId));
   const { data: competitions } = useSuspenseQuery(competitionListQueryOptions(leagueId));
   const { data: requests } = useSuspenseQuery(adminRequestsQueryOptions(leagueId));
@@ -170,14 +246,14 @@ export function AdminDashboard({ leagueId }: { leagueId: number }) {
       : 0;
 
   return (
-    <DashboardShell accent="from-amber-500/30 via-orange-500/15 to-transparent">
+    <DashboardShell>
       <SectionHeader
         eyebrow="Centro de comando"
         title="Dashboard administrativo"
         description="Acompanhe o estado da competição, a saúde da operação e os atalhos de geração para acelerar o setup das próximas etapas."
       />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Delegações"
           value={finalReport.summary.total_delegations}
@@ -208,40 +284,58 @@ export function AdminDashboard({ leagueId }: { leagueId: number }) {
         />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
-        <MedalProgressCard leagueId={leagueId} />
-        <GaugeCard
-          value={completionRate}
-          title="Taxa de partidas concluídas"
-          description={`${finalReport.summary.completed_matches} de ${finalReport.summary.total_matches} partidas já encerradas.`}
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium text-muted-foreground">Progresso da competição</h2>
+        <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+          <MedalProgressCard leagueId={leagueId} />
+          <GaugeCard
+            value={completionRate}
+            title="Taxa de partidas concluídas"
+            description={`${finalReport.summary.completed_matches} de ${finalReport.summary.total_matches} partidas já encerradas.`}
+          />
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium text-muted-foreground">Operação e IA</h2>
+        <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+          <AthletesBySportCard leagueId={leagueId} />
+          <Card className="border-border/70 bg-card/85 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Sparkles className="h-4 w-4" />
+                Atalhos de IA
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <ActionLink to="/dashboard/ai" label="Abrir painel central de geração" />
+              <ActionLink to="/dashboard/delegations" label="Gerar delegações com IA" />
+              <ActionLink to="/dashboard/results" label="Gerar resultados assistidos" />
+              <ActionLink to="/dashboard/reports" label="Revisar relatórios e exportações" />
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {session.role === "SUPERADMIN" && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-sm font-medium text-muted-foreground">Superadmin</h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            <ShowcaseLeagueCard session={session} />
+          </div>
+        </section>
+      )}
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium text-muted-foreground">Atividade recente</h2>
+        <ActivityFeed
+          initialItems={activityFeed}
+          limit={6}
+          showMatchLink
+          title="Pulso da competição"
+          leagueId={leagueId}
         />
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <AthletesBySportCard leagueId={leagueId} />
-        <Card className="border-border/70 bg-card/85 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Sparkles className="h-4 w-4" />
-              Atalhos de IA
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <ActionLink to="/dashboard/ai" label="Abrir painel central de geração" />
-            <ActionLink to="/dashboard/delegations" label="Gerar delegações com IA" />
-            <ActionLink to="/dashboard/results" label="Gerar resultados assistidos" />
-            <ActionLink to="/dashboard/reports" label="Revisar relatórios e exportações" />
-          </CardContent>
-        </Card>
-      </div>
-
-      <ActivityFeed
-        initialItems={activityFeed}
-        limit={6}
-        showMatchLink
-        title="Pulso da competição"
-        leagueId={leagueId}
-      />
+      </section>
     </DashboardShell>
   );
 }

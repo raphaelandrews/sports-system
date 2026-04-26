@@ -1,16 +1,13 @@
 import {
   CirclePlusIcon,
-  HomeIcon,
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
   SearchIcon,
-  ShieldIcon,
   SunIcon,
-  TrophyIcon,
   UserCircleIcon,
-  UsersIcon,
 } from "lucide-react";
+import type { ComponentType } from "react";
 import { Avatar, AvatarFallback } from "@sports-system/ui/components/avatar";
 import {
   DropdownMenu,
@@ -46,9 +43,9 @@ const themeOptions = [
 ] as const;
 
 interface MobileNavItem {
-  to: string;
+  href: string;
   label: string;
-  icon: typeof HomeIcon;
+  icon: ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
   count?: number;
   exact?: boolean;
 }
@@ -76,37 +73,11 @@ function mobileNavItems(args: {
     platformRole: platformRole ?? "USER",
   });
 
-  if (scope === "site-public") {
-    return [
-      { to: "/", label: "Home", icon: HomeIcon, exact: true },
-      { to: "/leagues", label: "Leagues", icon: TrophyIcon },
-    ];
-  }
-
-  if (scope === "site-authenticated") {
-    return [
-      { to: "/", label: "Home", icon: HomeIcon, exact: true },
-      { to: "/leagues", label: "Explore", icon: SearchIcon },
-      { to: "/my-leagues", label: "Mine", icon: ShieldIcon },
-      { to: "/leagues/new", label: "Create", icon: CirclePlusIcon },
-      { to: "/request-chief", label: "Chief", icon: UsersIcon },
-    ];
-  }
-
-  return items.slice(0, 5).map((item, index) => ({
-    to: item.href,
+  return items.map((item) => ({
+    href: item.href,
     label: item.label,
     exact: item.exact,
-    icon:
-      index === 0
-        ? HomeIcon
-        : item.href.includes("/search")
-          ? SearchIcon
-          : item.href.includes("/deleg")
-            ? UsersIcon
-            : item.href.includes("/sport")
-              ? TrophyIcon
-              : ShieldIcon,
+    icon: item.icon,
   }));
 }
 
@@ -123,7 +94,6 @@ export function DashboardMobileNav({
 }) {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
-  const tabsReady = true;
   const platformRole = (session?.role as Session["role"] | undefined) ?? "USER";
   const leagueId = league ? String(league.id) : undefined;
   const leaguesQuery = useQuery(leagueListQueryOptions());
@@ -145,8 +115,10 @@ export function DashboardMobileNav({
         leagueId,
       })
     : [];
-
   const navItems = mobileNavItems({ scope, league, membership, platformRole });
+  const primaryItems = navItems.slice(0, 4);
+  const overflowItems = [...navItems.slice(4), ...membershipNav.support, ...membershipNav.secondary]
+    .filter((item, index, list) => list.findIndex((candidate) => candidate.href === item.href) === index);
 
   async function handleLogout() {
     await logoutFn();
@@ -157,16 +129,15 @@ export function DashboardMobileNav({
 
   return (
     <nav className="flex items-stretch border-t border-border bg-card md:hidden">
-      {navItems.map((item) => (
+      {primaryItems.map((item) => (
         <Link
-          key={item.to}
-          to={item.to}
+          key={item.href}
+          to={item.href}
           activeOptions={{ exact: item.exact ?? false }}
           activeProps={{ className: "active" }}
           className={cn(
             "relative flex flex-1 items-center justify-center py-3 text-muted-foreground transition-colors",
             "[&.active]:bg-muted [&.active]:text-foreground",
-            !tabsReady && "pointer-events-none opacity-0",
           )}
         >
           <div className="relative">
@@ -183,7 +154,7 @@ export function DashboardMobileNav({
       <DropdownMenu>
         <DropdownMenuTrigger
           className="flex flex-1 items-center justify-center py-3 text-muted-foreground"
-          aria-label="Open mobile menu"
+          aria-label="Abrir menu móvel"
         >
           {session ? (
             <Avatar className="size-6 border border-border" size="sm">
@@ -199,7 +170,7 @@ export function DashboardMobileNav({
               <div>
                 <p>{session?.name ?? "Sports System"}</p>
                 <p className="font-normal text-muted-foreground">
-                  {session ? roleLabel(membership?.role ?? session.role) : "Guest access"}
+                  {session ? roleLabel(membership?.role ?? session.role) : "Acesso visitante"}
                 </p>
               </div>
               <div className="flex items-center gap-0.5 rounded-md border border-border/50 p-0.5">
@@ -232,11 +203,7 @@ export function DashboardMobileNav({
                     {workspace.name}
                   </DropdownMenuItem>
                 ))}
-                <DropdownMenuItem render={<Link to="/request-chief" />}>
-                  <UsersIcon size={16} strokeWidth={2} />
-                  Request chief
-                </DropdownMenuItem>
-                {membershipNav.secondary.slice(0, 3).map((item) => (
+                {overflowItems.map((item) => (
                   <DropdownMenuItem key={item.href} render={<a href={item.href} />}>
                     <item.icon size={16} strokeWidth={2} />
                     {item.label}
@@ -247,11 +214,11 @@ export function DashboardMobileNav({
               <>
                 <DropdownMenuItem render={<Link to="/login" />}>
                   <UserCircleIcon size={16} strokeWidth={2} />
-                  Sign in
+                  Entrar
                 </DropdownMenuItem>
                 <DropdownMenuItem render={<Link to="/register" />}>
                   <CirclePlusIcon size={16} strokeWidth={2} />
-                  Create account
+                  Criar conta
                 </DropdownMenuItem>
               </>
             )}
@@ -260,12 +227,12 @@ export function DashboardMobileNav({
           {session ? (
             <DropdownMenuItem onClick={() => void handleLogout()}>
               <LogOutIcon size={16} strokeWidth={2} />
-              Sign out
+              Sair
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem render={<Link to="/leagues" />}>
               <SearchIcon size={16} strokeWidth={2} />
-              Explore leagues
+              Explorar ligas
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>

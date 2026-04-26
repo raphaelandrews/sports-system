@@ -9,6 +9,7 @@ from app.config import settings
 from app.database import async_session_factory
 from app.domain.models.competition import Competition, CompetitionStatus
 from app.domain.models.event import Event, Match, MatchStatus
+from app.features.admin.service import ensure_showcase_weekly_competitions
 from app.features.leagues import repository as league_repository
 
 logger = logging.getLogger(__name__)
@@ -54,6 +55,15 @@ async def _auto_lock_competitions() -> None:
         await session.commit()
 
 
+async def _ensure_showcase_weekly_leagues() -> None:
+    if not settings.AUTO_SIMULATE:
+        return
+    try:
+        await ensure_showcase_weekly_competitions()
+    except Exception as exc:
+        logger.error("ensure_showcase_weekly_leagues error=%s", exc)
+
+
 async def _auto_start_matches() -> None:
     if not settings.AUTO_SIMULATE:
         return
@@ -88,12 +98,15 @@ async def _auto_start_matches() -> None:
 async def _auto_finish_matches() -> None:
     if not settings.AUTO_SIMULATE:
         return
-    cutoff = datetime.now(UTC).replace(tzinfo=None) - timedelta(minutes=5)
+    now_utc = datetime.now(UTC).replace(tzinfo=None)
     async with async_session_factory() as session:
         leagues = await league_repository.get_active_leagues(session)
         for league in leagues:
             if not league.auto_simulate:
                 continue
+            # Use per-league match duration
+            match_duration = timedelta(seconds=league.match_duration_seconds)
+            cutoff = now_utc - match_duration
             result = await session.execute(
                 select(Match)
                 .join(Event, Match.event_id == Event.id)
@@ -105,6 +118,7 @@ async def _auto_finish_matches() -> None:
                 )
             )
             matches = result.scalars().all()
+            finished_competition_ids: set[int] = set()
             for match in matches:
                 try:
                     from app.features.events import simulation as simulation_service
@@ -115,6 +129,10 @@ async def _auto_finish_matches() -> None:
                         match.id,
                         league.id,
                     )
+                    # Track competition for phase advancement check
+                    event = await session.get(Event, match.event_id)
+                    if event:
+                        finished_competition_ids.add(event.competition_id)
                 except Exception as exc:
                     logger.error(
                         "auto_finish_error match_id=%s league_id=%s error=%s",
@@ -122,6 +140,24 @@ async def _auto_finish_matches() -> None:
                         league.id,
                         exc,
                     )
+
+            # Check for phase advancement
+            from app.features.bracket.progression import (
+                check_and_advance_phases,
+                check_competition_completion,
+            )
+
+            for competition_id in finished_competition_ids:
+                try:
+                    await check_and_advance_phases(session, competition_id)
+                    await check_competition_completion(session, competition_id)
+                except Exception as exc:
+                    logger.error(
+                        "phase_advance_error competition_id=%s error=%s",
+                        competition_id,
+                        exc,
+                    )
+
         await session.commit()
 
 
@@ -156,6 +192,12 @@ async def _send_match_reminders() -> None:
 
 
 def setup_scheduler() -> AsyncIOScheduler:
+    scheduler.add_job(
+        _ensure_showcase_weekly_leagues,
+        "interval",
+        minutes=5,
+        id="ensure_showcase_weekly_leagues",
+    )
     scheduler.add_job(
         _auto_lock_competitions, "interval", minutes=5, id="auto_lock_competitions"
     )

@@ -18,7 +18,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from app.config import settings
 from app.shared.core.limiter import limiter
 from app.shared.core.scheduler import setup_scheduler
-from app.features.admin.router import router as admin_router
+from app.features.admin.router import router as admin_router, superadmin_router
 from app.features.auth.router import router as auth_router
 from app.features.health.router import router as health_router
 from app.features.users.router import router as users_router
@@ -34,7 +34,11 @@ from app.features.search.router import router as search_router
 from app.features.sports.router import modalities_router, router as sports_router
 from app.features.leagues.router import router as leagues_router
 from app.features.competitions.router import router as competitions_router
-from app.features.admin.service import seed_showcase_league, seed_sports
+from app.features.admin.service import (
+    seed_showcase_league,
+    seed_showcase_superadmin,
+    seed_sports,
+)
 
 
 def _configure_logging() -> None:
@@ -74,6 +78,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _configure_logging()
     _run_migrations()
     await seed_sports()
+    await seed_showcase_superadmin()
     await seed_showcase_league()
     sched = setup_scheduler()
     sched.start()
@@ -167,6 +172,7 @@ app.include_router(search_router)
 app.include_router(reports_router)
 app.include_router(narratives_router)
 app.include_router(admin_router)
+app.include_router(superadmin_router)
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=settings.PORT, reload=True)

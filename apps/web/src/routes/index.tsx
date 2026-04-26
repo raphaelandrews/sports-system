@@ -1,17 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { CalendarDays, Trophy } from "lucide-react";
 
-import { Badge } from "@sports-system/ui/components/badge";
 import { buttonVariants } from "@sports-system/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@sports-system/ui/components/card";
 import { cn } from "@sports-system/ui/lib/utils";
 import { leagueListQueryOptions } from "@/features/leagues/api/queries";
+import type { LucideIcon } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(leagueListQueryOptions()),
@@ -22,15 +16,16 @@ function HomePage() {
   const { data: leagues } = useSuspenseQuery(leagueListQueryOptions());
   const { session } = Route.useRouteContext();
 
-  const showcase = leagues.find((l) => l.is_showcase);
-  const others = leagues.filter((l) => !l.is_showcase);
+  const latestLeagues = [...leagues]
+    .sort((left, right) => right.created_at.localeCompare(left.created_at))
+    .slice(0, 9);
 
   return (
     <main className="container mx-auto max-w-5xl px-4 py-10 space-y-12">
       <section className="text-center space-y-3">
-        <h1 className="text-4xl font-bold tracking-tight">Ligas Esportivas</h1>
+        <h1 className="text-4xl font-bold tracking-tight">Sports</h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Descubra, participe e acompanhe ligas esportivas de todas as modalidades.
+          Crie, participe e acompanhe ligas esportivas
         </p>
         {session && (
           <div className="pt-2">
@@ -41,72 +36,81 @@ function HomePage() {
         )}
       </section>
 
-      {showcase && (
-        <section>
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-xl font-semibold">Liga em destaque</h2>
-            <Badge variant="default" className="animate-pulse">
-              Live
-            </Badge>
-          </div>
-          <Card className="border-primary/50">
-            <CardHeader>
-              <CardTitle>{showcase.name}</CardTitle>
-              <CardDescription>{showcase.slug}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">{showcase.description ?? "Sem descrição"}</p>
-              <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
-                <span>{showcase.member_count} membros</span>
-                <span>{showcase.timezone}</span>
-              </div>
-              <Link
-                to="/leagues/$leagueId"
-                params={{ leagueId: String(showcase.id) }}
-                className={cn(buttonVariants({ variant: "secondary" }), "mt-4")}
-              >
-                Acessar liga →
-              </Link>
-            </CardContent>
-          </Card>
-        </section>
-      )}
-
-      {others.length > 0 && (
+      {latestLeagues.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Todas as ligas</h2>
+            <h2 className="text-xl font-semibold">Ligas</h2>
             <Link
               to="/leagues"
-              className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+              className="font-medium text-sm text-muted-foreground hover:text-foreground"
             >
-              Ver todas →
+              Ver todas
             </Link>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {others.slice(0, 6).map((league) => (
-              <Card key={league.id}>
-                <CardHeader>
-                  <CardTitle className="text-lg">{league.name}</CardTitle>
-                  <CardDescription>{league.slug}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {league.description ?? "Sem descrição"}
-                  </p>
-                  <Link
-                    to="/leagues/$leagueId"
-                    params={{ leagueId: String(league.id) }}
-                    className={cn(buttonVariants({ variant: "link" }), "mt-2 p-0")}
-                  >
-                    Ver liga →
-                  </Link>
-                </CardContent>
-              </Card>
+            {latestLeagues.map((league) => (
+              <LeagueInfoCard
+                key={league.id}
+                icon={league.is_showcase ? Trophy : CalendarDays}
+                label={league.name}
+                value={league.member_count}
+                valueLabel="membros"
+                to="/leagues/$leagueId"
+                params={{ leagueId: String(league.id) }}
+              />
             ))}
           </div>
         </section>
       )}
     </main>
   );
+}
+
+type LeagueInfoCardBaseProps = {
+  icon: LucideIcon;
+  label: string;
+  value: number;
+  description?: string;
+  valueLabel?: string;
+  cta?: string;
+};
+
+type LeagueInfoCardProps =
+  | (LeagueInfoCardBaseProps & {
+    to: "/leagues/$leagueId";
+    params: { leagueId: string };
+  })
+  | (LeagueInfoCardBaseProps & {
+    to?: undefined;
+    params?: undefined;
+  });
+
+function LeagueInfoCard({
+  icon: Icon,
+  label,
+  value,
+  to,
+  params,
+}: LeagueInfoCardProps) {
+  const content = (
+    <div className="flex items-center gap-3 rounded-xl bg-surface-1 px-3.5 py-3 transition-colors hover:bg-surface-2">
+      <div className="flex shrink-0 items-center justify-center text-muted-foreground">
+        <Icon size={20} strokeWidth={1.75} />
+      </div>
+      <div className="min-w-0">
+        <p className="font-semibold tabular-nums leading-tight">{label}</p>
+        <p className="truncate text-xs text-muted-foreground">{value} membros</p>
+      </div>
+    </div>
+  );
+
+  if (to) {
+    return (
+      <Link to={to} params={params} className="block">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 }
