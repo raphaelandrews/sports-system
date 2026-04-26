@@ -20,7 +20,7 @@ import {
   SectionHeader,
   StatCard,
   statusLabel,
-} from "./dashboard-primitives";
+} from "@/components/layouts/dashboard-primitives";
 
 export function AthleteCoachDashboard({
   session,

@@ -29,10 +29,18 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 
-import { buildPrimaryNav, roleLabel, type ShellScope } from "@/components/layouts/shell-navigation";
+import {
+  buildMembershipNav,
+  buildPrimaryNav,
+  buildWorkspaces,
+  roleLabel,
+  type ShellScope,
+} from "@/components/layouts/shell-navigation";
+import { leagueListQueryOptions, myLeaguesQueryOptions } from "@/queries/leagues";
 import { logoutFn } from "@/server/auth";
 import type { Session } from "@/types/auth";
 import type { LeagueMemberResponse, LeagueResponse } from "@/types/leagues";
+import { useQuery } from "@tanstack/react-query";
 
 const themeOptions = [
   { value: "light", icon: SunIcon, label: "Light" },
@@ -61,12 +69,14 @@ function mobileNavItems(args: {
   scope: ShellScope;
   league?: LeagueResponse;
   membership?: LeagueMemberResponse;
+  platformRole?: Session["role"];
 }): MobileNavItem[] {
-  const { scope, league, membership } = args;
+  const { scope, league, membership, platformRole } = args;
   const items = buildPrimaryNav({
     scope,
     leagueId: league ? String(league.id) : undefined,
     membershipRole: membership?.role,
+    platformRole: platformRole ?? "USER",
   });
 
   if (scope === "site-public") {
@@ -117,8 +127,29 @@ export function DashboardMobileNav({
   const { theme, setTheme } = useTheme();
   const router = useRouter();
   const tabsReady = true;
+  const platformRole = (session?.role as Session["role"] | undefined) ?? "USER";
+  const leagueId = league ? String(league.id) : undefined;
+  const leaguesQuery = useQuery(leagueListQueryOptions());
+  const myLeaguesQuery = useQuery({
+    ...myLeaguesQueryOptions(),
+    enabled: Boolean(session),
+  });
+  const membershipNav = buildMembershipNav({
+    membershipRole: membership?.role,
+    platformRole,
+    leagueId,
+  });
+  const workspaceLeagues =
+    session && myLeaguesQuery.data?.length ? myLeaguesQuery.data : leaguesQuery.data ?? [];
+  const workspaces = session
+    ? buildWorkspaces({
+      role: platformRole,
+      leagues: workspaceLeagues,
+      leagueId,
+    })
+    : [];
 
-  const navItems = mobileNavItems({ scope, league, membership });
+  const navItems = mobileNavItems({ scope, league, membership, platformRole });
 
   async function handleLogout() {
     await logoutFn();
@@ -200,20 +231,22 @@ export function DashboardMobileNav({
           <DropdownMenuGroup>
             {session ? (
               <>
-                <DropdownMenuItem render={<Link to="/my-leagues" />}>
-                  <UserCircleIcon size={16} strokeWidth={2} />
-                  My leagues
-                </DropdownMenuItem>
+                {workspaces.map((workspace) => (
+                  <DropdownMenuItem key={workspace.href} render={<a href={workspace.href} />}>
+                    <workspace.icon size={16} strokeWidth={2} />
+                    {workspace.name}
+                  </DropdownMenuItem>
+                ))}
                 <DropdownMenuItem render={<Link to="/request-chief" />}>
                   <UsersIcon size={16} strokeWidth={2} />
                   Request chief
                 </DropdownMenuItem>
-                {league ? (
-                  <DropdownMenuItem render={<a href={`/leagues/${league.id}`} />}>
-                    <TrophyIcon size={16} strokeWidth={2} />
-                    League page
+                {membershipNav.secondary.slice(0, 3).map((item) => (
+                  <DropdownMenuItem key={item.href} render={<a href={item.href} />}>
+                    <item.icon size={16} strokeWidth={2} />
+                    {item.label}
                   </DropdownMenuItem>
-                ) : null}
+                ))}
               </>
             ) : (
               <>

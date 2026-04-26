@@ -1,9 +1,9 @@
 import type { Session } from "@/types/auth";
 import type { LeagueMemberResponse } from "@/types/leagues";
 
-import { AdminDashboard } from "./admin-dashboard";
-import { AthleteCoachDashboard } from "./athlete-coach-dashboard";
-import { ChiefDashboard } from "./chief-dashboard";
+import { AdminDashboard } from "@/components/layouts/admin-dashboard";
+import { AthleteCoachDashboard } from "@/components/layouts/athlete-coach-dashboard";
+import { ChiefDashboard } from "@/components/layouts/chief-dashboard";
 
 export function DashboardHome({
   session,

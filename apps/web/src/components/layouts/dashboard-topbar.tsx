@@ -17,13 +17,17 @@ import { useMemo, useRef } from "react";
 import { toast } from "sonner";
 
 import { DashboardTabs } from "@/components/layouts/dashboard-tabs";
+import { SearchCommand } from "@/components/layouts/search-command";
 import {
   buildPrimaryNav,
+  buildMembershipNav,
+  buildWorkspaces,
   getLeagueIdFromPath,
   roleLabel,
   shellTitle,
   type ShellScope,
 } from "@/components/layouts/shell-navigation";
+import { leagueListQueryOptions, myLeaguesQueryOptions } from "@/queries/leagues";
 import { notificationsQueryOptions } from "@/queries/notifications";
 import { logoutFn } from "@/server/auth";
 import type { Session } from "@/types/auth";
@@ -42,6 +46,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@sports-system/ui/components/dropdown-menu";
+import { AnimatedThemeToggler } from "../ui/animated-theme-toggler";
 
 interface DashboardTopbarProps {
   session: Session | null;
@@ -76,13 +81,15 @@ function topbarNavItems(args: {
   league?: LeagueResponse;
   membership?: LeagueMemberResponse;
   unreadCount: number;
+  platformRole?: Session["role"];
 }): NavItem[] {
-  const { scope, pathname, league, membership, unreadCount } = args;
+  const { scope, pathname, league, membership, unreadCount, platformRole } = args;
   const leagueId = league ? String(league.id) : getLeagueIdFromPath(pathname);
   const primary = buildPrimaryNav({
     scope,
     leagueId,
     membershipRole: membership?.role,
+    platformRole: platformRole ?? "USER",
   });
 
   if (scope === "site-public") {
@@ -134,10 +141,31 @@ export function DashboardTopbar({
     ...notificationsQueryOptions(session?.id ?? 0),
     enabled: Boolean(session),
   });
+  const leaguesQuery = useQuery(leagueListQueryOptions());
+  const myLeaguesQuery = useQuery({
+    ...myLeaguesQueryOptions(),
+    enabled: Boolean(session),
+  });
   const unreadCount =
     notificationsQuery.data?.data.filter((notification) => !notification.read).length ?? 0;
   const tabsReady = true;
   const title = shellTitle({ scope, league });
+  const leagueId = league ? String(league.id) : getLeagueIdFromPath(pathname);
+  const platformRole = (session?.role as Session["role"] | undefined) ?? "USER";
+  const membershipNav = buildMembershipNav({
+    membershipRole: membership?.role,
+    platformRole,
+    leagueId,
+  });
+  const workspaceLeagues =
+    session && myLeaguesQuery.data?.length ? myLeaguesQuery.data : leaguesQuery.data ?? [];
+  const workspaces = session
+    ? buildWorkspaces({
+      role: platformRole,
+      leagues: workspaceLeagues,
+      leagueId,
+    })
+    : [];
   const navItems = useMemo(
     () =>
       topbarNavItems({
@@ -146,8 +174,9 @@ export function DashboardTopbar({
         league,
         membership,
         unreadCount,
+        platformRole: session?.role,
       }),
-    [scope, pathname, league, membership, unreadCount],
+    [scope, pathname, league, membership, unreadCount, session?.role],
   );
 
   async function handleLogout() {
@@ -193,20 +222,16 @@ export function DashboardTopbar({
             <DropdownMenuGroup>
               {session ? (
                 <>
-                  <DropdownMenuItem render={<a href="/my-leagues" />}>
-                    <UserCircleIcon size={16} strokeWidth={2} />
-                    Minhas ligas
-                  </DropdownMenuItem>
+                  {workspaces.map((workspace) => (
+                    <DropdownMenuItem key={workspace.href} render={<a href={workspace.href} />}>
+                      <workspace.icon size={16} strokeWidth={2} />
+                      {workspace.name}
+                    </DropdownMenuItem>
+                  ))}
                   <DropdownMenuItem render={<a href="/request-chief" />}>
                     <UsersIcon size={16} strokeWidth={2} />
                     Solicitar chefe
                   </DropdownMenuItem>
-                  {league ? (
-                    <DropdownMenuItem render={<a href={`/leagues/${league.id}`} />}>
-                      <TrophyIcon size={16} strokeWidth={2} />
-                      Página da liga
-                    </DropdownMenuItem>
-                  ) : null}
                 </>
               ) : (
                 <>
@@ -277,7 +302,16 @@ export function DashboardTopbar({
         <DashboardTabs tabsReady={tabsReady} routerRef={routerRef} />
       </div>
 
-      <div className="hidden shrink-0 md:block">
+      <div className="hidden shrink-0 items-center gap-2 md:flex">
+        {session ? (
+          <SearchCommand
+            leagueId={leagueId}
+            session={session}
+            membershipRole={membership?.role}
+            leagues={workspaceLeagues}
+          />
+        ) : null}
+        <AnimatedThemeToggler/>
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
@@ -292,6 +326,21 @@ export function DashboardTopbar({
             <MoreHorizontalIcon className="size-5" strokeWidth={2} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
+            {membershipNav.secondary.slice(0, 4).map((item) => (
+              <DropdownMenuItem key={item.href} render={<a href={item.href} />}>
+                <item.icon size={16} strokeWidth={2} />
+                {item.label}
+              </DropdownMenuItem>
+            ))}
+            {membershipNav.support.slice(0, 3).map((item) => (
+              <DropdownMenuItem key={item.href} render={<a href={item.href} />}>
+                <item.icon size={16} strokeWidth={2} />
+                {item.label}
+              </DropdownMenuItem>
+            ))}
+            {(membershipNav.secondary.length > 0 || membershipNav.support.length > 0) ? (
+              <DropdownMenuSeparator />
+            ) : null}
             {league ? (
               <DropdownMenuItem render={<a href={`/leagues/${league.id}`} />}>
                 <ExternalLinkIcon size={16} strokeWidth={2} />

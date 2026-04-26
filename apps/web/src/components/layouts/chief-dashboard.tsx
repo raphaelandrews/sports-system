@@ -27,7 +27,7 @@ import {
   parseMatchReminderPayload,
   SectionHeader,
   StatCard,
-} from "./dashboard-primitives";
+} from "@/components/layouts/dashboard-primitives";
 
 function StatusBar({ label, value, tone }: { label: string; value: number; tone: string }) {
   const width = Math.min(value * 12, 100);

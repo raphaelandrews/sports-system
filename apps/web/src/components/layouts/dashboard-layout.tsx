@@ -42,7 +42,7 @@ export function DashboardLayout({
 
   const membershipQuery = useQuery({
     ...myLeagueMembershipQueryOptions(leagueId ?? "0"),
-    enabled: Boolean(session && leagueId && scope === "league-authenticated"),
+    enabled: Boolean(session && leagueId),
     retry: false,
   });
 

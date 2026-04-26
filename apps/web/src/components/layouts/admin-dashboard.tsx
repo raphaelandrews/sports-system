@@ -17,7 +17,7 @@ import {
   SectionHeader,
   StatCard,
   statusLabel,
-} from "./dashboard-primitives";
+} from "@/components/layouts/dashboard-primitives";
 
 function MedalProgressCard({ leagueId }: { leagueId: number }) {
   const { data: finalReport } = useSuspenseQuery(finalReportQueryOptions(leagueId));
