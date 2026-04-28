@@ -37,7 +37,6 @@ export const LeagueResponse = z.object({
   description: z.string().nullable(),
   created_by_id: z.number(),
   sports_config: z.array(z.number()),
-  is_showcase: z.boolean(),
   auto_simulate: z.boolean(),
   transfer_window_enabled: z.boolean(),
   timezone: z.string(),

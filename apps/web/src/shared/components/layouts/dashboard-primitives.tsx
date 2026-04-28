@@ -101,14 +101,26 @@ export function SectionHeader({
   );
 }
 
-export function DashboardShell({ children }: { children: ReactNode }) {
+export function DashboardShell({
+  children,
+  accent,
+}: {
+  children: ReactNode
+  accent?: string
+}) {
   return (
     <div className="relative h-full overflow-auto px-6 py-16">
+      {accent ? (
+        <div
+          className={`pointer-events-none absolute inset-x-0 top-0 h-48 bg-linear-to-b ${accent}`}
+          aria-hidden
+        />
+      ) : null}
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
         <div className="relative flex flex-col gap-8">{children}</div>
       </div>
     </div>
-  );
+  )
 }
 
 export function ActionLink({ to, label }: { to: string; label: string }) {

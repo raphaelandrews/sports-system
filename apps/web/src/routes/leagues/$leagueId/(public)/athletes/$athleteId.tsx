@@ -20,7 +20,7 @@ import type { Medal } from "@/types/athletes";
 import { buttonVariants } from "@sports-system/ui/components/button";
 import { cn } from "@/shared/lib/utils";
 
-export const Route = createFileRoute("/leagues/$leagueId/_authenticated/athletes/$athleteId")({
+export const Route = createFileRoute("/leagues/$leagueId/(public)/athletes/$athleteId")({
   ssr: false,
   loader: ({ context: { queryClient }, params: { leagueId, athleteId } }) =>
     queryClient.ensureQueryData(athleteReportQueryOptions(Number(leagueId), Number(athleteId))),

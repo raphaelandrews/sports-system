@@ -2262,8 +2262,6 @@ export interface components {
       created_by_id: number;
       /** Sports Config */
       sports_config: number[];
-      /** Is Showcase */
-      is_showcase: boolean;
       /** Auto Simulate */
       auto_simulate: boolean;
       /** Transfer Window Enabled */

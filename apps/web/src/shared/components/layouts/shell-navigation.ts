@@ -298,8 +298,8 @@ export function buildWorkspaces(args: {
     return [
       {
         name: currentLeague.name,
-        meta: currentLeague.is_showcase ? "Showcase" : currentLeague.timezone,
-        icon: currentLeague.is_showcase ? Sparkles : Trophy,
+        meta: currentLeague.timezone,
+        icon: Trophy,
         href: `/leagues/${currentLeague.id}`,
       },
       {

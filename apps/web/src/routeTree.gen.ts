@@ -38,10 +38,10 @@ import { Route as LeaguesLeagueIdpublicCalendarIndexRouteImport } from './routes
 import { Route as LeaguesLeagueIdAuthenticatedDashboardLeague_adminRouteImport } from './routes/leagues/$leagueId/_authenticated/dashboard/_league_admin'
 import { Route as LeaguesLeagueIdAuthenticatedDashboardChiefRouteImport } from './routes/leagues/$leagueId/_authenticated/dashboard/_chief'
 import { Route as LeaguesLeagueIdAuthenticatedAthletesCompareRouteImport } from './routes/leagues/$leagueId/_authenticated/athletes/compare'
-import { Route as LeaguesLeagueIdAuthenticatedAthletesAthleteIdRouteImport } from './routes/leagues/$leagueId/_authenticated/athletes/$athleteId'
 import { Route as LeaguesLeagueIdpublicSportsSportIdRouteImport } from './routes/leagues/$leagueId/(public)/sports/$sportId'
 import { Route as LeaguesLeagueIdpublicDelegationsDelegationIdRouteImport } from './routes/leagues/$leagueId/(public)/delegations/$delegationId'
 import { Route as LeaguesLeagueIdpublicCompetitionsCompetitionIdRouteImport } from './routes/leagues/$leagueId/(public)/competitions/$competitionId'
+import { Route as LeaguesLeagueIdpublicAthletesAthleteIdRouteImport } from './routes/leagues/$leagueId/(public)/athletes/$athleteId'
 import { Route as LeaguesLeagueIdAuthenticatedMatchesMatchIdIndexRouteImport } from './routes/leagues/$leagueId/_authenticated/matches/$matchId/index'
 import { Route as LeaguesLeagueIdAuthenticatedDashboardSportsIndexRouteImport } from './routes/leagues/$leagueId/_authenticated/dashboard/sports/index'
 import { Route as LeaguesLeagueIdAuthenticatedDashboardResultsIndexRouteImport } from './routes/leagues/$leagueId/_authenticated/dashboard/results/index'
@@ -234,12 +234,6 @@ const LeaguesLeagueIdAuthenticatedAthletesCompareRoute =
     path: '/athletes/compare',
     getParentRoute: () => LeaguesLeagueIdAuthenticatedRoute,
   } as any)
-const LeaguesLeagueIdAuthenticatedAthletesAthleteIdRoute =
-  LeaguesLeagueIdAuthenticatedAthletesAthleteIdRouteImport.update({
-    id: '/athletes/$athleteId',
-    path: '/athletes/$athleteId',
-    getParentRoute: () => LeaguesLeagueIdAuthenticatedRoute,
-  } as any)
 const LeaguesLeagueIdpublicSportsSportIdRoute =
   LeaguesLeagueIdpublicSportsSportIdRouteImport.update({
     id: '/leagues/$leagueId/(public)/sports/$sportId',
@@ -256,6 +250,12 @@ const LeaguesLeagueIdpublicCompetitionsCompetitionIdRoute =
   LeaguesLeagueIdpublicCompetitionsCompetitionIdRouteImport.update({
     id: '/leagues/$leagueId/(public)/competitions/$competitionId',
     path: '/leagues/$leagueId/competitions/$competitionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LeaguesLeagueIdpublicAthletesAthleteIdRoute =
+  LeaguesLeagueIdpublicAthletesAthleteIdRouteImport.update({
+    id: '/leagues/$leagueId/(public)/athletes/$athleteId',
+    path: '/leagues/$leagueId/athletes/$athleteId',
     getParentRoute: () => rootRouteImport,
   } as any)
 const LeaguesLeagueIdAuthenticatedMatchesMatchIdIndexRoute =
@@ -493,10 +493,10 @@ export interface FileRoutesByFullPath {
   '/request-chief/': typeof AuthenticatedRequestChiefIndexRoute
   '/leagues/$leagueId/dashboard': typeof LeaguesLeagueIdAuthenticatedDashboardLeague_adminRouteWithChildren
   '/leagues/$leagueId/': typeof LeaguesLeagueIdpublicIndexRoute
+  '/leagues/$leagueId/athletes/$athleteId': typeof LeaguesLeagueIdpublicAthletesAthleteIdRoute
   '/leagues/$leagueId/competitions/$competitionId': typeof LeaguesLeagueIdpublicCompetitionsCompetitionIdRoute
   '/leagues/$leagueId/delegations/$delegationId': typeof LeaguesLeagueIdpublicDelegationsDelegationIdRoute
   '/leagues/$leagueId/sports/$sportId': typeof LeaguesLeagueIdpublicSportsSportIdRouteWithChildren
-  '/leagues/$leagueId/athletes/$athleteId': typeof LeaguesLeagueIdAuthenticatedAthletesAthleteIdRoute
   '/leagues/$leagueId/athletes/compare': typeof LeaguesLeagueIdAuthenticatedAthletesCompareRoute
   '/leagues/$leagueId/calendar/': typeof LeaguesLeagueIdpublicCalendarIndexRoute
   '/leagues/$leagueId/competitions/': typeof LeaguesLeagueIdpublicCompetitionsIndexRoute
@@ -551,10 +551,10 @@ export interface FileRoutesByTo {
   '/leagues/$leagueId': typeof LeaguesLeagueIdpublicIndexRoute
   '/my-leagues': typeof AuthenticatedMyLeaguesIndexRoute
   '/request-chief': typeof AuthenticatedRequestChiefIndexRoute
+  '/leagues/$leagueId/athletes/$athleteId': typeof LeaguesLeagueIdpublicAthletesAthleteIdRoute
   '/leagues/$leagueId/competitions/$competitionId': typeof LeaguesLeagueIdpublicCompetitionsCompetitionIdRoute
   '/leagues/$leagueId/delegations/$delegationId': typeof LeaguesLeagueIdpublicDelegationsDelegationIdRoute
   '/leagues/$leagueId/sports/$sportId': typeof LeaguesLeagueIdpublicSportsSportIdRouteWithChildren
-  '/leagues/$leagueId/athletes/$athleteId': typeof LeaguesLeagueIdAuthenticatedAthletesAthleteIdRoute
   '/leagues/$leagueId/athletes/compare': typeof LeaguesLeagueIdAuthenticatedAthletesCompareRoute
   '/leagues/$leagueId/dashboard': typeof LeaguesLeagueIdAuthenticatedDashboardIndexRoute
   '/leagues/$leagueId/calendar': typeof LeaguesLeagueIdpublicCalendarIndexRoute
@@ -615,10 +615,10 @@ export interface FileRoutesById {
   '/_authenticated/request-chief/': typeof AuthenticatedRequestChiefIndexRoute
   '/leagues/$leagueId/_authenticated/dashboard': typeof LeaguesLeagueIdAuthenticatedDashboardRouteWithChildren
   '/leagues/$leagueId/(public)/': typeof LeaguesLeagueIdpublicIndexRoute
+  '/leagues/$leagueId/(public)/athletes/$athleteId': typeof LeaguesLeagueIdpublicAthletesAthleteIdRoute
   '/leagues/$leagueId/(public)/competitions/$competitionId': typeof LeaguesLeagueIdpublicCompetitionsCompetitionIdRoute
   '/leagues/$leagueId/(public)/delegations/$delegationId': typeof LeaguesLeagueIdpublicDelegationsDelegationIdRoute
   '/leagues/$leagueId/(public)/sports/$sportId': typeof LeaguesLeagueIdpublicSportsSportIdRouteWithChildren
-  '/leagues/$leagueId/_authenticated/athletes/$athleteId': typeof LeaguesLeagueIdAuthenticatedAthletesAthleteIdRoute
   '/leagues/$leagueId/_authenticated/athletes/compare': typeof LeaguesLeagueIdAuthenticatedAthletesCompareRoute
   '/leagues/$leagueId/_authenticated/dashboard/_chief': typeof LeaguesLeagueIdAuthenticatedDashboardChiefRouteWithChildren
   '/leagues/$leagueId/_authenticated/dashboard/_league_admin': typeof LeaguesLeagueIdAuthenticatedDashboardLeague_adminRouteWithChildren
@@ -680,10 +680,10 @@ export interface FileRouteTypes {
     | '/request-chief/'
     | '/leagues/$leagueId/dashboard'
     | '/leagues/$leagueId/'
+    | '/leagues/$leagueId/athletes/$athleteId'
     | '/leagues/$leagueId/competitions/$competitionId'
     | '/leagues/$leagueId/delegations/$delegationId'
     | '/leagues/$leagueId/sports/$sportId'
-    | '/leagues/$leagueId/athletes/$athleteId'
     | '/leagues/$leagueId/athletes/compare'
     | '/leagues/$leagueId/calendar/'
     | '/leagues/$leagueId/competitions/'
@@ -738,10 +738,10 @@ export interface FileRouteTypes {
     | '/leagues/$leagueId'
     | '/my-leagues'
     | '/request-chief'
+    | '/leagues/$leagueId/athletes/$athleteId'
     | '/leagues/$leagueId/competitions/$competitionId'
     | '/leagues/$leagueId/delegations/$delegationId'
     | '/leagues/$leagueId/sports/$sportId'
-    | '/leagues/$leagueId/athletes/$athleteId'
     | '/leagues/$leagueId/athletes/compare'
     | '/leagues/$leagueId/dashboard'
     | '/leagues/$leagueId/calendar'
@@ -801,10 +801,10 @@ export interface FileRouteTypes {
     | '/_authenticated/request-chief/'
     | '/leagues/$leagueId/_authenticated/dashboard'
     | '/leagues/$leagueId/(public)/'
+    | '/leagues/$leagueId/(public)/athletes/$athleteId'
     | '/leagues/$leagueId/(public)/competitions/$competitionId'
     | '/leagues/$leagueId/(public)/delegations/$delegationId'
     | '/leagues/$leagueId/(public)/sports/$sportId'
-    | '/leagues/$leagueId/_authenticated/athletes/$athleteId'
     | '/leagues/$leagueId/_authenticated/athletes/compare'
     | '/leagues/$leagueId/_authenticated/dashboard/_chief'
     | '/leagues/$leagueId/_authenticated/dashboard/_league_admin'
@@ -862,6 +862,7 @@ export interface RootRouteChildren {
   LeaguesLeagueId_layoutRoute: typeof LeaguesLeagueId_layoutRoute
   LeaguesLeagueIdAuthenticatedRoute: typeof LeaguesLeagueIdAuthenticatedRouteWithChildren
   LeaguesLeagueIdpublicIndexRoute: typeof LeaguesLeagueIdpublicIndexRoute
+  LeaguesLeagueIdpublicAthletesAthleteIdRoute: typeof LeaguesLeagueIdpublicAthletesAthleteIdRoute
   LeaguesLeagueIdpublicCompetitionsCompetitionIdRoute: typeof LeaguesLeagueIdpublicCompetitionsCompetitionIdRoute
   LeaguesLeagueIdpublicDelegationsDelegationIdRoute: typeof LeaguesLeagueIdpublicDelegationsDelegationIdRoute
   LeaguesLeagueIdpublicSportsSportIdRoute: typeof LeaguesLeagueIdpublicSportsSportIdRouteWithChildren
@@ -1082,13 +1083,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaguesLeagueIdAuthenticatedAthletesCompareRouteImport
       parentRoute: typeof LeaguesLeagueIdAuthenticatedRoute
     }
-    '/leagues/$leagueId/_authenticated/athletes/$athleteId': {
-      id: '/leagues/$leagueId/_authenticated/athletes/$athleteId'
-      path: '/athletes/$athleteId'
-      fullPath: '/leagues/$leagueId/athletes/$athleteId'
-      preLoaderRoute: typeof LeaguesLeagueIdAuthenticatedAthletesAthleteIdRouteImport
-      parentRoute: typeof LeaguesLeagueIdAuthenticatedRoute
-    }
     '/leagues/$leagueId/(public)/sports/$sportId': {
       id: '/leagues/$leagueId/(public)/sports/$sportId'
       path: '/leagues/$leagueId/sports/$sportId'
@@ -1108,6 +1102,13 @@ declare module '@tanstack/react-router' {
       path: '/leagues/$leagueId/competitions/$competitionId'
       fullPath: '/leagues/$leagueId/competitions/$competitionId'
       preLoaderRoute: typeof LeaguesLeagueIdpublicCompetitionsCompetitionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leagues/$leagueId/(public)/athletes/$athleteId': {
+      id: '/leagues/$leagueId/(public)/athletes/$athleteId'
+      path: '/leagues/$leagueId/athletes/$athleteId'
+      fullPath: '/leagues/$leagueId/athletes/$athleteId'
+      preLoaderRoute: typeof LeaguesLeagueIdpublicAthletesAthleteIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/leagues/$leagueId/_authenticated/matches/$matchId/': {
@@ -1472,7 +1473,6 @@ const LeaguesLeagueIdAuthenticatedDashboardRouteWithChildren =
 
 interface LeaguesLeagueIdAuthenticatedRouteChildren {
   LeaguesLeagueIdAuthenticatedDashboardRoute: typeof LeaguesLeagueIdAuthenticatedDashboardRouteWithChildren
-  LeaguesLeagueIdAuthenticatedAthletesAthleteIdRoute: typeof LeaguesLeagueIdAuthenticatedAthletesAthleteIdRoute
   LeaguesLeagueIdAuthenticatedAthletesCompareRoute: typeof LeaguesLeagueIdAuthenticatedAthletesCompareRoute
   LeaguesLeagueIdAuthenticatedNarrativeIndexRoute: typeof LeaguesLeagueIdAuthenticatedNarrativeIndexRoute
   LeaguesLeagueIdAuthenticatedLeague_adminSettingsIndexRoute: typeof LeaguesLeagueIdAuthenticatedLeague_adminSettingsIndexRoute
@@ -1483,8 +1483,6 @@ const LeaguesLeagueIdAuthenticatedRouteChildren: LeaguesLeagueIdAuthenticatedRou
   {
     LeaguesLeagueIdAuthenticatedDashboardRoute:
       LeaguesLeagueIdAuthenticatedDashboardRouteWithChildren,
-    LeaguesLeagueIdAuthenticatedAthletesAthleteIdRoute:
-      LeaguesLeagueIdAuthenticatedAthletesAthleteIdRoute,
     LeaguesLeagueIdAuthenticatedAthletesCompareRoute:
       LeaguesLeagueIdAuthenticatedAthletesCompareRoute,
     LeaguesLeagueIdAuthenticatedNarrativeIndexRoute:
@@ -1529,6 +1527,8 @@ const rootRouteChildren: RootRouteChildren = {
   LeaguesLeagueIdAuthenticatedRoute:
     LeaguesLeagueIdAuthenticatedRouteWithChildren,
   LeaguesLeagueIdpublicIndexRoute: LeaguesLeagueIdpublicIndexRoute,
+  LeaguesLeagueIdpublicAthletesAthleteIdRoute:
+    LeaguesLeagueIdpublicAthletesAthleteIdRoute,
   LeaguesLeagueIdpublicCompetitionsCompetitionIdRoute:
     LeaguesLeagueIdpublicCompetitionsCompetitionIdRoute,
   LeaguesLeagueIdpublicDelegationsDelegationIdRoute:

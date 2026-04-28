@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.shared.core.deps import require_league_member
 from app.database import get_session
-from app.domain.models.league import LeagueMember
 from app.domain.schemas.search import GlobalSearchResponse
 from app.features.search import service as search_service
 
@@ -16,6 +14,5 @@ async def global_search(
     q: str = Query("", min_length=0),
     limit: int = Query(8, ge=1, le=20),
     session: AsyncSession = Depends(get_session),
-    _: LeagueMember = Depends(require_league_member()),
 ) -> GlobalSearchResponse:
     return await search_service.global_search(session, league_id, q, limit)

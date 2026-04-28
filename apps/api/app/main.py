@@ -34,11 +34,7 @@ from app.features.search.router import router as search_router
 from app.features.sports.router import modalities_router, router as sports_router
 from app.features.leagues.router import router as leagues_router
 from app.features.competitions.router import router as competitions_router
-from app.features.admin.service import (
-    seed_showcase_league,
-    seed_showcase_superadmin,
-    seed_sports,
-)
+from app.features.admin.service import seed_sports
 
 
 def _configure_logging() -> None:
@@ -78,8 +74,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _configure_logging()
     _run_migrations()
     await seed_sports()
-    await seed_showcase_superadmin()
-    await seed_showcase_league()
     sched = setup_scheduler()
     sched.start()
     logging.getLogger(__name__).info("scheduler_started")

@@ -34,7 +34,6 @@ class LeagueResponse(BaseModel):
     description: Optional[str]
     created_by_id: int
     sports_config: list[int]
-    is_showcase: bool
     auto_simulate: bool
     transfer_window_enabled: bool
     timezone: str

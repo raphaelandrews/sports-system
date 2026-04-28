@@ -26,7 +26,8 @@ export function formatDate(iso: string): string {
 
 // For bare time strings from backend ("HH:MM:SS")
 export function formatTime(time: string): string {
-  return formatEventDate(`1970-01-01T${time}`);
+  const [hours, minutes] = time.split(":");
+  return `${hours}:${minutes}`;
 }
 
 export function isTransferWindow(): boolean {

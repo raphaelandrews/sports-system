@@ -116,8 +116,8 @@ import { client, unwrap } from "@/shared/lib/api";
 // Path, params, and response are all typed from api.gen.ts
 const data = await unwrap(
   client.GET("/leagues/{league_id}", {
-    params: { path: { league_id: 1 } }
-  })
+    params: { path: { league_id: 1 } },
+  }),
 );
 ```
 
@@ -159,19 +159,15 @@ Current behavior:
 - Password registration creates a user with global role `ATHLETE`
 - OAuth login creates a user if missing
 - League permissions are handled separately through `league_members`
-- Showcase seeding requires an existing global `SUPERADMIN` or legacy `ADMIN`
 
 No API currently promotes a user to `SUPERADMIN`. First superadmin bootstrap is manual in the database.
 
 ## Seeds
 
-Startup flow in [`apps/api/app/main.py`](/home/raphael/Documents/projects/sports-system/apps/api/app/main.py:67):
+Startup flow in [`apps/api/app/main.py`](apps/api/app/main.py):
 
 1. Alembic runs on app startup
 2. `seed_sports()` inserts canonical sports/modalities once
-3. `seed_showcase_league()` creates the showcase league if a superadmin already exists
-
-Detailed seed docs: [`SEED.md`](/home/raphael/Documents/projects/sports-system/SEED.md)
 
 ### First Superadmin
 
@@ -180,7 +176,6 @@ Recommended bootstrap:
 1. Start API once so migrations and `seed_sports()` run
 2. Register an account in UI or via API
 3. Promote that row in the database
-4. Restart API so `seed_showcase_league()` can create the showcase league
 
 Register example:
 
@@ -201,34 +196,6 @@ UPDATE users
 SET role = 'SUPERADMIN'
 WHERE email = 'owner@example.com';
 ```
-
-Then restart backend:
-
-```bash
-bun run dev:backend
-```
-
-On next startup the backend will create:
-
-- showcase league with `slug="showcase"`
-- `LeagueMember` entry for that superadmin as `LEAGUE_ADMIN`
-- `sports_config` containing all active sports
-- `auto_simulate=true`
-- `transfer_window_enabled=true`
-
-### Manual Demo Seed
-
-Endpoint:
-
-- `POST /leagues/{league_id}/admin/seed`
-
-Behavior:
-
-- requires league admin membership
-- creates 4 demo delegations
-- creates demo chiefs and athletes
-- creates one completed competition and sample results
-- returns `409` if that league already has delegations
 
 ## Notes
 

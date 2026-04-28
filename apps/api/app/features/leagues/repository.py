@@ -8,7 +8,7 @@ async def get_all(session: AsyncSession) -> list[League]:
     result = await session.execute(
         select(League)
         .where(League.status == LeagueStatus.ACTIVE)
-        .order_by(League.is_showcase.desc(), League.name.asc())
+        .order_by(League.name.asc())
     )
     return list(result.scalars().all())
 
@@ -39,7 +39,9 @@ async def update(session: AsyncSession, league: League) -> League:
     return league
 
 
-async def get_member(session: AsyncSession, league_id: int, user_id: int) -> LeagueMember | None:
+async def get_member(
+    session: AsyncSession, league_id: int, user_id: int
+) -> LeagueMember | None:
     result = await session.execute(
         select(LeagueMember).where(
             LeagueMember.league_id == league_id,
@@ -68,7 +70,9 @@ async def add_member(session: AsyncSession, member: LeagueMember) -> LeagueMembe
     return member
 
 
-async def update_member_role(session: AsyncSession, member: LeagueMember) -> LeagueMember:
+async def update_member_role(
+    session: AsyncSession, member: LeagueMember
+) -> LeagueMember:
     session.add(member)
     await session.flush()
     return member
@@ -89,7 +93,7 @@ async def get_leagues_for_user(session: AsyncSession, user_id: int) -> list[Leag
             LeagueMember.left_at == None,  # noqa: E711
             League.status == LeagueStatus.ACTIVE,
         )
-        .order_by(League.is_showcase.desc(), League.name.asc())
+        .order_by(League.name.asc())
     )
     return list(result.scalars().all())
 

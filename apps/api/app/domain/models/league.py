@@ -35,7 +35,6 @@ class League(SQLModel, table=True):
     sports_config: list[int] = Field(
         default_factory=list, sa_column=Column(JSON, nullable=False)
     )
-    is_showcase: bool = Field(default=False)
     auto_simulate: bool = Field(default=False)
     transfer_window_enabled: bool = Field(default=False)
     timezone: str = Field(default="America/Sao_Paulo")

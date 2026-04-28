@@ -13,14 +13,17 @@ logger = logging.getLogger(__name__)
 
 async def check_and_advance_phases(session: AsyncSession, competition_id: int) -> None:
     """
-    Check if all matches in a phase are complete.
-    If so, advance winners to the next phase and create matches.
+    Per-modality bracket advancement.
+
+    Rules:
+    - GROUPS complete -> QF (if empty)
+    - QUARTER complete -> SEMI (if empty), else FINAL (if no SEMI and empty)
+    - SEMI complete -> FINAL (winners) + BRONZE (losers)
     """
     competition = await session.get(Competition, competition_id)
     if not competition or competition.status != CompetitionStatus.ACTIVE:
         return
 
-    # Get all events for this competition, grouped by phase
     events_result = await session.execute(
         select(Event)
         .where(Event.competition_id == competition_id)
@@ -28,120 +31,171 @@ async def check_and_advance_phases(session: AsyncSession, competition_id: int) -
     )
     events = list(events_result.scalars().all())
 
-    # Group events by phase
-    events_by_phase: dict[EventPhase, list[Event]] = {}
+    # Group events by modality, then by phase
+    by_modality: dict[int, dict[EventPhase, list[Event]]] = {}
     for event in events:
-        events_by_phase.setdefault(event.phase, []).append(event)
+        by_modality.setdefault(event.modality_id, {}).setdefault(
+            event.phase, []
+        ).append(event)
 
-    # Process phases in order
-    phase_order = [
-        EventPhase.GROUPS,
-        EventPhase.QUARTER,
-        EventPhase.SEMI,
-        EventPhase.BRONZE,
-        EventPhase.FINAL,
-    ]
-
-    for phase in phase_order:
-        phase_events = events_by_phase.get(phase, [])
-        if not phase_events:
-            continue
-
-        # Check if all matches in this phase are complete
-        all_complete = True
-        for event in phase_events:
-            matches_result = await session.execute(
-                select(Match).where(Match.event_id == event.id)
-            )
-            matches = list(matches_result.scalars().all())
-
-            if not matches:
-                # No matches yet - either this phase hasn't started or it's a future phase
-                # Check if it has teams assigned (via enrollments for groups)
-                if phase == EventPhase.GROUPS:
-                    enroll_result = await session.execute(
-                        select(Enrollment)
-                        .where(
-                            Enrollment.event_id == event.id,
-                            Enrollment.status == EnrollmentStatus.APPROVED,
-                        )
-                        .limit(1)
-                    )
-                    if enroll_result.scalar_one_or_none() is not None:
-                        # Has enrollments but no matches - need bracket generation
-                        all_complete = False
-                        break
-                continue
-
-            # Check if all matches are complete
-            if any(m.status != MatchStatus.COMPLETED for m in matches):
-                all_complete = False
-                break
-
-        if not all_complete:
-            continue
-
-        # This phase is complete - advance to next phase
-        next_phase_idx = phase_order.index(phase) + 1
-        if next_phase_idx >= len(phase_order):
-            continue
-
-        next_phase = phase_order[next_phase_idx]
-        next_events = events_by_phase.get(next_phase, [])
-
-        if not next_events:
-            continue
-
-        # Collect winners from current phase
-        winners: list[int] = []
-        for event in phase_events:
-            matches_result = await session.execute(
-                select(Match).where(Match.event_id == event.id)
-            )
-            matches = list(matches_result.scalars().all())
-
-            for match in matches:
-                if match.winner_delegation_id:
-                    winners.append(match.winner_delegation_id)
-
-        if not winners:
-            continue
-
-        # Create matches for next phase events
-        for next_event in next_events:
-            # Check if matches already exist
-            existing = await session.execute(
-                select(Match).where(Match.event_id == next_event.id).limit(1)
-            )
-            if existing.scalar_one_or_none() is not None:
-                continue
-
-            # Pair winners: 1st vs last, 2nd vs 2nd-last, etc.
-            pairs = []
-            n = len(winners)
-            for i in range(n // 2):
-                pairs.append((winners[i], winners[n - 1 - i]))
-
-            for team_a, team_b in pairs:
-                session.add(
-                    Match(
-                        event_id=next_event.id,
-                        team_a_delegation_id=team_a,
-                        team_b_delegation_id=team_b,
-                        status=MatchStatus.SCHEDULED,
-                    )
+    for modality_id, events_by_phase in by_modality.items():
+        # GROUPS -> QF
+        if await _phase_complete(session, events_by_phase, EventPhase.GROUPS):
+            if await _phase_empty(session, events_by_phase, EventPhase.QUARTER):
+                winners = await _get_winners(
+                    session, events_by_phase, EventPhase.GROUPS
                 )
+                if len(winners) >= 2:
+                    await _create_matches(
+                        session, events_by_phase, EventPhase.QUARTER, winners
+                    )
 
-            logger.info(
-                "phase_advanced competition_id=%s from=%s to=%s event_id=%s matches=%s",
-                competition_id,
-                phase.value,
-                next_phase.value,
-                next_event.id,
-                len(pairs),
-            )
+        # QUARTER -> SEMI or FINAL
+        if await _phase_complete(session, events_by_phase, EventPhase.QUARTER):
+            if await _phase_has_events(session, events_by_phase, EventPhase.SEMI):
+                if await _phase_empty(session, events_by_phase, EventPhase.SEMI):
+                    winners = await _get_winners(
+                        session, events_by_phase, EventPhase.QUARTER
+                    )
+                    if len(winners) >= 2:
+                        await _create_matches(
+                            session, events_by_phase, EventPhase.SEMI, winners
+                        )
+            elif await _phase_empty(session, events_by_phase, EventPhase.FINAL):
+                winners = await _get_winners(
+                    session, events_by_phase, EventPhase.QUARTER
+                )
+                if len(winners) >= 2:
+                    await _create_matches(
+                        session, events_by_phase, EventPhase.FINAL, winners
+                    )
+
+        # SEMI -> FINAL (winners) + BRONZE (losers)
+        if await _phase_complete(session, events_by_phase, EventPhase.SEMI):
+            if await _phase_empty(session, events_by_phase, EventPhase.FINAL):
+                winners = await _get_winners(session, events_by_phase, EventPhase.SEMI)
+                if len(winners) >= 2:
+                    await _create_matches(
+                        session, events_by_phase, EventPhase.FINAL, winners
+                    )
+            if await _phase_empty(session, events_by_phase, EventPhase.BRONZE):
+                losers = await _get_losers(session, events_by_phase, EventPhase.SEMI)
+                if len(losers) >= 2:
+                    await _create_matches(
+                        session, events_by_phase, EventPhase.BRONZE, losers
+                    )
 
     await session.commit()
+
+
+async def _phase_complete(
+    session: AsyncSession, by_phase: dict[EventPhase, list[Event]], phase: EventPhase
+) -> bool:
+    events = by_phase.get(phase, [])
+    if not events:
+        return False
+    events_with_matches = []
+    for event in events:
+        matches_result = await session.execute(
+            select(Match).where(Match.event_id == event.id)
+        )
+        matches = list(matches_result.scalars().all())
+        if matches:
+            events_with_matches.append((event, matches))
+    if not events_with_matches:
+        return False
+    for event, matches in events_with_matches:
+        if any(m.status != MatchStatus.COMPLETED for m in matches):
+            return False
+    return True
+
+
+async def _phase_empty(
+    session: AsyncSession, by_phase: dict[EventPhase, list[Event]], phase: EventPhase
+) -> bool:
+    events = by_phase.get(phase, [])
+    if not events:
+        return True
+    for event in events:
+        existing = await session.execute(
+            select(Match).where(Match.event_id == event.id).limit(1)
+        )
+        if existing.scalar_one_or_none() is not None:
+            return False
+    return True
+
+
+async def _phase_has_events(
+    session: AsyncSession, by_phase: dict[EventPhase, list[Event]], phase: EventPhase
+) -> bool:
+    return len(by_phase.get(phase, [])) > 0
+
+
+async def _get_winners(
+    session: AsyncSession, by_phase: dict[EventPhase, list[Event]], phase: EventPhase
+) -> list[int]:
+    winners: list[int] = []
+    for event in by_phase.get(phase, []):
+        matches_result = await session.execute(
+            select(Match).where(Match.event_id == event.id)
+        )
+        for match in matches_result.scalars().all():
+            if match.winner_delegation_id is not None:
+                winners.append(match.winner_delegation_id)
+    return winners
+
+
+async def _get_losers(
+    session: AsyncSession, by_phase: dict[EventPhase, list[Event]], phase: EventPhase
+) -> list[int]:
+    losers: list[int] = []
+    for event in by_phase.get(phase, []):
+        matches_result = await session.execute(
+            select(Match).where(Match.event_id == event.id)
+        )
+        for match in matches_result.scalars().all():
+            if match.winner_delegation_id is not None:
+                loser = (
+                    match.team_b_delegation_id
+                    if match.winner_delegation_id == match.team_a_delegation_id
+                    else match.team_a_delegation_id
+                )
+                if loser is not None:
+                    losers.append(loser)
+    return losers
+
+
+async def _create_matches(
+    session: AsyncSession,
+    by_phase: dict[EventPhase, list[Event]],
+    phase: EventPhase,
+    teams: list[int],
+) -> None:
+    events = by_phase.get(phase, [])
+    if not events:
+        return
+    target_event = events[0]
+    n = len(teams)
+    for i in range(n // 2):
+        team_a = teams[i]
+        team_b = teams[n - 1 - i]
+        session.add(
+            Match(
+                event_id=target_event.id,
+                team_a_delegation_id=team_a,
+                team_b_delegation_id=team_b,
+                status=MatchStatus.SCHEDULED,
+            )
+        )
+    await session.flush()
+    logger.info(
+        "phase_advanced competition_id=%s modality_id=%s to=%s event_id=%s matches=%s",
+        target_event.competition_id,
+        target_event.modality_id,
+        phase.value,
+        target_event.id,
+        n // 2,
+    )
 
 
 async def check_competition_completion(

@@ -1,14 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { CalendarDays, ClipboardCheck, Flag, Sparkles, Target, Trophy, Users, Zap } from "lucide-react";
-import { useState } from "react";
+import { CalendarDays, ClipboardCheck, Flag, Sparkles, Target, Trophy, Users } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card";
-import { Button } from "@sports-system/ui/components/button";
-import { Input } from "@sports-system/ui/components/input";
-import { Label } from "@sports-system/ui/components/label";
 import { ActivityFeed } from "@/features/activities/components/activity-feed";
 import { formatDate } from "@/shared/lib/date";
-import { buildApiUrl } from "@/shared/lib/url";
 import { activityFeedQueryOptions } from "@/features/activities/api/queries";
 import { adminRequestsQueryOptions } from "@/features/admin/api/queries";
 import { competitionListQueryOptions } from "@/features/competitions/api/queries";
@@ -160,77 +155,7 @@ function GaugeCard({
   );
 }
 
-function ShowcaseLeagueCard({ session }: { session: Session }) {
-  const [name, setName] = useState("");
-  const [mode, setMode] = useState<"normal" | "speed">("normal");
-  const [loading, setLoading] = useState(false);
-
-  const isSuperadmin = session.role === "SUPERADMIN";
-  if (!isSuperadmin) return null;
-
-  const handleCreate = async () => {
-    if (!name.trim()) return;
-    setLoading(true);
-    try {
-      const res = await fetch(buildApiUrl("/admin/showcase-leagues"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), mode }),
-      });
-      if (!res.ok) throw new Error("Failed to create");
-      const data = await res.json();
-      window.location.href = `/leagues/${data.league_id}/dashboard`;
-    } catch {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <Card className="border-border/70 bg-card/85 shadow-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Zap className="h-4 w-4" />
-          Criar Liga Showcase
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="showcase-name">Nome da liga</Label>
-          <Input
-            id="showcase-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Ex: Liga de Demonstração"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Modo</Label>
-          <div className="flex gap-2">
-            <Button
-              variant={mode === "normal" ? "default" : "outline"}
-              onClick={() => setMode("normal")}
-              size="sm"
-            >
-              Normal (semanal)
-            </Button>
-            <Button
-              variant={mode === "speed" ? "default" : "outline"}
-              onClick={() => setMode("speed")}
-              size="sm"
-            >
-              Speed (10 min)
-            </Button>
-          </div>
-        </div>
-        <Button onClick={handleCreate} disabled={!name.trim() || loading} className="w-full">
-          {loading ? "Criando..." : "Criar liga showcase"}
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
-export function AdminDashboard({ session, leagueId }: { session: Session; leagueId: number }) {
+export function AdminDashboard({ leagueId }: { session: Session; leagueId: number }) {
   const { data: finalReport } = useSuspenseQuery(finalReportQueryOptions(leagueId));
   const { data: competitions } = useSuspenseQuery(competitionListQueryOptions(leagueId));
   const { data: requests } = useSuspenseQuery(adminRequestsQueryOptions(leagueId));
@@ -316,15 +241,6 @@ export function AdminDashboard({ session, leagueId }: { session: Session; league
           </Card>
         </div>
       </section>
-
-      {session.role === "SUPERADMIN" && (
-        <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-muted-foreground">Superadmin</h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            <ShowcaseLeagueCard session={session} />
-          </div>
-        </section>
-      )}
 
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-medium text-muted-foreground">Atividade recente</h2>

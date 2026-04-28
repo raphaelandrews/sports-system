@@ -8,8 +8,7 @@ from sqlalchemy import select
 from app.config import settings
 from app.database import async_session_factory
 from app.domain.models.competition import Competition, CompetitionStatus
-from app.domain.models.event import Event, Match, MatchStatus
-from app.features.admin.service import ensure_showcase_weekly_competitions
+from app.domain.models.event import Event, EventStatus, Match, MatchStatus
 from app.features.leagues import repository as league_repository
 
 logger = logging.getLogger(__name__)
@@ -55,15 +54,6 @@ async def _auto_lock_competitions() -> None:
         await session.commit()
 
 
-async def _ensure_showcase_weekly_leagues() -> None:
-    if not settings.AUTO_SIMULATE:
-        return
-    try:
-        await ensure_showcase_weekly_competitions()
-    except Exception as exc:
-        logger.error("ensure_showcase_weekly_leagues error=%s", exc)
-
-
 async def _auto_start_matches() -> None:
     if not settings.AUTO_SIMULATE:
         return
@@ -83,15 +73,28 @@ async def _auto_start_matches() -> None:
                 )
             )
             rows = result.all()
+            started_event_ids: set[int] = set()
             for match, event in rows:
                 event_dt = datetime.combine(event.event_date, event.start_time)
                 if event_dt <= now_utc:
                     match.status = MatchStatus.IN_PROGRESS
                     match.started_at = now_utc
                     session.add(match)
+                    started_event_ids.add(event.id)
                     logger.info(
                         "auto_start_match match_id=%s league_id=%s", match.id, league.id
                     )
+
+            # Update event statuses to IN_PROGRESS
+            for event_id in started_event_ids:
+                event = await session.get(Event, event_id)
+                if event and event.status == EventStatus.SCHEDULED:
+                    event.status = EventStatus.IN_PROGRESS
+                    session.add(event)
+                    logger.info(
+                        "auto_start_event event_id=%s status=IN_PROGRESS", event_id
+                    )
+
         await session.commit()
 
 
@@ -119,6 +122,7 @@ async def _auto_finish_matches() -> None:
             )
             matches = result.scalars().all()
             finished_competition_ids: set[int] = set()
+            finished_event_ids: set[int] = set()
             for match in matches:
                 try:
                     from app.features.events import simulation as simulation_service
@@ -133,6 +137,7 @@ async def _auto_finish_matches() -> None:
                     event = await session.get(Event, match.event_id)
                     if event:
                         finished_competition_ids.add(event.competition_id)
+                        finished_event_ids.add(event.id)
                 except Exception as exc:
                     logger.error(
                         "auto_finish_error match_id=%s league_id=%s error=%s",
@@ -140,6 +145,22 @@ async def _auto_finish_matches() -> None:
                         league.id,
                         exc,
                     )
+
+            # Update event statuses to COMPLETED if all matches are done
+            for event_id in finished_event_ids:
+                event = await session.get(Event, event_id)
+                if event and event.status != EventStatus.COMPLETED:
+                    # Check if all matches in this event are completed
+                    match_statuses = await session.execute(
+                        select(Match.status).where(Match.event_id == event_id)
+                    )
+                    statuses = [s for s in match_statuses.scalars().all()]
+                    if statuses and all(s == MatchStatus.COMPLETED for s in statuses):
+                        event.status = EventStatus.COMPLETED
+                        session.add(event)
+                        logger.info(
+                            "auto_complete_event event_id=%s status=COMPLETED", event_id
+                        )
 
             # Check for phase advancement
             from app.features.bracket.progression import (
@@ -192,12 +213,6 @@ async def _send_match_reminders() -> None:
 
 
 def setup_scheduler() -> AsyncIOScheduler:
-    scheduler.add_job(
-        _ensure_showcase_weekly_leagues,
-        "interval",
-        minutes=5,
-        id="ensure_showcase_weekly_leagues",
-    )
     scheduler.add_job(
         _auto_lock_competitions, "interval", minutes=5, id="auto_lock_competitions"
     )

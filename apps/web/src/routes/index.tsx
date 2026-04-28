@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { CalendarDays, Trophy } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 
 import { buttonVariants } from "@sports-system/ui/components/button";
 import { cn } from "@sports-system/ui/lib/utils";
@@ -51,7 +51,7 @@ function HomePage() {
             {latestLeagues.map((league) => (
               <LeagueInfoCard
                 key={league.id}
-                icon={league.is_showcase ? Trophy : CalendarDays}
+                icon={CalendarDays}
                 label={league.name}
                 value={league.member_count}
                 valueLabel="membros"
@@ -77,21 +77,15 @@ type LeagueInfoCardBaseProps = {
 
 type LeagueInfoCardProps =
   | (LeagueInfoCardBaseProps & {
-    to: "/leagues/$leagueId";
-    params: { leagueId: string };
-  })
+      to: "/leagues/$leagueId";
+      params: { leagueId: string };
+    })
   | (LeagueInfoCardBaseProps & {
-    to?: undefined;
-    params?: undefined;
-  });
+      to?: undefined;
+      params?: undefined;
+    });
 
-function LeagueInfoCard({
-  icon: Icon,
-  label,
-  value,
-  to,
-  params,
-}: LeagueInfoCardProps) {
+function LeagueInfoCard({ icon: Icon, label, value, to, params }: LeagueInfoCardProps) {
   const content = (
     <div className="flex items-center gap-3 rounded-xl bg-surface-1 px-3.5 py-3 transition-colors hover:bg-surface-2">
       <div className="flex shrink-0 items-center justify-center text-muted-foreground">
