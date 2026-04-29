@@ -75,11 +75,11 @@ export function AuthCard({ title, subtitle, switchText, children, onFormSubmit }
 
       <FieldDescription className="px-6 text-center">
         Ao continuar, você concorda com nossos{" "}
-        <a href="#" className="underline underline-offset-4 hover:text-foreground">
+        <a href="/terms" className="underline underline-offset-4 hover:text-foreground">
           Termos de Uso
         </a>{" "}
         e{" "}
-        <a href="#" className="underline underline-offset-4 hover:text-foreground">
+        <a href="/privacy" className="underline underline-offset-4 hover:text-foreground">
           Política de Privacidade
         </a>
         .

@@ -35,11 +35,6 @@ async def search_users(
     query: str,
     limit: int,
 ) -> list[User]:
-    if current_user.role not in {UserRole.ADMIN, UserRole.CHIEF}:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
-        )
-
     normalized = query.strip()
     if len(normalized) < 2:
         return []

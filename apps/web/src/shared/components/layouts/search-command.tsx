@@ -8,12 +8,16 @@ import {
 	Medal,
 	Search,
 	Sparkles,
-	UserCircle2,
 	Users,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@sports-system/ui/components/button";
+import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+} from "@sports-system/ui/components/avatar";
 import {
 	Command,
 	CommandDialog,
@@ -27,6 +31,37 @@ import { userSearchQueryOptions } from "@/features/users/api/queries";
 import { globalSearchQueryOptions } from "@/features/search/api/queries";
 import type { Session } from "@/types/auth";
 import type { LeagueMemberRole, LeagueResponse } from "@/types/leagues";
+
+interface GlobalSearchResult {
+	query: string;
+	athletes: Array<{
+		id: number;
+		name: string;
+		code: string;
+		is_active: boolean;
+		league_id: number;
+	}>;
+	delegations: Array<{
+		id: number;
+		name: string;
+		code: string;
+		is_active: boolean;
+		league_id: number;
+	}>;
+	events: Array<{
+		id: number;
+		competition_id: number;
+		league_id: number;
+		number: number;
+		sport_name: string;
+		modality_name: string;
+		venue: string | null;
+		event_date: string;
+		start_time: string;
+		phase: string;
+		status: string;
+	}>;
+}
 
 export function SearchCommand({
 	leagueId,
@@ -42,21 +77,16 @@ export function SearchCommand({
 	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
 	const trimmedQuery = query.trim();
-	const canSearchUsers =
-		session?.role === "ADMIN" ||
-		session?.role === "SUPERADMIN" ||
-		membershipRole === "LEAGUE_ADMIN" ||
-		membershipRole === "CHIEF";
 
 	const [leagueSearchQuery, userSearchQuery] = useQueries({
 		queries: [
 			{
 				...globalSearchQueryOptions(trimmedQuery, leagueId ? Number(leagueId) : undefined),
-				enabled: Boolean(leagueId) && trimmedQuery.length >= 2,
+				enabled: trimmedQuery.length >= 2,
 			},
 			{
 				...userSearchQueryOptions(trimmedQuery),
-				enabled: canSearchUsers && trimmedQuery.length >= 2,
+				enabled: Boolean(session) && trimmedQuery.length >= 2,
 			},
 		],
 	});
@@ -123,7 +153,7 @@ export function SearchCommand({
 		return actions;
 	}, [leagueId, membershipRole, session]);
 
-	const leagueResults = leagueSearchQuery.data;
+	const leagueResults = leagueSearchQuery.data as GlobalSearchResult | undefined;
 	const userResults = userSearchQuery.data ?? [];
 	const matchingLeagues = useMemo(() => {
 		if (trimmedQuery.length < 2) {
@@ -216,8 +246,14 @@ export function SearchCommand({
 												key={league.id}
 												value={league.name}
 												onSelect={() => setOpen(false)}
+												className="hover:bg-accent!"
 											>
-												<Globe />
+												<Avatar className="h-6 w-6 rounded-md after:border-none bg-card">
+													<AvatarImage src={league.logo_url ?? ""} alt={league.name} />
+													<AvatarFallback className="text-xs bg-card">
+														{league.name.charAt(0)}
+													</AvatarFallback>
+												</Avatar>
 												<Link
 													to="/leagues/$leagueId"
 													params={{ leagueId: String(league.id) }}
@@ -225,7 +261,6 @@ export function SearchCommand({
 												>
 													<span>{league.name}</span>
 												</Link>
-												<CommandShortcut>{league.slug}</CommandShortcut>
 											</CommandItem>
 										))}
 									</CommandGroup>
@@ -238,91 +273,19 @@ export function SearchCommand({
 												key={user.id}
 												value={`${user.name} ${user.email}`}
 												onSelect={() => setOpen(false)}
+												className="hover:bg-accent!"
 											>
-												<UserCircle2 />
+												<Avatar className="h-6 w-6 rounded-md after:border-none bg-card">
+													<AvatarImage src={user.avatar_url ?? ""} alt={user.name} />
+													<AvatarFallback className="text-xs bg-card">
+														{user.name.charAt(0)}
+													</AvatarFallback>
+												</Avatar>
 												<span className="flex-1">{user.name}</span>
-												<CommandShortcut>{user.email}</CommandShortcut>
 											</CommandItem>
 										))}
 									</CommandGroup>
 								)}
-
-								{leagueResults?.athletes?.length ? (
-									<CommandGroup heading="Atletas">
-										{leagueResults.athletes.map((athlete) => (
-											<CommandItem
-												key={athlete.id}
-												value={athlete.name}
-												onSelect={() => setOpen(false)}
-											>
-												<Medal />
-												<Link
-													to="/leagues/$leagueId/athletes/$athleteId"
-													params={{
-														leagueId: leagueId ?? "",
-														athleteId: String(athlete.id),
-													}}
-													className="flex flex-1 items-center"
-												>
-													<span>{athlete.name}</span>
-												</Link>
-												<CommandShortcut>{athlete.code}</CommandShortcut>
-											</CommandItem>
-										))}
-									</CommandGroup>
-								) : null}
-
-								{leagueResults?.delegations?.length ? (
-									<CommandGroup heading="Delegações">
-										{leagueResults.delegations.map((delegation) => (
-											<CommandItem
-												key={delegation.id}
-												value={delegation.name}
-												onSelect={() => setOpen(false)}
-											>
-												<Users />
-												<Link
-													to="/leagues/$leagueId/delegations/$delegationId"
-													params={{
-														leagueId: leagueId ?? "",
-														delegationId: String(delegation.id),
-													}}
-													className="flex flex-1 items-center"
-												>
-													<span>{delegation.name}</span>
-												</Link>
-												<CommandShortcut>{delegation.code}</CommandShortcut>
-											</CommandItem>
-										))}
-									</CommandGroup>
-								) : null}
-
-								{leagueResults?.events?.length ? (
-									<CommandGroup heading="Eventos">
-										{leagueResults.events.map((event) => (
-											<CommandItem
-												key={event.id}
-												value={`${event.sport_name} ${event.modality_name}`}
-												onSelect={() => setOpen(false)}
-											>
-												<CalendarDays />
-												<Link
-													to="/leagues/$leagueId/competitions/$competitionId"
-													params={{
-														leagueId: leagueId ?? "",
-														competitionId: String(event.competition_id),
-													}}
-													className="flex flex-1 items-center"
-												>
-													<span>
-														{event.sport_name} · {event.modality_name}
-													</span>
-												</Link>
-												<CommandShortcut>#{event.number}</CommandShortcut>
-											</CommandItem>
-										))}
-									</CommandGroup>
-								) : null}
 							</>
 						) : (
 							<div className="py-6 text-center text-sm text-muted-foreground">

@@ -1,4 +1,9 @@
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@sports-system/ui/components/avatar";
+import {
   Table,
   TableBody,
   TableCell,
@@ -39,8 +44,12 @@ function DelegationsPage() {
                 <Link
                   to="/leagues/$leagueId/delegations/$delegationId"
                   params={{ leagueId, delegationId: String(d.id) }}
-                  className="underline-offset-4 hover:underline"
+                  className="flex items-center gap-2 underline-offset-4 hover:underline"
                 >
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={d.flag_url ?? ""} alt={d.name} />
+                    <AvatarFallback className="text-xs">{d.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
                   {d.name}
                 </Link>
               </TableCell>

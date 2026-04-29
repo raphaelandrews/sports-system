@@ -11,6 +11,7 @@ class UserResponse(BaseModel):
     email: str
     name: str
     role: UserRole
+    avatar_url: Optional[str] = None
     is_active: bool
     created_at: datetime
 
@@ -22,6 +23,7 @@ class UserSearchResponse(BaseModel):
     email: str
     name: str
     role: UserRole
+    avatar_url: Optional[str] = None
     is_active: bool
 
     model_config = {"from_attributes": True}
@@ -29,9 +31,10 @@ class UserSearchResponse(BaseModel):
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
+    avatar_url: Optional[str] = None
 
     def has_updates(self) -> bool:
-        return self.name is not None
+        return self.name is not None or self.avatar_url is not None
 
 
 class ChiefRequestCreate(BaseModel):

@@ -13,8 +13,8 @@ import {
 } from "@/shared/components/layouts/shell-navigation";
 import {
 	leagueDetailQueryOptions,
+	leagueListQueryOptions,
 	myLeagueMembershipQueryOptions,
-	myLeaguesQueryOptions,
 } from "@/features/leagues/api/queries";
 import type { Session } from "@/types/auth";
 
@@ -43,12 +43,11 @@ export function DashboardLayout({
 		retry: false,
 	});
 
-	const myLeaguesQuery = useQuery({
-		...myLeaguesQueryOptions(),
-		enabled: Boolean(session),
+	const allLeaguesQuery = useQuery({
+		...leagueListQueryOptions(),
 	});
 
-	const leagues = myLeaguesQuery.data ?? [];
+	const leagues = allLeaguesQuery.data ?? [];
 
 	const membershipErrorStatus =
 		membershipQuery.error instanceof ApiError ? membershipQuery.error.status : undefined;

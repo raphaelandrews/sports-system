@@ -7,11 +7,19 @@ export const globalSearchQueryOptions = (query: string, leagueId?: number) =>
   queryOptions({
     queryKey: queryKeys.search.global(query, leagueId),
     queryFn: () => {
-      if (!leagueId) throw new Error("leagueId is required");
+      if (leagueId) {
+        return unwrap(
+          client.GET("/leagues/{league_id}/search/global", {
+            params: {
+              path: { league_id: leagueId },
+              query: { q: query, limit: 8 },
+            },
+          }),
+        );
+      }
       return unwrap(
-        client.GET("/leagues/{league_id}/search/global", {
+        (client as any).GET("/search/global", {
           params: {
-            path: { league_id: leagueId },
             query: { q: query, limit: 8 },
           },
         }),

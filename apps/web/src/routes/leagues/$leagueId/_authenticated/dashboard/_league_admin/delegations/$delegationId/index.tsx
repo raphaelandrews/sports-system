@@ -1,4 +1,9 @@
 import { Badge } from "@sports-system/ui/components/badge";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@sports-system/ui/components/avatar";
 import { buttonVariants } from "@sports-system/ui/components/button";
 import {
   Card,
@@ -104,7 +109,15 @@ function DelegationDetailPage() {
                 {delegation.is_active ? "Ativa" : "Inativa"}
               </Badge>
             </div>
-            <CardTitle className="text-2xl">{delegation.name}</CardTitle>
+            <div className="flex items-center gap-3">
+              <Avatar className="h-12 w-12 rounded-xl">
+                <AvatarImage src={delegation.flag_url ?? ""} alt={delegation.name} />
+                <AvatarFallback className="rounded-xl bg-primary text-primary-foreground">
+                  {delegation.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <CardTitle className="text-2xl">{delegation.name}</CardTitle>
+            </div>
             <CardDescription className="max-w-2xl">
               Resumo administrativo da delegação, com membros atuais, histórico preservado e recorte
               das partidas mais recentes.

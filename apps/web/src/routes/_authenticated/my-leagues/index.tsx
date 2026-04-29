@@ -4,6 +4,11 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Badge } from "@sports-system/ui/components/badge";
 import { buttonVariants } from "@sports-system/ui/components/button";
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@sports-system/ui/components/avatar";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -50,13 +55,23 @@ function MyLeaguesPage() {
           return (
             <Card key={league.id}>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>{league.name}</CardTitle>
-                  {membership && (
-                    <Badge variant="outline">{roleLabel[membership.role] ?? membership.role}</Badge>
-                  )}
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10 rounded-lg">
+                    <AvatarImage src={league.logo_url ?? ""} alt={league.name} />
+                    <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
+                      {league.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-1 flex-col">
+                    <div className="flex items-center justify-between">
+                      <CardTitle>{league.name}</CardTitle>
+                      {membership && (
+                        <Badge variant="outline">{roleLabel[membership.role] ?? membership.role}</Badge>
+                      )}
+                    </div>
+                    <CardDescription>{league.slug}</CardDescription>
+                  </div>
                 </div>
-                <CardDescription>{league.slug}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground line-clamp-2">

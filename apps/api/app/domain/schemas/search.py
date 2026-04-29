@@ -11,6 +11,7 @@ class GlobalSearchAthleteItem(BaseModel):
     name: str
     code: str
     is_active: bool
+    league_id: int
 
     model_config = {"from_attributes": True}
 
@@ -20,6 +21,7 @@ class GlobalSearchDelegationItem(BaseModel):
     name: str
     code: str
     is_active: bool
+    league_id: int
 
     model_config = {"from_attributes": True}
 
@@ -27,6 +29,7 @@ class GlobalSearchDelegationItem(BaseModel):
 class GlobalSearchEventItem(BaseModel):
     id: int
     competition_id: int
+    league_id: int
     number: int
     sport_name: str
     modality_name: str

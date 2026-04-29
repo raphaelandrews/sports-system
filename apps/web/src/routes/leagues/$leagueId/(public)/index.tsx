@@ -1,4 +1,9 @@
 import { Badge } from "@sports-system/ui/components/badge";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@sports-system/ui/components/avatar";
 import { Card, CardDescription, CardHeader, CardTitle } from "@sports-system/ui/components/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
@@ -80,8 +85,18 @@ function LeaguePublicPage() {
             <Badge variant="destructive">Inativa</Badge>
           )}
         </div>
-        <h1 className="text-4xl font-bold tracking-tight">{league.name}</h1>
-        <p className="text-muted-foreground mt-2 text-lg">{league.slug}</p>
+        <div className="flex items-center gap-4">
+          <Avatar className="h-16 w-16 rounded-xl">
+            <AvatarImage src={league.logo_url ?? ""} alt={league.name} />
+            <AvatarFallback className="rounded-xl bg-primary text-primary-foreground text-xl">
+              {league.name.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight">{league.name}</h1>
+            <p className="text-muted-foreground mt-1 text-lg">{league.slug}</p>
+          </div>
+        </div>
         {league.description && (
           <p className="mt-4 max-w-3xl text-muted-foreground">{league.description}</p>
         )}

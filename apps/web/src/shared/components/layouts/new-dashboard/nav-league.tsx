@@ -16,15 +16,19 @@ export function NavSecondary({
 		name: string;
 		url: string;
 		icon: LucideIcon;
+		isActive?: boolean;
 	}[];
 }) {
 	return (
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
-			<SidebarGroupLabel>Ações</SidebarGroupLabel>
+			<SidebarGroupLabel>Liga</SidebarGroupLabel>
 			<SidebarMenu>
 				{items.map((item) => (
 					<SidebarMenuItem key={item.name}>
-						<SidebarMenuButton render={<Link to={item.url} />}>
+						<SidebarMenuButton
+							render={<Link to={item.url} />}
+							isActive={item.isActive}
+						>
 							<item.icon />
 							<span>{item.name}</span>
 						</SidebarMenuButton>

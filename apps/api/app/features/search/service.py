@@ -13,9 +13,9 @@ from app.domain.schemas.search import (
 
 async def global_search(
     session: AsyncSession,
-    league_id: int,
     query: str,
     limit: int,
+    league_id: int | None = None,
 ) -> GlobalSearchResponse:
     normalized = query.strip()
     if len(normalized) < 2:
@@ -23,14 +23,11 @@ async def global_search(
             query=normalized, athletes=[], delegations=[], events=[]
         )
 
-    athletes = await athlete_repository.search(session, normalized, limit)
-    athletes = [
-        item for item in athletes if getattr(item, "league_id", None) == league_id
-    ]
+    athletes = await athlete_repository.search(session, normalized, limit, league_id)
     delegations = await delegation_repository.search(
-        session, league_id, normalized, limit
+        session, normalized, limit, league_id
     )
-    events = await event_repository.search(session, league_id, normalized, limit)
+    events = await event_repository.search(session, normalized, limit, league_id)
 
     return GlobalSearchResponse(
         query=normalized,

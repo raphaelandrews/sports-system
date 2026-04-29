@@ -69,6 +69,7 @@ export const UserResponse = z.object({
   email: z.string(),
   name: z.string(),
   role: UserRole,
+  avatar_url: z.string().nullable().optional(),
   is_active: z.boolean(),
   created_at: z.string().datetime(),
 });
@@ -79,6 +80,7 @@ export const UserSearchResponse = z.object({
   email: z.string(),
   name: z.string(),
   role: UserRole,
+  avatar_url: z.string().nullable().optional(),
   is_active: z.boolean(),
 });
 export type UserSearchResponse = z.infer<typeof UserSearchResponse>;
@@ -86,6 +88,7 @@ export type UserSearchResponse = z.infer<typeof UserSearchResponse>;
 export const UserUpdate = z
   .object({
     name: z.string().optional(),
+    avatar_url: z.string().optional(),
   })
   .strict();
 export type UserUpdate = z.infer<typeof UserUpdate>;

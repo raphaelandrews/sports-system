@@ -3,6 +3,11 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
 import { buttonVariants } from "@sports-system/ui/components/button";
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@sports-system/ui/components/avatar";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -41,10 +46,18 @@ function LeaguesPage() {
         {leagues.map((league) => (
           <Card key={league.id} className="rounded-xl bg-surface-1 transition-colors ring-0">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>{league.name}</CardTitle>
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10 rounded-lg">
+                  <AvatarImage src={league.logo_url ?? ""} alt={league.name} />
+                  <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
+                    {league.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <CardTitle>{league.name}</CardTitle>
+                  <CardDescription>{league.slug}</CardDescription>
+                </div>
               </div>
-              <CardDescription>{league.slug}</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground line-clamp-2">

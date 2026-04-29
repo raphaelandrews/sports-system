@@ -87,9 +87,7 @@ async def save(session: AsyncSession, athlete: Athlete) -> Athlete:
     return athlete
 
 
-async def get_delegation_history(
-    session: AsyncSession, athlete: Athlete
-) -> list[dict]:
+async def get_delegation_history(session: AsyncSession, athlete: Athlete) -> list[dict]:
     if athlete.user_id is None:
         return []
     result = await session.execute(
@@ -112,9 +110,7 @@ async def get_delegation_history(
     ]
 
 
-async def get_match_history(
-    session: AsyncSession, athlete_id: int
-) -> list[dict]:
+async def get_match_history(session: AsyncSession, athlete_id: int) -> list[dict]:
     result = await session.execute(
         select(MatchParticipant, Match, Event, Modality, Sport, Delegation)
         .join(Match, Match.id == MatchParticipant.match_id)
@@ -140,9 +136,7 @@ async def get_match_history(
     ]
 
 
-async def get_statistics(
-    session: AsyncSession, athlete_id: int
-) -> dict:
+async def get_statistics(session: AsyncSession, athlete_id: int) -> dict:
     total_result = await session.execute(
         select(func.count()).where(MatchParticipant.athlete_id == athlete_id)
     )
@@ -167,15 +161,16 @@ async def search(
     session: AsyncSession,
     query: str,
     limit: int = 8,
+    league_id: int | None = None,
 ) -> list[Athlete]:
     pattern = f"%{query.strip()}%"
+    where_clause = [
+        Athlete.is_active == True,  # noqa: E712
+        ((Athlete.name.ilike(pattern)) | (Athlete.code.ilike(pattern))),
+    ]
+    if league_id is not None:
+        where_clause.append(Athlete.league_id == league_id)
     result = await session.execute(
-        select(Athlete)
-        .where(
-            Athlete.is_active == True,  # noqa: E712
-            ((Athlete.name.ilike(pattern)) | (Athlete.code.ilike(pattern))),
-        )
-        .order_by(Athlete.name.asc())
-        .limit(limit)
+        select(Athlete).where(*where_clause).order_by(Athlete.name.asc()).limit(limit)
     )
     return list(result.scalars().all())

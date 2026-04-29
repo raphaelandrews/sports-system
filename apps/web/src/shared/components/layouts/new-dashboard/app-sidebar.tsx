@@ -2,7 +2,6 @@ import * as React from "react";
 import {
 	Sidebar,
 	SidebarContent,
-	SidebarFooter,
 	SidebarHeader,
 	SidebarRail,
 	useSidebar,
@@ -18,9 +17,8 @@ import type { Session } from "@/types/auth";
 import type { LeagueMemberResponse, LeagueResponse } from "@/types/leagues";
 
 import { NavMain } from "./nav-main";
-import { NavSecondary } from "./nav-secondary";
-import { NavUser } from "./nav-user";
-import { SquareDotIcon } from "lucide-react";
+import { NavSecondary } from "./nav-league";
+import { Home, Trophy, SquareDotIcon } from "lucide-react";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 	session: Session | null;
@@ -55,29 +53,68 @@ export function AppSidebar({
 		platformRole,
 	});
 
-	const mainItems = navItems.map((item) => ({
-		title: item.label,
-		url: item.href,
-		icon: item.icon,
-		isActive: item.exact ? pathname === item.href : pathname.startsWith(item.href),
-	}));
+	const leagueBase = leagueId ? `/leagues/${leagueId}` : "";
+	const isLeagueSubRoute = (href: string) =>
+		leagueId && href.startsWith(leagueBase);
+
+	const mainItems = [
+		{
+			title: "Início",
+			url: "/",
+			icon: Home,
+			isActive: pathname === "/",
+		},
+		{
+			title: "Ligas",
+			url: "/leagues",
+			icon: Trophy,
+			isActive: pathname.startsWith("/leagues") && !getLeagueIdFromPath(pathname),
+		},
+		...navItems
+			.filter(
+				(item) =>
+					!isLeagueSubRoute(item.href) &&
+					item.href !== "/" &&
+					item.href !== "/leagues",
+			)
+			.map((item) => ({
+				title: item.label,
+				url: item.href,
+				icon: item.icon,
+				isActive: item.exact
+					? pathname === item.href
+					: pathname.startsWith(item.href),
+			})),
+	];
 
 	const secondaryItems = [
+		...navItems
+			.filter((item) => isLeagueSubRoute(item.href))
+			.map((item) => ({
+				name: item.label,
+				url: item.href,
+				icon: item.icon,
+				isActive: item.exact
+					? pathname === item.href
+					: pathname.startsWith(item.href),
+			})),
 		...membershipNav.secondary.map((item) => ({
 			name: item.label,
 			url: item.href,
 			icon: item.icon,
+			isActive: item.exact
+				? pathname === item.href
+				: pathname.startsWith(item.href),
 		})),
 		...membershipNav.support.map((item) => ({
 			name: item.label,
 			url: item.href,
 			icon: item.icon,
+			isActive: item.exact
+				? pathname === item.href
+				: pathname.startsWith(item.href),
 		})),
 	];
-
-	const user = session
-		? { name: session.name, email: session.email, avatar: "" }
-		: { name: "Visitante", email: "", avatar: "" };
 
 	return (
 		<Sidebar collapsible="icon" variant="inset" {...props}>
@@ -90,9 +127,6 @@ export function AppSidebar({
 				<NavMain items={mainItems} />
 				{secondaryItems.length > 0 && <NavSecondary items={secondaryItems} />}
 			</SidebarContent>
-			<SidebarFooter>
-				<NavUser user={user} session={session} />
-			</SidebarFooter>
 			<SidebarRail />
 		</Sidebar>
 	);

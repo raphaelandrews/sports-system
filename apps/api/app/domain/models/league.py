@@ -31,6 +31,7 @@ class League(SQLModel, table=True):
     name: str
     slug: str = Field(unique=True, index=True)
     description: Optional[str] = None
+    logo_url: Optional[str] = None
     created_by_id: int = Field(foreign_key="users.id")
     sports_config: list[int] = Field(
         default_factory=list, sa_column=Column(JSON, nullable=False)

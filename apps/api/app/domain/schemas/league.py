@@ -10,6 +10,7 @@ class LeagueCreate(BaseModel):
     name: str
     slug: str
     description: Optional[str] = None
+    logo_url: Optional[str] = None
     sports_config: list[int] = Field(default_factory=list)
     auto_simulate: bool = False
     transfer_window_enabled: bool = False
@@ -20,6 +21,7 @@ class LeagueUpdate(BaseModel):
     name: Optional[str] = None
     slug: Optional[str] = None
     description: Optional[str] = None
+    logo_url: Optional[str] = None
     sports_config: Optional[list[int]] = None
     auto_simulate: Optional[bool] = None
     transfer_window_enabled: Optional[bool] = None
@@ -32,6 +34,7 @@ class LeagueResponse(BaseModel):
     name: str
     slug: str
     description: Optional[str]
+    logo_url: Optional[str] = None
     created_by_id: int
     sports_config: list[int]
     auto_simulate: bool

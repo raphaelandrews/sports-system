@@ -41,7 +41,7 @@ async def search_users(
     q: str = Query(..., min_length=2),
     limit: int = Query(10, ge=1, le=20),
     session: AsyncSession = Depends(get_session),
-    current_user: User = Depends(require_chief_or_admin),
+    current_user: User = Depends(get_current_user),
 ) -> list[UserSearchResponse]:
     users = await user_service.search_users(session, current_user, q, limit)
     return [UserSearchResponse.model_validate(user) for user in users]

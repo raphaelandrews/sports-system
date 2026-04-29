@@ -36,13 +36,17 @@ async def list_events(
     offset: int,
     limit: int,
 ) -> tuple[list[Event], int]:
-    q = select(Event).join(Competition, Competition.id == Event.competition_id).where(
-        Competition.league_id == league_id
+    q = (
+        select(Event)
+        .join(Competition, Competition.id == Event.competition_id)
+        .where(Competition.league_id == league_id)
     )
     if competition_id is not None:
         q = q.where(Event.competition_id == competition_id)
     if sport_id is not None:
-        q = q.join(Modality, Modality.id == Event.modality_id).where(Modality.sport_id == sport_id)
+        q = q.join(Modality, Modality.id == Event.modality_id).where(
+            Modality.sport_id == sport_id
+        )
     if event_date is not None:
         q = q.where(Event.event_date == event_date)
     q = q.order_by(Event.event_date, Event.start_time)
@@ -89,7 +93,9 @@ async def save_match(session: AsyncSession, match: Match) -> Match:
     return match
 
 
-async def get_match_participants(session: AsyncSession, match_id: int) -> list[MatchParticipant]:
+async def get_match_participants(
+    session: AsyncSession, match_id: int
+) -> list[MatchParticipant]:
     result = await session.execute(
         select(MatchParticipant).where(MatchParticipant.match_id == match_id)
     )
@@ -98,12 +104,16 @@ async def get_match_participants(session: AsyncSession, match_id: int) -> list[M
 
 async def get_match_events(session: AsyncSession, match_id: int) -> list[MatchEvent]:
     result = await session.execute(
-        select(MatchEvent).where(MatchEvent.match_id == match_id).order_by(MatchEvent.created_at)
+        select(MatchEvent)
+        .where(MatchEvent.match_id == match_id)
+        .order_by(MatchEvent.created_at)
     )
     return list(result.scalars().all())
 
 
-async def create_match_event(session: AsyncSession, match_event: MatchEvent) -> MatchEvent:
+async def create_match_event(
+    session: AsyncSession, match_event: MatchEvent
+) -> MatchEvent:
     session.add(match_event)
     await session.flush()
     await session.refresh(match_event)
@@ -112,15 +122,25 @@ async def create_match_event(session: AsyncSession, match_event: MatchEvent) -> 
 
 async def search(
     session: AsyncSession,
-    league_id: int,
     query: str,
     limit: int = 8,
+    league_id: int | None = None,
 ) -> list[dict]:
     pattern = f"%{query.strip()}%"
+    where_clause = [
+        or_(
+            Sport.name.ilike(pattern),
+            Modality.name.ilike(pattern),
+            Event.venue.ilike(pattern),
+        )
+    ]
+    if league_id is not None:
+        where_clause.append(Competition.league_id == league_id)
     result = await session.execute(
         select(
             Event.id,
             Event.competition_id,
+            Competition.league_id,
             Competition.number,
             Sport.name.label("sport_name"),
             Modality.name.label("modality_name"),
@@ -133,14 +153,7 @@ async def search(
         .join(Competition, Competition.id == Event.competition_id)
         .join(Modality, Modality.id == Event.modality_id)
         .join(Sport, Sport.id == Modality.sport_id)
-        .where(
-            Competition.league_id == league_id,
-            or_(
-                Sport.name.ilike(pattern),
-                Modality.name.ilike(pattern),
-                Event.venue.ilike(pattern),
-            )
-        )
+        .where(*where_clause)
         .order_by(Event.event_date.desc(), Event.start_time.asc())
         .limit(limit)
     )
@@ -148,6 +161,7 @@ async def search(
         {
             "id": row.id,
             "competition_id": row.competition_id,
+            "league_id": row.league_id,
             "number": row.number,
             "sport_name": row.sport_name,
             "modality_name": row.modality_name,

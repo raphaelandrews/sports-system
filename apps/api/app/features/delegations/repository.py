@@ -2,7 +2,12 @@ from sqlalchemy import case, distinct, func, or_, select, union
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.models.athlete import Athlete
-from app.domain.models.delegation import Delegation, DelegationInvite, DelegationMember, InviteStatus
+from app.domain.models.delegation import (
+    Delegation,
+    DelegationInvite,
+    DelegationMember,
+    InviteStatus,
+)
 from app.domain.models.event import Event, Match, MatchParticipant, MatchStatus
 from app.domain.models.result import Medal, Result
 from app.domain.models.competition import Competition
@@ -25,7 +30,9 @@ async def get_by_id_in_league(
     return result.scalar_one_or_none()
 
 
-async def get_by_code(session: AsyncSession, league_id: int, code: str) -> Delegation | None:
+async def get_by_code(
+    session: AsyncSession, league_id: int, code: str
+) -> Delegation | None:
     result = await session.execute(
         select(Delegation).where(
             Delegation.league_id == league_id,
@@ -37,20 +44,22 @@ async def get_by_code(session: AsyncSession, league_id: int, code: str) -> Deleg
 
 async def search(
     session: AsyncSession,
-    league_id: int,
     query: str,
     limit: int = 8,
+    league_id: int | None = None,
 ) -> list[Delegation]:
     pattern = f"%{query.strip()}%"
+    where_clause = [
+        or_(
+            Delegation.name.ilike(pattern),
+            Delegation.code.ilike(pattern),
+        )
+    ]
+    if league_id is not None:
+        where_clause.append(Delegation.league_id == league_id)
     result = await session.execute(
         select(Delegation)
-        .where(
-            Delegation.league_id == league_id,
-            or_(
-                Delegation.name.ilike(pattern),
-                Delegation.code.ilike(pattern),
-            )
-        )
+        .where(*where_clause)
         .order_by(Delegation.name.asc())
         .limit(limit)
     )
@@ -62,7 +71,9 @@ async def list_active(
 ) -> tuple[list[Delegation], int]:
     offset = (page - 1) * per_page
     count_result = await session.execute(
-        select(func.count()).select_from(Delegation).where(
+        select(func.count())
+        .select_from(Delegation)
+        .where(
             Delegation.league_id == league_id,
             Delegation.is_active == True,  # noqa: E712
         )
@@ -133,13 +144,17 @@ async def get_active_membership(
     return result.scalar_one_or_none()
 
 
-async def create_member(session: AsyncSession, member: DelegationMember) -> DelegationMember:
+async def create_member(
+    session: AsyncSession, member: DelegationMember
+) -> DelegationMember:
     session.add(member)
     await session.flush()
     return member
 
 
-async def save_member(session: AsyncSession, member: DelegationMember) -> DelegationMember:
+async def save_member(
+    session: AsyncSession, member: DelegationMember
+) -> DelegationMember:
     session.add(member)
     await session.flush()
     return member
@@ -157,17 +172,23 @@ async def get_pending_invites(
     return result.scalars().all()  # type: ignore[return-value]
 
 
-async def get_invite_by_id(session: AsyncSession, invite_id: int) -> DelegationInvite | None:
+async def get_invite_by_id(
+    session: AsyncSession, invite_id: int
+) -> DelegationInvite | None:
     return await session.get(DelegationInvite, invite_id)
 
 
-async def create_invite(session: AsyncSession, invite: DelegationInvite) -> DelegationInvite:
+async def create_invite(
+    session: AsyncSession, invite: DelegationInvite
+) -> DelegationInvite:
     session.add(invite)
     await session.flush()
     return invite
 
 
-async def save_invite(session: AsyncSession, invite: DelegationInvite) -> DelegationInvite:
+async def save_invite(
+    session: AsyncSession, invite: DelegationInvite
+) -> DelegationInvite:
     session.add(invite)
     await session.flush()
     return invite
@@ -176,21 +197,23 @@ async def save_invite(session: AsyncSession, invite: DelegationInvite) -> Delega
 async def get_current_delegation_id(
     session: AsyncSession, user_id: int, league_id: int | None = None
 ) -> int | None:
-    query = select(DelegationMember.delegation_id).join(
-        Delegation, Delegation.id == DelegationMember.delegation_id
-    ).where(
-        DelegationMember.user_id == user_id,
-        DelegationMember.left_at == None,  # noqa: E711
+    query = (
+        select(DelegationMember.delegation_id)
+        .join(Delegation, Delegation.id == DelegationMember.delegation_id)
+        .where(
+            DelegationMember.user_id == user_id,
+            DelegationMember.left_at == None,  # noqa: E711
+        )
     )
     if league_id is not None:
         query = query.where(Delegation.league_id == league_id)
-    result = await session.execute(
-        query
-    )
+    result = await session.execute(query)
     return result.scalar_one_or_none()
 
 
-async def get_athlete_statistics(session: AsyncSession, delegation_id: int) -> list[dict]:
+async def get_athlete_statistics(
+    session: AsyncSession, delegation_id: int
+) -> list[dict]:
     membership_athletes = (
         select(Athlete.id.label("athlete_id"))
         .join(DelegationMember, DelegationMember.user_id == Athlete.user_id)
@@ -200,11 +223,13 @@ async def get_athlete_statistics(session: AsyncSession, delegation_id: int) -> l
         Result.delegation_id == delegation_id,
         Result.athlete_id.is_not(None),
     )
-    participant_athletes = select(MatchParticipant.athlete_id.label("athlete_id")).where(
-        MatchParticipant.delegation_id_at_time == delegation_id
-    )
+    participant_athletes = select(
+        MatchParticipant.athlete_id.label("athlete_id")
+    ).where(MatchParticipant.delegation_id_at_time == delegation_id)
 
-    athlete_ids = union(membership_athletes, result_athletes, participant_athletes).subquery()
+    athlete_ids = union(
+        membership_athletes, result_athletes, participant_athletes
+    ).subquery()
 
     membership_stats = (
         select(
@@ -258,7 +283,9 @@ async def get_athlete_statistics(session: AsyncSession, delegation_id: int) -> l
             Athlete.is_active,
             membership_stats.c.joined_at,
             membership_stats.c.left_at,
-            func.coalesce(membership_stats.c.is_current_member, 0).label("is_current_member"),
+            func.coalesce(membership_stats.c.is_current_member, 0).label(
+                "is_current_member"
+            ),
             func.coalesce(match_stats.c.total_matches, 0).label("total_matches"),
             func.coalesce(medal_stats.c.gold, 0).label("gold"),
             func.coalesce(medal_stats.c.silver, 0).label("silver"),
@@ -269,7 +296,11 @@ async def get_athlete_statistics(session: AsyncSession, delegation_id: int) -> l
         .outerjoin(match_stats, match_stats.c.athlete_id == Athlete.id)
         .outerjoin(medal_stats, medal_stats.c.athlete_id == Athlete.id)
         .order_by(
-            (func.coalesce(medal_stats.c.gold, 0) + func.coalesce(medal_stats.c.silver, 0) + func.coalesce(medal_stats.c.bronze, 0)).desc(),
+            (
+                func.coalesce(medal_stats.c.gold, 0)
+                + func.coalesce(medal_stats.c.silver, 0)
+                + func.coalesce(medal_stats.c.bronze, 0)
+            ).desc(),
             func.coalesce(match_stats.c.total_matches, 0).desc(),
             Athlete.name.asc(),
         )
@@ -323,7 +354,9 @@ async def get_medal_entries(session: AsyncSession, delegation_id: int) -> list[d
     ]
 
 
-async def get_weekly_performance(session: AsyncSession, delegation_id: int) -> list[dict]:
+async def get_weekly_performance(
+    session: AsyncSession, delegation_id: int
+) -> list[dict]:
     team_matches = (
         select(Match.id.label("match_id"), Event.competition_id.label("competition_id"))
         .join(Event, Event.id == Match.event_id)
@@ -333,7 +366,10 @@ async def get_weekly_performance(session: AsyncSession, delegation_id: int) -> l
         )
     )
     participant_matches = (
-        select(MatchParticipant.match_id.label("match_id"), Event.competition_id.label("competition_id"))
+        select(
+            MatchParticipant.match_id.label("match_id"),
+            Event.competition_id.label("competition_id"),
+        )
         .join(Match, Match.id == MatchParticipant.match_id)
         .join(Event, Event.id == Match.event_id)
         .where(MatchParticipant.delegation_id_at_time == delegation_id)
@@ -393,7 +429,9 @@ async def get_weekly_performance(session: AsyncSession, delegation_id: int) -> l
             Competition.start_date,
             Competition.end_date,
             func.coalesce(match_totals.c.matches_played, 0).label("matches_played"),
-            func.coalesce(match_totals.c.matches_completed, 0).label("matches_completed"),
+            func.coalesce(match_totals.c.matches_completed, 0).label(
+                "matches_completed"
+            ),
             func.coalesce(win_totals.c.wins, 0).label("wins"),
             func.coalesce(medal_totals.c.gold, 0).label("gold"),
             func.coalesce(medal_totals.c.silver, 0).label("silver"),

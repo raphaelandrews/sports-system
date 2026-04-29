@@ -1,5 +1,10 @@
 import { Badge } from "@sports-system/ui/components/badge";
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@sports-system/ui/components/avatar";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -63,7 +68,15 @@ function DelegationDetailPage() {
               </span>
               {!data.is_active && <Badge variant="destructive">Inativa</Badge>}
             </div>
-            <CardTitle className="text-3xl font-semibold">{data.name}</CardTitle>
+            <div className="flex items-center gap-3">
+              <Avatar className="h-14 w-14 rounded-xl">
+                <AvatarImage src={data.flag_url ?? ""} alt={data.name} />
+                <AvatarFallback className="rounded-xl bg-primary text-primary-foreground text-lg">
+                  {data.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <CardTitle className="text-3xl font-semibold">{data.name}</CardTitle>
+            </div>
             <CardDescription className="max-w-2xl">
               Perfil publico da delegacao com quadro completo de atletas, medalhas e recorte
               historico por semana.
