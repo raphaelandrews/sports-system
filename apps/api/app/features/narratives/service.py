@@ -10,6 +10,7 @@ from app.domain.models.narrative import AIGeneration, Narrative
 from app.domain.models.result import Medal, Result
 from app.domain.models.sport import Modality, Sport
 from app.features.narratives import ai as ai_service
+from app.features.reports import service as report_service
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,14 @@ _NARRATIVE_SYSTEM = (
     "Você é um jornalista esportivo cobrindo uma olimpíada escolar/universitária. "
     "Escreva narrativas envolventes em português brasileiro, com estilo dinâmico e emocionante. "
     "Use markdown para formatar o texto. Máximo 400 palavras."
+)
+
+_RESUME_SYSTEM = (
+    "Você é um jornalista esportivo especializado em cobertura de eventos escolares/universitários. "
+    "Escreva um resumo executivo da liga em português brasileiro, com tom profissional e envolvente. "
+    "O resumo deve destacar os principais números, liderança no quadro de medalhas, "
+    "modalidades mais disputadas e o clima geral da competição. "
+    "Use markdown para formatar o texto. Máximo 500 palavras."
 )
 
 
@@ -119,6 +128,46 @@ async def generate(
     await session.refresh(narrative)
     logger.info("narrative_generated date=%s", target_date)
     return narrative
+
+
+async def generate_resume(session: AsyncSession, league_id: int) -> str:
+    report = await report_service.get_final_report(session, league_id)
+
+    lines = [f"Resumo da Liga (ID {league_id})"]
+    lines.append(
+        f"- Delegações: {report.summary.total_delegations}, "
+        f"Atletas: {report.summary.total_athletes}, "
+        f"Competições: {report.summary.total_competitions}, "
+        f"Eventos: {report.summary.total_events}, "
+        f"Partidas: {report.summary.total_matches} (concluídas: {report.summary.completed_matches})"
+    )
+
+    if report.medal_board:
+        lines.append("\nQuadro de Medalhas:")
+        for entry in report.medal_board[:5]:
+            lines.append(
+                f"  - {entry.delegation_name}: {entry.gold} ouro, {entry.silver} prata, {entry.bronze} bronze (total: {entry.total})"
+            )
+
+    if report.athletes_by_sport:
+        lines.append("\nAtletas por Modalidade:")
+        for sport in report.athletes_by_sport[:5]:
+            lines.append(f"  - {sport.sport_name}: {sport.athlete_count} atletas")
+
+    if report.records:
+        lines.append(f"\nRecordes registrados: {len(report.records)}")
+
+    context = "\n".join(lines)
+    content = await ai_service.generate_text(
+        _RESUME_SYSTEM,
+        f"Gere o resumo da liga com base nos dados:\n\n{context}",
+        max_tokens=1200,
+    )
+
+    session.add(AIGeneration(league_id=league_id, generation_type="resume", count=1))
+    await session.commit()
+    logger.info("resume_generated league_id=%s", league_id)
+    return content
 
 
 async def get_history(session: AsyncSession, league_id: int) -> list[AIGeneration]:

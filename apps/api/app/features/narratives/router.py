@@ -1,6 +1,7 @@
 from datetime import date
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.shared.core.deps import require_league_admin
@@ -12,8 +13,14 @@ from app.features.narratives import service as narrative_service
 router = APIRouter(prefix="/leagues/{league_id}", tags=["narratives"])
 
 
+class ResumeResponse(BaseModel):
+    content: str
+
+
 @router.get("/narrative/today", response_model=NarrativeResponse | None)
-async def get_today(league_id: int, session: AsyncSession = Depends(get_session)) -> NarrativeResponse | None:
+async def get_today(
+    league_id: int, session: AsyncSession = Depends(get_session)
+) -> NarrativeResponse | None:
     narrative = await narrative_service.get_today(session, league_id)
     if narrative is None:
         return None
@@ -21,14 +28,22 @@ async def get_today(league_id: int, session: AsyncSession = Depends(get_session)
 
 
 @router.get("/narrative/{narrative_date}", response_model=NarrativeResponse)
-async def get_for_date(league_id: int, narrative_date: date, session: AsyncSession = Depends(get_session)) -> NarrativeResponse:
+async def get_for_date(
+    league_id: int, narrative_date: date, session: AsyncSession = Depends(get_session)
+) -> NarrativeResponse:
     narrative = await narrative_service.get_for_date(session, league_id, narrative_date)
     if narrative is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Narrative not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Narrative not found"
+        )
     return NarrativeResponse.model_validate(narrative)
 
 
-@router.post("/narrative/generate", response_model=NarrativeResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/narrative/generate",
+    response_model=NarrativeResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def generate_narrative(
     league_id: int,
     target_date: date | None = None,
@@ -37,6 +52,20 @@ async def generate_narrative(
 ) -> NarrativeResponse:
     narrative = await narrative_service.generate(session, league_id, target_date)
     return NarrativeResponse.model_validate(narrative)
+
+
+@router.post(
+    "/resume/generate",
+    response_model=ResumeResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def generate_resume(
+    league_id: int,
+    session: AsyncSession = Depends(get_session),
+    _: LeagueMember = Depends(require_league_admin()),
+) -> ResumeResponse:
+    content = await narrative_service.generate_resume(session, league_id)
+    return ResumeResponse(content=content)
 
 
 @router.get("/ai/generation-history", response_model=list[AIGenerationResponse])

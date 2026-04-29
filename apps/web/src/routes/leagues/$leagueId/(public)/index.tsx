@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { Badge } from "@sports-system/ui/components/badge";
+import { Button } from "@sports-system/ui/components/button";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@sports-system/ui/components/avatar";
-import { Card, CardDescription, CardHeader, CardTitle } from "@sports-system/ui/components/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@sports-system/ui/components/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import {
@@ -15,9 +17,12 @@ import {
   BarChart3,
   Newspaper,
   ClipboardList,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 
 import { leagueDetailQueryOptions } from "@/features/leagues/api/queries";
+import { useGenerateResumeMutation } from "@/features/narratives/api/queries";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/")({
   loader: ({ context: { queryClient }, params: { leagueId } }) =>
@@ -28,6 +33,16 @@ export const Route = createFileRoute("/leagues/$leagueId/(public)/")({
 function LeaguePublicPage() {
   const { leagueId } = Route.useParams();
   const { data: league } = useSuspenseQuery(leagueDetailQueryOptions(leagueId));
+  const [resumeContent, setResumeContent] = useState<string | null>(null);
+  const generateResume = useGenerateResumeMutation(Number(leagueId));
+
+  const handleGenerate = () => {
+    generateResume.mutate(undefined, {
+      onSuccess: (data) => {
+        setResumeContent(data.content);
+      },
+    });
+  };
 
   const navItems = [
     {
@@ -99,6 +114,43 @@ function LeaguePublicPage() {
         {league.description && (
           <p className="mt-4 max-w-3xl text-muted-foreground">{league.description}</p>
         )}
+      </section>
+
+      <section className="mb-8">
+        <Card className="border-dashed">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10">
+                <Sparkles className="size-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-base">Resumo da Liga</CardTitle>
+                <CardDescription className="text-sm">
+                  Gere um resumo editorial com IA sobre o estado atual da competição
+                </CardDescription>
+              </div>
+              <Button
+                onClick={handleGenerate}
+                disabled={generateResume.isPending}
+                size="sm"
+              >
+                {generateResume.isPending ? (
+                  <Loader2 className="size-4 animate-spin mr-2" />
+                ) : (
+                  <Sparkles className="size-4 mr-2" />
+                )}
+                Gerar resumo
+              </Button>
+            </div>
+          </CardHeader>
+          {resumeContent && (
+            <CardContent>
+              <div className="prose prose-sm max-w-none dark:prose-invert">
+                <div dangerouslySetInnerHTML={{ __html: resumeContent.replace(/\n/g, "<br />") }} />
+              </div>
+            </CardContent>
+          )}
+        </Card>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

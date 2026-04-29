@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions, useMutation } from "@tanstack/react-query";
 
 import { client, unwrap } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
@@ -37,4 +37,14 @@ export const narrativeByDateQueryOptions = (leagueId: number, targetDate: string
         }),
       ),
     staleTime: 30_000,
+  });
+
+export const useGenerateResumeMutation = (leagueId: number) =>
+  useMutation({
+    mutationFn: () =>
+      unwrap(
+        client.POST("/leagues/{league_id}/resume/generate", {
+          params: { path: { league_id: leagueId } },
+        }),
+      ),
   });

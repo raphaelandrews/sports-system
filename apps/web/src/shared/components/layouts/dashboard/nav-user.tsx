@@ -64,10 +64,10 @@ export function NavUser({ session }: NavUserProps) {
 					</div>
 				</div>
 				<DropdownMenuGroup>
-					<DropdownMenuItem onClick={() => toast.info("Em breve")}>
-						<UserIcon />
-						Conta
-					</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => router.navigate({ to: "/profile" })}>
+					<UserIcon />
+					Conta
+				</DropdownMenuItem>
 					<DropdownMenuItem onClick={() => toast.info("Em breve")}>
 						<SettingsIcon />
 						Configurações

@@ -35,6 +35,7 @@ import { z } from "zod";
 import { formatEventDate } from "@/shared/lib/date";
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { delegationListQueryOptions } from "@/features/delegations/api/queries";
+import { myLeagueMembershipQueryOptions } from "@/features/leagues/api/queries";
 import { queryKeys } from "@/features/keys";
 
 const PAGE_SIZE = 8;
@@ -51,18 +52,19 @@ export const Route = createFileRoute("/leagues/$leagueId/_authenticated/dashboar
   validateSearch: delegationsSearchSchema,
   loader: ({ context: { queryClient }, params: { leagueId } }) => {
     void queryClient.prefetchQuery(delegationListQueryOptions(Number(leagueId)));
+    void queryClient.prefetchQuery(myLeagueMembershipQueryOptions(Number(leagueId)));
   },
   component: DelegationsPage,
 });
 
 function DelegationsPage() {
-  const { session } = Route.useRouteContext();
   const { leagueId } = Route.useParams();
   const navigate = useNavigate({ from: Route.fullPath });
   const searchState = Route.useSearch();
-  const isAdmin = session?.role === "ADMIN";
   const queryClient = useQueryClient();
   const { data } = useSuspenseQuery(delegationListQueryOptions(Number(leagueId)));
+  const { data: membership } = useSuspenseQuery(myLeagueMembershipQueryOptions(Number(leagueId)));
+  const isAdmin = membership?.role === "LEAGUE_ADMIN";
 
   const [aiCount, setAiCount] = useState("5");
   const search = searchState.q?.trim() ?? "";
@@ -90,6 +92,28 @@ function DelegationsPage() {
     },
     onError: (error) => {
       toast.error(error instanceof ApiError ? error.message : "Falha ao gerar delegações com IA.");
+    },
+  });
+
+  const aiPopulateMutation = useMutation({
+    mutationFn: async () =>
+      unwrap(
+        client.POST("/leagues/{league_id}/delegations/ai-populate", {
+          params: { path: { league_id: Number(leagueId) }, query: { count: Number(aiCount) } },
+        }),
+      ),
+    onSuccess: async (created) => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.delegations.all(Number(leagueId)),
+      });
+      toast.success(
+        created.length === 1
+          ? "1 delegação populada com IA."
+          : `${created.length} delegações populadas com IA baseadas nas existentes.`,
+      );
+    },
+    onError: (error) => {
+      toast.error(error instanceof ApiError ? error.message : "Falha ao popular delegações com IA.");
     },
   });
 
@@ -195,10 +219,19 @@ function DelegationsPage() {
                   <Bot className="size-4" />
                   {aiMutation.isPending ? "Gerando..." : "Gerar com IA"}
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => aiPopulateMutation.mutate()}
+                  disabled={aiPopulateMutation.isPending}
+                >
+                  <Bot className="size-4" />
+                  {aiPopulateMutation.isPending ? "Populando..." : "Popular com IA"}
+                </Button>
               </div>
               <p className="text-sm text-muted-foreground">
-                Cada execução cria novas delegações. Revise nomes e bandeiras depois do
-                preenchimento automático.
+                "Gerar" cria delegações aleatórias. "Popular" analisa as existentes e cria novas no mesmo estilo.
+                Revise nomes e bandeiras depois do preenchimento automático.
               </p>
             </CardContent>
           </Card>

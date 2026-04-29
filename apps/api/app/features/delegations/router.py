@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.shared.core.deps import get_current_user, require_league_admin, require_league_chief
+from app.shared.core.deps import (
+    get_current_user,
+    require_league_admin,
+    require_league_chief,
+)
 from app.database import get_session
 from app.domain.models.league import LeagueMember
 from app.domain.models.user import User
@@ -28,7 +32,9 @@ async def list_delegations(
     per_page: int = Query(20, ge=1, le=100),
     session: AsyncSession = Depends(get_session),
 ) -> PaginatedResponse[DelegationResponse]:
-    delegations, total = await delegation_service.list_delegations(session, league_id, page, per_page)
+    delegations, total = await delegation_service.list_delegations(
+        session, league_id, page, per_page
+    )
     return PaginatedResponse(
         data=[DelegationResponse.model_validate(d) for d in delegations],
         meta=Meta(total=total, page=page, per_page=per_page),
@@ -48,7 +54,11 @@ async def create_delegation(
     return DelegationResponse.model_validate(delegation)
 
 
-@router.post("/ai-generate", response_model=list[DelegationResponse], status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/ai-generate",
+    response_model=list[DelegationResponse],
+    status_code=status.HTTP_201_CREATED,
+)
 async def ai_generate_delegations(
     league_id: int,
     count: int = Query(5, ge=1, le=15),
@@ -62,13 +72,33 @@ async def ai_generate_delegations(
     return [DelegationResponse.model_validate(delegation) for delegation in delegations]
 
 
+@router.post(
+    "/ai-populate",
+    response_model=list[DelegationResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def ai_populate_delegations(
+    league_id: int,
+    count: int = Query(5, ge=1, le=15),
+    session: AsyncSession = Depends(get_session),
+    _: LeagueMember = Depends(require_league_admin()),
+) -> list[DelegationResponse]:
+    delegations = await delegation_service.ai_populate(session, league_id, count)
+    await session.commit()
+    for delegation in delegations:
+        await session.refresh(delegation)
+    return [DelegationResponse.model_validate(delegation) for delegation in delegations]
+
+
 @router.get("/{delegation_id}", response_model=DelegationDetailResponse)
 async def get_delegation(
     league_id: int,
     delegation_id: int,
     session: AsyncSession = Depends(get_session),
 ) -> DelegationDetailResponse:
-    return await delegation_service.get_delegation_detail(session, league_id, delegation_id)
+    return await delegation_service.get_delegation_detail(
+        session, league_id, delegation_id
+    )
 
 
 @router.get("/{delegation_id}/statistics", response_model=DelegationStatisticsResponse)
@@ -77,7 +107,9 @@ async def get_delegation_statistics(
     delegation_id: int,
     session: AsyncSession = Depends(get_session),
 ) -> DelegationStatisticsResponse:
-    return await delegation_service.get_delegation_statistics(session, league_id, delegation_id)
+    return await delegation_service.get_delegation_statistics(
+        session, league_id, delegation_id
+    )
 
 
 @router.patch("/{delegation_id}", response_model=DelegationResponse)
@@ -88,7 +120,9 @@ async def update_delegation(
     session: AsyncSession = Depends(get_session),
     _: LeagueMember = Depends(require_league_admin()),
 ) -> DelegationResponse:
-    delegation = await delegation_service.update_delegation(session, league_id, delegation_id, data)
+    delegation = await delegation_service.update_delegation(
+        session, league_id, delegation_id, data
+    )
     await session.commit()
     await session.refresh(delegation)
     return DelegationResponse.model_validate(delegation)
@@ -111,10 +145,16 @@ async def get_member_history(
     delegation_id: int,
     session: AsyncSession = Depends(get_session),
 ) -> list[MemberHistoryItem]:
-    return await delegation_service.get_member_history(session, league_id, delegation_id)
+    return await delegation_service.get_member_history(
+        session, league_id, delegation_id
+    )
 
 
-@router.post("/{delegation_id}/invite", response_model=InviteResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{delegation_id}/invite",
+    response_model=InviteResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def invite_user(
     league_id: int,
     delegation_id: int,
@@ -122,7 +162,9 @@ async def invite_user(
     session: AsyncSession = Depends(get_session),
     _: LeagueMember = Depends(require_league_chief()),
 ) -> InviteResponse:
-    invite = await delegation_service.invite_user(session, league_id, delegation_id, data.user_id)
+    invite = await delegation_service.invite_user(
+        session, league_id, delegation_id, data.user_id
+    )
     await session.commit()
     await session.refresh(invite)
     return InviteResponse.model_validate(invite)
@@ -139,7 +181,9 @@ async def list_invites(
     return [InviteResponse.model_validate(invite) for invite in invites]
 
 
-@router.delete("/{delegation_id}/invites/{invite_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{delegation_id}/invites/{invite_id}", status_code=status.HTTP_204_NO_CONTENT
+)
 async def revoke_invite(
     league_id: int,
     delegation_id: int,
@@ -151,7 +195,11 @@ async def revoke_invite(
     await session.commit()
 
 
-@router.post("/{delegation_id}/transfer/{user_id}", response_model=InviteResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{delegation_id}/transfer/{user_id}",
+    response_model=InviteResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def transfer_athlete(
     league_id: int,
     delegation_id: int,
@@ -159,7 +207,9 @@ async def transfer_athlete(
     session: AsyncSession = Depends(get_session),
     _: LeagueMember = Depends(require_league_chief()),
 ) -> InviteResponse:
-    invite = await delegation_service.transfer_athlete(session, league_id, delegation_id, user_id)
+    invite = await delegation_service.transfer_athlete(
+        session, league_id, delegation_id, user_id
+    )
     await session.commit()
     await session.refresh(invite)
     return InviteResponse.model_validate(invite)

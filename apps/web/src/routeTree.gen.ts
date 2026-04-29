@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LeaguesIndexRouteImport } from './routes/leagues/index'
 import { Route as LeaguesNewRouteImport } from './routes/leagues/new'
 import { Route as AuthenticatedRequestChiefRouteImport } from './routes/_authenticated/request-chief'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedRequestChiefIndexRouteImport } from './routes/_authenticated/request-chief/index'
 import { Route as AuthenticatedMyLeaguesIndexRouteImport } from './routes/_authenticated/my-leagues/index'
 import { Route as LeaguesLeagueIdAuthenticatedRouteImport } from './routes/leagues/$leagueId/_authenticated'
@@ -118,6 +119,11 @@ const AuthenticatedRequestChiefRoute =
     path: '/request-chief',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedRequestChiefIndexRoute =
   AuthenticatedRequestChiefIndexRouteImport.update({
     id: '/',
@@ -483,6 +489,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/terms': typeof TermsRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/request-chief': typeof AuthenticatedRequestChiefRouteWithChildren
   '/leagues/new': typeof LeaguesNewRoute
   '/leagues/': typeof LeaguesIndexRoute
@@ -544,6 +551,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/terms': typeof TermsRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/leagues/new': typeof LeaguesNewRoute
   '/leagues': typeof LeaguesIndexRoute
   '/request-chief/status': typeof AuthenticatedRequestChiefStatusRoute
@@ -604,6 +612,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/terms': typeof TermsRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/request-chief': typeof AuthenticatedRequestChiefRouteWithChildren
   '/leagues/new': typeof LeaguesNewRoute
   '/leagues/': typeof LeaguesIndexRoute
@@ -670,6 +679,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/register'
     | '/terms'
+    | '/profile'
     | '/request-chief'
     | '/leagues/new'
     | '/leagues/'
@@ -731,6 +741,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/register'
     | '/terms'
+    | '/profile'
     | '/leagues/new'
     | '/leagues'
     | '/request-chief/status'
@@ -790,6 +801,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/register'
     | '/terms'
+    | '/_authenticated/profile'
     | '/_authenticated/request-chief'
     | '/leagues/new'
     | '/leagues/'
@@ -941,6 +953,13 @@ declare module '@tanstack/react-router' {
       path: '/request-chief'
       fullPath: '/request-chief'
       preLoaderRoute: typeof AuthenticatedRequestChiefRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/request-chief/': {
@@ -1341,11 +1360,13 @@ const AuthenticatedRequestChiefRouteWithChildren =
   )
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedRequestChiefRoute: typeof AuthenticatedRequestChiefRouteWithChildren
   AuthenticatedMyLeaguesIndexRoute: typeof AuthenticatedMyLeaguesIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedRequestChiefRoute: AuthenticatedRequestChiefRouteWithChildren,
   AuthenticatedMyLeaguesIndexRoute: AuthenticatedMyLeaguesIndexRoute,
 }

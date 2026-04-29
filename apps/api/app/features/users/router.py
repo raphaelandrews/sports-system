@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.shared.core.deps import get_current_user, require_admin, require_chief_or_admin
@@ -16,6 +16,7 @@ from app.domain.schemas.user import (
 )
 from app.features.notifications import service as notification_service
 from app.features.users import service as user_service
+from app.shared.core.storage import delete_file, upload_file
 
 router = APIRouter(tags=["users"])
 
@@ -34,6 +35,26 @@ async def update_me(
     user = await user_service.update_me(session, current_user, data)
     await session.commit()
     return user
+
+
+@router.post("/upload/avatar", response_model=dict[str, str])
+async def upload_avatar(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+) -> dict[str, str]:
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    content = await file.read()
+    if len(content) > 2 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Image must be under 2MB")
+    try:
+        url = upload_file(content, file.content_type, folder="avatars")
+    except Exception as exc:
+        import logging
+
+        logging.getLogger(__name__).exception("Upload failed")
+        raise HTTPException(status_code=500, detail=f"Upload failed: {exc}")
+    return {"url": url}
 
 
 @router.get("/users/search", response_model=list[UserSearchResponse])

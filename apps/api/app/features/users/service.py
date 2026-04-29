@@ -26,6 +26,8 @@ async def update_me(session: AsyncSession, user: User, data: UserUpdate) -> User
         return user
     if data.name is not None:
         user.name = data.name
+    if data.avatar_url is not None:
+        user.avatar_url = data.avatar_url
     return await user_repository.save(session, user)
 
 

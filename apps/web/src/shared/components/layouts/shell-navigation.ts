@@ -2,7 +2,6 @@ import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   CalendarDays,
-  ChartColumn,
   Compass,
   Flag,
   Home,
@@ -145,14 +144,7 @@ function buildChiefNav(dash: string): ShellNavItem[] {
   ];
 }
 
-function buildSupportNav(role: PlatformRole, dash: string): ShellNavItem[] {
-  if (role === "SUPERADMIN") {
-    return [
-      { href: dash, label: "Painel", icon: Shield, exact: true },
-      { href: `${dash}/ai`, label: "Automação IA", icon: Sparkles },
-      { href: `${dash}/report`, label: "Centro analítico", icon: ChartColumn },
-    ];
-  }
+function buildSupportNav(dash: string): ShellNavItem[] {
   if (dash) {
     return [
       { href: dash, label: "Painel", icon: Shield, exact: true },
@@ -179,7 +171,7 @@ export function buildMembershipNav(args: {
     return {
       primary: buildPublicNav(leagueBase),
       secondary: buildAdminNav(dash, leagueBase),
-      support: buildSupportNav(platformRole ?? "USER", dash),
+      support: buildSupportNav(dash),
     };
   }
 
@@ -187,7 +179,7 @@ export function buildMembershipNav(args: {
     return {
       primary: buildPublicNav(leagueBase),
       secondary: buildChiefNav(dash),
-      support: buildSupportNav(platformRole ?? "USER", dash),
+      support: buildSupportNav(dash),
     };
   }
 
@@ -195,7 +187,7 @@ export function buildMembershipNav(args: {
     return {
       primary: buildPublicNav(leagueBase),
       secondary: buildMemberNav(dash),
-      support: buildSupportNav(platformRole ?? "USER", dash),
+      support: buildSupportNav(dash),
     };
   }
 

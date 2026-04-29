@@ -419,18 +419,94 @@ async def get_member_history(
 async def ai_generate(
     session: AsyncSession, league_id: int, count: int
 ) -> list[Delegation]:
-    used_codes = set()
+    from sqlalchemy import select
+    from app.domain.models.delegation import Delegation
+
+    result = await session.execute(select(Delegation.code))
+    existing_codes = {row[0] for row in result.all()}
+
+    used_codes = set(existing_codes)
     created: list[Delegation] = []
-    pool = _MOCK_DELEGATIONS[:]
+    pool = [item for item in _MOCK_DELEGATIONS if item[0] not in existing_codes]
 
     for i in range(min(count, len(pool))):
         code, name = pool[i]
-        if (
-            await delegation_repository.get_by_code(session, league_id, code)
-            is not None
-            or code in used_codes
-        ):
-            code = _generate_code(name)
+        if code in used_codes:
+            code = _generate_unique_code(name, used_codes)
+        used_codes.add(code)
+        delegation = Delegation(league_id=league_id, code=code, name=name)
+        await delegation_repository.create(session, delegation)
+        created.append(delegation)
+
+    return created
+
+
+def _generate_unique_code(name: str, used_codes: set[str]) -> str:
+    code = _generate_code(name)
+    while code in used_codes:
+        code = _generate_code(name)
+    return code
+
+
+async def ai_populate(
+    session: AsyncSession, league_id: int, count: int
+) -> list[Delegation]:
+    from sqlalchemy import select
+    from app.features.narratives import ai as ai_service
+    from app.domain.models.delegation import Delegation
+
+    result = await session.execute(
+        select(Delegation).where(
+            Delegation.league_id == league_id,
+            Delegation.is_active == True,
+        )
+    )
+    existing_delegations = result.scalars().all()
+    existing_data = [(d.code, d.name) for d in existing_delegations]
+
+    all_codes_result = await session.execute(select(Delegation.code))
+    all_existing_codes = {row[0] for row in all_codes_result.all()}
+
+    if not existing_data:
+        return await ai_generate(session, league_id, count)
+
+    prompt = (
+        f"A liga já tem estas delegações: {existing_data}. "
+        f"Gere {count} novas delegações no formato JSON: "
+        '[{"code": "ABC", "name": "Nome da Delegação"}, ...]. '
+        "Use códigos de 3 letras maiúsculas e nomes criativos de países, estados ou cidades. "
+        "Apenas o JSON, sem texto adicional."
+    )
+
+    raw = await ai_service.generate_text(
+        "Você é um assistente que gera dados de delegações esportivas.",
+        prompt,
+        max_tokens=800,
+    )
+
+    import json
+    import re
+
+    match = re.search(r"\[.*?\]", raw, re.DOTALL)
+    if not match:
+        return []
+
+    try:
+        items = json.loads(match.group())
+    except json.JSONDecodeError:
+        return []
+
+    created: list[Delegation] = []
+    used_codes = set(all_existing_codes)
+
+    for item in items[:count]:
+        code = item.get("code", "")
+        name = item.get("name", "")
+        if not code or not name:
+            continue
+        code = code.upper()[:4]
+        if code in used_codes:
+            code = _generate_unique_code(name, used_codes)
         used_codes.add(code)
         delegation = Delegation(league_id=league_id, code=code, name=name)
         await delegation_repository.create(session, delegation)

@@ -435,6 +435,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/leagues/{league_id}/delegations/ai-populate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ai Populate Delegations */
+        post: operations["ai_populate_delegations_leagues__league_id__delegations_ai_populate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/leagues/{league_id}/delegations/{delegation_id}": {
         parameters: {
             query?: never;
@@ -1398,6 +1415,23 @@ export interface paths {
         put?: never;
         /** Generate Narrative */
         post: operations["generate_narrative_leagues__league_id__narrative_generate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leagues/{league_id}/resume/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Resume */
+        post: operations["generate_resume_leagues__league_id__resume_generate_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2524,6 +2558,11 @@ export interface components {
              * Format: date-time
              */
             generated_at: string;
+        };
+        /** ResumeResponse */
+        ResumeResponse: {
+            /** Content */
+            content: string;
         };
         /** NotificationResponse */
         NotificationResponse: {
@@ -3796,6 +3835,39 @@ export interface operations {
         };
     };
     ai_generate_delegations_leagues__league_id__delegations_ai_generate_post: {
+        parameters: {
+            query?: {
+                count?: number;
+            };
+            header?: never;
+            path: {
+                league_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DelegationResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ai_populate_delegations_leagues__league_id__delegations_ai_populate_post: {
         parameters: {
             query?: {
                 count?: number;
@@ -6204,6 +6276,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NarrativeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_resume_leagues__league_id__resume_generate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                league_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResumeResponse"];
                 };
             };
             /** @description Validation Error */
