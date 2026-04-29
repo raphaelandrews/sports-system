@@ -1,360 +1,337 @@
+"use client";
+
 import { useQueries } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
-  CalendarDays,
-  ChevronRight,
-  Globe,
-  Medal,
-  Search,
-  Sparkles,
-  UserCircle2,
-  Users,
+	CalendarDays,
+	Globe,
+	Medal,
+	Search,
+	Sparkles,
+	UserCircle2,
+	Users,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@sports-system/ui/components/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@sports-system/ui/components/dialog";
-import { Input } from "@sports-system/ui/components/input";
-import { formatDate, formatTime } from "@/shared/lib/date";
+	Command,
+	CommandDialog,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+	CommandShortcut,
+} from "@sports-system/ui/components/command";
 import { userSearchQueryOptions } from "@/features/users/api/queries";
 import { globalSearchQueryOptions } from "@/features/search/api/queries";
 import type { Session } from "@/types/auth";
 import type { LeagueMemberRole, LeagueResponse } from "@/types/leagues";
 
-type QuickAction = {
-  label: string;
-  description: string;
-  href: string;
-  icon: typeof Search;
-};
-
 export function SearchCommand({
-  leagueId,
-  session,
-  membershipRole,
-  leagues,
+	leagueId,
+	session,
+	membershipRole,
+	leagues,
 }: {
-  leagueId?: string;
-  session: Session | null;
-  membershipRole?: LeagueMemberRole;
-  leagues: LeagueResponse[];
+	leagueId?: string;
+	session: Session | null;
+	membershipRole?: LeagueMemberRole;
+	leagues: LeagueResponse[];
 }) {
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const trimmedQuery = query.trim();
-  const canSearchUsers =
-    session?.role === "ADMIN" ||
-    session?.role === "SUPERADMIN" ||
-    membershipRole === "LEAGUE_ADMIN" ||
-    membershipRole === "CHIEF";
+	const [open, setOpen] = useState(false);
+	const [query, setQuery] = useState("");
+	const trimmedQuery = query.trim();
+	const canSearchUsers =
+		session?.role === "ADMIN" ||
+		session?.role === "SUPERADMIN" ||
+		membershipRole === "LEAGUE_ADMIN" ||
+		membershipRole === "CHIEF";
 
-  const [leagueSearchQuery, userSearchQuery] = useQueries({
-    queries: [
-      {
-        ...globalSearchQueryOptions(trimmedQuery, leagueId ? Number(leagueId) : undefined),
-        enabled: Boolean(leagueId) && trimmedQuery.length >= 2,
-      },
-      {
-        ...userSearchQueryOptions(trimmedQuery),
-        enabled: canSearchUsers && trimmedQuery.length >= 2,
-      },
-    ],
-  });
+	const [leagueSearchQuery, userSearchQuery] = useQueries({
+		queries: [
+			{
+				...globalSearchQueryOptions(trimmedQuery, leagueId ? Number(leagueId) : undefined),
+				enabled: Boolean(leagueId) && trimmedQuery.length >= 2,
+			},
+			{
+				...userSearchQueryOptions(trimmedQuery),
+				enabled: canSearchUsers && trimmedQuery.length >= 2,
+			},
+		],
+	});
 
-  useEffect(() => {
-    if (!open) {
-      setQuery("");
-    }
-  }, [open]);
+	useEffect(() => {
+		if (!open) {
+			setQuery("");
+		}
+	}, [open]);
 
-  const quickActions = useMemo<QuickAction[]>(() => {
-    if (!leagueId) {
-      return [
-        {
-          label: "Explorar ligas",
-          description: "Abrir a lista pública de ligas",
-          href: "/leagues",
-          icon: Globe,
-        },
-      ];
-    }
+	useEffect(() => {
+		const down = (e: KeyboardEvent) => {
+			if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+				e.preventDefault();
+				setOpen((open) => !open);
+			}
+		};
+		document.addEventListener("keydown", down);
+		return () => document.removeEventListener("keydown", down);
+	}, []);
 
-    const actions: QuickAction[] = [
-      {
-        label: "Visão geral",
-        description: "Voltar para a página principal da liga",
-        href: `/leagues/${leagueId}`,
-        icon: Globe,
-      },
-      {
-        label: "Calendário",
-        description: "Abrir agenda oficial da liga",
-        href: `/leagues/${leagueId}/calendar`,
-        icon: CalendarDays,
-      },
-    ];
+	const quickActions = useMemo(() => {
+		if (!leagueId) {
+			return [
+				{
+					label: "Explorar ligas",
+					description: "Abrir a lista pública de ligas",
+					href: "/leagues",
+					icon: Globe,
+				},
+			];
+		}
 
-    if (session && membershipRole) {
-      actions.push({
-        label: "Painel",
-        description: "Entrar na área operacional da liga",
-        href: `/leagues/${leagueId}/dashboard`,
-        icon: Users,
-      });
-      actions.push({
-        label: "Narrativa",
-        description: "Abrir acompanhamento narrativo da competição",
-        href: `/leagues/${leagueId}/narrative`,
-        icon: Sparkles,
-      });
-    }
+		const actions = [
+			{
+				label: "Visão geral",
+				description: "Voltar para a página principal da liga",
+				href: `/leagues/${leagueId}`,
+				icon: Globe,
+			},
+			{
+				label: "Calendário",
+				description: "Abrir agenda oficial da liga",
+				href: `/leagues/${leagueId}/calendar`,
+				icon: CalendarDays,
+			},
+		];
 
-    return actions;
-  }, [leagueId, membershipRole, session]);
+		if (session && membershipRole) {
+			actions.push({
+				label: "Painel",
+				description: "Entrar na área operacional da liga",
+				href: `/leagues/${leagueId}/dashboard`,
+				icon: Users,
+			});
+			actions.push({
+				label: "Narrativa",
+				description: "Abrir acompanhamento narrativo da competição",
+				href: `/leagues/${leagueId}/narrative`,
+				icon: Sparkles,
+			});
+		}
 
-  const leagueResults = leagueSearchQuery.data;
-  const userResults = userSearchQuery.data ?? [];
-  const matchingLeagues = useMemo(() => {
-    if (trimmedQuery.length < 2) {
-      return [];
-    }
+		return actions;
+	}, [leagueId, membershipRole, session]);
 
-    const normalized = trimmedQuery.toLowerCase();
+	const leagueResults = leagueSearchQuery.data;
+	const userResults = userSearchQuery.data ?? [];
+	const matchingLeagues = useMemo(() => {
+		if (trimmedQuery.length < 2) {
+			return [];
+		}
 
-    return leagues
-      .filter((league) =>
-        [league.name, league.slug, league.description ?? ""].some((value) =>
-          value.toLowerCase().includes(normalized),
-        ),
-      )
-      .slice(0, 8);
-  }, [leagues, trimmedQuery]);
-  const totalResults =
-    (leagueResults?.athletes.length ?? 0) +
-    (leagueResults?.delegations.length ?? 0) +
-    (leagueResults?.events.length ?? 0) +
-    userResults.length +
-    matchingLeagues.length;
-  const isSearching = leagueSearchQuery.isFetching || userSearchQuery.isFetching;
+		const normalized = trimmedQuery.toLowerCase();
 
-  const title = leagueId ? "Buscar na liga" : "Buscar na plataforma";
-  const description = leagueId
-    ? "Pesquise pessoas, ligas e entidades da competição sem sair do shell."
-    : "Pesquise pessoas e ligas sem sair do shell.";
+		return leagues
+			.filter((league) =>
+				[league.name, league.slug, league.description ?? ""].some((value) =>
+					value.toLowerCase().includes(normalized),
+				),
+			)
+			.slice(0, 8);
+	}, [leagues, trimmedQuery]);
 
-  return (
-    <>
-      <Button
-        variant="secondary"
-        size="sm"
-        className="text-muted-foreground"
-        onClick={() => setOpen(true)}
-      >
-        <Search className="size-4" />
-        Buscar
-      </Button>
+	const isSearching = leagueSearchQuery.isFetching || userSearchQuery.isFetching;
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl gap-0 p-0" showCloseButton={false}>
-          <DialogHeader className="border-b px-4 pt-4 pb-3">
-            <DialogTitle>{title}</DialogTitle>
-            <DialogDescription>{description}</DialogDescription>
-          </DialogHeader>
+	const hasAnyResults =
+		matchingLeagues.length > 0 ||
+		userResults.length > 0 ||
+		(leagueResults?.athletes?.length ?? 0) > 0 ||
+		(leagueResults?.delegations?.length ?? 0) > 0 ||
+		(leagueResults?.events?.length ?? 0) > 0;
 
-          <div className="border-b px-4 py-3">
-            <div className="relative">
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                autoFocus
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                className="h-11 border-0 bg-transparent pl-9 text-sm shadow-none focus-visible:ring-0"
-                placeholder="Buscar por nome, código, modalidade, esporte ou local"
-              />
-            </div>
-          </div>
+	return (
+		<>
+			<Button
+				variant="outline"
+				size="sm"
+				className="text-muted-foreground text-sm"
+				onClick={() => setOpen(true)}
+			>
+				<Search data-icon="inline-start" />
+				Buscar
+				<kbd className="pointer-events-none ml-2 inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
+					<span className="text-xs">⌘</span>K
+				</kbd>
+			</Button>
 
-          <div className="max-h-[65dvh] overflow-y-auto p-2">
-            {trimmedQuery.length < 2 ? (
-              <div className="space-y-1">
-                <div className="px-2 pb-1 text-xs font-medium text-muted-foreground">
-                  Ações rápidas
-                </div>
-                {quickActions.map((action) => (
-                  <Link
-                    key={action.href}
-                    to={action.href}
-                    onClick={() => setOpen(false)}
-                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
-                  >
-                    <div className="flex size-8 items-center justify-center rounded-md border bg-background">
-                      <action.icon className="size-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium">{action.label}</div>
-                      <div className="text-xs text-muted-foreground">{action.description}</div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : isSearching ? (
-              <div className="px-3 py-8 text-sm text-muted-foreground">Buscando...</div>
-            ) : totalResults === 0 ? (
-              <div className="px-3 py-8 text-sm text-muted-foreground">
-                Nenhum resultado encontrado para &quot;{trimmedQuery}&quot;.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {userResults.length ? (
-                  <div>
-                    <div className="px-2 pb-1 text-xs font-medium text-muted-foreground">
-                      Usuários
-                    </div>
-                    {userResults.map((user) => (
-                      <div
-                        key={user.id}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm"
-                      >
-                        <div className="flex size-8 items-center justify-center rounded-md border bg-background">
-                          <UserCircle2 className="size-4" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="font-medium">{user.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {user.email} · {user.role} · {user.is_active ? "Ativo" : "Inativo"}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
+			<CommandDialog
+				open={open}
+				onOpenChange={setOpen}
+				title="Buscar"
+				description="Pesquise pessoas, ligas e entidades da competição"
+				showCloseButton={false}
+			>
+				<Command
+					shouldFilter={false}
+					className="**:data-[selected=true]:bg-muted **:data-selected:bg-transparent"
+				>
+					<CommandInput
+						placeholder="Buscar por nome, código, modalidade, esporte ou local..."
+						value={query}
+						onValueChange={setQuery}
+					/>
+					<CommandList>
+						{isSearching ? (
+							<div className="py-6 text-center text-sm text-muted-foreground">
+								Buscando...
+							</div>
+						) : trimmedQuery.length < 2 ? (
+							quickActions.length > 0 && (
+								<CommandGroup heading="Ações rápidas">
+									{quickActions.map((action) => (
+										<CommandItem
+											key={action.href}
+											value={action.label}
+											onSelect={() => setOpen(false)}
+										>
+											<action.icon />
+											<Link
+												to={action.href}
+												className="flex flex-1 items-center"
+											>
+												<span>{action.label}</span>
+											</Link>
+											<CommandShortcut>{action.description}</CommandShortcut>
+										</CommandItem>
+									))}
+								</CommandGroup>
+							)
+						) : hasAnyResults ? (
+							<>
+								{matchingLeagues.length > 0 && (
+									<CommandGroup heading="Ligas">
+										{matchingLeagues.map((league) => (
+											<CommandItem
+												key={league.id}
+												value={league.name}
+												onSelect={() => setOpen(false)}
+											>
+												<Globe />
+												<Link
+													to="/leagues/$leagueId"
+													params={{ leagueId: String(league.id) }}
+													className="flex flex-1 items-center"
+												>
+													<span>{league.name}</span>
+												</Link>
+												<CommandShortcut>{league.slug}</CommandShortcut>
+											</CommandItem>
+										))}
+									</CommandGroup>
+								)}
 
-                {matchingLeagues.length ? (
-                  <div>
-                    <div className="px-2 pb-1 text-xs font-medium text-muted-foreground">Ligas</div>
-                    {matchingLeagues.map((league) => (
-                      <Link
-                        key={league.id}
-                        to="/leagues/$leagueId"
-                        params={{ leagueId: String(league.id) }}
-                        onClick={() => setOpen(false)}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
-                      >
-                        <div className="flex size-8 items-center justify-center rounded-md border bg-background">
-                          <Globe className="size-4" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="font-medium">{league.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {league.slug} · {league.timezone} · {league.member_count} membros
-                          </div>
-                        </div>
-                        <ChevronRight className="size-4 text-muted-foreground" />
-                      </Link>
-                    ))}
-                  </div>
-                ) : null}
+								{userResults.length > 0 && (
+									<CommandGroup heading="Usuários">
+										{userResults.map((user) => (
+											<CommandItem
+												key={user.id}
+												value={`${user.name} ${user.email}`}
+												onSelect={() => setOpen(false)}
+											>
+												<UserCircle2 />
+												<span className="flex-1">{user.name}</span>
+												<CommandShortcut>{user.email}</CommandShortcut>
+											</CommandItem>
+										))}
+									</CommandGroup>
+								)}
 
-                {leagueResults?.athletes.length ? (
-                  <div>
-                    <div className="px-2 pb-1 text-xs font-medium text-muted-foreground">
-                      Atletas
-                    </div>
-                    {leagueResults.athletes.map((athlete) => (
-                      <Link
-                        key={athlete.id}
-                        to="/leagues/$leagueId/athletes/$athleteId"
-                        params={{ leagueId: leagueId ?? "", athleteId: String(athlete.id) }}
-                        onClick={() => setOpen(false)}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
-                      >
-                        <div className="flex size-8 items-center justify-center rounded-md border bg-background">
-                          <Medal className="size-4" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="font-medium">{athlete.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {athlete.code} · {athlete.is_active ? "Ativo" : "Inativo"}
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                ) : null}
+								{leagueResults?.athletes?.length ? (
+									<CommandGroup heading="Atletas">
+										{leagueResults.athletes.map((athlete) => (
+											<CommandItem
+												key={athlete.id}
+												value={athlete.name}
+												onSelect={() => setOpen(false)}
+											>
+												<Medal />
+												<Link
+													to="/leagues/$leagueId/athletes/$athleteId"
+													params={{
+														leagueId: leagueId ?? "",
+														athleteId: String(athlete.id),
+													}}
+													className="flex flex-1 items-center"
+												>
+													<span>{athlete.name}</span>
+												</Link>
+												<CommandShortcut>{athlete.code}</CommandShortcut>
+											</CommandItem>
+										))}
+									</CommandGroup>
+								) : null}
 
-                {leagueResults?.delegations.length ? (
-                  <div>
-                    <div className="px-2 pb-1 text-xs font-medium text-muted-foreground">
-                      Delegações
-                    </div>
-                    {leagueResults.delegations.map((delegation) => (
-                      <Link
-                        key={delegation.id}
-                        to="/leagues/$leagueId/delegations/$delegationId"
-                        params={{ leagueId: leagueId ?? "", delegationId: String(delegation.id) }}
-                        onClick={() => setOpen(false)}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
-                      >
-                        <div className="flex size-8 items-center justify-center rounded-md border bg-background">
-                          <Users className="size-4" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="font-medium">{delegation.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {delegation.code} · {delegation.is_active ? "Ativa" : "Inativa"}
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                ) : null}
+								{leagueResults?.delegations?.length ? (
+									<CommandGroup heading="Delegações">
+										{leagueResults.delegations.map((delegation) => (
+											<CommandItem
+												key={delegation.id}
+												value={delegation.name}
+												onSelect={() => setOpen(false)}
+											>
+												<Users />
+												<Link
+													to="/leagues/$leagueId/delegations/$delegationId"
+													params={{
+														leagueId: leagueId ?? "",
+														delegationId: String(delegation.id),
+													}}
+													className="flex flex-1 items-center"
+												>
+													<span>{delegation.name}</span>
+												</Link>
+												<CommandShortcut>{delegation.code}</CommandShortcut>
+											</CommandItem>
+										))}
+									</CommandGroup>
+								) : null}
 
-                {leagueResults?.events.length ? (
-                  <div>
-                    <div className="px-2 pb-1 text-xs font-medium text-muted-foreground">
-                      Eventos
-                    </div>
-                    {leagueResults.events.map((event) => (
-                      <Link
-                        key={event.id}
-                        to="/leagues/$leagueId/competitions/$competitionId"
-                        params={{
-                          leagueId: leagueId ?? "",
-                          competitionId: String(event.competition_id),
-                        }}
-                        onClick={() => setOpen(false)}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
-                      >
-                        <div className="flex size-8 items-center justify-center rounded-md border bg-background">
-                          <CalendarDays className="size-4" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="font-medium">
-                            {event.sport_name} · {event.modality_name}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            #{event.number} · {formatDate(event.event_date)} ·{" "}
-                            {formatTime(event.start_time)}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {event.venue ?? "Local não definido"} · {event.status}
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+								{leagueResults?.events?.length ? (
+									<CommandGroup heading="Eventos">
+										{leagueResults.events.map((event) => (
+											<CommandItem
+												key={event.id}
+												value={`${event.sport_name} ${event.modality_name}`}
+												onSelect={() => setOpen(false)}
+											>
+												<CalendarDays />
+												<Link
+													to="/leagues/$leagueId/competitions/$competitionId"
+													params={{
+														leagueId: leagueId ?? "",
+														competitionId: String(event.competition_id),
+													}}
+													className="flex flex-1 items-center"
+												>
+													<span>
+														{event.sport_name} · {event.modality_name}
+													</span>
+												</Link>
+												<CommandShortcut>#{event.number}</CommandShortcut>
+											</CommandItem>
+										))}
+									</CommandGroup>
+								) : null}
+							</>
+						) : (
+							<div className="py-6 text-center text-sm text-muted-foreground">
+								Nenhum resultado encontrado para &quot;{trimmedQuery}&quot;.
+							</div>
+						)}
+					</CommandList>
+				</Command>
+			</CommandDialog>
+		</>
+	);
 }

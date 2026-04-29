@@ -81,9 +81,8 @@ function NotificationItem({ notif, onMarkRead }: NotificationItemProps) {
 
   return (
     <div
-      className={`px-4 py-3 border-b last:border-0 transition-colors ${
-        !notif.read ? "bg-muted/40" : ""
-      }`}
+      className={`px-4 py-3 border-b last:border-0 transition-colors ${!notif.read ? "bg-muted/40" : ""
+        }`}
     >
       <div className="flex items-start gap-2">
         <div className="flex-1 min-w-0">
@@ -93,7 +92,7 @@ function NotificationItem({ notif, onMarkRead }: NotificationItemProps) {
             {formatEventDate(notif.created_at)}
           </p>
         </div>
-        {!notif.read && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1 flex-shrink-0" />}
+        {!notif.read && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1 shrink-0" />}
       </div>
       {isInvite && !notif.read && (
         <div className="flex gap-2 mt-2">
@@ -156,16 +155,21 @@ export function NotificationBell({ userId }: NotificationBellProps) {
 
   return (
     <Popover>
-      <PopoverTrigger className="relative h-8 w-8 flex items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-        <Bell className="h-4 w-4" />
-        {unreadCount > 0 && (
-          <Badge
-            variant="destructive"
-            className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] pointer-events-none"
-          >
-            {unreadCount > 9 ? "9+" : unreadCount}
-          </Badge>
-        )}
+      <PopoverTrigger>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8 hover:bg-muted">
+          <Bell className="h-4 w-4" />
+          {unreadCount > 0 && (
+            <Badge
+              variant="destructive"
+              className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] pointer-events-none"
+            >
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </Badge>
+          )}
+        </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between px-4 py-3 border-b">
