@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@sports-system/ui/components/button";
@@ -56,8 +56,12 @@ function ProfilePage() {
   const queryClient = useQueryClient();
   const { data: session } = useSuspenseQuery(sessionQueryOptions());
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [previewAvatar, setPreviewAvatar] = useState<string>(session.avatar_url ?? "");
+  const [previewAvatar, setPreviewAvatar] = useState<string>("");
   const [serverError, setServerError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPreviewAvatar(session.avatar_url ?? "");
+  }, [session.avatar_url]);
 
   const uploadMutation = useMutation({
     mutationFn: uploadAvatar,
@@ -137,7 +141,6 @@ function ProfilePage() {
           <div className="flex items-center gap-4">
             {previewAvatar ? (
               <img
-                key={previewAvatar}
                 src={previewAvatar}
                 alt={session.name}
                 className="h-20 w-20 rounded-md object-cover"
