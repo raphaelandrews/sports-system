@@ -219,12 +219,12 @@ export function SearchCommand({
 						) : trimmedQuery.length < 2 ? (
 							quickActions.length > 0 && (
 								<CommandGroup heading="Ações rápidas">
-									{quickActions.map((action) => (
-										<CommandItem
-											key={action.href}
-											value={action.label}
-											onSelect={() => setOpen(false)}
-										>
+								{quickActions.map((action) => (
+									<CommandItem
+										key={action.href}
+										value={`action-${action.href}`}
+										onSelect={() => setOpen(false)}
+									>
 											<action.icon />
 											<Link
 												to={action.href}
@@ -239,54 +239,134 @@ export function SearchCommand({
 							)
 						) : hasAnyResults ? (
 							<>
-								{matchingLeagues.length > 0 && (
-									<CommandGroup heading="Ligas">
-										{matchingLeagues.map((league) => (
-											<CommandItem
-												key={league.id}
-												value={league.name}
-												onSelect={() => setOpen(false)}
-												className="hover:bg-accent!"
+							{matchingLeagues.length > 0 && (
+								<CommandGroup heading="Ligas">
+									{matchingLeagues.map((league) => (
+										<CommandItem
+											key={league.id}
+											value={`league-${league.id}`}
+											onSelect={() => setOpen(false)}
+											className="hover:bg-accent!"
+										>
+											<Avatar className="h-6 w-6 rounded-md after:border-none bg-card">
+												<AvatarImage src={league.logo_url ?? ""} alt={league.name} />
+												<AvatarFallback className="text-xs bg-card">
+													{league.name.charAt(0)}
+												</AvatarFallback>
+											</Avatar>
+											<Link
+												to="/leagues/$leagueId"
+												params={{ leagueId: String(league.id) }}
+												className="flex flex-1 items-center"
 											>
-												<Avatar className="h-6 w-6 rounded-md after:border-none bg-card">
-													<AvatarImage src={league.logo_url ?? ""} alt={league.name} />
-													<AvatarFallback className="text-xs bg-card">
-														{league.name.charAt(0)}
-													</AvatarFallback>
-												</Avatar>
-												<Link
-													to="/leagues/$leagueId"
-													params={{ leagueId: String(league.id) }}
-													className="flex flex-1 items-center"
-												>
-													<span>{league.name}</span>
-												</Link>
-											</CommandItem>
-										))}
-									</CommandGroup>
-								)}
+												<span>{league.name}</span>
+											</Link>
+										</CommandItem>
+									))}
+								</CommandGroup>
+							)}
 
-								{userResults.length > 0 && (
-									<CommandGroup heading="Usuários">
-										{userResults.map((user) => (
-											<CommandItem
-												key={user.id}
-												value={`${user.name} ${user.email}`}
-												onSelect={() => setOpen(false)}
-												className="hover:bg-accent!"
+							{userResults.length > 0 && (
+								<CommandGroup heading="Usuários">
+									{userResults.map((user) => (
+										<CommandItem
+											key={user.id}
+											value={`user-${user.id}`}
+											onSelect={() => setOpen(false)}
+											className="hover:bg-accent!"
+										>
+											<Avatar className="h-6 w-6 rounded-md after:border-none bg-card">
+												<AvatarImage src={user.avatar_url ?? ""} alt={user.name} />
+												<AvatarFallback className="text-xs bg-card">
+													{user.name.charAt(0)}
+												</AvatarFallback>
+											</Avatar>
+											<span className="flex-1">{user.name}</span>
+										</CommandItem>
+									))}
+								</CommandGroup>
+							)}
+
+							{leagueResults?.athletes?.length ? (
+								<CommandGroup heading="Atletas">
+									{leagueResults.athletes.map((athlete) => (
+										<CommandItem
+											key={athlete.id}
+											value={`athlete-${athlete.id}`}
+											onSelect={() => setOpen(false)}
+											className="hover:bg-accent!"
+										>
+											<Medal className="size-4 text-muted-foreground" />
+											<Link
+												to="/leagues/$leagueId/athletes/$athleteId"
+												params={{
+													leagueId: String(athlete.league_id),
+													athleteId: String(athlete.id),
+												}}
+												className="flex flex-1 items-center"
 											>
-												<Avatar className="h-6 w-6 rounded-md after:border-none bg-card">
-													<AvatarImage src={user.avatar_url ?? ""} alt={user.name} />
-													<AvatarFallback className="text-xs bg-card">
-														{user.name.charAt(0)}
-													</AvatarFallback>
-												</Avatar>
-												<span className="flex-1">{user.name}</span>
-											</CommandItem>
-										))}
-									</CommandGroup>
-								)}
-							</>
+												<span>{athlete.name}</span>
+											</Link>
+											<CommandShortcut>{athlete.code}</CommandShortcut>
+										</CommandItem>
+									))}
+								</CommandGroup>
+							) : null}
+
+							{leagueResults?.delegations?.length ? (
+								<CommandGroup heading="Delegações">
+									{leagueResults.delegations.map((delegation) => (
+										<CommandItem
+											key={delegation.id}
+											value={`delegation-${delegation.id}`}
+											onSelect={() => setOpen(false)}
+											className="hover:bg-accent!"
+										>
+											<Users className="size-4 text-muted-foreground" />
+											<Link
+												to="/leagues/$leagueId/delegations/$delegationId"
+												params={{
+													leagueId: String(delegation.league_id),
+													delegationId: String(delegation.id),
+												}}
+												className="flex flex-1 items-center"
+											>
+												<span>{delegation.name}</span>
+											</Link>
+											<CommandShortcut>{delegation.code}</CommandShortcut>
+										</CommandItem>
+									))}
+								</CommandGroup>
+							) : null}
+
+							{leagueResults?.events?.length ? (
+								<CommandGroup heading="Eventos">
+									{leagueResults.events.map((event) => (
+										<CommandItem
+											key={event.id}
+											value={`event-${event.id}`}
+											onSelect={() => setOpen(false)}
+											className="hover:bg-accent!"
+										>
+											<CalendarDays className="size-4 text-muted-foreground" />
+											<Link
+												to="/leagues/$leagueId/competitions/$competitionId"
+												params={{
+													leagueId: String(event.league_id),
+													competitionId: String(event.competition_id),
+												}}
+												className="flex flex-1 items-center"
+											>
+												<span>
+													{event.sport_name} · {event.modality_name}
+												</span>
+											</Link>
+											<CommandShortcut>#{event.number}</CommandShortcut>
+										</CommandItem>
+									))}
+								</CommandGroup>
+							) : null}
+						</>
 						) : (
 							<div className="py-6 text-center text-sm text-muted-foreground">
 								Nenhum resultado encontrado para &quot;{trimmedQuery}&quot;.

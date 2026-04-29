@@ -5,7 +5,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@sports-system/ui/components/alert";
@@ -179,22 +179,6 @@ function MatchResultEntryPage() {
     },
   });
 
-  const aiMutation = useMutation({
-    mutationFn: async () =>
-      unwrap(
-        client.POST("/leagues/{league_id}/results/ai-generate/{event_id}", {
-          params: { path: { league_id: Number(leagueId), event_id: event.id } },
-        }),
-      ),
-    onSuccess: async () => {
-      await refresh();
-      toast.success("Resultados gerados com IA para o evento.");
-    },
-    onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao gerar resultados com IA.");
-    },
-  });
-
   return (
     <div className="space-y-6">
       <section className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
@@ -237,17 +221,6 @@ function MatchResultEntryPage() {
             <CardTitle>Ações</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button
-              type="button"
-              className="w-full justify-start"
-              variant="secondary"
-              disabled={aiMutation.isPending}
-              onClick={() => aiMutation.mutate()}
-            >
-              <Sparkles className="mr-2 size-4" />
-              {aiMutation.isPending ? "Gerando..." : "Gerar Resultados com IA"}
-            </Button>
-
             <Link
               to="/leagues/$leagueId/dashboard/results"
               params={{ leagueId }}

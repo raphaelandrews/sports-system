@@ -67,7 +67,6 @@ function LeagueSettingsPage() {
   const [timezone, setTimezone] = useState(league.timezone);
   const [selectedSports, setSelectedSports] = useState<number[]>(league.sports_config);
   const [transferWindow, setTransferWindow] = useState(league.transfer_window_enabled);
-  const [autoSimulate, setAutoSimulate] = useState(league.auto_simulate);
 
   const updateMutation = useMutation({
     mutationFn: (payload: {
@@ -77,7 +76,6 @@ function LeagueSettingsPage() {
       timezone: string;
       sports_config: number[];
       transfer_window_enabled: boolean;
-      auto_simulate: boolean;
     }) =>
       unwrap(
         client.PATCH("/leagues/{league_id}", {
@@ -155,7 +153,6 @@ function LeagueSettingsPage() {
       timezone,
       sports_config: selectedSports,
       transfer_window_enabled: transferWindow,
-      auto_simulate: autoSimulate,
     });
   };
 
@@ -225,18 +222,6 @@ function LeagueSettingsPage() {
               <Checkbox
                 checked={transferWindow}
                 onCheckedChange={(checked) => setTransferWindow(checked === true)}
-              />
-            </div>
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div>
-                <Label>Simulação automática</Label>
-                <p className="text-sm text-muted-foreground">
-                  Iniciar e finalizar partidas automaticamente
-                </p>
-              </div>
-              <Checkbox
-                checked={autoSimulate}
-                onCheckedChange={(checked) => setAutoSimulate(checked === true)}
               />
             </div>
             <Button type="submit" disabled={updateMutation.isPending}>

@@ -43,7 +43,6 @@ function NewLeaguePage() {
   const [timezone, setTimezone] = useState("America/Sao_Paulo");
   const [selectedSports, setSelectedSports] = useState<number[]>([]);
   const [transferWindow, setTransferWindow] = useState(false);
-  const [autoSimulate, setAutoSimulate] = useState(false);
 
   const mutation = useMutation({
     mutationFn: (payload: {
@@ -53,7 +52,6 @@ function NewLeaguePage() {
       timezone: string;
       sports_config: number[];
       transfer_window_enabled: boolean;
-      auto_simulate: boolean;
     }) => unwrap(client.POST("/leagues", { body: payload })),
     onSuccess: async (data: LeagueResponse) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.leagues.all() });
@@ -77,7 +75,6 @@ function NewLeaguePage() {
       timezone,
       sports_config: selectedSports,
       transfer_window_enabled: transferWindow,
-      auto_simulate: autoSimulate,
     });
   };
 
@@ -147,20 +144,6 @@ function NewLeaguePage() {
             id="transfer-window"
             checked={transferWindow}
             onCheckedChange={(checked) => setTransferWindow(checked === true)}
-          />
-        </div>
-
-        <div className="flex items-center justify-between rounded-lg border p-4">
-          <div>
-            <Label htmlFor="auto-simulate">Simulação automática</Label>
-            <p className="text-sm text-muted-foreground">
-              Iniciar e finalizar partidas automaticamente
-            </p>
-          </div>
-          <Checkbox
-            id="auto-simulate"
-            checked={autoSimulate}
-            onCheckedChange={(checked) => setAutoSimulate(checked === true)}
           />
         </div>
 

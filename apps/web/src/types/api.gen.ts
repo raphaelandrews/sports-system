@@ -1234,23 +1234,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/leagues/{league_id}/results/ai-generate/{event_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Ai Generate */
-        post: operations["ai_generate_leagues__league_id__results_ai_generate__event_id__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/leagues/{league_id}/results/{result_id}": {
         parameters: {
             query?: never;
@@ -1432,23 +1415,6 @@ export interface paths {
         get: operations["get_generation_history_leagues__league_id__ai_generation_history_get"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/leagues/{league_id}/admin/simulate/match/{match_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Simulate Match */
-        post: operations["simulate_match_leagues__league_id__admin_simulate_match__match_id__post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2192,11 +2158,6 @@ export interface components {
             /** Sports Config */
             sports_config?: number[];
             /**
-             * Auto Simulate
-             * @default false
-             */
-            auto_simulate: boolean;
-            /**
              * Transfer Window Enabled
              * @default false
              */
@@ -2249,8 +2210,6 @@ export interface components {
             created_by_id: number;
             /** Sports Config */
             sports_config: number[];
-            /** Auto Simulate */
-            auto_simulate: boolean;
             /** Transfer Window Enabled */
             transfer_window_enabled: boolean;
             /** Timezone */
@@ -2284,8 +2243,6 @@ export interface components {
             logo_url?: string | null;
             /** Sports Config */
             sports_config?: number[] | null;
-            /** Auto Simulate */
-            auto_simulate?: boolean | null;
             /** Transfer Window Enabled */
             transfer_window_enabled?: boolean | null;
             /** Timezone */
@@ -5937,38 +5894,6 @@ export interface operations {
             };
         };
     };
-    ai_generate_leagues__league_id__results_ai_generate__event_id__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                league_id: number;
-                event_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ResultResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     update_result_leagues__league_id__results__result_id__patch: {
         parameters: {
             query?: never;
@@ -6310,40 +6235,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AIGenerationResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    simulate_match_leagues__league_id__admin_simulate_match__match_id__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                league_id: number;
-                match_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
                 };
             };
             /** @description Validation Error */

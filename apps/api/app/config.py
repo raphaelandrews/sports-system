@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     PORT: int = 3000
     TIMEZONE: str = "America/Sao_Paulo"
     DEBUG: bool = True
-    AUTO_SIMULATE: bool = True
     LLM_API_KEY: str = ""
     GOOGLE_OAUTH_CLIENT_ID: str = ""
     GOOGLE_OAUTH_CLIENT_SECRET: str = ""

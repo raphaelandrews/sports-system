@@ -3,23 +3,12 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { Badge } from "@sports-system/ui/components/badge";
 import { buttonVariants } from "@sports-system/ui/components/button";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@sports-system/ui/components/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@sports-system/ui/components/card";
 import { cn } from "@sports-system/ui/lib/utils";
 import {
   myLeagueMembershipQueryOptions,
   myLeaguesQueryOptions,
 } from "@/features/leagues/api/queries";
+import { LeagueCard } from "@/shared/components/ui/league-card";
 
 export const Route = createFileRoute("/_authenticated/my-leagues/")({
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(myLeaguesQueryOptions()),
@@ -49,48 +38,27 @@ function MyLeaguesPage() {
         </Link>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {leagues.map((league, index) => {
           const membership = membershipQueries[index]?.data;
           return (
-            <Card key={league.id}>
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10 rounded-lg">
-                    <AvatarImage src={league.logo_url ?? ""} alt={league.name} />
-                    <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
-                      {league.name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-1 flex-col">
-                    <div className="flex items-center justify-between">
-                      <CardTitle>{league.name}</CardTitle>
-                      {membership && (
-                        <Badge variant="outline">{roleLabel[membership.role] ?? membership.role}</Badge>
-                      )}
-                    </div>
-                    <CardDescription>{league.slug}</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {league.description ?? "Sem descrição"}
-                </p>
-                <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>{league.member_count} membros</span>
-                  <span>·</span>
-                  <span>{league.timezone}</span>
-                </div>
-                <Link
-                  to="/leagues/$leagueId"
-                  params={{ leagueId: String(league.id) }}
-                  className={cn(buttonVariants({ variant: "secondary" }), "mt-4 w-full")}
+            <div key={league.id} className="relative">
+              {membership && (
+                <Badge
+                  variant="outline"
+                  className="absolute top-3 right-3 z-10 bg-black/40 text-white border-white/30 backdrop-blur-sm"
                 >
-                  Ver liga
-                </Link>
-              </CardContent>
-            </Card>
+                  {roleLabel[membership.role] ?? membership.role}
+                </Badge>
+              )}
+              <LeagueCard
+                id={league.id}
+                name={league.name}
+                logoUrl={league.logo_url}
+                memberCount={league.member_count}
+                href="/leagues/$leagueId"
+              />
+            </div>
           );
         })}
       </div>

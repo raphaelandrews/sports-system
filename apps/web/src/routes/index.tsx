@@ -1,11 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { CalendarDays } from "lucide-react";
 
-import { buttonVariants } from "@sports-system/ui/components/button";
-import { cn } from "@sports-system/ui/lib/utils";
 import { leagueListQueryOptions } from "@/features/leagues/api/queries";
-import type { LucideIcon } from "lucide-react";
+import { LeagueCard } from "@/shared/components/ui/league-card";
 
 export const Route = createFileRoute("/")({
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(leagueListQueryOptions()),
@@ -14,11 +11,14 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { data: leagues } = useSuspenseQuery(leagueListQueryOptions());
-  const { session } = Route.useRouteContext();
 
   const latestLeagues = [...leagues]
     .sort((left, right) => right.created_at.localeCompare(left.created_at))
     .slice(0, 9);
+
+  const popularLeagues = [...leagues]
+    .sort((left, right) => right.member_count - left.member_count)
+    .slice(0, 12);
 
   return (
     <main className="container mx-auto max-w-5xl px-4 py-10 space-y-12">
@@ -27,19 +27,12 @@ function HomePage() {
         <p className="text-muted-foreground">
           Crie, participe e acompanhe ligas esportivas.
         </p>
-        {session && (
-          <div className="pt-2">
-            <Link to="/leagues/new" className={cn(buttonVariants())}>
-              Criar sua liga
-            </Link>
-          </div>
-        )}
       </section>
 
-      {latestLeagues.length > 0 && (
+      {popularLeagues.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Ligas</h2>
+            <h2 className="text-xl font-semibold">Ligas mais populares</h2>
             <Link
               to="/leagues"
               className="font-medium text-sm text-muted-foreground hover:text-foreground"
@@ -47,16 +40,41 @@ function HomePage() {
               Ver todas
             </Link>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {latestLeagues.map((league) => (
-              <LeagueInfoCard
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {popularLeagues.map((league) => (
+              <LeagueCard
                 key={league.id}
-                icon={CalendarDays}
-                label={league.name}
-                value={league.member_count}
-                valueLabel="membros"
-                to="/leagues/$leagueId"
-                params={{ leagueId: String(league.id) }}
+                id={league.id}
+                name={league.name}
+                logoUrl={league.logo_url}
+                memberCount={league.member_count}
+                href="/leagues/$leagueId"
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {latestLeagues.length > 0 && (
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Ligas recentes</h2>
+            <Link
+              to="/leagues"
+              className="font-medium text-sm text-muted-foreground hover:text-foreground"
+            >
+              Ver todas
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {latestLeagues.map((league) => (
+              <LeagueCard
+                key={league.id}
+                id={league.id}
+                name={league.name}
+                logoUrl={league.logo_url}
+                memberCount={league.member_count}
+                href="/leagues/$leagueId"
               />
             ))}
           </div>
@@ -64,47 +82,4 @@ function HomePage() {
       )}
     </main>
   );
-}
-
-type LeagueInfoCardBaseProps = {
-  icon: LucideIcon;
-  label: string;
-  value: number;
-  description?: string;
-  valueLabel?: string;
-  cta?: string;
-};
-
-type LeagueInfoCardProps =
-  | (LeagueInfoCardBaseProps & {
-      to: "/leagues/$leagueId";
-      params: { leagueId: string };
-    })
-  | (LeagueInfoCardBaseProps & {
-      to?: undefined;
-      params?: undefined;
-    });
-
-function LeagueInfoCard({ icon: Icon, label, value, to, params }: LeagueInfoCardProps) {
-  const content = (
-    <div className="flex items-center gap-3 rounded-xl bg-surface-1 px-3.5 py-3 transition-colors hover:bg-surface-2">
-      <div className="flex shrink-0 items-center justify-center text-muted-foreground">
-        <Icon size={20} strokeWidth={1.75} />
-      </div>
-      <div className="min-w-0">
-        <p className="font-semibold tabular-nums leading-tight">{label}</p>
-        <p className="truncate text-xs text-muted-foreground">{value} membros</p>
-      </div>
-    </div>
-  );
-
-  if (to) {
-    return (
-      <Link to={to} params={params} className="block">
-        {content}
-      </Link>
-    );
-  }
-
-  return content;
 }

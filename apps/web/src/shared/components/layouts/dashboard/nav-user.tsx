@@ -52,10 +52,10 @@ export function NavUser({ session }: NavUserProps) {
 				sideOffset={4}
 			>
 				<div className="flex items-center gap-2 px-3 py-2 text-left text-sm border-b mb-1">
-					<Avatar className="h-8 w-8 rounded-lg">
+					<Avatar className="h-8 w-8 rounded-md after:border-none">
 						<AvatarImage src={user.avatar} alt={user.name} />
-						<AvatarFallback className="rounded-lg">
-							{user.name ? user.name.charAt(0) : "SS"}
+						<AvatarFallback className="font-semibold text-xs rounded-md bg-accent">
+							{user.name ? user.name.charAt(0) : "SH"}
 						</AvatarFallback>
 					</Avatar>
 					<div className="grid flex-1 text-left text-sm leading-tight">

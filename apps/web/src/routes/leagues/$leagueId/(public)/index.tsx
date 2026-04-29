@@ -63,7 +63,7 @@ function LeaguePublicPage() {
     {
       to: "/leagues/$leagueId/feed" as const,
       label: "Feed",
-      desc: "Atividades em tempo real",
+      desc: "Atividades recentes",
       icon: Newspaper,
     },
     {
@@ -78,7 +78,6 @@ function LeaguePublicPage() {
     <div className="container mx-auto max-w-6xl px-4 py-10">
       <section className="mb-10">
         <div className="flex flex-wrap items-center gap-3 mb-2">
-          <Badge variant="outline">Página pública</Badge>
           {league.status === "ACTIVE" ? (
             <Badge variant="secondary">Ativa</Badge>
           ) : (

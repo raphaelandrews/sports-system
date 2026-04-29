@@ -12,7 +12,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "next-themes";
 
 import { DashboardViewportLoading } from "@/shared/components/layouts/dashboard-content-loading";
-import { DashboardLayout } from "@/shared/components/layouts/new-dashboard";
+import { DashboardLayout } from "@/shared/components/layouts/dashboard";
 import { ErrorScreen } from "@/shared/components/layouts/error-screen";
 import { NotFoundScreen } from "@/shared/components/layouts/not-found-screen";
 import { getSessionFn } from "@/features/auth/server/auth";

@@ -12,7 +12,6 @@ class LeagueCreate(BaseModel):
     description: Optional[str] = None
     logo_url: Optional[str] = None
     sports_config: list[int] = Field(default_factory=list)
-    auto_simulate: bool = False
     transfer_window_enabled: bool = False
     timezone: str = "America/Sao_Paulo"
 
@@ -23,7 +22,6 @@ class LeagueUpdate(BaseModel):
     description: Optional[str] = None
     logo_url: Optional[str] = None
     sports_config: Optional[list[int]] = None
-    auto_simulate: Optional[bool] = None
     transfer_window_enabled: Optional[bool] = None
     timezone: Optional[str] = None
     status: Optional[LeagueStatus] = None
@@ -37,7 +35,6 @@ class LeagueResponse(BaseModel):
     logo_url: Optional[str] = None
     created_by_id: int
     sports_config: list[int]
-    auto_simulate: bool
     transfer_window_enabled: bool
     timezone: str
     status: LeagueStatus

@@ -34,7 +34,6 @@ async def create_league(
         description=data.description,
         created_by_id=creator.id,
         sports_config=data.sports_config,
-        auto_simulate=data.auto_simulate,
         transfer_window_enabled=data.transfer_window_enabled,
         timezone=data.timezone,
     )

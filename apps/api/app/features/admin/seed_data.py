@@ -39,7 +39,6 @@ from app.domain.models.league import League, LeagueMember, LeagueMemberRole, Lea
 from app.domain.models.result import AthleteStatistic, Medal, Record, Result
 from app.domain.models.sport import Gender, Modality, Sport, SportType
 from app.domain.models.user import User, UserRole
-from app.features.events.simulation import simulate_match
 from app.features.bracket.service import generate as generate_bracket
 from app.features.bracket.progression import check_and_advance_phases
 from app.features.results import repository as result_repository
@@ -236,7 +235,9 @@ def _sport_sort_key(sport: Sport) -> tuple[str, str, int]:
     return (_enum_order(sport.sport_type), sport.name, sport.id or 0)
 
 
-def _modality_sort_key(modality: Modality, sport_map: dict[int, Sport]) -> tuple[str, str, str, str, int]:
+def _modality_sort_key(
+    modality: Modality, sport_map: dict[int, Sport]
+) -> tuple[str, str, str, str, int]:
     sport = sport_map[modality.sport_id]
     return (
         _enum_order(sport.sport_type),
@@ -313,13 +314,6 @@ async def seed_all() -> None:
         session.add(competition)
         await session.commit()
 
-        await _simulate_and_advance(session, competition.id)
-        logger.info("seed: all matches simulated and brackets advanced")
-
-        competition.status = CompetitionStatus.COMPLETED
-        session.add(competition)
-        await session.commit()
-
         await _verify_medals(session, competition.league_id)
 
         logger.info(
@@ -374,7 +368,9 @@ async def _ensure_gs_de_modality(session: AsyncSession, sports: list[Sport]) -> 
 async def _create_league(
     session: AsyncSession, admin_id: int, sports: list[Sport]
 ) -> League:
-    existing_result = await session.execute(select(League).where(League.slug == LEAGUE_SLUG))
+    existing_result = await session.execute(
+        select(League).where(League.slug == LEAGUE_SLUG)
+    )
     if existing_result.scalar_one_or_none() is not None:
         raise RuntimeError(
             f"Seed league '{LEAGUE_SLUG}' already exists. "
@@ -388,7 +384,6 @@ async def _create_league(
         description=LEAGUE_DESCRIPTION,
         created_by_id=admin_id,
         sports_config=sports_config,
-        auto_simulate=False,
         transfer_window_enabled=True,
         timezone="America/Sao_Paulo",
         mode=LeagueMode.NORMAL,
@@ -467,7 +462,9 @@ async def _create_athletes(
     )
     modalities = list(modalities_result.scalars().all())
     sport_map = {sport.id: sport for sport in sports}
-    modalities = sorted(modalities, key=lambda modality: _modality_sort_key(modality, sport_map))
+    modalities = sorted(
+        modalities, key=lambda modality: _modality_sort_key(modality, sport_map)
+    )
 
     for delegation in delegations:
         for mod in modalities:
@@ -601,74 +598,6 @@ async def _create_enrollments(
             enrollments_created += 1
 
     logger.info("seed: %s enrollments created", enrollments_created)
-
-
-# ---------------------------------------------------------------------------
-# 5. SIMULATION & ADVANCEMENT LOOP
-# ---------------------------------------------------------------------------
-
-
-async def _simulate_and_advance(session: AsyncSession, competition_id: int) -> None:
-    """Simulate pending matches and advance bracket phases until complete."""
-    max_rounds = 20
-    for iteration in range(max_rounds):
-        # Simulate all pending matches
-        result = await session.execute(
-            select(Match)
-            .join(Event, Match.event_id == Event.id)
-            .where(Event.competition_id == competition_id)
-            .order_by(Match.id)
-        )
-        matches = list(result.scalars().all())
-
-        pending = [m for m in matches if m.status != MatchStatus.COMPLETED]
-        if pending:
-            for match in pending:
-                try:
-                    await simulate_match(session, match.id)
-                except Exception as exc:
-                    logger.warning(
-                        "seed: simulate_match match_id=%s error=%s", match.id, exc
-                    )
-            await session.commit()
-
-        # Advance phases using existing bracket progression logic
-        await check_and_advance_phases(session, competition_id)
-
-        # Check if tournament is complete
-        result = await session.execute(
-            select(Match)
-            .join(Event, Match.event_id == Event.id)
-            .where(Event.competition_id == competition_id)
-        )
-        all_matches = list(result.scalars().all())
-        all_complete = all(m.status == MatchStatus.COMPLETED for m in all_matches)
-        no_pending = not any(m.status != MatchStatus.COMPLETED for m in all_matches)
-
-        # Also check if any new matches were created this round
-        new_count = len(all_matches)
-        old_count = len(matches)
-
-        if no_pending and all_complete and new_count == old_count:
-            logger.info("seed: tournament complete after %s iterations", iteration)
-            break
-
-    # Final pass: simulate any newly created matches
-    result = await session.execute(
-        select(Match)
-        .join(Event, Match.event_id == Event.id)
-        .where(Event.competition_id == competition_id)
-        .order_by(Match.id)
-    )
-    for match in result.scalars().all():
-        if match.status != MatchStatus.COMPLETED:
-            try:
-                await simulate_match(session, match.id)
-            except Exception as exc:
-                logger.warning(
-                    "seed: simulate_match match_id=%s error=%s", match.id, exc
-                )
-    await session.commit()
 
 
 async def _verify_medals(session: AsyncSession, league_id: int) -> None:

@@ -33,7 +33,9 @@ async def list_results(
     per_page: int = Query(20, ge=1, le=100),
     session: AsyncSession = Depends(get_session),
 ) -> PaginatedResponse[ResultResponse]:
-    return await result_service.list_results(session, league_id, competition_id, sport_id, delegation_id, page, per_page)
+    return await result_service.list_results(
+        session, league_id, competition_id, sport_id, delegation_id, page, per_page
+    )
 
 
 @router.get("/medal-board", response_model=list[MedalBoardEntry])
@@ -85,16 +87,6 @@ async def get_standings(
     session: AsyncSession = Depends(get_session),
 ) -> list[SportStandingEntry]:
     return await result_service.get_standings(session, league_id, modality_id)
-
-
-@router.post("/ai-generate/{event_id}", response_model=list[ResultResponse], status_code=status.HTTP_201_CREATED)
-async def ai_generate(
-    league_id: int,
-    event_id: int,
-    session: AsyncSession = Depends(get_session),
-    _: LeagueMember = Depends(require_league_admin()),
-) -> list[ResultResponse]:
-    return await result_service.ai_generate(session, league_id, event_id)
 
 
 @router.post("", response_model=ResultResponse, status_code=status.HTTP_201_CREATED)

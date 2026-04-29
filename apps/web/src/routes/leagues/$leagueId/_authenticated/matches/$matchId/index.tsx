@@ -110,14 +110,7 @@ function MatchLivePage() {
   });
 
   const lifecycleMutation = useMutation({
-    mutationFn: async (action: "start" | "finish" | "simulate") => {
-      if (action === "simulate") {
-        return unwrap(
-          client.POST("/leagues/{league_id}/admin/simulate/match/{match_id}", {
-            params: { path: { league_id: Number(leagueId), match_id: numericMatchId } },
-          }),
-        );
-      }
+    mutationFn: async (action: "start" | "finish") => {
       return unwrap(
         client.POST(`/matches/{match_id}/${action}`, {
           params: { path: { match_id: numericMatchId } },
@@ -127,11 +120,7 @@ function MatchLivePage() {
     onSuccess: async (_, action) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.matches.detail(numericMatchId) });
       toast.success(
-        action === "simulate"
-          ? "Partida simulada."
-          : action === "start"
-            ? "Partida iniciada."
-            : "Partida encerrada.",
+        action === "start" ? "Partida iniciada." : "Partida encerrada.",
       );
     },
     onError: (error) => {
@@ -276,14 +265,6 @@ function MatchLivePage() {
                     onClick={() => lifecycleMutation.mutate("finish")}
                   >
                     Encerrar
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={lifecycleMutation.isPending}
-                    onClick={() => lifecycleMutation.mutate("simulate")}
-                  >
-                    Simular
                   </Button>
                 </div>
 

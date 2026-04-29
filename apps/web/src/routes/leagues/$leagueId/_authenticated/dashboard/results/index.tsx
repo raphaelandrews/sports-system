@@ -1,11 +1,10 @@
 import {
   useMutation,
-  useQueryClient,
   useSuspenseQueries,
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Bot, Download, Sparkles, Trophy } from "lucide-react";
+import { Bot, Download, Trophy } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@sports-system/ui/components/badge";
@@ -27,10 +26,10 @@ import {
 import { cn } from "@sports-system/ui/lib/utils";
 
 import { MedalBoard } from "@/features/results/components/medal-board";
-import { client, unwrap, unwrapBlob, ApiError } from "@/shared/lib/api";
+import { unwrapBlob, ApiError } from "@/shared/lib/api";
 import { formatDate, formatTime } from "@/shared/lib/date";
 import { allEventsQueryOptions, eventDetailQueryOptions } from "@/features/events/api/queries";
-import { queryKeys } from "@/features/keys";
+
 import { competitionListQueryOptions } from "@/features/competitions/api/queries";
 import { medalBoardQueryOptions } from "@/features/results/api/queries";
 import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sports/api/queries";
@@ -70,7 +69,6 @@ function triggerBlobDownload(blob: Blob, filename: string) {
 }
 
 function ResultsPage() {
-  const queryClient = useQueryClient();
   const { leagueId } = Route.useParams();
   const { data } = useSuspenseQuery({
     ...medalBoardQueryOptions(Number(leagueId)),
@@ -113,25 +111,6 @@ function ResultsPage() {
   const openEvents = [...eventsData.data].sort((a, b) =>
     `${a.event_date}T${a.start_time}`.localeCompare(`${b.event_date}T${b.start_time}`),
   );
-
-  const aiMutation = useMutation({
-    mutationFn: async (selectedEventId: number) =>
-      unwrap(
-        client.POST("/leagues/{league_id}/results/ai-generate/{event_id}", {
-          params: { path: { league_id: Number(leagueId), event_id: selectedEventId } },
-        }),
-      ),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.results.all(Number(leagueId)) }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.matches.all() }),
-      ]);
-      toast.success("Resultados gerados com IA.");
-    },
-    onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao gerar resultados.");
-    },
-  });
 
   const csvMutation = useMutation({
     mutationFn: () => triggerCsvDownload(Number(leagueId)),
@@ -202,17 +181,6 @@ function ResultsPage() {
                 })}
               </SelectContent>
             </Select>
-
-            <Button
-              type="button"
-              className="w-full justify-start"
-              variant="secondary"
-              disabled={aiMutation.isPending || !eventId}
-              onClick={() => aiMutation.mutate(Number(eventId))}
-            >
-              <Sparkles className="mr-2 size-4" />
-              {aiMutation.isPending ? "Gerando..." : "Gerar Resultados com IA"}
-            </Button>
 
             <Button
               type="button"

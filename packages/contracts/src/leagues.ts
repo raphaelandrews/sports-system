@@ -10,7 +10,6 @@ export const LeagueCreate = z
     description: z.string().optional(),
     logo_url: z.string().optional(),
     sports_config: z.array(z.number()).default([]),
-    auto_simulate: z.boolean().default(false),
     transfer_window_enabled: z.boolean().default(false),
     timezone: z.string().default("America/Sao_Paulo"),
   })
@@ -24,7 +23,6 @@ export const LeagueUpdate = z
     description: z.string().optional(),
     logo_url: z.string().optional(),
     sports_config: z.array(z.number()).optional(),
-    auto_simulate: z.boolean().optional(),
     transfer_window_enabled: z.boolean().optional(),
     timezone: z.string().optional(),
     status: LeagueStatus.optional(),
@@ -40,7 +38,6 @@ export const LeagueResponse = z.object({
   logo_url: z.string().nullable().optional(),
   created_by_id: z.number(),
   sports_config: z.array(z.number()),
-  auto_simulate: z.boolean(),
   transfer_window_enabled: z.boolean(),
   timezone: z.string(),
   status: LeagueStatus,

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { Bot, CalendarDays, ClipboardList, Flag, Medal, Trophy, UserCheck } from "lucide-react";
+import { Bot, CalendarDays, ClipboardList, Flag, Trophy, UserCheck } from "lucide-react";
 import { Badge } from "@sports-system/ui/components/badge";
 import {
   Card,
@@ -96,7 +96,7 @@ function AiControlRoomPage() {
   const [selectedCompetitionId, setSelectedCompetitionId] = useState(
     activeCompetition ? String(activeCompetition.id) : "",
   );
-  const [selectedEventId, setSelectedEventId] = useState(
+  const [selectedEventId] = useState(
     defaultEvent ? String(defaultEvent.id) : "",
   );
   const [narrativeDate, setNarrativeDate] = useState(
@@ -459,85 +459,6 @@ function AiControlRoomPage() {
                     queryClient.invalidateQueries({
                       queryKey: queryKeys.enrollments.all(Number(leagueId)),
                     }),
-                    invalidateAiSurface(),
-                  ]);
-                }}
-              />
-            }
-          />
-
-          <GeneratorCard
-            badge="Resultados"
-            title="Emitir resultados por evento"
-            description="Seleciona um evento e produz resultados consolidados para suas partidas."
-            icon={<Medal className="size-4" />}
-            controls={
-              <FieldBlock label="Evento alvo">
-                <Select
-                  value={selectedEventId}
-                  onValueChange={(value) => setSelectedEventId(value ?? "")}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um evento" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {candidateEvents.map((event) => (
-                      <SelectItem key={event.id} value={String(event.id)}>
-                        Evento #{event.id} · {formatDate(event.event_date)} ·{" "}
-                        {formatTime(event.start_time)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FieldBlock>
-            }
-            footer={
-              <AiGenerateButton
-                label="Gerar resultados"
-                previewTitle="Preview da geração de resultados"
-                previewDescription="A automação criará ou atualizará resultados para o evento selecionado."
-                previewItems={[
-                  {
-                    label: "Endpoint",
-                    value: selectedEvent
-                      ? `/results/ai-generate/${selectedEvent.id}`
-                      : "/results/ai-generate/:event_id",
-                  },
-                  {
-                    label: "Evento",
-                    value: selectedEvent ? `#${selectedEvent.id}` : "Selecione um evento",
-                  },
-                  {
-                    label: "Agendamento",
-                    value: selectedEvent
-                      ? `${formatDate(selectedEvent.event_date)} · ${formatTime(selectedEvent.start_time)}`
-                      : "Sem agendamento",
-                  },
-                  {
-                    label: "Impacto",
-                    value: "Quadro de medalhas e standings podem ser atualizados",
-                  },
-                ]}
-                disabled={!selectedEvent}
-                successMessage={(data: { length: number }) =>
-                  `${data.length} resultados gerados com IA.`
-                }
-                errorMessage="Falha ao gerar resultados."
-                onGenerate={() =>
-                  unwrap(
-                    client.POST("/leagues/{league_id}/results/ai-generate/{event_id}", {
-                      params: {
-                        path: { league_id: Number(leagueId), event_id: Number(selectedEventId) },
-                      },
-                    }),
-                  )
-                }
-                onSuccess={async () => {
-                  await Promise.all([
-                    queryClient.invalidateQueries({
-                      queryKey: queryKeys.results.all(Number(leagueId)),
-                    }),
-                    queryClient.invalidateQueries({ queryKey: queryKeys.matches.all() }),
                     invalidateAiSurface(),
                   ]);
                 }}

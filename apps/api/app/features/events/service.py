@@ -259,7 +259,6 @@ async def finish_match(session: AsyncSession, match_id: int) -> MatchResponse:
 
     match = await event_repository.save_match(session, match)
     await session.commit()
-    # Phase 9: simulation_service.generate_results(match, session)
     await sse.broadcast(
         match_id,
         {"type": "match_finished", "match_id": match_id, "status": "COMPLETED"},
