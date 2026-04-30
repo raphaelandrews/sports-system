@@ -116,7 +116,6 @@ function buildGlobalNav(): ShellNavItem[] {
 
 function buildMemberNav(dash: string): ShellNavItem[] {
   return [
-    { href: dash, label: "Painel", icon: Shield, exact: true },
     { href: `${dash}/calendar`, label: "Agenda operacional", icon: CalendarDays },
     { href: `${dash}/results`, label: "Operar resultados", icon: Medal },
   ];
@@ -144,34 +143,24 @@ function buildChiefNav(dash: string): ShellNavItem[] {
   ];
 }
 
-function buildSupportNav(dash: string): ShellNavItem[] {
-  if (dash) {
-    return [
-      { href: dash, label: "Painel", icon: Shield, exact: true },
-      { href: `${dash.replace("/dashboard", "")}/narrative`, label: "Narrativa", icon: Sparkles },
-    ];
-  }
-  return [];
-}
 
 export function buildMembershipNav(args: {
   membershipRole?: LeagueMemberRole;
   platformRole?: PlatformRole;
   leagueId?: string;
-}): { primary: ShellNavItem[]; secondary: ShellNavItem[]; support: ShellNavItem[] } {
-  const { membershipRole, platformRole, leagueId } = args;
+}): { primary: ShellNavItem[]; secondary: ShellNavItem[];} {
+  const { membershipRole, leagueId } = args;
   const leagueBase = leagueId ? `/leagues/${leagueId}` : "";
   const dash = leagueId ? `${leagueBase}/dashboard` : "";
 
   if (!leagueId) {
-    return { primary: [], secondary: [], support: [] };
+    return { primary: [], secondary: [] };
   }
 
   if (membershipRole === "LEAGUE_ADMIN") {
     return {
       primary: buildPublicNav(leagueBase),
       secondary: buildAdminNav(dash, leagueBase),
-      support: buildSupportNav(dash),
     };
   }
 
@@ -179,7 +168,6 @@ export function buildMembershipNav(args: {
     return {
       primary: buildPublicNav(leagueBase),
       secondary: buildChiefNav(dash),
-      support: buildSupportNav(dash),
     };
   }
 
@@ -187,7 +175,6 @@ export function buildMembershipNav(args: {
     return {
       primary: buildPublicNav(leagueBase),
       secondary: buildMemberNav(dash),
-      support: buildSupportNav(dash),
     };
   }
 
@@ -195,14 +182,12 @@ export function buildMembershipNav(args: {
     return {
       primary: buildPublicNav(leagueBase),
       secondary: [],
-      support: [],
     };
   }
 
   return {
     primary: buildPublicNav(leagueBase),
     secondary: [],
-    support: [],
   };
 }
 
@@ -242,22 +227,13 @@ export function buildQuickActions(args: {
 
   if (scope === "league-authenticated" && membershipRole === "LEAGUE_ADMIN") {
     return [
-      { href: dashBase, label: "Painel", icon: Shield, exact: true },
       { href: `${dashBase}/competitions/new`, label: "Nova competição", icon: PlusCircle },
     ];
   }
 
   if (scope === "league-authenticated" && membershipRole === "CHIEF") {
     return [
-      { href: dashBase, label: "Painel", icon: Shield, exact: true },
       { href: `${dashBase}/my-delegation`, label: "Minha delegação", icon: UserCheck },
-    ];
-  }
-
-  if (scope === "league-authenticated") {
-    return [
-      { href: dashBase, label: "Painel", icon: Shield, exact: true },
-      { href: `${leagueBase}/narrative`, label: "Narrativa", icon: Sparkles },
     ];
   }
 

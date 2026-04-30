@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@sports-system/env": "workspace:*",
+    "@tanstack/react-table": "^8.21.3",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },

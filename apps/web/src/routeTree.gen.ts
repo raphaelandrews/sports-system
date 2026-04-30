@@ -27,7 +27,6 @@ import { Route as AuthOauthCallbackRouteImport } from './routes/auth/oauth/callb
 import { Route as AuthenticatedRequestChiefStatusRouteImport } from './routes/_authenticated/request-chief/status'
 import { Route as LeaguesLeagueIdpublicIndexRouteImport } from './routes/leagues/$leagueId/(public)/index'
 import { Route as LeaguesLeagueIdAuthenticatedDashboardRouteImport } from './routes/leagues/$leagueId/_authenticated/dashboard'
-import { Route as LeaguesLeagueIdAuthenticatedNarrativeIndexRouteImport } from './routes/leagues/$leagueId/_authenticated/narrative/index'
 import { Route as LeaguesLeagueIdAuthenticatedDashboardIndexRouteImport } from './routes/leagues/$leagueId/_authenticated/dashboard/index'
 import { Route as LeaguesLeagueIdpublicSportsIndexRouteImport } from './routes/leagues/$leagueId/(public)/sports/index'
 import { Route as LeaguesLeagueIdpublicResultsIndexRouteImport } from './routes/leagues/$leagueId/(public)/results/index'
@@ -168,12 +167,6 @@ const LeaguesLeagueIdAuthenticatedDashboardRoute =
   LeaguesLeagueIdAuthenticatedDashboardRouteImport.update({
     id: '/dashboard',
     path: '/dashboard',
-    getParentRoute: () => LeaguesLeagueIdAuthenticatedRoute,
-  } as any)
-const LeaguesLeagueIdAuthenticatedNarrativeIndexRoute =
-  LeaguesLeagueIdAuthenticatedNarrativeIndexRouteImport.update({
-    id: '/narrative/',
-    path: '/narrative/',
     getParentRoute: () => LeaguesLeagueIdAuthenticatedRoute,
   } as any)
 const LeaguesLeagueIdAuthenticatedDashboardIndexRoute =
@@ -513,7 +506,6 @@ export interface FileRoutesByFullPath {
   '/leagues/$leagueId/results/': typeof LeaguesLeagueIdpublicResultsIndexRoute
   '/leagues/$leagueId/sports/': typeof LeaguesLeagueIdpublicSportsIndexRoute
   '/leagues/$leagueId/dashboard/': typeof LeaguesLeagueIdAuthenticatedDashboardIndexRoute
-  '/leagues/$leagueId/narrative/': typeof LeaguesLeagueIdAuthenticatedNarrativeIndexRoute
   '/leagues/$leagueId/sports/$sportId/bracket': typeof LeaguesLeagueIdpublicSportsSportIdBracketRoute
   '/leagues/$leagueId/dashboard/athletes/new': typeof LeaguesLeagueIdAuthenticatedDashboardAthletesNewRoute
   '/leagues/$leagueId/dashboard/enrollments/new': typeof LeaguesLeagueIdAuthenticatedDashboardEnrollmentsNewRoute
@@ -572,7 +564,6 @@ export interface FileRoutesByTo {
   '/leagues/$leagueId/report': typeof LeaguesLeagueIdpublicReportIndexRoute
   '/leagues/$leagueId/results': typeof LeaguesLeagueIdpublicResultsIndexRoute
   '/leagues/$leagueId/sports': typeof LeaguesLeagueIdpublicSportsIndexRoute
-  '/leagues/$leagueId/narrative': typeof LeaguesLeagueIdAuthenticatedNarrativeIndexRoute
   '/leagues/$leagueId/sports/$sportId/bracket': typeof LeaguesLeagueIdpublicSportsSportIdBracketRoute
   '/leagues/$leagueId/dashboard/athletes/new': typeof LeaguesLeagueIdAuthenticatedDashboardAthletesNewRoute
   '/leagues/$leagueId/dashboard/enrollments/new': typeof LeaguesLeagueIdAuthenticatedDashboardEnrollmentsNewRoute
@@ -639,7 +630,6 @@ export interface FileRoutesById {
   '/leagues/$leagueId/(public)/results/': typeof LeaguesLeagueIdpublicResultsIndexRoute
   '/leagues/$leagueId/(public)/sports/': typeof LeaguesLeagueIdpublicSportsIndexRoute
   '/leagues/$leagueId/_authenticated/dashboard/': typeof LeaguesLeagueIdAuthenticatedDashboardIndexRoute
-  '/leagues/$leagueId/_authenticated/narrative/': typeof LeaguesLeagueIdAuthenticatedNarrativeIndexRoute
   '/leagues/$leagueId/(public)/sports/$sportId/bracket': typeof LeaguesLeagueIdpublicSportsSportIdBracketRoute
   '/leagues/$leagueId/_authenticated/dashboard/athletes/new': typeof LeaguesLeagueIdAuthenticatedDashboardAthletesNewRoute
   '/leagues/$leagueId/_authenticated/dashboard/enrollments/new': typeof LeaguesLeagueIdAuthenticatedDashboardEnrollmentsNewRoute
@@ -703,7 +693,6 @@ export interface FileRouteTypes {
     | '/leagues/$leagueId/results/'
     | '/leagues/$leagueId/sports/'
     | '/leagues/$leagueId/dashboard/'
-    | '/leagues/$leagueId/narrative/'
     | '/leagues/$leagueId/sports/$sportId/bracket'
     | '/leagues/$leagueId/dashboard/athletes/new'
     | '/leagues/$leagueId/dashboard/enrollments/new'
@@ -762,7 +751,6 @@ export interface FileRouteTypes {
     | '/leagues/$leagueId/report'
     | '/leagues/$leagueId/results'
     | '/leagues/$leagueId/sports'
-    | '/leagues/$leagueId/narrative'
     | '/leagues/$leagueId/sports/$sportId/bracket'
     | '/leagues/$leagueId/dashboard/athletes/new'
     | '/leagues/$leagueId/dashboard/enrollments/new'
@@ -828,7 +816,6 @@ export interface FileRouteTypes {
     | '/leagues/$leagueId/(public)/results/'
     | '/leagues/$leagueId/(public)/sports/'
     | '/leagues/$leagueId/_authenticated/dashboard/'
-    | '/leagues/$leagueId/_authenticated/narrative/'
     | '/leagues/$leagueId/(public)/sports/$sportId/bracket'
     | '/leagues/$leagueId/_authenticated/dashboard/athletes/new'
     | '/leagues/$leagueId/_authenticated/dashboard/enrollments/new'
@@ -1016,13 +1003,6 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/leagues/$leagueId/dashboard'
       preLoaderRoute: typeof LeaguesLeagueIdAuthenticatedDashboardRouteImport
-      parentRoute: typeof LeaguesLeagueIdAuthenticatedRoute
-    }
-    '/leagues/$leagueId/_authenticated/narrative/': {
-      id: '/leagues/$leagueId/_authenticated/narrative/'
-      path: '/narrative'
-      fullPath: '/leagues/$leagueId/narrative/'
-      preLoaderRoute: typeof LeaguesLeagueIdAuthenticatedNarrativeIndexRouteImport
       parentRoute: typeof LeaguesLeagueIdAuthenticatedRoute
     }
     '/leagues/$leagueId/_authenticated/dashboard/': {
@@ -1495,7 +1475,6 @@ const LeaguesLeagueIdAuthenticatedDashboardRouteWithChildren =
 interface LeaguesLeagueIdAuthenticatedRouteChildren {
   LeaguesLeagueIdAuthenticatedDashboardRoute: typeof LeaguesLeagueIdAuthenticatedDashboardRouteWithChildren
   LeaguesLeagueIdAuthenticatedAthletesCompareRoute: typeof LeaguesLeagueIdAuthenticatedAthletesCompareRoute
-  LeaguesLeagueIdAuthenticatedNarrativeIndexRoute: typeof LeaguesLeagueIdAuthenticatedNarrativeIndexRoute
   LeaguesLeagueIdAuthenticatedLeague_adminSettingsIndexRoute: typeof LeaguesLeagueIdAuthenticatedLeague_adminSettingsIndexRoute
   LeaguesLeagueIdAuthenticatedMatchesMatchIdIndexRoute: typeof LeaguesLeagueIdAuthenticatedMatchesMatchIdIndexRoute
 }
@@ -1506,8 +1485,6 @@ const LeaguesLeagueIdAuthenticatedRouteChildren: LeaguesLeagueIdAuthenticatedRou
       LeaguesLeagueIdAuthenticatedDashboardRouteWithChildren,
     LeaguesLeagueIdAuthenticatedAthletesCompareRoute:
       LeaguesLeagueIdAuthenticatedAthletesCompareRoute,
-    LeaguesLeagueIdAuthenticatedNarrativeIndexRoute:
-      LeaguesLeagueIdAuthenticatedNarrativeIndexRoute,
     LeaguesLeagueIdAuthenticatedLeague_adminSettingsIndexRoute:
       LeaguesLeagueIdAuthenticatedLeague_adminSettingsIndexRoute,
     LeaguesLeagueIdAuthenticatedMatchesMatchIdIndexRoute:

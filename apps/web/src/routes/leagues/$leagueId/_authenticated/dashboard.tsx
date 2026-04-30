@@ -25,5 +25,5 @@ export const Route = createFileRoute("/leagues/$leagueId/_authenticated/dashboar
 });
 
 function DashboardPage() {
-  return <Outlet />;
+  return <Outlet/>;
 }

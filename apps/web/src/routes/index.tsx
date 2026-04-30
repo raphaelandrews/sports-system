@@ -3,6 +3,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { leagueListQueryOptions } from "@/features/leagues/api/queries";
 import { LeagueCard } from "@/shared/components/ui/league-card";
+import { Title } from "@/shared/components/ui/title";
 
 export const Route = createFileRoute("/")({
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(leagueListQueryOptions()),
@@ -21,18 +22,13 @@ function HomePage() {
     .slice(0, 12);
 
   return (
-    <main className="container mx-auto max-w-5xl px-4 py-10 space-y-12">
-      <section className="text-start space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">SportsHub</h1>
-        <p className="text-muted-foreground">
-          Crie, participe e acompanhe ligas esportivas.
-        </p>
-      </section>
+    <main className="flex flex-col gap-8">
+      <Title title="SportsHub" subtitle="Crie, participe e acompanhe ligas esportivas." />
 
       {popularLeagues.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Ligas mais populares</h2>
+            <h2 className="text-xl font-semibold">Ligas populares</h2>
             <Link
               to="/leagues"
               className="font-medium text-sm text-muted-foreground hover:text-foreground"

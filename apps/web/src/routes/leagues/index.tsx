@@ -13,6 +13,7 @@ import {
 import { cn } from "@sports-system/ui/lib/utils";
 import { leagueListQueryOptions } from "@/features/leagues/api/queries";
 import { LeagueCard } from "@/shared/components/ui/league-card";
+import { Title } from "@/shared/components/ui/title";
 
 export const Route = createFileRoute("/leagues/")({
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(leagueListQueryOptions()),
@@ -23,9 +24,10 @@ function LeaguesPage() {
   const { data: leagues } = useSuspenseQuery(leagueListQueryOptions());
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-10">
+    <>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Ligas</h1>
+        <Title title="Ligas"/>
+
         <Link to="/leagues/new" className={cn(buttonVariants({size: "sm"}), "text-sm")}>
           Criar liga
         </Link>
@@ -54,12 +56,12 @@ function LeaguesPage() {
             <EmptyDescription>Crie a primeira liga para começar.</EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <Link to="/leagues/new" className={cn(buttonVariants())}>
+            <Link to="/leagues/new" className={cn(buttonVariants({size: "sm"}), "text-sm")}>
               Criar liga
             </Link>
           </EmptyContent>
         </Empty>
       )}
-    </div>
+    </>
   );
 }

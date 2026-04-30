@@ -30,10 +30,10 @@ function MyLeaguesPage() {
   });
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-10">
+    <>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">Minhas ligas</h1>
-        <Link to="/leagues/new" className={cn(buttonVariants())}>
+        <Link to="/leagues/new" className={cn(buttonVariants({ size: "sm" }), "text-sm")}>
           Criar liga
         </Link>
       </div>
@@ -71,6 +71,6 @@ function MyLeaguesPage() {
           </Link>
         </div>
       )}
-    </div>
+    </>
   );
 }

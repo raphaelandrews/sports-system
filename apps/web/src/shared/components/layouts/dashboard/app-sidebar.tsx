@@ -123,14 +123,6 @@ export function AppSidebar({
 				? pathname === item.href
 				: pathname.startsWith(item.href),
 			})),
-		...membershipNav.support.map((item) => ({
-			title: item.label,
-			url: item.href,
-			icon: item.icon,
-			isActive: item.exact
-				? pathname === item.href
-				: pathname.startsWith(item.href),
-			})),
 	];
 
 	return (

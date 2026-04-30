@@ -75,7 +75,7 @@ export function DashboardLayout({
 					membership={membership}
 					leagues={leagues}
 				/>
-					<div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4 md:p-6">
+					<div className="flex flex-1 flex-col w-11/12 mx-auto max-w-5xl gap-4 overflow-y-auto py-4 md:py-10 lg:py-12">
 						<React.Suspense fallback={<DashboardContentLoading />}>
 							{children}
 						</React.Suspense>
