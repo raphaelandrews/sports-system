@@ -44,6 +44,13 @@ lerna-debug.log*
 coverage
 .nyc_output
 
+# Python
+.ruff_cache/
+.mypy_cache/
+*.db
+*.sqlite
+*.sqlite3
+
 # Misc
 *.tgz
 .cache
