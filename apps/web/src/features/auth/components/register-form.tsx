@@ -96,7 +96,7 @@ export function RegisterForm() {
             <Input
               id="email"
               type="email"
-              placeholder="sports@email.com"
+              placeholder="sportshub@email.com"
               autoComplete="email"
               value={field.state.value}
               onChange={(e) => field.handleChange(e.target.value)}

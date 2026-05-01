@@ -64,20 +64,9 @@ export function NavUser({ session }: NavUserProps) {
 					</div>
 				</div>
 				<DropdownMenuGroup>
-				<DropdownMenuItem onClick={() => router.navigate({ to: "/profile" })}>
-					<UserIcon />
-					Conta
-				</DropdownMenuItem>
-					<DropdownMenuItem onClick={() => toast.info("Em breve")}>
-						<SettingsIcon />
-						Configurações
-					</DropdownMenuItem>
-				</DropdownMenuGroup>
-				<div className="h-px bg-border my-1 mx-2" />
-				<DropdownMenuGroup>
-					<DropdownMenuItem onClick={() => toast.info("Em breve")}>
-						<CreditCardIcon />
-						Assinatura
+					<DropdownMenuItem onClick={() => router.navigate({ to: "/profile" })}>
+						<UserIcon />
+						Conta
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<div className="h-px bg-border my-1 mx-2" />

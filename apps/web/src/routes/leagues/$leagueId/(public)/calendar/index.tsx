@@ -1,55 +1,38 @@
 import { useMemo, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  type ColumnDef,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  type PaginationState,
-  type SortingState,
-  useReactTable,
-} from "@tanstack/react-table";
 import { Badge } from "@sports-system/ui/components/badge";
 import { Button } from "@sports-system/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@sports-system/ui/components/card";
 import { Checkbox } from "@sports-system/ui/components/checkbox";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@sports-system/ui/components/input-group";
 import { Label } from "@sports-system/ui/components/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@sports-system/ui/components/popover";
+import { Separator } from "@sports-system/ui/components/separator";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@sports-system/ui/components/select";
-import { FunnelIcon, SearchIcon, XIcon } from "lucide-react";
-
-import { DataGrid } from "@sports-system/ui/components/reui/data-grid/data-grid";
-import { DataGridColumnHeader } from "@sports-system/ui/components/reui/data-grid/data-grid-column-header";
-import { DataGridPagination } from "@sports-system/ui/components/reui/data-grid/data-grid-pagination";
-import { DataGridScrollArea } from "@sports-system/ui/components/reui/data-grid/data-grid-scroll-area";
-import { DataGridTable } from "@sports-system/ui/components/reui/data-grid/data-grid-table";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@sports-system/ui/components/table";
+import {
+  CircleIcon,
+  CircleDotIcon,
+  CircleDashedIcon,
+  CheckIcon,
+  TrophyIcon,
+  FunnelIcon,
+} from "lucide-react";
 
 import { formatDate, formatTime } from "@/shared/lib/date";
 import { allEventsQueryOptions } from "@/features/events/api/queries";
 import { competitionListQueryOptions } from "@/features/competitions/api/queries";
-import type { EventResponse, EventStatus } from "@/types/events";
+import type { EventStatus } from "@/types/events";
+import { TableLayout } from "@/shared/components/ui/table-layout";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/calendar/")({
   loader: ({ context: { queryClient }, params: { leagueId } }) =>
@@ -62,21 +45,14 @@ export const Route = createFileRoute("/leagues/$leagueId/(public)/calendar/")({
   component: CalendarPage,
 });
 
-const statusVariant: Record<
+const STATUS_META: Record<
   EventStatus,
-  "default" | "secondary" | "outline" | "destructive"
+  { label: string; icon: typeof CheckIcon; cls: string }
 > = {
-  SCHEDULED: "secondary",
-  IN_PROGRESS: "default",
-  COMPLETED: "outline",
-  CANCELLED: "destructive",
-};
-
-const statusLabel: Record<EventStatus, string> = {
-  SCHEDULED: "Agendado",
-  IN_PROGRESS: "Em andamento",
-  COMPLETED: "Concluído",
-  CANCELLED: "Cancelado",
+  SCHEDULED: { label: "Agendado", icon: CircleIcon, cls: "text-muted-foreground" },
+  IN_PROGRESS: { label: "Em andamento", icon: CircleDotIcon, cls: "text-amber-500" },
+  COMPLETED: { label: "Concluído", icon: CheckIcon, cls: "text-emerald-500" },
+  CANCELLED: { label: "Cancelado", icon: CircleDashedIcon, cls: "text-destructive" },
 };
 
 function CalendarPage() {
@@ -90,58 +66,56 @@ function CalendarPage() {
   );
   const events = eventsData.data;
 
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: "event_date", desc: false },
-  ]);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCompetitionId, setSelectedCompetitionId] =
-    useState<string>("all");
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [selectedCompetitionIds, setSelectedCompetitionIds] = useState<
+    number[]
+  >([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<EventStatus[]>([]);
 
   const filteredData = useMemo(() => {
-    return events.filter((item) => {
-      const matchesCompetition =
-        selectedCompetitionId === "all" ||
-        String(item.competition_id) === selectedCompetitionId;
+    let data = events;
 
-      const matchesStatus =
-        !selectedStatuses?.length ||
-        selectedStatuses.includes(item.status);
-
-      const searchLower = searchQuery.toLowerCase();
-      const competition = competitions.find(
-        (c) => c.id === item.competition_id,
+    if (selectedCompetitionIds.length > 0) {
+      data = data.filter((item) =>
+        selectedCompetitionIds.includes(item.competition_id),
       );
-      const compName = competition
-        ? `competicao ${competition.number}`
-        : "";
-      const matchesSearch =
-        !searchQuery ||
-        [
+    }
+
+    if (selectedStatuses.length > 0) {
+      data = data.filter((item) => selectedStatuses.includes(item.status));
+    }
+
+    if (searchQuery.trim()) {
+      const lower = searchQuery.toLowerCase();
+      data = data.filter((item) => {
+        const comp = competitions.find((c) => c.id === item.competition_id);
+        const haystack = [
           item.event_date,
           item.start_time,
           item.venue ?? "",
           item.phase,
-          item.status,
-          compName,
+          STATUS_META[item.status].label,
+          comp ? `competicao ${comp.number}` : "",
         ]
           .join(" ")
-          .toLowerCase()
-          .includes(searchLower);
+          .toLowerCase();
+        return haystack.includes(lower);
+      });
+    }
 
-      return matchesCompetition && matchesStatus && matchesSearch;
-    });
-  }, [
-    events,
-    selectedCompetitionId,
-    selectedStatuses,
-    searchQuery,
-    competitions,
-  ]);
+    return data.sort(
+      (a, b) =>
+        new Date(a.event_date + "T" + a.start_time).getTime() -
+        new Date(b.event_date + "T" + b.start_time).getTime(),
+    );
+  }, [events, selectedCompetitionIds, selectedStatuses, searchQuery, competitions]);
+
+  const pagedData = filteredData.slice(
+    pageIndex * pageSize,
+    (pageIndex + 1) * pageSize,
+  );
 
   const statusCounts = useMemo(() => {
     return events.reduce(
@@ -153,228 +127,264 @@ function CalendarPage() {
     );
   }, [events]);
 
-  const handleStatusChange = (checked: boolean, value: string) => {
-    setSelectedStatuses((prev = []) =>
-      checked ? [...prev, value] : prev.filter((v) => v !== value),
+  const competitionCounts = useMemo(() => {
+    return events.reduce(
+      (acc, item) => {
+        acc[item.competition_id] = (acc[item.competition_id] || 0) + 1;
+        return acc;
+      },
+      {} as Record<number, number>,
     );
+  }, [events]);
+
+  const toggleCompetition = (id: number) => {
+    setSelectedCompetitionIds((prev) =>
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
+    );
+    setPageIndex(0);
   };
 
-  const columns = useMemo<ColumnDef<EventResponse>[]>(
-    () => [
-      {
-        accessorKey: "event_date",
-        id: "event_date",
-        header: ({ column }) => (
-          <DataGridColumnHeader title="Dia do Jogo" column={column} />
-        ),
-        cell: ({ row }) => formatDate(row.original.event_date),
-        size: 150,
-      },
-      {
-        accessorKey: "start_time",
-        id: "start_time",
-        header: ({ column }) => (
-          <DataGridColumnHeader title="Horário" column={column} />
-        ),
-        cell: ({ row }) => formatTime(row.original.start_time),
-        size: 120,
-      },
-      {
-        accessorKey: "venue",
-        id: "venue",
-        header: ({ column }) => (
-          <DataGridColumnHeader title="Local" column={column} />
-        ),
-        cell: ({ row }) => row.original.venue ?? "—",
-        size: 200,
-      },
-      {
-        accessorKey: "phase",
-        id: "phase",
-        header: ({ column }) => (
-          <DataGridColumnHeader title="Fase" column={column} />
-        ),
-        size: 150,
-      },
-      {
-        accessorKey: "status",
-        id: "status",
-        header: ({ column }) => (
-          <DataGridColumnHeader title="Status" column={column} />
-        ),
-        cell: ({ row }) => {
-          const status = row.original.status as EventStatus;
-          return (
-            <Badge variant={statusVariant[status]}>
-              {statusLabel[status]}
-            </Badge>
-          );
-        },
-        size: 130,
-      },
-      {
-        accessorKey: "competition_id",
-        id: "competition_id",
-        header: ({ column }) => (
-          <DataGridColumnHeader title="Competição" column={column} />
-        ),
-        cell: ({ row }) => {
-          const comp = competitions.find(
-            (c) => c.id === row.original.competition_id,
-          );
-          return comp
-            ? `Competição ${comp.number}`
-            : `ID ${row.original.competition_id}`;
-        },
-        size: 150,
-      },
-    ],
-    [competitions],
-  );
+  const toggleStatus = (status: EventStatus) => {
+    setSelectedStatuses((prev) =>
+      prev.includes(status)
+        ? prev.filter((v) => v !== status)
+        : [...prev, status],
+    );
+    setPageIndex(0);
+  };
 
-  const table = useReactTable({
-    columns,
-    data: filteredData,
-    pageCount: Math.ceil(
-      (filteredData?.length || 0) / pagination.pageSize,
-    ),
-    getRowId: (row: EventResponse) => String(row.id),
-    state: {
-      pagination,
-      sorting,
-    },
-    onPaginationChange: setPagination,
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
+  const activeFilterCount =
+    selectedCompetitionIds.length + selectedStatuses.length;
+
+  const handleClearFilters = () => {
+    setSelectedCompetitionIds([]);
+    setSelectedStatuses([]);
+    setSearchQuery("");
+    setPageIndex(0);
+  };
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-6">
-      <h1 className="text-2xl font-semibold mb-6">Calendário</h1>
-
-      <DataGrid
-        table={table}
-        recordCount={filteredData.length}
-        tableLayout={{}}
-      >
-        <Card className="w-full gap-3 py-0">
-          <CardHeader className="flex items-center justify-between px-3.5 py-2">
-            <div className="flex items-center gap-2.5">
-              <InputGroup className="w-48">
-                <InputGroupAddon align="inline-start">
-                  <SearchIcon className="size-4" />
-                </InputGroupAddon>
-
-                <InputGroupInput
-                  placeholder="Buscar..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+    <TableLayout
+      title="Calendário"
+      countLabel="eventos"
+      visibleCount={pagedData.length}
+      totalCount={filteredData.length}
+      searchPlaceholder="Buscar eventos…"
+      searchQuery={searchQuery}
+      onSearchChange={(value) => {
+        setSearchQuery(value);
+        setPageIndex(0);
+      }}
+      activeFilterCount={activeFilterCount}
+      onClearFilters={handleClearFilters}
+      pageIndex={pageIndex}
+      pageSize={pageSize}
+      onPageChange={setPageIndex}
+      onPageSizeChange={setPageSize}
+      filterActions={
+        <>
+          <FacetButton
+            label="Competição"
+            icon={<TrophyIcon className="size-3.5" />}
+            count={selectedCompetitionIds.length}
+            chips={selectedCompetitionIds.map((id) => {
+              const c = competitions.find((x) => x.id === id);
+              return c ? `Comp. ${c.number}` : String(id);
+            })}
+          >
+            <div className="p-2">
+              <div className="relative">
+                <input
+                  placeholder="Filtrar…"
+                  className="h-8 w-full rounded-md border border-input bg-background px-3 text-sm outline-none transition-shadow focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/24"
                 />
-
-                {searchQuery.length > 0 && (
-                  <InputGroupAddon align="inline-end">
-                    <InputGroupButton
-                      aria-label="Limpar"
-                      title="Limpar"
-                      size="icon-xs"
-                      onClick={() => setSearchQuery("")}
-                    >
-                      <XIcon className="size-3.5" />
-                    </InputGroupButton>
-                  </InputGroupAddon>
-                )}
-              </InputGroup>
-
-              <Select
-                value={selectedCompetitionId}
-                onValueChange={(value) => {
-                  setSelectedCompetitionId(value ?? "all");
-                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-                }}
-              >
-                <SelectTrigger className="w-44">
-                  <SelectValue placeholder="Todas as competições" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    Todas as competições
-                  </SelectItem>
-                  {competitions.map((competition) => (
-                    <SelectItem
-                      key={competition.id}
-                      value={String(competition.id)}
-                    >
-                      Competição {competition.number}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Popover>
-                <PopoverTrigger
-                  render={
-                    <Button variant="outline" size="sm">
-                      <FunnelIcon className="size-4" />
-                      Status
-                      {selectedStatuses.length > 0 && (
-                        <Badge variant="secondary" className="ml-1">
-                          {selectedStatuses.length}
-                        </Badge>
-                      )}
-                    </Button>
-                  }
-                />
-                <PopoverContent className="w-44" align="start">
-                  <div className="space-y-3">
-                    <div className="text-muted-foreground text-xs font-medium">
-                      Filtros
-                    </div>
-                    <div className="space-y-3">
-                      {Object.keys(statusCounts).map((status) => (
-                        <div
-                          key={status}
-                          className="flex items-center gap-2.5"
-                        >
-                          <Checkbox
-                            id={status}
-                            checked={selectedStatuses.includes(status)}
-                            onCheckedChange={(checked) =>
-                              handleStatusChange(checked === true, status)
-                            }
-                          />
-                          <Label
-                            htmlFor={status}
-                            className="flex grow items-center justify-between gap-1.5 font-normal"
-                          >
-                            {statusLabel[status as EventStatus]}
-                            <span className="text-muted-foreground">
-                              {statusCounts[status]}
-                            </span>
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
+              </div>
             </div>
-          </CardHeader>
-          <CardContent className="border-y px-0">
-            <DataGridScrollArea>
-              <DataGridTable />
-            </DataGridScrollArea>
-          </CardContent>
-          <CardFooter className="px-3.5 py-2">
-            <DataGridPagination
-              sizesLabel="Exibir"
-              sizesDescription="por página"
-              info="{from} - {to} de {count}"
-            />
-          </CardFooter>
-        </Card>
-      </DataGrid>
-    </div>
+            <Separator />
+            <div className="flex flex-col p-1">
+              {competitions.map((comp) => (
+                <Label
+                  key={comp.id}
+                  className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                >
+                  <Checkbox
+                    checked={selectedCompetitionIds.includes(comp.id)}
+                    onCheckedChange={() => toggleCompetition(comp.id)}
+                  />
+                  <span className="flex-1">Competição {comp.number}</span>
+                  <span className="text-muted-foreground text-xs">
+                    {competitionCounts[comp.id] ?? 0}
+                  </span>
+                </Label>
+              ))}
+            </div>
+          </FacetButton>
+
+          <FacetButton
+            label="Status"
+            icon={<FunnelIcon className="size-3.5" />}
+            count={selectedStatuses.length}
+            chips={selectedStatuses.map((s) => STATUS_META[s].label)}
+          >
+            <div className="flex flex-col p-1">
+              {(
+                ["SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELLED"] as EventStatus[]
+              ).map((status) => {
+                const m = STATUS_META[status];
+                const Icon = m.icon;
+                return (
+                  <Label
+                    key={status}
+                    className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                  >
+                    <Checkbox
+                      checked={selectedStatuses.includes(status)}
+                      onCheckedChange={() => toggleStatus(status)}
+                    />
+                    <Icon className={"size-3.5 " + m.cls} />
+                    <span className="flex-1">{m.label}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {statusCounts[status] ?? 0}
+                    </span>
+                  </Label>
+                );
+              })}
+            </div>
+          </FacetButton>
+        </>
+      }
+    >
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="ps-4 w-28">Data</TableHead>
+            <TableHead className="w-24">Horário</TableHead>
+            <TableHead>Local</TableHead>
+            <TableHead className="w-32">Fase</TableHead>
+            <TableHead className="w-36">Status</TableHead>
+            <TableHead className="pe-4 w-40">Competição</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {pagedData.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={6}
+                className="h-24 text-center text-muted-foreground"
+              >
+                Nenhum evento encontrado.
+              </TableCell>
+            </TableRow>
+          )}
+          {pagedData.map((event) => {
+            const m = STATUS_META[event.status];
+            const Icon = m.icon;
+            const comp = competitions.find(
+              (c) => c.id === event.competition_id,
+            );
+            return (
+              <TableRow key={event.id}>
+                <TableCell className="ps-4">
+                  <span className="inline-flex items-center gap-2 font-mono text-muted-foreground text-xs">
+                    <Icon className={"size-3.5 " + m.cls} />
+                    {formatDate(event.event_date)}
+                  </span>
+                </TableCell>
+                <TableCell>{formatTime(event.start_time)}</TableCell>
+                <TableCell>
+                  <span className="truncate font-medium">
+                    {event.venue ?? "—"}
+                  </span>
+                </TableCell>
+                <TableCell>{event.phase}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant="outline"
+                    className={
+                      "font-mono text-[10px] " +
+                      (event.status === "SCHEDULED"
+                        ? "border-muted-foreground/30 text-muted-foreground"
+                        : event.status === "IN_PROGRESS"
+                          ? "border-amber-500/30 text-amber-700 dark:text-amber-400"
+                          : event.status === "COMPLETED"
+                            ? "border-emerald-500/30 text-emerald-700 dark:text-emerald-400"
+                            : "border-destructive/30 text-destructive")
+                    }
+                  >
+                    {m.label}
+                  </Badge>
+                </TableCell>
+                <TableCell className="pe-4">
+                  {comp
+                    ? `Competição ${comp.number}`
+                    : `ID ${event.competition_id}`}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </TableLayout>
+  );
+}
+
+function FacetButton({
+  label,
+  icon,
+  count,
+  chips,
+  children,
+}: {
+  label: string;
+  icon?: React.ReactNode;
+  count?: number;
+  chips?: string[];
+  children: React.ReactNode;
+}) {
+  return (
+    <Popover>
+      <PopoverTrigger
+        render={
+          <Button
+            size="sm"
+            variant="outline"
+            className={
+              count && count > 0
+                ? "border-foreground/20 bg-foreground/5"
+                : "border-dashed"
+            }
+          >
+            {icon}
+            {label}
+            {count && count > 0 ? (
+              <>
+                <Separator orientation="vertical" className="mx-1 h-3" />
+                {chips && chips.length <= 2 ? (
+                  chips.map((c) => (
+                    <Badge
+                      key={c}
+                      variant="secondary"
+                      className="font-mono text-[10px]"
+                    >
+                      {c}
+                    </Badge>
+                  ))
+                ) : (
+                  <Badge
+                    variant="secondary"
+                    className="font-mono text-[10px]"
+                  >
+                    {count}
+                  </Badge>
+                )}
+              </>
+            ) : null}
+          </Button>
+        }
+      />
+      <PopoverContent className="w-60 p-0" align="start">
+        {children}
+      </PopoverContent>
+    </Popover>
   );
 }

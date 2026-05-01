@@ -1,10 +1,12 @@
 import * as React from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { CalendarPlus2, Sparkles, Waves } from "lucide-react";
+import { CalendarPlus2, Sparkles, Waves, SearchIcon, XIcon, FunnelIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@sports-system/ui/components/badge";
 import { Button, buttonVariants } from "@sports-system/ui/components/button";
+import { Checkbox } from "@sports-system/ui/components/checkbox";
 import {
   Card,
   CardContent,
@@ -13,12 +15,33 @@ import {
   CardTitle,
 } from "@sports-system/ui/components/card";
 import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@sports-system/ui/components/input-group";
+import { Label } from "@sports-system/ui/components/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@sports-system/ui/components/popover";
+import { Separator } from "@sports-system/ui/components/separator";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@sports-system/ui/components/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@sports-system/ui/components/table";
 import { cn } from "@sports-system/ui/lib/utils";
 
 import { client, unwrap, ApiError } from "@/shared/lib/api";
@@ -109,9 +132,71 @@ function CalendarPage() {
   });
 
   const events = eventsQuery.data?.data ?? [];
-  const groupedEvents = groupEventsByDay(events);
   const activeCompetition =
     competitions.find((competition) => competition.id === selectedCompetitionId) ?? null;
+
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStatuses, setSelectedStatuses] = useState<EventStatus[]>([]);
+
+  const filteredData = useMemo(() => {
+    let data = [...events];
+
+    if (selectedStatuses.length > 0) {
+      data = data.filter((item) => selectedStatuses.includes(item.status));
+    }
+
+    if (searchQuery.trim()) {
+      const lower = searchQuery.toLowerCase();
+      data = data.filter((item) => {
+        const haystack = [
+          item.event_date,
+          item.start_time,
+          item.venue ?? "",
+          item.phase,
+          statusLabel[item.status],
+          String(item.modality_id),
+        ]
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(lower);
+      });
+    }
+
+    return data.sort(
+      (a, b) =>
+        new Date(a.event_date + "T" + a.start_time).getTime() -
+        new Date(b.event_date + "T" + b.start_time).getTime(),
+    );
+  }, [events, selectedStatuses, searchQuery]);
+
+  const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+  const pagedData = filteredData.slice(
+    pageIndex * pageSize,
+    (pageIndex + 1) * pageSize,
+  );
+
+  const statusCounts = useMemo(() => {
+    return events.reduce(
+      (acc, item) => {
+        acc[item.status] = (acc[item.status] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+  }, [events]);
+
+  const toggleStatus = (status: EventStatus) => {
+    setSelectedStatuses((prev) =>
+      prev.includes(status)
+        ? prev.filter((v) => v !== status)
+        : [...prev, status],
+    );
+    setPageIndex(0);
+  };
+
+  const activeFilterCount = selectedStatuses.length;
 
   return (
     <div className="space-y-6">
@@ -210,83 +295,242 @@ function CalendarPage() {
         </Card>
       </section>
 
-      <Card className="border border-border/70">
-        <CardHeader>
-          <CardTitle>Grade da semana</CardTitle>
-          <CardDescription>Eventos agrupados por data.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          {eventsQuery.isLoading ? (
-            <div className="rounded-3xl border border-dashed border-border/70 p-8 text-sm text-muted-foreground">
-              Carregando calendario...
+      <div className="min-h-svh">
+        <div className="mx-auto max-w-6xl">
+          <header className="mb-4 flex items-end justify-between gap-4">
+            <div>
+              <h1 className="text-xl font-semibold">Grade da semana</h1>
+              <p className="text-muted-foreground text-sm">
+                {pagedData.length} visíveis de {filteredData.length} eventos
+              </p>
             </div>
-          ) : null}
+          </header>
 
-          {!eventsQuery.isLoading && eventsQuery.error ? (
-            <div className="rounded-3xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-              {eventsQuery.error instanceof ApiError
-                ? eventsQuery.error.message
-                : "Falha ao carregar eventos."}
-            </div>
-          ) : null}
+          <div className="rounded-xl border bg-card shadow-xs/5">
+            {/* Filter bar */}
+            <div className="flex flex-wrap items-center gap-2 border-b p-3">
+              <InputGroup className="w-64">
+                <InputGroupAddon align="inline-start">
+                  <SearchIcon className="size-4 text-muted-foreground" />
+                </InputGroupAddon>
+                <InputGroupInput
+                  placeholder="Buscar eventos…"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setPageIndex(0);
+                  }}
+                />
+                {searchQuery.length > 0 && (
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupButton
+                      aria-label="Limpar"
+                      title="Limpar"
+                      size="icon-xs"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setPageIndex(0);
+                      }}
+                    >
+                      <XIcon className="size-3.5" />
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
 
-          {!eventsQuery.isLoading && !eventsQuery.error && events.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-border/70 p-10 text-center text-sm text-muted-foreground">
-              Nenhum evento nesta competicao.
-            </div>
-          ) : null}
+              <Separator orientation="vertical" className="mx-1 h-6" />
 
-          {Object.entries(groupedEvents).map(([day, dayEvents]) => (
-            <section key={day} className="space-y-3">
-              <div className="flex items-center justify-between gap-3 border-b border-border/60 pb-3">
-                <div>
-                  <div className="text-sm uppercase tracking-[0.24em] text-muted-foreground">
-                    {formatDate(day)}
-                  </div>
-                  <div className="text-lg font-semibold">{dayEvents.length} evento(s)</div>
+              <FacetButton
+                label="Status"
+                icon={<FunnelIcon className="size-3.5" />}
+                count={selectedStatuses.length}
+                chips={selectedStatuses.map((s) => statusLabel[s])}
+              >
+                <div className="flex flex-col p-1">
+                  {(
+                    ["SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELLED"] as EventStatus[]
+                  ).map((status) => {
+                    return (
+                      <Label
+                        key={status}
+                        className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                      >
+                        <Checkbox
+                          checked={selectedStatuses.includes(status)}
+                          onCheckedChange={() => toggleStatus(status)}
+                        />
+                        <span className="flex-1">{statusLabel[status]}</span>
+                        <span className="text-muted-foreground text-xs">
+                          {statusCounts[status] ?? 0}
+                        </span>
+                      </Label>
+                    );
+                  })}
                 </div>
-              </div>
+              </FacetButton>
 
-              <div className="grid gap-3">
-                {dayEvents.map((event) => (
-                  <div
-                    key={event.id}
-                    className="grid gap-3 rounded-3xl border border-border/70 bg-muted/15 p-4 lg:grid-cols-[auto,1fr,auto]"
-                  >
-                    <div className="min-w-20 rounded-2xl bg-background px-3 py-2 text-center text-sm font-semibold">
-                      {formatTime(event.start_time)}
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium">Evento #{event.id}</span>
-                        <Badge variant="outline">{phaseLabel[event.phase] ?? event.phase}</Badge>
-                        <Badge variant={event.status === "IN_PROGRESS" ? "default" : "secondary"}>
+              {activeFilterCount > 0 && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-muted-foreground"
+                  onClick={() => {
+                    setSelectedStatuses([]);
+                    setSearchQuery("");
+                    setPageIndex(0);
+                  }}
+                >
+                  <XIcon className="size-3.5 mr-1" />
+                  Limpar filtros
+                </Button>
+              )}
+
+              <span className="ms-auto text-muted-foreground text-xs">
+                <span className="text-foreground">
+                  {activeFilterCount} filtro{activeFilterCount !== 1 ? "s" : ""}
+                </span>{" "}
+                ativo{activeFilterCount !== 1 ? "s" : ""}
+              </span>
+            </div>
+
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="ps-4 w-28">Data</TableHead>
+                  <TableHead className="w-24">Horário</TableHead>
+                  <TableHead>Local</TableHead>
+                  <TableHead className="w-32">Fase</TableHead>
+                  <TableHead className="w-36">Status</TableHead>
+                  <TableHead className="w-24">Modalidade</TableHead>
+                  {isAdmin ? <TableHead className="pe-4 w-28 text-right">Ações</TableHead> : null}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pagedData.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={isAdmin ? 7 : 6}
+                      className="h-24 text-center text-muted-foreground"
+                    >
+                      Nenhum evento encontrado.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {pagedData.map((event) => {
+                  return (
+                    <TableRow key={event.id}>
+                      <TableCell className="ps-4">
+                        <span className="font-mono text-muted-foreground text-xs">
+                          {formatDate(event.event_date)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="inline-flex size-6 items-center justify-center rounded-full bg-muted font-mono text-[10px] tabular-nums">
+                          {formatTime(event.start_time)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="truncate font-medium">
+                          {event.venue ?? "—"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-[10px]">
+                          {phaseLabel[event.phase] ?? event.phase}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={
+                            "font-mono text-[10px] " +
+                            (event.status === "SCHEDULED"
+                              ? "border-muted-foreground/30 text-muted-foreground"
+                              : event.status === "IN_PROGRESS"
+                                ? "border-amber-500/30 text-amber-700 dark:text-amber-400"
+                                : event.status === "COMPLETED"
+                                  ? "border-emerald-500/30 text-emerald-700 dark:text-emerald-400"
+                                  : "border-destructive/30 text-destructive")
+                          }
+                        >
                           {statusLabel[event.status]}
                         </Badge>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Modalidade #{event.modality_id}
-                        {event.venue ? ` · ${event.venue}` : ""}
-                      </div>
-                    </div>
-                    {isAdmin ? (
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Link
-                          to="/leagues/$leagueId/dashboard/calendar/events/new"
-                          params={{ leagueId }}
-                          className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
-                        >
-                          Duplicar base
-                        </Link>
-                      </div>
-                    ) : null}
-                  </div>
-                ))}
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-muted-foreground text-xs">
+                          #{event.modality_id}
+                        </span>
+                      </TableCell>
+                      {isAdmin ? (
+                        <TableCell className="pe-4 text-right">
+                          <Link
+                            to="/leagues/$leagueId/dashboard/calendar/events/new"
+                            params={{ leagueId }}
+                            className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+                          >
+                            Duplicar base
+                          </Link>
+                        </TableCell>
+                      ) : null}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between border-t px-4 py-3">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Exibir</span>
+                <select
+                  className="h-8 rounded-md border bg-transparent px-2 text-sm"
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setPageIndex(0);
+                  }}
+                >
+                  {[5, 10, 25, 50].map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+                <span>por página</span>
               </div>
-            </section>
-          ))}
-        </CardContent>
-      </Card>
+              <div className="text-sm text-muted-foreground">
+                {filteredData.length === 0
+                  ? "0"
+                  : `${pageIndex * pageSize + 1} - ${Math.min(
+                      (pageIndex + 1) * pageSize,
+                      filteredData.length,
+                    )}`}{" "}
+                de {filteredData.length}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPageIndex((p) => Math.max(0, p - 1))}
+                  disabled={pageIndex === 0}
+                >
+                  Anterior
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setPageIndex((p) => Math.min(totalPages - 1, p + 1))
+                  }
+                  disabled={pageIndex >= totalPages - 1}
+                >
+                  Próxima
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -298,18 +542,6 @@ function StatCard({ label, value }: { label: string; value: string }) {
       <div className="mt-2 text-lg font-semibold">{value}</div>
     </div>
   );
-}
-
-function groupEventsByDay<T extends { event_date: string; start_time: string }>(events: T[]) {
-  return [...events]
-    .sort((a, b) =>
-      `${a.event_date}T${a.start_time}`.localeCompare(`${b.event_date}T${b.start_time}`),
-    )
-    .reduce<Record<string, T[]>>((acc, event) => {
-      acc[event.event_date] ??= [];
-      acc[event.event_date].push(event);
-      return acc;
-    }, {});
 }
 
 function orderCompetitions(competitions: CompetitionResponse[]) {
@@ -326,4 +558,65 @@ function useWeekSelection(defaultWeekId?: number) {
   }, [defaultWeekId, selectedWeekId]);
 
   return [selectedWeekId, setSelectedWeekId] as const;
+}
+
+function FacetButton({
+  label,
+  icon,
+  count,
+  chips,
+  children,
+}: {
+  label: string;
+  icon?: React.ReactNode;
+  count?: number;
+  chips?: string[];
+  children: React.ReactNode;
+}) {
+  return (
+    <Popover>
+      <PopoverTrigger
+        render={
+          <Button
+            size="sm"
+            variant="outline"
+            className={
+              count && count > 0
+                ? "border-foreground/20 bg-foreground/5"
+                : "border-dashed"
+            }
+          >
+            {icon}
+            {label}
+            {count && count > 0 ? (
+              <>
+                <Separator orientation="vertical" className="mx-1 h-3" />
+                {chips && chips.length <= 2 ? (
+                  chips.map((c) => (
+                    <Badge
+                      key={c}
+                      variant="secondary"
+                      className="font-mono text-[10px]"
+                    >
+                      {c}
+                    </Badge>
+                  ))
+                ) : (
+                  <Badge
+                    variant="secondary"
+                    className="font-mono text-[10px]"
+                  >
+                    {count}
+                  </Badge>
+                )}
+              </>
+            ) : null}
+          </Button>
+        }
+      />
+      <PopoverContent className="w-60 p-0" align="start">
+        {children}
+      </PopoverContent>
+    </Popover>
+  );
 }
