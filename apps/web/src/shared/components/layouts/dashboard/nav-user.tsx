@@ -1,4 +1,4 @@
-import { LogOutIcon, Sparkles, UserIcon, SettingsIcon, CreditCardIcon } from "lucide-react";
+import { LogOutIcon, Sparkles, UserIcon } from "lucide-react";
 import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 
