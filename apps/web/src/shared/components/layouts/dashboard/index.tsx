@@ -2,9 +2,8 @@ import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouterState } from "@tanstack/react-router";
 
-import { SidebarInset, SidebarProvider } from "@sports-system/ui/components/sidebar";
 import { ApiError } from "@/shared/lib/api";
-import { DashboardBottomBar } from "@/shared/components/layouts/dashboard-bottombar";
+import { TerminalStatusBar } from "@/shared/components/layouts/terminal-status-bar";
 import { DashboardContentLoading } from "@/shared/components/layouts/dashboard-content-loading";
 import {
 	getLeagueIdFromPath,
@@ -18,8 +17,9 @@ import {
 } from "@/features/leagues/api/queries";
 import type { Session } from "@/types/auth";
 
-import { AppSidebar } from "./app-sidebar";
-import { AppHeader } from "./app-header";
+import { TerminalHeader } from "./terminal-header";
+import { TerminalSidebar } from "./terminal-sidebar";
+import { NavCommandProvider } from "@/shared/components/layouts/nav-command";
 
 export function DashboardLayout({
 	session,
@@ -57,17 +57,14 @@ export function DashboardLayout({
 			: membershipQuery.data;
 
 	return (
-		<div className="overflow-hidden">
-			<SidebarProvider className="relative h-svh">
-				<AppSidebar
-					session={session}
-					pathname={pathname}
-					scope={scope}
-					league={leagueQuery.data}
-					membership={membership}
-				/>
-				<SidebarInset className="md:peer-data-[variant=inset]:ml-0">
-				<AppHeader
+		<NavCommandProvider
+			session={session}
+			scope={scope}
+			league={leagueQuery.data}
+			membership={membership}
+		>
+			<div className="h-svh flex flex-col bg-background text-foreground font-mono overflow-hidden">
+				<TerminalHeader
 					session={session}
 					pathname={pathname}
 					scope={scope}
@@ -75,12 +72,21 @@ export function DashboardLayout({
 					membership={membership}
 					leagues={leagues}
 				/>
-					<div className="flex flex-1 flex-col w-11/12 mx-auto max-w-5xl gap-4 overflow-y-auto py-4 md:py-10 lg:py-12">
+				<div className="flex flex-1 overflow-hidden">
+				<TerminalSidebar
+					session={session}
+					pathname={pathname}
+					scope={scope}
+					league={leagueQuery.data}
+					membership={membership}
+				/>
+				<div className="flex-1 flex flex-col min-w-0 border-l border-border">
+					<main className="flex-1 overflow-y-auto p-4 md:p-6">
 						<React.Suspense fallback={<DashboardContentLoading />}>
 							{children}
 						</React.Suspense>
-					</div>
-					<DashboardBottomBar
+					</main>
+					<TerminalStatusBar
 						scope={scope}
 						session={session}
 						league={leagueQuery.data}
@@ -89,8 +95,9 @@ export function DashboardLayout({
 							membershipQuery.isError && !isMembershipFallbackError(membershipErrorStatus)
 						}
 					/>
-				</SidebarInset>
-			</SidebarProvider>
+				</div>
+			</div>
 		</div>
+		</NavCommandProvider>
 	);
 }

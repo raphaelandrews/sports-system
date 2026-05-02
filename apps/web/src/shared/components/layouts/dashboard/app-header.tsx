@@ -17,7 +17,7 @@ import { Link } from "@tanstack/react-router";
 import { SearchCommand } from "@/shared/components/layouts/search-command";
 import { AnimatedThemeToggler } from "@/shared/components/ui/animated-theme-toggler";
 import { NotificationBell } from "@/shared/components/ui/notification-bell";
-import { NavUser } from "./nav-user";
+import { NavUser } from "../../ui/nav-user";
 import type { Session } from "@/types/auth";
 import type { LeagueMemberResponse, LeagueResponse } from "@/types/leagues";
 import type { ShellScope } from "@/shared/components/layouts/shell-navigation";

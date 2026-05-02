@@ -37,7 +37,7 @@ export function NavUser({ session }: NavUserProps) {
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger className="flex h-10 items-center gap-2 rounded-md px-2 hover:text-accent-foreground outline-none">
+			<DropdownMenuTrigger className="flex h-10 items-center gap-2 px-2 hover:text-accent-foreground outline-none">
 				<Avatar className="h-8 w-8 rounded-md after:border-none">
 					<AvatarImage src={user.avatar} alt={user.name} />
 					<AvatarFallback className="font-semibold text-xs rounded-md">

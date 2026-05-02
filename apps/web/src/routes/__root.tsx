@@ -12,9 +12,9 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "next-themes";
 
 import { DashboardViewportLoading } from "@/shared/components/layouts/dashboard-content-loading";
-import { DashboardLayout } from "@/shared/components/layouts/dashboard";
 import { ErrorScreen } from "@/shared/components/layouts/error-screen";
 import { NotFoundScreen } from "@/shared/components/layouts/not-found-screen";
+import { TUI } from "@/shared/components/layouts/tui";
 import { getSessionFn } from "@/features/auth/server/auth";
 
 import appCss from "@/index.css?url";
@@ -66,9 +66,9 @@ function RootDocument() {
           {isAuthPage ? (
             <Outlet />
           ) : (
-            <DashboardLayout session={session ?? null}>
+            <TUI session={session ?? null}>
               <Outlet />
-            </DashboardLayout>
+            </TUI>
           )}
           <Toaster richColors />
           <ReactQueryDevtools buttonPosition="bottom-right" />
