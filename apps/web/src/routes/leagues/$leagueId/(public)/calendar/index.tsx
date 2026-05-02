@@ -278,7 +278,6 @@ function CalendarPage() {
           )}
           {pagedData.map((event) => {
             const m = STATUS_META[event.status];
-            const Icon = m.icon;
             const comp = competitions.find(
               (c) => c.id === event.competition_id,
             );
@@ -286,7 +285,6 @@ function CalendarPage() {
               <TableRow key={event.id}>
                 <TableCell className="ps-4">
                   <span className="inline-flex items-center gap-2 font-mono text-muted-foreground text-xs">
-                    <Icon className={"size-3.5 " + m.cls} />
                     {formatDate(event.event_date)}
                   </span>
                 </TableCell>

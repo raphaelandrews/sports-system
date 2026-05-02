@@ -127,7 +127,6 @@ function AiControlRoomPage() {
         <Card className="overflow-hidden border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_38%),linear-gradient(160deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Fase 13</Badge>
               <Badge variant="secondary">Admin only</Badge>
             </div>
             <CardTitle className="text-3xl">Sala de controle da IA</CardTitle>

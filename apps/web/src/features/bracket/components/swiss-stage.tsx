@@ -99,7 +99,7 @@ function TeamListBlock({
         )}
       >
         <span>{record.replace("-", ":")}</span>
-        {title && <span className="opacity-70 font-normal">{title}</span>}
+        {title && <span className="opacity-70">{title}</span>}
       </div>
       <div className="flex flex-col p-1 gap-1">
         {teams.map((team) => (

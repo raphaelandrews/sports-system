@@ -36,7 +36,6 @@ function ResultsPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(180deg,hsl(var(--card)),hsl(var(--muted)/0.18))]">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Fase 12</Badge>
               <Badge variant="secondary">Atualiza a cada 30s</Badge>
             </div>
             <CardTitle className="text-3xl">Quadro de medalhas</CardTitle>
@@ -83,11 +82,7 @@ function ResultsPage() {
         </Card>
       </section>
 
-      <Card className="border border-border/70">
-        <CardContent className="pt-6">
-          <MedalBoard entries={data} />
-        </CardContent>
-      </Card>
+      <MedalBoard entries={data} />
     </div>
   );
 }

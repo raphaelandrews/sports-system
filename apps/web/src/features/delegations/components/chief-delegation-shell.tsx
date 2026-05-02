@@ -39,7 +39,6 @@ export function ChiefDelegationShell({
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(160deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Fase 6</Badge>
               <Badge variant={transferOpen ? "secondary" : "outline"}>
                 {transferOpen ? "Janela aberta" : "Janela fechada"}
               </Badge>

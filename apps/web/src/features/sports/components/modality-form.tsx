@@ -112,7 +112,7 @@ export function ModalityForm({
                 validators={{
                   onChange: ({ value }) =>
                     value.trim().length < 3
-                      ? "Informe um nome com pelo menos 3 caracteres."
+                      ? { message: "Informe um nome com pelo menos 3 caracteres." }
                       : undefined,
                 }}
               >

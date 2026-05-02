@@ -7,6 +7,7 @@ import {
   AvatarImage,
 } from "@sports-system/ui/components/avatar";
 import { Badge } from "@sports-system/ui/components/badge";
+import { buttonVariants } from "@sports-system/ui/components/button";
 import {
   Table,
   TableBody,
@@ -15,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@sports-system/ui/components/table";
+import { cn } from "@sports-system/ui/lib/utils";
 
 import { delegationListQueryOptions } from "@/features/delegations/api/queries";
 import { TableLayout } from "@/shared/components/ui/table-layout";
@@ -28,6 +30,7 @@ export const Route = createFileRoute("/leagues/$leagueId/(public)/delegations/")
 
 function DelegationsPage() {
   const { leagueId } = Route.useParams();
+  const { session } = Route.useRouteContext();
   const { data } = useSuspenseQuery(delegationListQueryOptions(Number(leagueId)));
   const delegations = data.data;
 
@@ -52,7 +55,18 @@ function DelegationsPage() {
 
   return (
     <>
-    <Title title="Delegações"/>
+      <div className="flex items-center justify-between gap-4 mb-4">
+        <Title title="Delegações"/>
+        {session ? (
+          <Link
+            to="/leagues/$leagueId/dashboard/delegations/new"
+            params={{ leagueId }}
+            className={cn(buttonVariants({ variant: "default", size: "sm" }))}
+          >
+            Nova delegação
+          </Link>
+        ) : null}
+      </div>
       <TableLayout
         title="Delegações"
         countLabel="delegações"

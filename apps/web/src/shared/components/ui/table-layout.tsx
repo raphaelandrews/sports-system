@@ -8,11 +8,10 @@ import {
 } from "@sports-system/ui/components/input-group";
 import { Separator } from "@sports-system/ui/components/separator";
 import { SearchIcon, XIcon } from "lucide-react";
-import { Title } from "./title";
 
 interface TableLayoutProps {
-  title: string;
-  countLabel: string;
+  title?: string;
+  countLabel?: string;
   visibleCount: number;
   totalCount: number;
   searchPlaceholder?: string;
@@ -31,7 +30,6 @@ interface TableLayoutProps {
 }
 
 export function TableLayout({
-  title,
   totalCount,
   searchPlaceholder = "Buscar…",
   searchQuery,

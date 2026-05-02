@@ -1,4 +1,3 @@
-import { Badge } from "@sports-system/ui/components/badge";
 import {
   Card,
   CardContent,
@@ -27,10 +26,6 @@ function FeedPage() {
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(180deg,hsl(var(--card)),hsl(var(--muted)/0.18))]">
           <CardHeader className="gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Feature adicional</Badge>
-              <Badge variant="secondary">Tempo real</Badge>
-            </div>
             <CardTitle className="text-3xl">Feed de atividades</CardTitle>
             <CardDescription className="max-w-2xl">
               Linha do tempo global da competição com partidas iniciadas, eventos ao vivo,

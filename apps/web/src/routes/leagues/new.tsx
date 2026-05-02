@@ -82,7 +82,7 @@ function NewLeaguePage() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full bg-background/60 shadow-sm"
+      className="w-full bg-background/60"
     >
       <Title
         title="Criar nova liga"

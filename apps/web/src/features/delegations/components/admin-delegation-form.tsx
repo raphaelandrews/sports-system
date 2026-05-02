@@ -65,7 +65,7 @@ export function AdminDelegationForm({
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-      <Card className="border border-border/70 bg-gradient-to-br from-card via-card to-muted/20">
+      <Card className="border border-border/70 bg-linear-to-br from-card via-card to-muted/20">
         <CardHeader>
           <CardTitle>{mode === "create" ? "Nova delegação" : "Editar delegação"}</CardTitle>
           <CardDescription>
@@ -88,7 +88,7 @@ export function AdminDelegationForm({
                 validators={{
                   onChange: ({ value }) =>
                     value.trim().length < 3
-                      ? "Informe um nome com pelo menos 3 caracteres."
+                      ? { message: "Informe um nome com pelo menos 3 caracteres." }
                       : undefined,
                 }}
               >
@@ -113,12 +113,12 @@ export function AdminDelegationForm({
               {mode === "create" ? (
                 <form.Field
                   name="code"
-                  validators={{
-                    onChange: ({ value }) =>
-                      value.trim() && value.trim().length < 2
-                        ? "Use pelo menos 2 caracteres ou deixe em branco."
-                        : undefined,
-                  }}
+                validators={{
+                  onChange: ({ value }) =>
+                    value.trim() && value.trim().length < 2
+                      ? { message: "Use pelo menos 2 caracteres ou deixe em branco." }
+                      : undefined,
+                }}
                 >
                   {(field) => (
                     <Field>
@@ -152,7 +152,7 @@ export function AdminDelegationForm({
                 validators={{
                   onChange: ({ value }) =>
                     value.trim() && !/^https?:\/\/.+/i.test(value.trim())
-                      ? "Use uma URL iniciando com http:// ou https://."
+                      ? { message: "Use uma URL iniciando com http:// ou https://." }
                       : undefined,
                 }}
               >

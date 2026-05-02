@@ -116,56 +116,67 @@ function DelegationDetailPage() {
 
       <div>
         <h2 className="text-lg font-medium mb-3">Membros ativos</h2>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Cargo</TableHead>
-              <TableHead>Desde</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {activeMembers.map((m) => (
-              <TableRow key={m.id}>
-                <TableCell>{m.user_name}</TableCell>
-                <TableCell>{m.role}</TableCell>
-                <TableCell>{formatDate(m.joined_at.split("T")[0])}</TableCell>
-              </TableRow>
-            ))}
-            {activeMembers.length === 0 && (
+        <div className="rounded-xl border bg-card shadow-xs/5">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={3} className="text-muted-foreground text-center">
-                  Nenhum membro ativo.
-                </TableCell>
+                <TableHead className="ps-4">Nome</TableHead>
+                <TableHead>Cargo</TableHead>
+                <TableHead className="pe-4">Desde</TableHead>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {activeMembers.map((m) => (
+                <TableRow key={m.id}>
+                  <TableCell className="ps-4">{m.user_name}</TableCell>
+                  <TableCell>{m.role}</TableCell>
+                  <TableCell className="pe-4">{formatDate(m.joined_at.split("T")[0])}</TableCell>
+                </TableRow>
+              ))}
+              {activeMembers.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
+                    Nenhum membro ativo.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       {formerMembers.length > 0 && (
         <div>
           <h2 className="text-lg font-medium mb-3">Ex-membros</h2>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Cargo</TableHead>
-                <TableHead>Desde</TableHead>
-                <TableHead>Até</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {formerMembers.map((m) => (
-                <TableRow key={m.id}>
-                  <TableCell>{m.user_name}</TableCell>
-                  <TableCell>{m.role}</TableCell>
-                  <TableCell>{formatDate(m.joined_at.split("T")[0])}</TableCell>
-                  <TableCell>{m.left_at ? formatDate(m.left_at.split("T")[0]) : "—"}</TableCell>
+          <div className="rounded-xl border bg-card shadow-xs/5">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="ps-4">Nome</TableHead>
+                  <TableHead>Cargo</TableHead>
+                  <TableHead>Desde</TableHead>
+                  <TableHead className="pe-4">Até</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {formerMembers.map((m) => (
+                  <TableRow key={m.id}>
+                    <TableCell className="ps-4">{m.user_name}</TableCell>
+                    <TableCell>{m.role}</TableCell>
+                    <TableCell>{formatDate(m.joined_at.split("T")[0])}</TableCell>
+                    <TableCell className="pe-4">{m.left_at ? formatDate(m.left_at.split("T")[0]) : "—"}</TableCell>
+                  </TableRow>
+                ))}
+                {formerMembers.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                      Nenhum ex-membro.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       )}
     </div>

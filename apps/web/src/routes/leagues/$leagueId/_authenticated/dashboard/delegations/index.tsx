@@ -27,7 +27,7 @@ import { cn } from "@sports-system/ui/lib/utils";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
-import { ArrowRight, Bot, Plus, Search, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, Bot, Search, ShieldCheck, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -253,7 +253,6 @@ function DelegationsPage() {
                 params={{ leagueId }}
                 className={buttonVariants({ variant: "default" })}
               >
-                <Plus className="size-4" />
                 Nova delegação
               </Link>
             ) : null}

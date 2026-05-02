@@ -112,7 +112,7 @@ export function AthleteForm({
                 validators={{
                   onChange: ({ value }) =>
                     value.trim().length < 3
-                      ? "Informe um nome com pelo menos 3 caracteres."
+                      ? { message: "Informe um nome com pelo menos 3 caracteres." }
                       : undefined,
                 }}
               >
@@ -136,7 +136,7 @@ export function AthleteForm({
                 validators={{
                   onChange: ({ value }) =>
                     value.trim().length < 3
-                      ? "Use um codigo com pelo menos 3 caracteres."
+                      ? { message: "Use um codigo com pelo menos 3 caracteres." }
                       : undefined,
                 }}
               >

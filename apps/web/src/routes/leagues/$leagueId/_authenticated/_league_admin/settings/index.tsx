@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -38,6 +38,7 @@ import {
   leagueMembersQueryOptions,
 } from "@/features/leagues/api/queries";
 import { sportListQueryOptions } from "@/features/sports/api/queries";
+import { TableLayout } from "@/shared/components/ui/table-layout";
 import type { LeagueMemberRole } from "@/types/leagues";
 
 const roleLabel: Record<LeagueMemberRole, string> = {
@@ -67,6 +68,25 @@ function LeagueSettingsPage() {
   const [timezone, setTimezone] = useState(league.timezone);
   const [selectedSports, setSelectedSports] = useState<number[]>(league.sports_config);
   const [transferWindow, setTransferWindow] = useState(league.transfer_window_enabled);
+
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredData = useMemo(() => {
+    if (!searchQuery.trim()) return members;
+    const lower = searchQuery.toLowerCase();
+    return members.filter(
+      (m) =>
+        String(m.user_id).includes(lower) ||
+        roleLabel[m.role].toLowerCase().includes(lower),
+    );
+  }, [members, searchQuery]);
+
+  const pagedData = filteredData.slice(
+    pageIndex * pageSize,
+    (pageIndex + 1) * pageSize,
+  );
 
   const updateMutation = useMutation({
     mutationFn: (payload: {
@@ -231,28 +251,63 @@ function LeagueSettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Membros</CardTitle>
-          <CardDescription>Gerencie os membros e suas funções na liga.</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">Membros</h2>
+          <p className="text-sm text-muted-foreground">
+            Gerencie os membros e suas funções na liga.
+          </p>
+        </div>
+
+        <TableLayout
+          title="Membros"
+          countLabel="membros"
+          visibleCount={pagedData.length}
+          totalCount={filteredData.length}
+          searchPlaceholder="Buscar membros…"
+          searchQuery={searchQuery}
+          onSearchChange={(value) => {
+            setSearchQuery(value);
+            setPageIndex(0);
+          }}
+          activeFilterCount={searchQuery ? 1 : 0}
+          onClearFilters={() => {
+            setSearchQuery("");
+            setPageIndex(0);
+          }}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          onPageChange={setPageIndex}
+          onPageSizeChange={setPageSize}
+        >
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Usuário</TableHead>
-                <TableHead>Função</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                <TableHead className="ps-4 w-24">Usuário</TableHead>
+                <TableHead className="w-32">Função</TableHead>
+                <TableHead className="pe-4 text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {members.map((member) => (
+              {pagedData.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={3}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    Nenhum membro encontrado.
+                  </TableCell>
+                </TableRow>
+              )}
+              {pagedData.map((member) => (
                 <TableRow key={member.id}>
-                  <TableCell className="font-medium">#{member.user_id}</TableCell>
+                  <TableCell className="ps-4 font-medium">
+                    #{member.user_id}
+                  </TableCell>
                   <TableCell>
                     <Badge variant="outline">{roleLabel[member.role]}</Badge>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="pe-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Select
                         value={member.role}
@@ -288,8 +343,8 @@ function LeagueSettingsPage() {
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </TableLayout>
+      </div>
 
       <Card className="border-destructive/50">
         <CardHeader>

@@ -133,8 +133,8 @@ export function AppSidebar({
 				</Link>
 			</SidebarHeader>
 			<SidebarContent>
-				<NavGroup label="Plataforma" items={mainItems} />
-				{secondaryItems.length > 0 && <NavGroup label="Liga" items={secondaryItems} />}
+				<NavGroup items={mainItems} />
+				{secondaryItems.length > 0 && <NavGroup items={secondaryItems} />}
 			</SidebarContent>
 			<SidebarRail />
 		</Sidebar>

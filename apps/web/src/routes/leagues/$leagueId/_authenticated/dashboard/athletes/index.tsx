@@ -121,9 +121,6 @@ function AthletesPage() {
       <section className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(160deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
           <CardHeader className="gap-3">
-            <Badge variant="outline" className="w-fit">
-              Fase 8
-            </Badge>
             <CardTitle className="text-2xl">
               {isAdmin ? "Atletas e tecnicos" : "Atletas da delegacao"}
             </CardTitle>
