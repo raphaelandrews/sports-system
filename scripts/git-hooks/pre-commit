@@ -1,0 +1,77 @@
+#!/bin/sh
+# Pre-commit hook: auto-regenerate API types when backend files change
+
+# Get list of staged files
+STAGED_FILES=$(git diff --cached --name-only)
+
+# Check if any backend source files were staged
+BACKEND_CHANGED=0
+for file in $STAGED_FILES; do
+  case "$file" in
+    apps/api/app/*.py|apps/api/app/**/*.py)
+      BACKEND_CHANGED=1
+      break
+      ;;
+  esac
+done
+
+if [ "$BACKEND_CHANGED" -eq 0 ]; then
+  exit 0
+fi
+
+echo "Backend files changed. Regenerating API types..."
+
+cd apps/api || exit 1
+
+# Check if we're in a uv environment or venv
+if command -v uv >/dev/null 2>&1; then
+  PYTHON_CMD="PYTHONPATH=$(pwd) uv run python"
+elif [ -f ".venv/bin/python" ]; then
+  PYTHON_CMD=".venv/bin/python"
+else
+  echo "Warning: Could not find Python environment. Skipping API type generation."
+  exit 0
+fi
+
+# Generate openapi.json
+$PYTHON_CMD -c "
+import json
+from app.main import app
+with open('openapi.json', 'w') as f:
+    json.dump(app.openapi(), f)
+" 2>/dev/null
+
+if [ $? -ne 0 ]; then
+  echo "Warning: Failed to generate openapi.json. Skipping API type generation."
+  exit 0
+fi
+
+echo "  Generated apps/api/openapi.json"
+
+cd ../web || exit 1
+
+# Check if openapi-typescript is available
+if ! bunx openapi-typescript --version >/dev/null 2>&1; then
+  echo "Warning: openapi-typescript not found. Skipping API type generation."
+  exit 0
+fi
+
+# Generate types
+bunx openapi-typescript ../api/openapi.json -o src/types/api.gen.ts 2>/dev/null
+
+if [ $? -ne 0 ]; then
+  echo "Warning: Failed to generate API types."
+  exit 0
+fi
+
+echo "  Generated apps/web/src/types/api.gen.ts"
+
+# Stage the generated files if they changed
+git add src/types/api.gen.ts
+
+# Also stage openapi.json if it changed
+cd ../api || exit 1
+git add openapi.json
+
+echo "API types regenerated and staged."
+exit 0

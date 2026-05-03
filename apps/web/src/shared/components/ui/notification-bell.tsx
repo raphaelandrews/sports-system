@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@sports-system/ui/components/button";
 import { Badge } from "@sports-system/ui/components/badge";
@@ -22,6 +23,8 @@ function notifTitle(type: NotificationType): string {
       return "Resultado disponível";
     case "TRANSFER":
       return "Transferência";
+    case "PARTICIPATION_REQUEST":
+      return "Pedido de participação";
   }
 }
 
@@ -42,6 +45,8 @@ function notifDescription(notif: NotificationResponse): string {
       return p.status === "ACCEPTED"
         ? `Transferência para ${p.delegation_name as string} aceita`
         : `Transferência para ${p.delegation_name as string} recusada`;
+    case "PARTICIPATION_REQUEST":
+      return `Delegação ${p.delegation_name as string} pediu para participar da liga ${p.league_name as string}`;
     default:
       return "";
   }
@@ -124,8 +129,12 @@ interface NotificationBellProps {
 }
 
 export function NotificationBell({ userId }: NotificationBellProps) {
+  const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { data } = useQuery(notificationsQueryOptions(userId));
+  const { data } = useQuery({
+    ...notificationsQueryOptions(userId),
+    refetchInterval: open ? 10_000 : 30_000,
+  });
 
   const notifications = data?.data ?? [];
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -154,7 +163,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
   });
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger>
         <Button
           variant="ghost"

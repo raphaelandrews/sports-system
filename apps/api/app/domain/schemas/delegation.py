@@ -1,9 +1,13 @@
 from datetime import date, datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from app.domain.models.delegation import DelegationMemberRole, InviteStatus
+from app.domain.models.delegation import (
+    DelegationMemberRole,
+    DelegationStatus,
+    InviteStatus,
+)
 from app.domain.models.result import Medal
 
 
@@ -23,11 +27,13 @@ class DelegationUpdate(BaseModel):
 
 class DelegationResponse(BaseModel):
     id: int
+    league_id: Optional[int]
     code: str
     name: str
     flag_url: Optional[str]
     chief_id: Optional[int]
     is_active: bool
+    status: DelegationStatus
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -121,3 +127,27 @@ class DelegationStatisticsResponse(BaseModel):
     athletes: list[DelegationAthleteStatisticsItem]
     medals: list[DelegationMedalItem]
     weekly_performance: list[DelegationWeekPerformanceItem]
+
+
+class LeagueParticipationRequestCreate(BaseModel):
+    league_id: int
+
+
+class LeagueParticipationRequestReview(BaseModel):
+    status: DelegationStatus
+
+
+class LeagueParticipationRequestResponse(BaseModel):
+    id: int
+    delegation_id: int
+    league_id: int
+    requested_by: int
+    status: DelegationStatus
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class DelegationAIGenerateRequest(BaseModel):
+    prompt: str
+    count: int = Field(default=5, ge=1, le=10)

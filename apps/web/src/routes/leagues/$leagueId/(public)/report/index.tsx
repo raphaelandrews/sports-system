@@ -98,7 +98,7 @@ function PublicReportPage() {
 
   return (
     <div className="relative overflow-hidden">
-      <div className="absolute inset-x-0 top-0 -z-10 h-[28rem] bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_34%),radial-gradient(circle_at_top_right,hsl(var(--accent)/0.18),transparent_28%),linear-gradient(180deg,hsl(var(--muted)/0.22),transparent)]" />
+      <div className="absolute inset-x-0 top-0 -z-10 h-112 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_34%),radial-gradient(circle_at_top_right,hsl(var(--accent)/0.18),transparent_28%),linear-gradient(180deg,hsl(var(--muted)/0.22),transparent)]" />
       <div className="container mx-auto max-w-7xl space-y-8 px-4 py-10">
         <section className="grid gap-4 xl:grid-cols-[1.3fr_0.7fr]">
           <Card className="border border-border/70 bg-[linear-gradient(150deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">

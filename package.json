@@ -32,7 +32,8 @@
     "db:down": "cd apps/api && uv run python -m alembic downgrade -1",
     "deploy": "NODE_ENV=production turbo -F @sports-system/infra deploy",
     "destroy": "turbo -F @sports-system/infra destroy",
-    "check": "oxlint && oxfmt --write"
+    "check": "oxlint && oxfmt --write",
+    "ci:api-types": "cd apps/api && PYTHONPATH=$(pwd) uv run python scripts/generate_openapi.py && cd ../web && bun run check:api:local"
   },
   "dependencies": {
     "@sports-system/env": "workspace:*",

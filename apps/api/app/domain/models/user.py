@@ -22,6 +22,7 @@ class NotificationType(str, Enum):
     MATCH_REMINDER = "MATCH_REMINDER"
     RESULT = "RESULT"
     TRANSFER = "TRANSFER"
+    PARTICIPATION_REQUEST = "PARTICIPATION_REQUEST"
 
 
 class ChiefRequestStatus(str, Enum):

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@sports-system/ui/components/alert";
 import { Button } from "@sports-system/ui/components/button";
 import {
@@ -19,6 +20,7 @@ import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 
+import { ImageUpload } from "@/shared/components/ui/image-upload";
 import type { DelegationCreateInput, DelegationUpdateInput } from "@/types/delegations";
 
 type DelegationFormValues = {
@@ -44,6 +46,8 @@ export function AdminDelegationForm({
   errorMessage,
   onSubmit,
 }: AdminDelegationFormProps) {
+  const [previewUrl, setPreviewUrl] = useState(defaultValues?.flag_url ?? "");
+
   const form = useForm({
     defaultValues: {
       name: defaultValues?.name ?? "",
@@ -65,7 +69,7 @@ export function AdminDelegationForm({
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-      <Card className="border border-border/70 bg-gradient-to-br from-card via-card to-muted/20">
+      <Card className="border border-border/70 bg-linear-to-br from-card via-card to-muted/20">
         <CardHeader>
           <CardTitle>{mode === "create" ? "Nova delegação" : "Editar delegação"}</CardTitle>
           <CardDescription>
@@ -88,7 +92,7 @@ export function AdminDelegationForm({
                 validators={{
                   onChange: ({ value }) =>
                     value.trim().length < 3
-                      ? "Informe um nome com pelo menos 3 caracteres."
+                      ? { message: "Informe um nome com pelo menos 3 caracteres." }
                       : undefined,
                 }}
               >
@@ -113,12 +117,12 @@ export function AdminDelegationForm({
               {mode === "create" ? (
                 <form.Field
                   name="code"
-                  validators={{
-                    onChange: ({ value }) =>
-                      value.trim() && value.trim().length < 2
-                        ? "Use pelo menos 2 caracteres ou deixe em branco."
-                        : undefined,
-                  }}
+                validators={{
+                  onChange: ({ value }) =>
+                    value.trim() && value.trim().length < 2
+                      ? { message: "Use pelo menos 2 caracteres ou deixe em branco." }
+                      : undefined,
+                }}
                 >
                   {(field) => (
                     <Field>
@@ -147,24 +151,37 @@ export function AdminDelegationForm({
                 </Alert>
               )}
 
+              <ImageUpload
+                value={previewUrl}
+                onChange={(url) => {
+                  setPreviewUrl(url);
+                  form.setFieldValue("flag_url", url);
+                }}
+                label="Imagem da delegação"
+                fallback={form.getFieldValue("name")?.charAt(0) || "?"}
+              />
+
               <form.Field
                 name="flag_url"
                 validators={{
                   onChange: ({ value }) =>
                     value.trim() && !/^https?:\/\/.+/i.test(value.trim())
-                      ? "Use uma URL iniciando com http:// ou https://."
+                      ? { message: "Use uma URL iniciando com http:// ou https://." }
                       : undefined,
                 }}
               >
                 {(field) => (
                   <Field>
-                    <FieldLabel htmlFor="delegation-flag-url">URL da bandeira</FieldLabel>
+                    <FieldLabel htmlFor="delegation-flag-url">URL da imagem</FieldLabel>
                     <Input
                       id="delegation-flag-url"
                       placeholder="https://..."
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={(event) => field.handleChange(event.target.value)}
+                      onChange={(event) => {
+                        field.handleChange(event.target.value);
+                        setPreviewUrl(event.target.value);
+                      }}
                     />
                     <FieldDescription>
                       Opcional. Use um link estável para renderizar o emblema da delegação.
@@ -192,13 +209,22 @@ export function AdminDelegationForm({
                     ? "Criar delegação"
                     : "Salvar alterações"}
               </Button>
-              <Link
-                to="/leagues/$leagueId/dashboard/delegations"
-                params={{ leagueId: String(leagueId) }}
-                className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              >
-                Cancelar e voltar
-              </Link>
+              {leagueId > 0 ? (
+                <Link
+                  to="/leagues/$leagueId/dashboard/delegations"
+                  params={{ leagueId: String(leagueId) }}
+                  className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  Cancelar e voltar
+                </Link>
+              ) : (
+                <Link
+                  to="/my-delegations"
+                  className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  Cancelar e voltar
+                </Link>
+              )}
             </div>
           </form>
         </CardContent>

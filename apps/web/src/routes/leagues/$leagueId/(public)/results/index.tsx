@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { Badge } from "@sports-system/ui/components/badge";
 import {
   Card,
@@ -8,10 +9,20 @@ import {
 } from "@sports-system/ui/components/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@sports-system/ui/components/table";
 
-import { MedalBoard } from "@/features/results/components/medal-board";
+import { TableLayout } from "@/shared/components/ui/table-layout";
+import { Title } from "@/shared/components/ui/title";
 import { medalBoardQueryOptions } from "@/features/results/api/queries";
 import { sportListQueryOptions } from "@/features/sports/api/queries";
+import type { MedalBoardEntry } from "@/types/results";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/results/")({
   loader: ({ context: { queryClient }, params: { leagueId } }) =>
@@ -30,13 +41,32 @@ function ResultsPage() {
   });
   const { data: sports } = useSuspenseQuery(sportListQueryOptions());
 
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredData = useMemo(() => {
+    if (!searchQuery.trim()) return data;
+    const lower = searchQuery.toLowerCase();
+    return data.filter(
+      (entry) =>
+        entry.delegation_name.toLowerCase().includes(lower) ||
+        entry.delegation_code.toLowerCase().includes(lower),
+    );
+  }, [data, searchQuery]);
+
+  const pagedData = filteredData.slice(
+    pageIndex * pageSize,
+    (pageIndex + 1) * pageSize,
+  );
+
   return (
     <div className="container mx-auto max-w-6xl space-y-8 px-4 py-8">
+      <Title title="Resultados" />
       <section className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr]">
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(180deg,hsl(var(--card)),hsl(var(--muted)/0.18))]">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Fase 12</Badge>
               <Badge variant="secondary">Atualiza a cada 30s</Badge>
             </div>
             <CardTitle className="text-3xl">Quadro de medalhas</CardTitle>
@@ -83,12 +113,76 @@ function ResultsPage() {
         </Card>
       </section>
 
-      <Card className="border border-border/70">
-        <CardContent className="pt-6">
-          <MedalBoard entries={data} />
-        </CardContent>
-      </Card>
+      <TableLayout
+        title="Quadro de medalhas"
+        countLabel="delegações"
+        visibleCount={pagedData.length}
+        totalCount={filteredData.length}
+        searchPlaceholder="Buscar delegações…"
+        searchQuery={searchQuery}
+        onSearchChange={(value) => {
+          setSearchQuery(value);
+          setPageIndex(0);
+        }}
+        activeFilterCount={searchQuery ? 1 : 0}
+        onClearFilters={() => {
+          setSearchQuery("");
+          setPageIndex(0);
+        }}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        onPageChange={setPageIndex}
+        onPageSizeChange={setPageSize}
+      >
+        <MedalBoardTable entries={pagedData} />
+      </TableLayout>
     </div>
+  );
+}
+
+function MedalBoardTable({ entries }: { entries: MedalBoardEntry[] }) {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="ps-4 w-14">#</TableHead>
+          <TableHead>Delegação</TableHead>
+          <TableHead className="text-center">🥇</TableHead>
+          <TableHead className="text-center">🥈</TableHead>
+          <TableHead className="text-center">🥉</TableHead>
+          <TableHead className="pe-4 text-center">Total</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {entries.map((entry, index) => (
+          <TableRow key={entry.delegation_id}>
+            <TableCell className="ps-4 font-medium text-muted-foreground">{index + 1}</TableCell>
+            <TableCell>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-medium">{entry.delegation_name}</span>
+                <Badge
+                  variant="outline"
+                  className="font-mono text-[10px] uppercase tracking-[0.2em]"
+                >
+                  {entry.delegation_code}
+                </Badge>
+              </div>
+            </TableCell>
+            <TableCell className="text-center font-semibold">{entry.gold}</TableCell>
+            <TableCell className="text-center font-semibold">{entry.silver}</TableCell>
+            <TableCell className="text-center font-semibold">{entry.bronze}</TableCell>
+            <TableCell className="pe-4 text-center font-bold">{entry.total}</TableCell>
+          </TableRow>
+        ))}
+        {entries.length === 0 && (
+          <TableRow>
+            <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+              Nenhuma medalha registrada ainda.
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
   );
 }
 

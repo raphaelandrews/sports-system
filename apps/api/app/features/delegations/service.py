@@ -1,5 +1,5 @@
 import secrets
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from fastapi import HTTPException, status
@@ -10,8 +10,12 @@ from app.domain.models.delegation import (
     DelegationInvite,
     DelegationMember,
     DelegationMemberRole,
+    DelegationStatus,
     InviteStatus,
+    LeagueParticipationRequest,
 )
+from app.domain.models.league import League, LeagueMember, LeagueMemberRole
+from app.domain.models.league_delegation import LeagueDelegation
 from app.domain.models.user import NotificationType, User
 from app.features.delegations import repository as delegation_repository
 from app.features.leagues import repository as league_repository
@@ -75,12 +79,21 @@ async def list_delegations(
     return await delegation_repository.list_active(session, league_id, page, per_page)
 
 
+async def list_delegations_by_chief(
+    session: AsyncSession, chief_id: int
+) -> list[Delegation]:
+    return await delegation_repository.get_by_chief(session, chief_id)
+
+
 async def get_delegation(
-    session: AsyncSession, league_id: int, delegation_id: int
+    session: AsyncSession, league_id: int | None, delegation_id: int
 ) -> Delegation:
-    delegation = await delegation_repository.get_by_id_in_league(
-        session, league_id, delegation_id
-    )
+    if league_id is not None:
+        delegation = await delegation_repository.get_by_id_in_league(
+            session, league_id, delegation_id
+        )
+    else:
+        delegation = await delegation_repository.get_by_id(session, delegation_id)
     if delegation is None or not delegation.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Delegation not found"
@@ -89,7 +102,7 @@ async def get_delegation(
 
 
 async def get_delegation_detail(
-    session: AsyncSession, league_id: int, delegation_id: int
+    session: AsyncSession, league_id: int | None, delegation_id: int
 ) -> DelegationDetailResponse:
     delegation = await get_delegation(session, league_id, delegation_id)
     rows = await delegation_repository.get_active_members_with_users(
@@ -109,6 +122,14 @@ async def get_delegation_detail(
     return DelegationDetailResponse(
         **DelegationResponse.model_validate(delegation).model_dump(),
         members=members,
+    )
+
+
+async def get_delegation_leagues(
+    session: AsyncSession, delegation_id: int
+) -> list[League]:
+    return list(
+        await delegation_repository.get_leagues_for_delegation(session, delegation_id)
     )
 
 
@@ -185,24 +206,59 @@ async def get_delegation_statistics(
 
 
 async def create_delegation(
-    session: AsyncSession, league_id: int, data: DelegationCreate
+    session: AsyncSession,
+    data: DelegationCreate,
+    league_id: int | None = None,
+    creator: User | None = None,
 ) -> Delegation:
     code = data.code or _generate_code(data.name)
-    if await delegation_repository.get_by_code(session, league_id, code) is not None:
+    if await delegation_repository.get_by_code(session, code, league_id) is not None:
         code = _generate_code(data.name)
     delegation = Delegation(
         league_id=league_id,
         code=code,
         name=data.name,
         flag_url=data.flag_url,
+        chief_id=creator.id if creator else None,
     )
-    return await delegation_repository.create(session, delegation)
+    result = await delegation_repository.create(session, delegation)
+    assert result.id is not None
+    if league_id is not None:
+        session.add(LeagueDelegation(league_id=league_id, delegation_id=result.id))
+    if creator is not None:
+        assert creator.id is not None
+        session.add(
+            DelegationMember(
+                delegation_id=result.id,
+                user_id=creator.id,
+                role=DelegationMemberRole.CHIEF,
+            )
+        )
+        await session.flush()
+    return result
 
 
 async def update_delegation(
-    session: AsyncSession, league_id: int, delegation_id: int, data: DelegationUpdate
+    session: AsyncSession,
+    league_id: int | None,
+    delegation_id: int,
+    data: DelegationUpdate,
+    member: LeagueMember | None = None,
 ) -> Delegation:
     delegation = await get_delegation(session, league_id, delegation_id)
+    if member is not None and member.role == LeagueMemberRole.CHIEF:
+        membership = (
+            await delegation_repository.get_active_membership(
+                session, member.user_id, league_id
+            )
+            if league_id is not None
+            else None
+        )
+        if membership is None or membership.delegation_id != delegation_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only edit your own delegation",
+            )
     if not data.has_updates():
         return delegation
     if data.name is not None:
@@ -213,11 +269,62 @@ async def update_delegation(
 
 
 async def archive_delegation(
-    session: AsyncSession, league_id: int, delegation_id: int
+    session: AsyncSession, league_id: int | None, delegation_id: int
 ) -> None:
     delegation = await get_delegation(session, league_id, delegation_id)
     delegation.is_active = False
     await delegation_repository.save(session, delegation)
+
+
+async def assign_chief(
+    session: AsyncSession, league_id: int, delegation_id: int, user_id: int
+) -> Delegation:
+    from app.features.leagues import repository as league_repository
+
+    delegation = await get_delegation(session, league_id, delegation_id)
+
+    # Update or create league membership
+    existing_member = await league_repository.get_member(session, league_id, user_id)
+    if existing_member is not None:
+        existing_member.role = LeagueMemberRole.CHIEF
+    else:
+        session.add(
+            LeagueMember(
+                league_id=league_id,
+                user_id=user_id,
+                role=LeagueMemberRole.CHIEF,
+            )
+        )
+
+    # Add as delegation member if not already
+    existing_delegation_member = await delegation_repository.get_active_membership(
+        session, user_id, league_id
+    )
+    if existing_delegation_member is None:
+        session.add(
+            DelegationMember(
+                delegation_id=delegation_id,
+                user_id=user_id,
+                role=DelegationMemberRole.CHIEF,
+            )
+        )
+    elif existing_delegation_member.delegation_id != delegation_id:
+        # Leave current delegation and join new one
+        existing_delegation_member.left_at = datetime.now(timezone.utc).replace(
+            tzinfo=None
+        )
+        session.add(
+            DelegationMember(
+                delegation_id=delegation_id,
+                user_id=user_id,
+                role=DelegationMemberRole.CHIEF,
+            )
+        )
+    else:
+        existing_delegation_member.role = DelegationMemberRole.CHIEF
+
+    delegation.chief_id = user_id
+    return await delegation_repository.save(session, delegation)
 
 
 async def invite_user(
@@ -305,6 +412,8 @@ async def accept_invite(
         )
 
     now = datetime.now(UTC).replace(tzinfo=None)
+    assert user.id is not None
+    assert target_delegation.league_id is not None
     current = await delegation_repository.get_active_membership(
         session, user.id, target_delegation.league_id
     )
@@ -422,8 +531,8 @@ async def ai_generate(
     from sqlalchemy import select
     from app.domain.models.delegation import Delegation
 
-    result = await session.execute(select(Delegation.code))
-    existing_codes = {row[0] for row in result.all()}
+    result = await session.execute(select(Delegation))
+    existing_codes = {d.code for d in result.scalars().all()}
 
     used_codes = set(existing_codes)
     created: list[Delegation] = []
@@ -436,6 +545,8 @@ async def ai_generate(
         used_codes.add(code)
         delegation = Delegation(league_id=league_id, code=code, name=name)
         await delegation_repository.create(session, delegation)
+        assert delegation.id is not None
+        session.add(LeagueDelegation(league_id=league_id, delegation_id=delegation.id))
         created.append(delegation)
 
     return created
@@ -455,17 +566,21 @@ async def ai_populate(
     from app.features.narratives import ai as ai_service
     from app.domain.models.delegation import Delegation
 
+    from app.domain.models.league_delegation import LeagueDelegation
+
     result = await session.execute(
-        select(Delegation).where(
-            Delegation.league_id == league_id,
-            Delegation.is_active == True,
+        select(Delegation)
+        .join(LeagueDelegation, LeagueDelegation.delegation_id == Delegation.id)  # type: ignore[arg-type]
+        .where(
+            LeagueDelegation.league_id == league_id,  # type: ignore[arg-type]
+            Delegation.is_active == True,  # type: ignore[arg-type]
         )
     )
     existing_delegations = result.scalars().all()
     existing_data = [(d.code, d.name) for d in existing_delegations]
 
-    all_codes_result = await session.execute(select(Delegation.code))
-    all_existing_codes = {row[0] for row in all_codes_result.all()}
+    all_codes_result = await session.execute(select(Delegation))
+    all_existing_codes = {d.code for d in all_codes_result.scalars().all()}
 
     if not existing_data:
         return await ai_generate(session, league_id, count)
@@ -508,8 +623,10 @@ async def ai_populate(
         if code in used_codes:
             code = _generate_unique_code(name, used_codes)
         used_codes.add(code)
-        delegation = Delegation(league_id=league_id, code=code, name=name)
+        delegation = Delegation(code=code, name=name)
         await delegation_repository.create(session, delegation)
+        assert delegation.id is not None
+        session.add(LeagueDelegation(league_id=league_id, delegation_id=delegation.id))
         created.append(delegation)
 
     return created
@@ -521,3 +638,260 @@ async def get_current_delegation_id(
     return await delegation_repository.get_current_delegation_id(
         session, user_id, league_id
     )
+
+
+async def ai_generate_independent(
+    session: AsyncSession,
+    prompt: str,
+    count: int,
+    creator: User,
+) -> list[Delegation]:
+    from sqlalchemy import select
+    from app.features.narratives import ai as ai_service
+    from app.domain.models.delegation import Delegation
+
+    result = await session.execute(select(Delegation))
+    existing_codes = {d.code for d in result.scalars().all()}
+    used_codes = set(existing_codes)
+
+    system_prompt = (
+        "Você é um assistente que gera dados de delegações esportivas. "
+        "Responda APENAS com um array JSON no formato: "
+        '[{"code": "ABC", "name": "Nome da Delegação"}, ...]'
+    )
+
+    user_prompt = (
+        f"{prompt}. Gere exatamente {count} delegações. "
+        f"Use códigos únicos de 3 letras maiúsculas. "
+        f"Códigos já usados (não repita): {sorted(existing_codes)[:20]}. "
+        "Apenas o JSON, sem texto adicional."
+    )
+
+    raw = await ai_service.generate_text(
+        system_prompt,
+        user_prompt,
+        max_tokens=1200,
+    )
+
+    import json
+    import re
+
+    match = re.search(r"\[.*?\]", raw, re.DOTALL)
+    if not match:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="AI did not return valid JSON",
+        )
+
+    try:
+        items = json.loads(match.group())
+    except json.JSONDecodeError:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="AI returned malformed JSON",
+        )
+
+    created: list[Delegation] = []
+
+    for item in items[:count]:
+        code = item.get("code", "")
+        name = item.get("name", "")
+        if not code or not name:
+            continue
+        code = code.upper()[:4]
+        if code in used_codes:
+            code = _generate_unique_code(name, used_codes)
+        used_codes.add(code)
+        delegation = Delegation(
+            code=code,
+            name=name,
+            chief_id=creator.id,
+            status=DelegationStatus.INDEPENDENT,
+        )
+        await delegation_repository.create(session, delegation)
+        assert delegation.id is not None
+        if creator.id is not None:
+            session.add(
+                DelegationMember(
+                    delegation_id=delegation.id,
+                    user_id=creator.id,
+                    role=DelegationMemberRole.CHIEF,
+                )
+            )
+        created.append(delegation)
+
+    return created
+
+
+async def create_participation_request(
+    session: AsyncSession,
+    delegation_id: int,
+    league_id: int,
+    current_user: User,
+) -> LeagueParticipationRequest:
+    delegation = await get_delegation(session, None, delegation_id)
+    if current_user.id is None or delegation.chief_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the chief can request participation",
+        )
+
+    existing = await delegation_repository.list_participation_requests_for_delegation(
+        session, delegation_id
+    )
+    for req in existing:
+        if req.league_id == league_id and req.status == "PENDING":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="A pending request for this league already exists",
+            )
+
+    league = await league_repository.get_by_id(session, league_id)
+    if league is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="League not found",
+        )
+
+    if current_user.id is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Unauthorized",
+        )
+
+    request = LeagueParticipationRequest(
+        delegation_id=delegation_id,
+        league_id=league_id,
+        requested_by=current_user.id,
+    )
+    await delegation_repository.create_participation_request(session, request)
+    await session.commit()
+    await session.refresh(request)
+
+    # Notify league admins
+    league_members = await league_repository.get_members(session, league_id)
+    for member in league_members:
+        if member.role == LeagueMemberRole.LEAGUE_ADMIN and member.user_id is not None:
+            await notification_service.dispatch(
+                session,
+                member.user_id,
+                NotificationType.PARTICIPATION_REQUEST,
+                {
+                    "request_id": request.id,
+                    "delegation_id": delegation_id,
+                    "delegation_name": delegation.name,
+                    "league_id": league_id,
+                    "league_name": league.name,
+                },
+            )
+
+    return request
+
+
+async def list_participation_requests_for_league(
+    session: AsyncSession,
+    league_id: int,
+    current_user: User,
+) -> list[LeagueParticipationRequest]:
+    from app.domain.models.league import LeagueMemberRole
+
+    if current_user.id is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Unauthorized",
+        )
+
+    membership = await league_repository.get_member(session, league_id, current_user.id)
+    if membership is None or membership.role != LeagueMemberRole.LEAGUE_ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only league admins can view requests",
+        )
+
+    return list(
+        await delegation_repository.list_participation_requests_for_league(
+            session, league_id
+        )
+    )
+
+
+async def review_participation_request(
+    session: AsyncSession,
+    league_id: int,
+    request_id: int,
+    new_status: str,
+    current_user: User,
+) -> LeagueParticipationRequest:
+    from app.domain.models.delegation import DelegationStatus
+    from app.domain.models.league import LeagueMemberRole
+
+    if current_user.id is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Unauthorized",
+        )
+
+    membership = await league_repository.get_member(session, league_id, current_user.id)
+    if membership is None or membership.role != LeagueMemberRole.LEAGUE_ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only league admins can review requests",
+        )
+
+    request = await delegation_repository.get_participation_request_by_id(
+        session, request_id
+    )
+    if request is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Request not found",
+        )
+    if request.league_id != league_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Request does not belong to this league",
+        )
+
+    if new_status not in ("APPROVED", "REJECTED"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Status must be APPROVED or REJECTED",
+        )
+
+    request.status = DelegationStatus(new_status)
+    request.reviewed_by = current_user.id
+
+    if new_status == "APPROVED":
+        existing = await delegation_repository.get_league_delegation(
+            session, league_id, request.delegation_id
+        )
+        if existing is None:
+            session.add(
+                LeagueDelegation(
+                    league_id=league_id,
+                    delegation_id=request.delegation_id,
+                )
+            )
+
+    await session.commit()
+    await session.refresh(request)
+
+    # Notify delegation chief
+    delegation = await get_delegation(session, None, request.delegation_id)
+    league = await league_repository.get_by_id(session, league_id)
+    if delegation.chief_id is not None:
+        await notification_service.dispatch(
+            session,
+            delegation.chief_id,
+            NotificationType.REQUEST_REVIEWED,
+            {
+                "request_id": request.id,
+                "delegation_id": delegation.id,
+                "delegation_name": delegation.name,
+                "league_id": league_id,
+                "league_name": league.name if league else None,
+                "status": new_status,
+            },
+        )
+
+    return request

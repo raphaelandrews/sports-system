@@ -24,7 +24,11 @@ from app.features.health.router import router as health_router
 from app.features.users.router import router as users_router
 from app.features.activities.router import router as activities_router
 from app.features.athletes.router import router as athletes_router
-from app.features.delegations.router import invites_router, router as delegations_router
+from app.features.delegations.router import (
+    independent_router,
+    invites_router,
+    router as delegations_router,
+)
 from app.features.enrollments.router import router as enrollments_router
 from app.features.events.router import events_router, matches_router
 from app.features.narratives.router import router as narratives_router
@@ -93,7 +97,7 @@ app = FastAPI(
 )
 
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(
     CORSMiddleware,
@@ -152,6 +156,7 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(leagues_router)
 app.include_router(delegations_router)
+app.include_router(independent_router)
 app.include_router(invites_router)
 app.include_router(sports_router)
 app.include_router(modalities_router)

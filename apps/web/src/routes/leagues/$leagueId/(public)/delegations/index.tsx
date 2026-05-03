@@ -52,7 +52,8 @@ function DelegationsPage() {
 
   return (
     <>
-    <Title title="Delegações"/>
+      <Title title="Delegações" />
+
       <TableLayout
         title="Delegações"
         countLabel="delegações"

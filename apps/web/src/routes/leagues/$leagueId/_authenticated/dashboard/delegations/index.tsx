@@ -27,7 +27,7 @@ import { cn } from "@sports-system/ui/lib/utils";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
-import { ArrowRight, Bot, Plus, Search, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, Bot, Search, ShieldCheck, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -114,6 +114,24 @@ function DelegationsPage() {
     },
     onError: (error) => {
       toast.error(error instanceof ApiError ? error.message : "Falha ao popular delegações com IA.");
+    },
+  });
+
+  const assignChiefMutation = useMutation({
+    mutationFn: async (delegationId: number) =>
+      unwrap(
+        client.POST("/leagues/{league_id}/delegations/{delegation_id}/assign-chief", {
+          params: { path: { league_id: Number(leagueId), delegation_id: delegationId } },
+        }),
+      ),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.delegations.all(Number(leagueId)),
+      });
+      toast.success("Você agora é o chefe desta delegação.");
+    },
+    onError: (error) => {
+      toast.error(error instanceof ApiError ? error.message : "Falha ao atribuir chefe.");
     },
   });
 
@@ -253,7 +271,6 @@ function DelegationsPage() {
                 params={{ leagueId }}
                 className={buttonVariants({ variant: "default" })}
               >
-                <Plus className="size-4" />
                 Nova delegação
               </Link>
             ) : null}
@@ -375,14 +392,28 @@ function DelegationsPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     {isAdmin ? (
-                      <Link
-                        to="/leagues/$leagueId/dashboard/delegations/$delegationId"
-                        params={{ leagueId, delegationId: String(delegation.id) }}
-                        className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "ml-auto")}
-                      >
-                        Abrir
-                        <ArrowRight className="size-4" />
-                      </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        {!delegation.chief_id && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => assignChiefMutation.mutate(delegation.id)}
+                            disabled={assignChiefMutation.isPending}
+                          >
+                            {assignChiefMutation.isPending && assignChiefMutation.variables === delegation.id
+                              ? "Atribuindo..."
+                              : "Tornar-me chefe"}
+                          </Button>
+                        )}
+                        <Link
+                          to="/leagues/$leagueId/dashboard/delegations/$delegationId"
+                          params={{ leagueId, delegationId: String(delegation.id) }}
+                          className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "ml-auto")}
+                        >
+                          Abrir
+                          <ArrowRight className="size-4" />
+                        </Link>
+                      </div>
                     ) : (
                       <span className="text-sm text-muted-foreground">—</span>
                     )}

@@ -364,9 +364,13 @@ async def ai_generate(
             detail="No events found in open week",
         )
 
+    from app.domain.models.league_delegation import LeagueDelegation
+
     delegations_result = await session.execute(
-        select(Delegation).where(
-            Delegation.league_id == league_id,
+        select(Delegation)
+        .join(LeagueDelegation, LeagueDelegation.delegation_id == Delegation.id)
+        .where(
+            LeagueDelegation.league_id == league_id,
             Delegation.is_active == True,  # noqa: E712
         )
     )

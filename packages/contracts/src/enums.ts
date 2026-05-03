@@ -9,6 +9,7 @@ export const NotificationType = z.enum([
   "MATCH_REMINDER",
   "RESULT",
   "TRANSFER",
+  "PARTICIPATION_REQUEST",
 ]);
 export type NotificationType = z.infer<typeof NotificationType>;
 
@@ -32,6 +33,9 @@ export type DelegationMemberRole = z.infer<typeof DelegationMemberRole>;
 
 export const InviteStatus = z.enum(["PENDING", "ACCEPTED", "REFUSED"]);
 export type InviteStatus = z.infer<typeof InviteStatus>;
+
+export const DelegationStatus = z.enum(["INDEPENDENT", "PENDING", "APPROVED", "REJECTED"]);
+export type DelegationStatus = z.infer<typeof DelegationStatus>;
 
 export const EnrollmentStatus = z.enum(["PENDING", "APPROVED", "REJECTED"]);
 export type EnrollmentStatus = z.infer<typeof EnrollmentStatus>;

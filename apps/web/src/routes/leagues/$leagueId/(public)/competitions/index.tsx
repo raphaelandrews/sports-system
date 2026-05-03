@@ -205,12 +205,10 @@ function CompetitionsPage() {
           )}
           {pagedData.map((competition) => {
             const m = STATUS_META[competition.status];
-            const Icon = m.icon;
             return (
               <TableRow key={competition.id}>
                 <TableCell className="ps-4">
                   <span className="inline-flex items-center gap-2 font-mono text-muted-foreground text-xs">
-                    <Icon className={"size-3.5 " + m.cls} />
                     <span className="font-medium text-foreground text-sm">
                       Competição {competition.number}
                     </span>

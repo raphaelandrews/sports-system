@@ -37,7 +37,7 @@ export function AppHeader({ session, scope, league, membership, leagues }: AppHe
 	const breadcrumbTitle = league
 		? league.name
 		: scope === "site-authenticated"
-			? "Plataforma"
+			? "SportsHub"
 			: "Início";
 
 

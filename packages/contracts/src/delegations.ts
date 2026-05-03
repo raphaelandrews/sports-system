@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-import { DelegationMemberRole, InviteStatus, Medal } from "./enums.js";
-export { DelegationMemberRole, InviteStatus, Medal };
+import { DelegationMemberRole, DelegationStatus, InviteStatus, Medal } from "./enums.js";
+export { DelegationMemberRole, DelegationStatus, InviteStatus, Medal };
 
 export const DelegationCreate = z
   .object({
@@ -22,11 +22,13 @@ export type DelegationUpdate = z.infer<typeof DelegationUpdate>;
 
 export const DelegationResponse = z.object({
   id: z.number(),
+  league_id: z.number().nullable(),
   code: z.string(),
   name: z.string(),
   flag_url: z.string().nullable(),
   chief_id: z.number().nullable(),
   is_active: z.boolean(),
+  status: DelegationStatus,
   created_at: z.string().datetime(),
 });
 export type DelegationResponse = z.infer<typeof DelegationResponse>;

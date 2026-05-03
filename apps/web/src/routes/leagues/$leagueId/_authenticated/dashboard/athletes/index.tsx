@@ -3,7 +3,6 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Badge } from "@sports-system/ui/components/badge";
 import { buttonVariants } from "@sports-system/ui/components/button";
 import {
   Card,
@@ -29,7 +28,7 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 import { cn } from "@sports-system/ui/lib/utils";
-import { ArrowLeftRight, Bot, Search, UserPlus } from "lucide-react";
+import { Bot, Search, UserPlus } from "lucide-react";
 
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatDate } from "@/shared/lib/date";
@@ -121,9 +120,6 @@ function AthletesPage() {
       <section className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(160deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
           <CardHeader className="gap-3">
-            <Badge variant="outline" className="w-fit">
-              Fase 8
-            </Badge>
             <CardTitle className="text-2xl">
               {isAdmin ? "Atletas e tecnicos" : "Atletas da delegacao"}
             </CardTitle>
@@ -171,14 +167,6 @@ function AthletesPage() {
             >
               <UserPlus className="size-4" />
               Novo atleta
-            </Link>
-            <Link
-              to="/leagues/$leagueId/athletes/compare"
-              params={{ leagueId }}
-              className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}
-            >
-              <ArrowLeftRight className="size-4" />
-              Comparar atletas
             </Link>
             {isAdmin ? (
               <button

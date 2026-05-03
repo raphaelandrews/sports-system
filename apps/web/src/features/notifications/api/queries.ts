@@ -16,6 +16,7 @@ export const notificationsQueryOptions = (userId: number) =>
         }),
       ),
     staleTime: 30_000,
+    refetchInterval: 30_000,
   });
 
 export const chiefRequestQueryOptions = () =>

@@ -1,5 +1,5 @@
 import { ChevronRight, type LucideIcon } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 
 import {
 	Collapsible,
@@ -32,12 +32,15 @@ export function NavGroup({
 	label,
 	items,
 }: {
-	label: string;
+	label?: string;
 	items: NavGroupItem[];
 }) {
+	const pathname = useRouterState({ select: (state) => state.location.pathname });
+
 	return (
 		<SidebarGroup>
-			<SidebarGroupLabel>{label}</SidebarGroupLabel>
+			{label && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
+
 			<SidebarMenu>
 				{items.map((item) => (
 					<Collapsible
@@ -61,6 +64,7 @@ export function NavGroup({
 												<SidebarMenuSubItem key={subItem.title}>
 													<SidebarMenuSubButton
 														render={<Link to={subItem.url} />}
+														isActive={pathname === subItem.url}
 													>
 														<span>{subItem.title}</span>
 													</SidebarMenuSubButton>
@@ -74,7 +78,7 @@ export function NavGroup({
 									render={<Link to={item.url} />}
 									tooltip={item.title}
 									isActive={item.isActive}
-									className="peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left outline-hidden ring-sidebar-ring transition-[width,height,padding] focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent h-8 text-[13px] dark:text-muted-foreground/80 text-muted-foreground/90 hover:text-primary dark:hover:text-primary"
+									className="peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left outline-hidden ring-sidebar-ring transition-[width,height,padding] focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground dark:data-[active=true]:text-primary data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent h-8 text-[13px] dark:text-muted-foreground/80 text-muted-foreground/90 hover:text-primary dark:hover:text-primary"
 								>
 									<item.icon />
 									<span>{item.title}</span>

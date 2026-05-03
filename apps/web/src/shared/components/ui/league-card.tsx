@@ -28,16 +28,16 @@ export function LeagueCard({ id, name, logoUrl, memberCount, href }: LeagueCardP
         />
 
         {/* Background fade effects */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-black/60 to-transparent transition-opacity duration-500 group-hover/card:from-black/70" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-background/80 to-transparent transition-opacity duration-500 group-hover/card:from-background/90" />
 
         {/* Content */}
         <div className="relative flex h-full flex-col justify-end p-6">
-          <h3 className="text-xl font-bold text-white">{name}</h3>
-          <p className="mt-2 text-sm font-medium text-white/90 flex items-center gap-1">
+          <h3 className="text-xl font-bold text-foreground">{name}</h3>
+          <p className="mt-2 text-sm font-medium text-foreground/90 flex items-center gap-1">
             <Users className="size-3.5" />
             {memberCount} membros
           </p>
-          <div className="mt-3 inline-flex items-center gap-2 self-start rounded-md bg-white/20 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm transition-colors group-hover/card:bg-white/30">
+          <div className="mt-3 inline-flex items-center gap-2 self-start rounded-md bg-foreground/20 px-3 py-1.5 text-sm font-medium text-foreground backdrop-blur-sm transition-colors group-hover/card:bg-foreground/30">
             Ver liga
             <ArrowRight className="size-4" />
           </div>

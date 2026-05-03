@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import {
   useMutation,
   useQueryClient,
@@ -5,8 +6,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Bot, Check, Plus, Search, Trash2, X } from "lucide-react";
-import { useMemo } from "react";
+import { Bot, Check, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Badge } from "@sports-system/ui/components/badge";
@@ -18,7 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@sports-system/ui/components/card";
-import { Input } from "@sports-system/ui/components/input";
+import { Separator } from "@sports-system/ui/components/separator";
 import {
   Select,
   SelectContent,
@@ -47,6 +47,7 @@ import { enrollmentListQueryOptions } from "@/features/enrollments/api/queries";
 import { allEventsQueryOptions } from "@/features/events/api/queries";
 import { queryKeys } from "@/features/keys";
 import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sports/api/queries";
+import { TableLayout } from "@/shared/components/ui/table-layout";
 import type { CompetitionResponse } from "@/types/competitions";
 import type { EnrollmentReview, EnrollmentStatus } from "@/types/enrollments";
 
@@ -139,6 +140,9 @@ function EnrollmentsPage() {
     [sportDetails],
   );
 
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+
   const filtered = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
 
@@ -196,6 +200,11 @@ function EnrollmentsPage() {
     weekFilter,
   ]);
 
+  const pagedData = filtered.slice(
+    pageIndex * pageSize,
+    (pageIndex + 1) * pageSize,
+  );
+
   const stats = useMemo(() => {
     const source = enrollmentsData.data;
     return {
@@ -205,6 +214,11 @@ function EnrollmentsPage() {
       rejected: source.filter((item) => item.status === "REJECTED").length,
     };
   }, [enrollmentsData.data]);
+
+  const activeFilterCount =
+    (search ? 1 : 0) +
+    (statusFilter !== "ALL" ? 1 : 0) +
+    (weekFilter !== "ALL" ? 1 : 0);
 
   const refresh = async () => {
     await queryClient.invalidateQueries({ queryKey: queryKeys.enrollments.all(Number(leagueId)) });
@@ -277,7 +291,6 @@ function EnrollmentsPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_44%),linear-gradient(165deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Fase 11</Badge>
               {isAdmin ? (
                 <Badge variant="secondary">Admin</Badge>
               ) : (
@@ -351,45 +364,53 @@ function EnrollmentsPage() {
         </Card>
       </section>
 
-      <Card className="border border-border/70">
-        <CardHeader className="gap-4">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <CardTitle>Lista operacional</CardTitle>
-              <CardDescription>
-                Filtros por competição, status e busca textual sobre atleta, delegação e modalidade.
-              </CardDescription>
-            </div>
-            {!isAdmin ? (
-              <Link
-                to="/leagues/$leagueId/dashboard/enrollments/new"
-                params={{ leagueId }}
-                className={buttonVariants({ variant: "outline" })}
-              >
-                <Plus className="mr-2 size-4" />
-                Inscrever atleta
-              </Link>
-            ) : null}
-          </div>
+      <header className="mb-1 flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold">Lista operacional</h1>
+          <p className="text-muted-foreground text-sm">
+            {pagedData.length} visíveis de {filtered.length} inscrições
+          </p>
+        </div>
+        {!isAdmin ? (
+          <Link
+            to="/leagues/$leagueId/dashboard/enrollments/new"
+            params={{ leagueId }}
+            className={buttonVariants({ variant: "outline" })}
+          >
+            <Plus className="mr-2 size-4" />
+            Inscrever atleta
+          </Link>
+        ) : null}
+      </header>
 
-          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_220px_220px_220px_180px]">
-            <div className="relative">
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="pl-9"
-                placeholder="Buscar atleta, delegação ou modalidade"
-                value={search}
-                onChange={(event) =>
-                  void navigate({
-                    search: (prev) => ({
-                      ...prev,
-                      q: event.target.value || undefined,
-                    }),
-                  })
-                }
-              />
-            </div>
-
+      <TableLayout
+        searchPlaceholder="Buscar atleta, delegação ou modalidade"
+        searchQuery={search}
+        onSearchChange={(value) =>
+          void navigate({
+            search: (prev) => ({ ...prev, q: value || undefined }),
+          })
+        }
+        activeFilterCount={activeFilterCount}
+        onClearFilters={() =>
+          void navigate({
+            search: (prev) => ({
+              ...prev,
+              q: undefined,
+              status: "ALL",
+              week: "ALL",
+            }),
+          })
+        }
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        onPageChange={setPageIndex}
+        onPageSizeChange={setPageSize}
+        totalCount={filtered.length}
+        visibleCount={pagedData.length}
+        filterActions={
+          <>
+            <Separator orientation="vertical" className="mx-1 h-6" />
             <Select
               value={statusFilter}
               onValueChange={(value) =>
@@ -401,7 +422,7 @@ function EnrollmentsPage() {
                 })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-44">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -423,7 +444,7 @@ function EnrollmentsPage() {
                 })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-52">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -447,7 +468,7 @@ function EnrollmentsPage() {
                 })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-48">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -468,7 +489,7 @@ function EnrollmentsPage() {
                 })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-36">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -476,147 +497,149 @@ function EnrollmentsPage() {
                 <SelectItem value="desc">Descendente</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-        </CardHeader>
+          </>
+        }
+      >
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="ps-4">Atleta</TableHead>
+              <TableHead>Evento</TableHead>
+              <TableHead>Delegação</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Validação</TableHead>
+              <TableHead className="pe-4 text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pagedData.length === 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={6}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  Nenhuma inscrição encontrada com os filtros atuais.
+                </TableCell>
+              </TableRow>
+            )}
+            {pagedData.map((enrollment) => {
+              const event = eventById.get(enrollment.event_id);
+              const competition = event ? competitionById.get(event.competition_id) : null;
+              const modality = event ? modalityById.get(event.modality_id) : null;
+              const sport = event ? sportByModalityId.get(event.modality_id) : null;
+              const athlete = athleteById.get(enrollment.athlete_id);
+              const delegation = delegationById.get(enrollment.delegation_id);
+              const competitionLocked = competition ? isEnrollmentLocked(competition) : false;
 
-        <CardContent className="space-y-4">
-          {filtered.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-border/70 p-10 text-center text-sm text-muted-foreground">
-              Nenhuma inscrição encontrada com os filtros atuais.
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Atleta</TableHead>
-                  <TableHead>Evento</TableHead>
-                  <TableHead>Delegação</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Validação</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+              return (
+                <TableRow key={enrollment.id}>
+                  <TableCell className="ps-4">
+                    <div className="font-medium">
+                      {athlete?.name ?? `Atleta #${enrollment.athlete_id}`}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {athlete?.code ?? `#${enrollment.athlete_id}`}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium">
+                      {modality?.name ?? `Evento #${enrollment.event_id}`}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {sport?.name ?? "Esporte"} ·{" "}
+                      {event
+                        ? `${formatDate(event.event_date)} · ${formatTime(event.start_time)}`
+                        : "Sem agenda"}
+                    </div>
+                    {competition ? (
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        Competição {competition.number} · {competition.status}
+                      </div>
+                    ) : null}
+                  </TableCell>
+                  <TableCell>
+                    {delegation ? delegation.name : `Delegação #${enrollment.delegation_id}`}
+                  </TableCell>
+                  <TableCell>
+                    <EnrollmentStatusBadge status={enrollment.status} />
+                  </TableCell>
+                  <TableCell>
+                    {enrollment.validation_message ? (
+                      <span className="text-sm text-muted-foreground">
+                        {enrollment.validation_message}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="pe-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      {isAdmin && enrollment.status === "PENDING" ? (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={reviewMutation.isPending}
+                            onClick={() =>
+                              reviewMutation.mutate({
+                                enrollmentId: enrollment.id,
+                                payload: {
+                                  status: "APPROVED",
+                                  validation_message: "Aprovada manualmente pelo admin.",
+                                },
+                              })
+                            }
+                          >
+                            <Check className="size-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            disabled={reviewMutation.isPending}
+                            onClick={() =>
+                              reviewMutation.mutate({
+                                enrollmentId: enrollment.id,
+                                payload: {
+                                  status: "REJECTED",
+                                  validation_message: "Rejeitada em revisão administrativa.",
+                                },
+                              })
+                            }
+                          >
+                            <X className="size-4" />
+                          </Button>
+                        </>
+                      ) : null}
+
+                      {!isAdmin ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={cancelMutation.isPending || competitionLocked}
+                          onClick={() => cancelMutation.mutate(enrollment.id)}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      ) : null}
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((enrollment) => {
-                  const event = eventById.get(enrollment.event_id);
-                  const competition = event ? competitionById.get(event.competition_id) : null;
-                  const modality = event ? modalityById.get(event.modality_id) : null;
-                  const sport = event ? sportByModalityId.get(event.modality_id) : null;
-                  const athlete = athleteById.get(enrollment.athlete_id);
-                  const delegation = delegationById.get(enrollment.delegation_id);
-                  const competitionLocked = competition ? isEnrollmentLocked(competition) : false;
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableLayout>
 
-                  return (
-                    <TableRow key={enrollment.id}>
-                      <TableCell>
-                        <div className="font-medium">
-                          {athlete?.name ?? `Atleta #${enrollment.athlete_id}`}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {athlete?.code ?? `#${enrollment.athlete_id}`}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium">
-                          {modality?.name ?? `Evento #${enrollment.event_id}`}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {sport?.name ?? "Esporte"} ·{" "}
-                          {event
-                            ? `${formatDate(event.event_date)} · ${formatTime(event.start_time)}`
-                            : "Sem agenda"}
-                        </div>
-                        {competition ? (
-                          <div className="mt-1 text-xs text-muted-foreground">
-                            Competição {competition.number} · {competition.status}
-                          </div>
-                        ) : null}
-                      </TableCell>
-                      <TableCell>
-                        {delegation ? delegation.name : `Delegação #${enrollment.delegation_id}`}
-                      </TableCell>
-                      <TableCell>
-                        <EnrollmentStatusBadge status={enrollment.status} />
-                      </TableCell>
-                      <TableCell>
-                        {enrollment.validation_message ? (
-                          <span className="text-sm text-muted-foreground">
-                            {enrollment.validation_message}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          {isAdmin && enrollment.status === "PENDING" ? (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                disabled={reviewMutation.isPending}
-                                onClick={() =>
-                                  reviewMutation.mutate({
-                                    enrollmentId: enrollment.id,
-                                    payload: {
-                                      status: "APPROVED",
-                                      validation_message: "Aprovada manualmente pelo admin.",
-                                    },
-                                  })
-                                }
-                              >
-                                <Check className="size-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                disabled={reviewMutation.isPending}
-                                onClick={() =>
-                                  reviewMutation.mutate({
-                                    enrollmentId: enrollment.id,
-                                    payload: {
-                                      status: "REJECTED",
-                                      validation_message: "Rejeitada em revisão administrativa.",
-                                    },
-                                  })
-                                }
-                              >
-                                <X className="size-4" />
-                              </Button>
-                            </>
-                          ) : null}
-
-                          {!isAdmin ? (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              disabled={cancelMutation.isPending || competitionLocked}
-                              onClick={() => cancelMutation.mutate(enrollment.id)}
-                            >
-                              <Trash2 className="size-4" />
-                            </Button>
-                          ) : null}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          )}
-
-          {!isAdmin ? (
-            <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-              Cancelamento fica indisponível quando a competição está travada, ativa ou concluída.
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-              Admin revisa inscrições pendentes e pode disparar geração automática para ambiente
-              demo.
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {!isAdmin ? (
+        <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+          Cancelamento fica indisponível quando a competição está travada, ativa ou concluída.
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+          Admin revisa inscrições pendentes e pode disparar geração automática para ambiente
+          demo.
+        </div>
+      )}
     </div>
   );
 }

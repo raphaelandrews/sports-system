@@ -84,139 +84,145 @@ export function DelegationStatisticsPanel({
             </TabsList>
 
             <TabsContent value="athletes">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Atleta</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Partidas</TableHead>
-                    <TableHead>Medalhas</TableHead>
-                    <TableHead>Vinculo</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {stats.athletes.map((athlete) => (
-                    <TableRow key={athlete.athlete_id}>
-                      <TableCell>
-                        <div className="font-medium">{athlete.athlete_name}</div>
-                        <div className="text-xs text-muted-foreground">{athlete.athlete_code}</div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant={athlete.is_current_member ? "secondary" : "outline"}>
-                            {athlete.is_current_member ? "Ativo" : "Historico"}
-                          </Badge>
-                          {!athlete.is_active ? (
-                            <Badge variant="outline">Ficha inativa</Badge>
-                          ) : null}
-                        </div>
-                      </TableCell>
-                      <TableCell>{athlete.total_matches}</TableCell>
-                      <TableCell>
-                        {athlete.total_medals}
-                        <div className="text-xs text-muted-foreground">
-                          {athlete.gold}O · {athlete.silver}P · {athlete.bronze}B
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {athlete.joined_at
-                          ? `Desde ${formatEventDate(athlete.joined_at, { dateStyle: "medium" })}`
-                          : "Sem vinculo formal"}
-                        {athlete.left_at
-                          ? ` · Ate ${formatEventDate(athlete.left_at, { dateStyle: "medium" })}`
-                          : ""}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {stats.athletes.length === 0 ? (
+              <div className="rounded-xl border bg-card shadow-xs/5">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
-                        Nenhum atleta associado a esta delegacao ainda.
-                      </TableCell>
+                      <TableHead className="ps-4">Atleta</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Partidas</TableHead>
+                      <TableHead>Medalhas</TableHead>
+                      <TableHead className="pe-4">Vinculo</TableHead>
                     </TableRow>
-                  ) : null}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {stats.athletes.map((athlete) => (
+                      <TableRow key={athlete.athlete_id}>
+                        <TableCell className="ps-4">
+                          <div className="font-medium">{athlete.athlete_name}</div>
+                          <div className="text-xs text-muted-foreground">{athlete.athlete_code}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-2">
+                            <Badge variant={athlete.is_current_member ? "secondary" : "outline"}>
+                              {athlete.is_current_member ? "Ativo" : "Historico"}
+                            </Badge>
+                            {!athlete.is_active ? (
+                              <Badge variant="outline">Ficha inativa</Badge>
+                            ) : null}
+                          </div>
+                        </TableCell>
+                        <TableCell>{athlete.total_matches}</TableCell>
+                        <TableCell>
+                          {athlete.total_medals}
+                          <div className="text-xs text-muted-foreground">
+                            {athlete.gold}O · {athlete.silver}P · {athlete.bronze}B
+                          </div>
+                        </TableCell>
+                        <TableCell className="pe-4 text-sm text-muted-foreground">
+                          {athlete.joined_at
+                            ? `Desde ${formatEventDate(athlete.joined_at, { dateStyle: "medium" })}`
+                            : "Sem vinculo formal"}
+                          {athlete.left_at
+                            ? ` · Ate ${formatEventDate(athlete.left_at, { dateStyle: "medium" })}`
+                            : ""}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {stats.athletes.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                          Nenhum atleta associado a esta delegacao ainda.
+                        </TableCell>
+                      </TableRow>
+                    ) : null}
+                  </TableBody>
+                </Table>
+              </div>
             </TabsContent>
 
             <TabsContent value="medals">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Medalha</TableHead>
-                    <TableHead>Atleta</TableHead>
-                    <TableHead>Partida</TableHead>
-                    <TableHead>Colocacao</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {stats.medals.map((medal) => (
-                    <TableRow key={medal.result_id}>
-                      <TableCell>
-                        <Badge variant="outline">{medalLabel[medal.medal]}</Badge>
-                      </TableCell>
-                      <TableCell>{medal.athlete_name ?? "Delegacao"}</TableCell>
-                      <TableCell>#{medal.match_id}</TableCell>
-                      <TableCell>{medal.rank}º</TableCell>
-                    </TableRow>
-                  ))}
-                  {stats.medals.length === 0 ? (
+              <div className="rounded-xl border bg-card shadow-xs/5">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
-                        Nenhuma medalha registrada.
-                      </TableCell>
+                      <TableHead className="ps-4">Medalha</TableHead>
+                      <TableHead>Atleta</TableHead>
+                      <TableHead>Partida</TableHead>
+                      <TableHead className="pe-4">Colocacao</TableHead>
                     </TableRow>
-                  ) : null}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {stats.medals.map((medal) => (
+                      <TableRow key={medal.result_id}>
+                        <TableCell className="ps-4">
+                          <Badge variant="outline">{medalLabel[medal.medal]}</Badge>
+                        </TableCell>
+                        <TableCell>{medal.athlete_name ?? "Delegacao"}</TableCell>
+                        <TableCell>#{medal.match_id}</TableCell>
+                        <TableCell className="pe-4">{medal.rank}º</TableCell>
+                      </TableRow>
+                    ))}
+                    {stats.medals.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                          Nenhuma medalha registrada.
+                        </TableCell>
+                      </TableRow>
+                    ) : null}
+                  </TableBody>
+                </Table>
+              </div>
             </TabsContent>
 
             <TabsContent value="weeks">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Competição</TableHead>
-                    <TableHead>Periodo</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Partidas</TableHead>
-                    <TableHead>Vitorias</TableHead>
-                    <TableHead>Medalhas</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {stats.weekly_performance.map((week) => (
-                    <TableRow key={week.competition_id}>
-                      <TableCell className="font-medium">#{week.number}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {formatDate(week.start_date)} - {formatDate(week.end_date)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{week.status}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        {week.matches_played}
-                        <div className="text-xs text-muted-foreground">
-                          {week.matches_completed} concluidas
-                        </div>
-                      </TableCell>
-                      <TableCell>{week.wins}</TableCell>
-                      <TableCell>
-                        {week.total_medals}
-                        <div className="text-xs text-muted-foreground">
-                          {week.gold}O · {week.silver}P · {week.bronze}B
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {stats.weekly_performance.length === 0 ? (
+              <div className="rounded-xl border bg-card shadow-xs/5">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                        Ainda sem desempenho historico por semana.
-                      </TableCell>
+                      <TableHead className="ps-4">Competição</TableHead>
+                      <TableHead>Periodo</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Partidas</TableHead>
+                      <TableHead>Vitorias</TableHead>
+                      <TableHead className="pe-4">Medalhas</TableHead>
                     </TableRow>
-                  ) : null}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {stats.weekly_performance.map((week) => (
+                      <TableRow key={week.competition_id}>
+                        <TableCell className="ps-4 font-medium">#{week.number}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {formatDate(week.start_date)} - {formatDate(week.end_date)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{week.status}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          {week.matches_played}
+                          <div className="text-xs text-muted-foreground">
+                            {week.matches_completed} concluidas
+                          </div>
+                        </TableCell>
+                        <TableCell>{week.wins}</TableCell>
+                        <TableCell className="pe-4">
+                          {week.total_medals}
+                          <div className="text-xs text-muted-foreground">
+                            {week.gold}O · {week.silver}P · {week.bronze}B
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {stats.weekly_performance.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                          Ainda sem desempenho historico por semana.
+                        </TableCell>
+                      </TableRow>
+                    ) : null}
+                  </TableBody>
+                </Table>
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>

@@ -81,7 +81,7 @@ export function CompetitionForm({
                 name="number"
                 validators={{
                   onChange: ({ value }) =>
-                    Number(value) <= 0 ? "Informe um numero de competicao valido." : undefined,
+                    Number(value) <= 0 ? { message: "Informe um numero de competicao valido." } : undefined,
                 }}
               >
                 {(field) => (
