@@ -1,6 +1,6 @@
-# Sports System
+# SportsHub
 
-Multi-league sports competition platform with AI-powered narratives, automated scheduling, and real-time updates.
+Multi-league sports competition platform with AI-powered features.
 
 ## Repo
 
@@ -18,7 +18,7 @@ packages/infra/      Cloudflare deploy
 
 - **Frontend**: TanStack Start, TanStack Router, TanStack Query, Tailwind v4, shadcn/ui, openapi-fetch
 - **Backend**: FastAPI, SQLModel, Alembic, PostgreSQL, JWT auth, APScheduler, SSE
-- **AI**: Groq API (llama-3.3-70b-versatile) for free-tier narrative generation
+- **AI**: Groq API (llama-3.3-70b-versatile)
 - **Tooling**: Bun workspace, uv for Python, Turbo, oxlint, oxfmt
 
 ## Setup
@@ -33,9 +33,13 @@ Prereqs:
 Install:
 
 ```bash
+# 1. Install JS dependencies
 bun install
-cd apps/api && uv sync
-cd /home/raphael/Documents/projects/sports-system
+
+# 2. Install Python dependencies
+cd apps/api && uv sync && cd ../..
+
+# 3. Copy environment files
 cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env
 ```
@@ -84,7 +88,7 @@ bun run gen:types  # generates src/types/api.gen.ts from localhost:3000/openapi.
 Add to CI to detect schema drift:
 
 ```bash
-bun run check:api  # fails if backend spec differs from committed types
+bun run ci:api-types  # fails if backend spec differs from committed types
 ```
 
 ## Features
@@ -105,7 +109,7 @@ bun run check:api  # fails if backend spec differs from committed types
 - **Delegation Generation** - "Gerar com IA" creates random delegations for demo data
 - **Smart Population** - "Popular com IA" analyzes existing delegations and generates similar ones
 
-All AI features use **Groq's free tier** (llama-3.3-70b-versatile, ~1,400 req/day).
+All AI features use **Groq** (llama-3.3-70b-versatile).
 
 ## Frontend Architecture
 
