@@ -22,6 +22,7 @@ import {
 
 import { AiGenerateButton } from "@/features/narratives/components/ai-generate-button";
 import { client, unwrap } from "@/shared/lib/api";
+import { MarkdownRenderer } from "@/shared/components/ui/markdown-renderer";
 import { formatDate, formatEventDate, formatTime } from "@/shared/lib/date";
 import {
   aiGenerationHistoryQueryOptions,
@@ -171,9 +172,14 @@ function AiControlRoomPage() {
               <div className="mt-2 text-sm font-medium">
                 {narrative ? formatDate(narrative.narrative_date) : "Nenhuma narrativa gerada"}
               </div>
-              <div className="mt-2 line-clamp-6 whitespace-pre-wrap text-sm text-muted-foreground">
-                {narrative?.content ??
-                  "Use o card de narrativa para gerar o primeiro texto editorial do dia."}
+              <div className="mt-2 line-clamp-6">
+                {narrative?.content ? (
+                  <MarkdownRenderer content={narrative.content} className="prose-sm" />
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Use o card de narrativa para gerar o primeiro texto editorial do dia.
+                  </p>
+                )}
               </div>
             </div>
             <div className="rounded-3xl border border-border/70 bg-background/75 p-4">
@@ -581,8 +587,14 @@ function AiControlRoomPage() {
                     {narrative ? formatDate(narrative.narrative_date) : "Sem data"}
                   </Badge>
                 </div>
-                <div className="max-h-72 overflow-auto whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
-                  {narrative?.content ?? "Quando uma narrativa for gerada, o texto aparecerá aqui."}
+                <div className="max-h-72 overflow-auto">
+                  {narrative?.content ? (
+                    <MarkdownRenderer content={narrative.content} className="prose-sm" />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Quando uma narrativa for gerada, o texto aparecerá aqui.
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>

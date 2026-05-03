@@ -410,7 +410,7 @@ function AIGenerateDialog({
     {
       role: "assistant",
       content:
-        "Olá! Sou seu assistente de criação de delegações. Me diga quantas delegações você quer e o tema. Por exemplo: \"Crie 5 delegações com nomes de times de basquete europeus\" ou \"4 delegações baseadas em bandas dos anos 2000\".",
+        "Olá! Sou seu assistente de criação de delegações. Me diga quantas delegações você quer e o tema.",
     },
   ]);
   const [input, setInput] = useState("");

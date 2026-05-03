@@ -1,5 +1,3 @@
-"use client";
-
 import { useDataGrid } from "./data-grid";
 import { Button } from "@sports-system/ui/components/button";
 import {

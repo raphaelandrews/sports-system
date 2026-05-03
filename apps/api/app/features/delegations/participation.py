@@ -75,6 +75,7 @@ async def create_participation_request(
                 },
             )
 
+    await session.commit()
     return request
 
 

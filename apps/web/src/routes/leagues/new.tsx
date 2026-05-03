@@ -60,7 +60,7 @@ function NewLeaguePage() {
     onSuccess: async (data: LeagueResponse) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.leagues.all() });
       toast.success("Liga criada com sucesso.");
-      await navigate({ to: "/leagues/$leagueId/dashboard", params: { leagueId: String(data.id) } });
+      await navigate({ to: "/leagues/$leagueId", params: { leagueId: String(data.id) } });
     },
   });
 

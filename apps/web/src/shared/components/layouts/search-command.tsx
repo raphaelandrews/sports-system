@@ -1,5 +1,3 @@
-"use client";
-
 import { useQueries } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {

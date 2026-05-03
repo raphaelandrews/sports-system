@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { flexRender, type Row } from "@tanstack/react-table";
 import { useDataGrid } from "./data-grid";

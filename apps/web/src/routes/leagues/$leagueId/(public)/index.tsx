@@ -23,6 +23,7 @@ import {
 
 import { leagueDetailQueryOptions } from "@/features/leagues/api/queries";
 import { useGenerateResumeMutation } from "@/features/narratives/api/queries";
+import { MarkdownRenderer } from "@/shared/components/ui/markdown-renderer";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/")({
   loader: ({ context: { queryClient }, params: { leagueId } }) =>
@@ -145,9 +146,7 @@ function LeaguePublicPage() {
           </CardHeader>
           {resumeContent && (
             <CardContent>
-              <div className="prose prose-sm max-w-none dark:prose-invert">
-                <div dangerouslySetInnerHTML={{ __html: resumeContent.replace(/\n/g, "<br />") }} />
-              </div>
+              <MarkdownRenderer content={resumeContent} />
             </CardContent>
           )}
         </Card>

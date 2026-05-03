@@ -39,6 +39,7 @@
     "@sports-system/env": "workspace:*",
     "@tanstack/react-table": "^8.21.3",
     "dotenv": "catalog:",
+    "react-markdown": "^10.1.0",
     "zod": "catalog:"
   },
   "devDependencies": {

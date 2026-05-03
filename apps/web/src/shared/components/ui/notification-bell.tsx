@@ -168,7 +168,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="size-8 hover:bg-muted">
+          className="relative size-8 hover:bg-muted">
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
             <Badge
