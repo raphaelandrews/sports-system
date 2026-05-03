@@ -5,11 +5,14 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.shared.core import sse
+from app.domain.models.athlete import Athlete
 from app.domain.models.competition import Competition
 from app.domain.models.event import Event, Match, MatchEvent, MatchStatus
 from app.domain.models.competition import CompetitionStatus
+from app.domain.models.user import NotificationType
 from app.features.competitions import repository as competition_repository
 from app.features.events import repository as event_repository
+from app.features.notifications import service as notification_service
 from app.domain.schemas.common import Meta, PaginatedResponse
 from app.domain.schemas.activity import ActivityFeedItem, ActivityFeedItemType
 from app.domain.schemas.event import (
@@ -277,6 +280,28 @@ async def finish_match(session: AsyncSession, match_id: int) -> MatchResponse:
                 event_id=match.event_id,
             ).model_dump(mode="json"),
         )
+    # Notify match participants
+    participants = await event_repository.get_match_participants(session, match_id)
+    notified_users = set()
+    for participant in participants:
+        athlete = await session.get(Athlete, participant.athlete_id)
+        if (
+            athlete is not None
+            and athlete.user_id is not None
+            and athlete.user_id not in notified_users
+        ):
+            notified_users.add(athlete.user_id)
+            await notification_service.dispatch(
+                session,
+                athlete.user_id,
+                NotificationType.RESULT,
+                {
+                    "match_id": match_id,
+                    "event_id": match.event_id,
+                    "event_name": f"Evento #{match.event_id}",
+                    "status": "COMPLETED",
+                },
+            )
     return MatchResponse.model_validate(match)
 
 

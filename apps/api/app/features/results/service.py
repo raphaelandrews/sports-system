@@ -9,6 +9,8 @@ from app.domain.models.delegation import Delegation
 from app.domain.models.event import Event, Match, MatchStatus
 from app.domain.models.result import Result
 from app.domain.models.sport import Modality
+from app.domain.models.user import NotificationType
+from app.features.notifications import service as notification_service
 from app.features.results import repository as result_repository
 from app.domain.schemas.common import Meta, PaginatedResponse
 from app.domain.schemas.result import (
@@ -77,6 +79,21 @@ async def create_result(
     await sse.broadcast_medal_board(
         league_id, {"type": "medal_board_updated", "match_id": data.match_id}
     )
+    if data.athlete_id is not None:
+        athlete = await session.get(Athlete, data.athlete_id)
+        if athlete is not None and athlete.user_id is not None:
+            await notification_service.dispatch(
+                session,
+                athlete.user_id,
+                NotificationType.RESULT,
+                {
+                    "match_id": data.match_id,
+                    "event_id": event.id,
+                    "event_name": f"Evento #{event.id}",
+                    "rank": data.rank,
+                    "medal": data.medal,
+                },
+            )
     return ResultResponse.model_validate(result)
 
 

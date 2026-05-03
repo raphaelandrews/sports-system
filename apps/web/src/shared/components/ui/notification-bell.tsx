@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@sports-system/ui/components/button";
 import { Badge } from "@sports-system/ui/components/badge";
@@ -124,8 +125,12 @@ interface NotificationBellProps {
 }
 
 export function NotificationBell({ userId }: NotificationBellProps) {
+  const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { data } = useQuery(notificationsQueryOptions(userId));
+  const { data } = useQuery({
+    ...notificationsQueryOptions(userId),
+    refetchInterval: open ? 10_000 : 30_000,
+  });
 
   const notifications = data?.data ?? [];
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -154,7 +159,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
   });
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger>
         <Button
           variant="ghost"
