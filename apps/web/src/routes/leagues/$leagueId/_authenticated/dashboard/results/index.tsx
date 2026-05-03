@@ -33,6 +33,7 @@ import { allEventsQueryOptions, eventDetailQueryOptions } from "@/features/event
 import { competitionListQueryOptions } from "@/features/competitions/api/queries";
 import { medalBoardQueryOptions } from "@/features/results/api/queries";
 import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sports/api/queries";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/dashboard/results/")({
   ssr: false,
@@ -114,16 +115,16 @@ function ResultsPage() {
 
   const csvMutation = useMutation({
     mutationFn: () => triggerCsvDownload(Number(leagueId)),
-    onSuccess: () => toast.success("Exportação CSV iniciada."),
+    onSuccess: () => toast.success(m["common.actions.submit"]()),
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao exportar CSV.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
   const xlsxMutation = useMutation({
     mutationFn: () => triggerXlsxDownload(Number(leagueId)),
-    onSuccess: () => toast.success("Exportação XLSX iniciada."),
+    onSuccess: () => toast.success(m["common.actions.submit"]()),
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao exportar XLSX.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
@@ -135,20 +136,19 @@ function ResultsPage() {
             <Badge variant="outline" className="w-fit">
               Resultados
             </Badge>
-            <CardTitle className="text-2xl">Painel de resultados</CardTitle>
+            <CardTitle className="text-2xl">{m["results.admin.title"]()}</CardTitle>
             <CardDescription className="max-w-2xl">
-              Revise medalhas, abra entrada por partida e acione geração automática quando
-              necessário.
+              m["results.admin.card.manual.title"]()
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
-            <QuickTile label="Delegações no quadro" value={String(data.length)} />
+            <QuickTile label={m["results.admin.stat.board"]()} value={String(data.length)} />
             <QuickTile
-              label="Ouros"
+              label={m["results.admin.stat.golds"]()}
               value={String(data.reduce((sum, entry) => sum + entry.gold, 0))}
             />
             <QuickTile
-              label="Medalhas totais"
+              label={m["results.admin.stat.total"]()}
               value={String(data.reduce((sum, entry) => sum + entry.total, 0))}
             />
           </CardContent>
@@ -156,15 +156,15 @@ function ResultsPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Ações rápidas</CardTitle>
+            <CardTitle>{m["results.admin.card.actions.title"]()}</CardTitle>
             <CardDescription>
-              Entrada manual por partida ou geração assistida por evento.
+              m["results.admin.card.manual.title"]()
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Select value={eventId} onValueChange={(value) => setEventId(value ?? "")}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecione um evento" />
+                <SelectValue placeholder={m["results.admin.selectEvent"]() } />
               </SelectTrigger>
               <SelectContent>
                 {openEvents.map((event) => {
@@ -173,8 +173,8 @@ function ResultsPage() {
                   const competition = competitionById.get(event.competition_id);
                   return (
                     <SelectItem key={event.id} value={String(event.id)}>
-                      {sport?.name ?? "Esporte"} · {modality?.name ?? `Evento #${event.id}`} ·
-                      Competição {competition?.number ?? "?"} · {formatDate(event.event_date)} ·{" "}
+                      {sport?.name ?? m['enrollment.form.label.sport']()} · {modality?.name ?? `${m['enrollment.form.label.event']()} #${event.id}`} ·
+                      {m['enrollment.form.label.competition']()} {competition?.number ?? "?"} · {formatDate(event.event_date)} ·{" "}
                       {formatTime(event.start_time)}
                     </SelectItem>
                   );
@@ -190,7 +190,7 @@ function ResultsPage() {
               onClick={() => csvMutation.mutate()}
             >
               <Download className="mr-2 size-4" />
-              {csvMutation.isPending ? "Exportando..." : "Exportar resultados (CSV)"}
+              {csvMutation.isPending ? m["common.actions.submit"]() : m["common.actions.submit"]()}
             </Button>
 
             <Button
@@ -201,7 +201,7 @@ function ResultsPage() {
               onClick={() => xlsxMutation.mutate()}
             >
               <Download className="mr-2 size-4" />
-              {xlsxMutation.isPending ? "Exportando..." : "Exportar resultados (XLSX)"}
+              {xlsxMutation.isPending ? m["common.actions.submit"]() : m["common.actions.submit"]()}
             </Button>
           </CardContent>
         </Card>
@@ -210,8 +210,7 @@ function ResultsPage() {
       <Card className="border border-border/70">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Trophy className="size-4" />
-            Quadro geral
+            <Trophy className="size-4" />{m["results.public.card.title"]() }
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
@@ -221,9 +220,9 @@ function ResultsPage() {
 
       <Card className="border border-border/70">
         <CardHeader>
-          <CardTitle>Eventos para entrada manual</CardTitle>
+          <CardTitle>{m["results.admin.card.manual.title"]()}</CardTitle>
           <CardDescription>
-            Abra a página específica da partida para registrar ou editar resultados.
+            m["results.admin.card.manual.title"]()
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -234,14 +233,14 @@ function ResultsPage() {
               <EventResultCard
                 key={event.id}
                 event={event}
-                sportName={sport?.name ?? "Esporte"}
-                modalityName={modality?.name ?? `Evento #${event.id}`}
+                sportName={sport?.name ?? m['enrollment.form.label.sport']()}
+                modalityName={modality?.name ?? `${m['enrollment.form.label.event']()} #${event.id}`}
               />
             );
           })}
           {openEvents.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-border/70 p-8 text-sm text-muted-foreground">
-              Nenhum evento disponível.
+              {m["results.admin.empty.events"]()}
             </div>
           ) : null}
         </CardContent>
@@ -295,7 +294,7 @@ function EventResultCard({
         ))}
         {detail.matches.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border/70 p-3 text-sm text-muted-foreground">
-            Sem partidas geradas.
+            {m["results.admin.empty.events"]()}
           </div>
         ) : null}
       </div>

@@ -10,21 +10,22 @@ import { queryKeys } from "@/features/keys";
 import { client, unwrap } from "@/shared/lib/api";
 import { formatEventDate } from "@/shared/lib/date";
 import type { InvitePayload, NotificationResponse, NotificationType } from "@/types/notifications";
+import * as m from "@/paraglide/messages";
 
 function notifTitle(type: NotificationType): string {
   switch (type) {
     case "INVITE":
-      return "Convite de delegação";
+      return m["notification.title.invite"]();
     case "REQUEST_REVIEWED":
-      return "Solicitação revisada";
+      return m["notification.title.requestReviewed"]();
     case "MATCH_REMINDER":
-      return "Lembrete de partida";
+      return m["notification.title.matchReminder"]();
     case "RESULT":
-      return "Resultado disponível";
+      return m["notification.title.result"]();
     case "TRANSFER":
-      return "Transferência";
+      return m["notification.title.transfer"]();
     case "PARTICIPATION_REQUEST":
-      return "Pedido de participação";
+      return m["notification.title.participation"]();
   }
 }
 
@@ -32,21 +33,21 @@ function notifDescription(notif: NotificationResponse): string {
   const p = notif.payload;
   switch (notif.notification_type) {
     case "INVITE":
-      return `Você foi convidado para ${p.delegation_name as string}`;
+      return `${m["notification.desc.invite"]() } ${p.delegation_name as string}`;
     case "REQUEST_REVIEWED":
       return p.status === "APPROVED"
-        ? `Solicitação aprovada — delegação ${p.delegation_name as string} criada`
-        : `Solicitação de ${p.delegation_name as string} foi rejeitada`;
+        ? `${m["notification.desc.requestApproved"]() } ${p.delegation_name as string}`
+        : `${m["notification.desc.requestRejected"]() } ${p.delegation_name as string}`;
     case "MATCH_REMINDER":
-      return `Partida ${p.event_name as string} em 24h`;
+      return `${m["notification.desc.matchReminderPrefix"]() } ${p.event_name as string} ${m["notification.desc.matchReminderSuffix"]() }`;
     case "RESULT":
-      return `Resultado de ${p.event_name as string} disponível`;
+      return `${m["notification.desc.resultPrefix"]() } ${p.event_name as string} ${m["notification.desc.resultSuffix"]() }`;
     case "TRANSFER":
       return p.status === "ACCEPTED"
-        ? `Transferência para ${p.delegation_name as string} aceita`
-        : `Transferência para ${p.delegation_name as string} recusada`;
+        ? `${m["notification.desc.transferPrefix"]() } ${p.delegation_name as string} ${m["notification.desc.transferAccepted"]() }`
+        : `${m["notification.desc.transferPrefix"]() } ${p.delegation_name as string} ${m["notification.desc.transferRefused"]() }`;
     case "PARTICIPATION_REQUEST":
-      return `Delegação ${p.delegation_name as string} pediu para participar da liga ${p.league_name as string}`;
+      return `${m["notification.desc.participationPrefix"]() } ${p.delegation_name as string} ${m["notification.desc.participationMid"]() } ${p.league_name as string}`;
     default:
       return "";
   }
@@ -107,7 +108,7 @@ function NotificationItem({ notif, onMarkRead }: NotificationItemProps) {
             onClick={() => acceptMutation.mutate(invitePayload.invite_id)}
             disabled={acceptMutation.isPending || refuseMutation.isPending}
           >
-            Aceitar
+            {m["notification.action.accept"]() }
           </Button>
           <Button
             size="sm"
@@ -116,7 +117,7 @@ function NotificationItem({ notif, onMarkRead }: NotificationItemProps) {
             onClick={() => refuseMutation.mutate(invitePayload.invite_id)}
             disabled={acceptMutation.isPending || refuseMutation.isPending}
           >
-            Recusar
+            {m["notification.action.refuse"]() }
           </Button>
         </div>
       )}
@@ -182,7 +183,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between px-4 py-3 border-b">
-          <p className="text-sm font-semibold">Notificações</p>
+          <p className="text-sm font-semibold">{m["notification.panelTitle"]()}</p>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
@@ -191,13 +192,13 @@ export function NotificationBell({ userId }: NotificationBellProps) {
               onClick={() => markAllReadMutation.mutate()}
               disabled={markAllReadMutation.isPending}
             >
-              Marcar todas como lidas
+              {m["notification.markAllRead"]() }
             </Button>
           )}
         </div>
         <ScrollArea className="max-h-80">
           {notifications.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">Nenhuma notificação</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{m["notification.empty"]() }</p>
           ) : (
             notifications.map((notif) => (
               <NotificationItem

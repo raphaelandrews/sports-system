@@ -13,6 +13,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { resolveRosterSize } from "@/shared/lib/sports";
 import { sportDetailQueryOptions } from "@/features/sports/api/queries";
 import type { Gender, SportType } from "@/types/sports";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/sports/$sportId")({
   loader: ({ context: { queryClient }, params: { sportId } }) =>
@@ -20,16 +21,22 @@ export const Route = createFileRoute("/leagues/$leagueId/(public)/sports/$sportI
   component: SportDetailPage,
 });
 
-const typeLabel: Record<SportType, string> = {
-  INDIVIDUAL: "Individual",
-  TEAM: "Coletivo",
-};
+function getTypeLabel(type: SportType): string {
+  return type === "INDIVIDUAL"
+    ? m['sport.detail.type.individual']()
+    : m['sport.detail.type.team']();
+}
 
-const genderLabel: Record<Gender, string> = {
-  M: "Masculino",
-  F: "Feminino",
-  MIXED: "Misto",
-};
+function getGenderLabel(gender: Gender): string {
+  switch (gender) {
+    case "M":
+      return m['sport.detail.gender.male']();
+    case "F":
+      return m['sport.detail.gender.female']();
+    case "MIXED":
+      return m['sport.detail.gender.mixed']();
+  }
+}
 
 function SportDetailPage() {
   const { sportId, leagueId } = Route.useParams();
@@ -39,8 +46,8 @@ function SportDetailPage() {
     <div className="container mx-auto max-w-5xl px-4 py-6 space-y-8">
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <Badge variant="secondary">{typeLabel[data.sport_type]}</Badge>
-          {!data.is_active && <Badge variant="destructive">Inativo</Badge>}
+                <Badge variant="secondary">{getTypeLabel(data.sport_type)}</Badge>
+          {!data.is_active &&                 <Badge variant="destructive">{m['sport.detail.status.inactive']()}</Badge>}
         </div>
         <h1 className="text-2xl font-semibold">{data.name}</h1>
         {data.description && <p className="text-muted-foreground mt-2">{data.description}</p>}
@@ -61,27 +68,27 @@ function SportDetailPage() {
       </div>
 
       <div>
-        <h2 className="text-lg font-medium mb-3">Modalidades</h2>
+        <h2 className="text-lg font-medium mb-3">{m['sport.detail.modalitiesHeading']()}</h2>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Gênero</TableHead>
-              <TableHead>Categoria</TableHead>
+              <TableHead>{m['sport.detail.table.name']()}</TableHead>
+              <TableHead>{m['sport.detail.table.gender']()}</TableHead>
+              <TableHead>{m['sport.detail.table.category']()}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.modalities.map((m) => (
               <TableRow key={m.id}>
                 <TableCell>{m.name}</TableCell>
-                <TableCell>{genderLabel[m.gender]}</TableCell>
+                <TableCell>{getGenderLabel(m.gender)}</TableCell>
                 <TableCell>{m.category ?? "—"}</TableCell>
               </TableRow>
             ))}
             {data.modalities.length === 0 && (
               <TableRow>
                 <TableCell colSpan={3} className="text-muted-foreground text-center">
-                  Nenhuma modalidade cadastrada.
+                  {m['sport.detail.empty.modalities']()}
                 </TableCell>
               </TableRow>
             )}

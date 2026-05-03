@@ -13,6 +13,7 @@ import { cn } from "@sports-system/ui/lib/utils";
 import { ArrowRight, ShieldAlert } from "lucide-react";
 import type { ReactNode } from "react";
 
+import * as m from "@/paraglide/messages";
 import { getTransferWindowMessage, isTransferWindowOpen } from "@/shared/lib/chief-delegation";
 import type { DelegationSummary } from "@/types/delegations";
 
@@ -40,7 +41,7 @@ export function ChiefDelegationShell({
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant={transferOpen ? "secondary" : "outline"}>
-                {transferOpen ? "Janela aberta" : "Janela fechada"}
+                {transferOpen ? m['chief.shell.badge.open']() : m['chief.shell.badge.closed']()}
               </Badge>
             </div>
             <CardTitle className="text-2xl">{title}</CardTitle>
@@ -56,15 +57,15 @@ export function ChiefDelegationShell({
                   </Badge>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Base ativa para membros, convites e transferencias.
+                  {m['chief.shell.delegationDesc']()}
                 </p>
               </div>
             ) : (
               <Alert>
                 <ShieldAlert className="size-4" />
-                <AlertTitle>Nenhuma delegacao vinculada</AlertTitle>
+                <AlertTitle>{m['chief.shell.alert.title']()}</AlertTitle>
                 <AlertDescription>
-                  Seu usuario ainda nao aparece como chefe de uma delegacao ativa.
+                  {m['chief.shell.alert.desc']()}
                 </AlertDescription>
               </Alert>
             )}
@@ -73,9 +74,9 @@ export function ChiefDelegationShell({
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Navegacao rapida</CardTitle>
+            <CardTitle>{m['chief.shell.nav.title']()}</CardTitle>
             <CardDescription>
-              Fluxo do chefe para membros, convites e janela de transferencia.
+              {m['chief.shell.nav.desc']()}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -84,7 +85,7 @@ export function ChiefDelegationShell({
               params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-between")}
             >
-              Visao geral
+              {m['chief.shell.nav.overview']()}
               <ArrowRight className="size-4" />
             </Link>
             <Link
@@ -92,7 +93,7 @@ export function ChiefDelegationShell({
               params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-between")}
             >
-              Membros e convites
+              {m['chief.shell.nav.members']()}
               <ArrowRight className="size-4" />
             </Link>
             <Link
@@ -100,7 +101,7 @@ export function ChiefDelegationShell({
               params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-between")}
             >
-              Convidar usuario
+              {m['chief.shell.nav.invite']()}
               <ArrowRight className="size-4" />
             </Link>
             <Link
@@ -108,7 +109,7 @@ export function ChiefDelegationShell({
               params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-between")}
             >
-              Transferencias
+              {m['chief.shell.nav.transfers']()}
               <ArrowRight className="size-4" />
             </Link>
             <div className="rounded-xl border border-dashed border-border/80 p-3 text-sm text-muted-foreground">
@@ -127,9 +128,9 @@ export function ChiefDelegationUnavailable() {
   return (
     <Card className="border border-dashed border-border/80">
       <CardContent className="flex flex-col items-start gap-3 py-8 text-sm text-muted-foreground">
-        <p>Nada para gerenciar ainda. Vincule um chefe a uma delegacao para liberar esta area.</p>
+        <p>{m['chief.shell.unavailable']()}</p>
         <Link to="/request-chief/status" className={buttonVariants({ variant: "outline" })}>
-          Ver status da solicitacao
+          {m['chief.shell.unavailableAction']()}
         </Link>
       </CardContent>
     </Card>

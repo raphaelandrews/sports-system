@@ -17,19 +17,27 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sports-system/ui/components/tabs";
 import { Medal, ShieldCheck, Swords, Trophy, Users } from "lucide-react";
 
+import * as m from "@/paraglide/messages";
 import { formatDate, formatEventDate } from "@/shared/lib/date";
 import type { DelegationStatisticsResponse } from "@/types/delegations";
 
-const medalLabel = {
-  GOLD: "Ouro",
-  SILVER: "Prata",
-  BRONZE: "Bronze",
-} as const;
+function medalLabel(type: string) {
+  switch (type.toLowerCase()) {
+    case 'gold':
+      return m['common.medal.gold']();
+    case 'silver':
+      return m['common.medal.silver']();
+    case 'bronze':
+      return m['common.medal.bronze']();
+    default:
+      return type;
+  }
+}
 
 export function DelegationStatisticsPanel({
   stats,
-  title = "Estatisticas da delegacao",
-  description = "Recorte consolidado de atletas, medalhas e desempenho semanal.",
+  title = m['delegation.stats.defaultTitle'](),
+  description = m['delegation.stats.defaultDesc'](),
 }: {
   stats: DelegationStatisticsResponse;
   title?: string;
@@ -40,33 +48,33 @@ export function DelegationStatisticsPanel({
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <StatCard
           icon={Users}
-          label="Atletas"
+          label={m['delegation.stats.label.athletes']()}
           value={String(stats.athlete_count)}
-          hint={`${stats.active_athlete_count} ativos no momento`}
+          hint={m['delegation.stats.hint.athletes']({ count: stats.active_athlete_count })}
         />
         <StatCard
           icon={Medal}
-          label="Medalhas"
+          label={m['delegation.stats.label.medals']()}
           value={String(stats.total_medals)}
-          hint={`${stats.gold} ouro · ${stats.silver} prata · ${stats.bronze} bronze`}
+          hint={`${stats.gold} ${m['delegation.stats.hint.gold']()} · ${stats.silver} ${m['delegation.stats.hint.silver']()} · ${stats.bronze} ${m['delegation.stats.hint.bronze']()}`}
         />
         <StatCard
           icon={Swords}
-          label="Partidas"
+          label={m['delegation.stats.label.matches']()}
           value={String(stats.total_matches)}
-          hint="Recorte historico da delegacao"
+          hint={m['delegation.stats.defaultDesc']()}
         />
         <StatCard
           icon={Trophy}
-          label="Vitorias"
+          label={m['delegation.stats.label.wins']()}
           value={String(stats.total_wins)}
-          hint="Apuradas por rank 1"
+          hint={m['delegation.stats.label.wins']()}
         />
         <StatCard
           icon={ShieldCheck}
-          label="Semanas com atividade"
+          label={m['delegation.stats.label.weeks']()}
           value={String(stats.weekly_performance.length)}
-          hint="Semanas com jogos ou medalhas"
+          hint={m['delegation.stats.label.weeks']()}
         />
       </section>
 
@@ -78,9 +86,9 @@ export function DelegationStatisticsPanel({
         <CardContent>
           <Tabs defaultValue="athletes" className="space-y-4">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="athletes">Atletas</TabsTrigger>
-              <TabsTrigger value="medals">Medalhas</TabsTrigger>
-              <TabsTrigger value="weeks">Semanas</TabsTrigger>
+              <TabsTrigger value="athletes">{m['delegation.stats.tab.athletes']()}</TabsTrigger>
+              <TabsTrigger value="medals">{m['delegation.stats.tab.medals']()}</TabsTrigger>
+              <TabsTrigger value="weeks">{m['delegation.stats.tab.weeks']()}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="athletes">
@@ -88,11 +96,11 @@ export function DelegationStatisticsPanel({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="ps-4">Atleta</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Partidas</TableHead>
-                      <TableHead>Medalhas</TableHead>
-                      <TableHead className="pe-4">Vinculo</TableHead>
+                      <TableHead className="ps-4">{m['delegation.stats.table.athlete']()}</TableHead>
+                      <TableHead>{m['delegation.stats.table.status']()}</TableHead>
+                      <TableHead>{m['delegation.stats.table.matches']()}</TableHead>
+                      <TableHead>{m['delegation.stats.table.medals']()}</TableHead>
+                      <TableHead className="pe-4">{m['delegation.stats.table.link']()}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -105,10 +113,10 @@ export function DelegationStatisticsPanel({
                         <TableCell>
                           <div className="flex flex-wrap gap-2">
                             <Badge variant={athlete.is_current_member ? "secondary" : "outline"}>
-                              {athlete.is_current_member ? "Ativo" : "Historico"}
+                              {athlete.is_current_member ? m['delegation.stats.badge.active']() : m['delegation.stats.badge.historic']()}
                             </Badge>
                             {!athlete.is_active ? (
-                              <Badge variant="outline">Ficha inativa</Badge>
+                              <Badge variant="outline">{m['delegation.stats.badge.inactive']()}</Badge>
                             ) : null}
                           </div>
                         </TableCell>
@@ -116,15 +124,15 @@ export function DelegationStatisticsPanel({
                         <TableCell>
                           {athlete.total_medals}
                           <div className="text-xs text-muted-foreground">
-                            {athlete.gold}O · {athlete.silver}P · {athlete.bronze}B
+                            {athlete.gold}{m['delegation.stats.abbr.gold']()} · {athlete.silver}{m['delegation.stats.abbr.silver']()} · {athlete.bronze}{m['delegation.stats.abbr.bronze']()}
                           </div>
                         </TableCell>
                         <TableCell className="pe-4 text-sm text-muted-foreground">
                           {athlete.joined_at
-                            ? `Desde ${formatEventDate(athlete.joined_at, { dateStyle: "medium" })}`
-                            : "Sem vinculo formal"}
+                            ? `${m['delegation.stats.cell.since']()} ${formatEventDate(athlete.joined_at, { dateStyle: "medium" })}`
+                            : m['delegation.stats.cell.noLink']()}
                           {athlete.left_at
-                            ? ` · Ate ${formatEventDate(athlete.left_at, { dateStyle: "medium" })}`
+                            ? ` · ${m['delegation.stats.cell.until']()} ${formatEventDate(athlete.left_at, { dateStyle: "medium" })}`
                             : ""}
                         </TableCell>
                       </TableRow>
@@ -132,7 +140,7 @@ export function DelegationStatisticsPanel({
                     {stats.athletes.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                          Nenhum atleta associado a esta delegacao ainda.
+                          {m['delegation.stats.empty.athletes']()}
                         </TableCell>
                       </TableRow>
                     ) : null}
@@ -146,19 +154,19 @@ export function DelegationStatisticsPanel({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="ps-4">Medalha</TableHead>
-                      <TableHead>Atleta</TableHead>
-                      <TableHead>Partida</TableHead>
-                      <TableHead className="pe-4">Colocacao</TableHead>
+                      <TableHead className="ps-4">{m['delegation.stats.table.medals']()}</TableHead>
+                      <TableHead>{m['delegation.stats.table.athlete']()}</TableHead>
+                      <TableHead>{m['delegation.stats.table.match']()}</TableHead>
+                      <TableHead className="pe-4">{m['delegation.stats.table.rank']()}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {stats.medals.map((medal) => (
                       <TableRow key={medal.result_id}>
                         <TableCell className="ps-4">
-                          <Badge variant="outline">{medalLabel[medal.medal]}</Badge>
+                          <Badge variant="outline">{medalLabel(medal.medal)}</Badge>
                         </TableCell>
-                        <TableCell>{medal.athlete_name ?? "Delegacao"}</TableCell>
+                        <TableCell>{medal.athlete_name ?? m['delegation.stats.cell.delegation']()}</TableCell>
                         <TableCell>#{medal.match_id}</TableCell>
                         <TableCell className="pe-4">{medal.rank}º</TableCell>
                       </TableRow>
@@ -166,7 +174,7 @@ export function DelegationStatisticsPanel({
                     {stats.medals.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
-                          Nenhuma medalha registrada.
+                          {m['delegation.stats.empty.medals']()}
                         </TableCell>
                       </TableRow>
                     ) : null}
@@ -180,12 +188,12 @@ export function DelegationStatisticsPanel({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="ps-4">Competição</TableHead>
-                      <TableHead>Periodo</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Partidas</TableHead>
-                      <TableHead>Vitorias</TableHead>
-                      <TableHead className="pe-4">Medalhas</TableHead>
+                      <TableHead className="ps-4">{m['delegation.stats.table.competition']()}</TableHead>
+                      <TableHead>{m['delegation.stats.table.period']()}</TableHead>
+                      <TableHead>{m['delegation.stats.table.status']()}</TableHead>
+                      <TableHead>{m['delegation.stats.table.matches']()}</TableHead>
+                      <TableHead>{m['delegation.stats.table.wins']()}</TableHead>
+                      <TableHead className="pe-4">{m['delegation.stats.table.medals']()}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -201,14 +209,14 @@ export function DelegationStatisticsPanel({
                         <TableCell>
                           {week.matches_played}
                           <div className="text-xs text-muted-foreground">
-                            {week.matches_completed} concluidas
+                            {week.matches_completed} {m['delegation.stats.cell.completed']()}
                           </div>
                         </TableCell>
                         <TableCell>{week.wins}</TableCell>
                         <TableCell className="pe-4">
                           {week.total_medals}
                           <div className="text-xs text-muted-foreground">
-                            {week.gold}O · {week.silver}P · {week.bronze}B
+                            {week.gold}{m['delegation.stats.abbr.gold']()} · {week.silver}{m['delegation.stats.abbr.silver']()} · {week.bronze}{m['delegation.stats.abbr.bronze']()}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -216,7 +224,7 @@ export function DelegationStatisticsPanel({
                     {stats.weekly_performance.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                          Ainda sem desempenho historico por semana.
+                          {m['delegation.stats.empty.weeks']()}
                         </TableCell>
                       </TableRow>
                     ) : null}

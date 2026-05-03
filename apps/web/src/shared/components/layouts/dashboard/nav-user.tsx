@@ -15,6 +15,7 @@ import {
 	DropdownMenuTrigger,
 } from "@sports-system/ui/components/dropdown-menu";
 
+import * as m from "@/paraglide/messages";
 import { logoutFn } from "@/features/auth/server/auth";
 import type { Session } from "@/types/auth";
 
@@ -26,13 +27,13 @@ export function NavUser({ session }: NavUserProps) {
 	const router = useRouter();
 	const user = session
 		? { name: session.name, email: session.email, avatar: session.avatar_url ?? "" }
-		: { name: "Visitante", email: "", avatar: "" };
+		: { name: m['nav.user.guest'](), email: "", avatar: "" };
 
 	async function handleLogout() {
 		await logoutFn();
 		await router.invalidate();
 		await router.navigate({ to: "/login" });
-		toast.success("Sessão encerrada");
+		toast.success(m['common.toast.logoutSuccess']());
 	}
 
 	return (
@@ -41,7 +42,7 @@ export function NavUser({ session }: NavUserProps) {
 				<Avatar className="h-8 w-8 rounded-md after:border-none">
 					<AvatarImage src={user.avatar} alt={user.name} />
 					<AvatarFallback className="font-semibold text-xs rounded-md">
-						{user.name ? user.name.charAt(0) : "SH"}
+						{user.name ? user.name.charAt(0) : m['nav.user.fallbackInitials']()}
 					</AvatarFallback>
 				</Avatar>
 			</DropdownMenuTrigger>
@@ -55,7 +56,7 @@ export function NavUser({ session }: NavUserProps) {
 					<Avatar className="h-8 w-8 rounded-md after:border-none">
 						<AvatarImage src={user.avatar} alt={user.name} />
 						<AvatarFallback className="font-semibold text-xs rounded-md bg-accent">
-							{user.name ? user.name.charAt(0) : "SH"}
+							{user.name ? user.name.charAt(0) : m['nav.user.fallbackInitials']()}
 						</AvatarFallback>
 					</Avatar>
 					<div className="grid flex-1 text-left text-sm leading-tight">
@@ -66,7 +67,7 @@ export function NavUser({ session }: NavUserProps) {
 				<DropdownMenuGroup>
 					<DropdownMenuItem onClick={() => router.navigate({ to: "/profile" })}>
 						<UserIcon />
-						Conta
+						{m['nav.user.account']()}
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<div className="h-px bg-border my-1 mx-2" />
@@ -78,12 +79,12 @@ export function NavUser({ session }: NavUserProps) {
 							onClick={() => void handleLogout()}
 						>
 							<LogOutIcon />
-							Sair
+							{m['logout']()}
 						</DropdownMenuItem>
 					) : (
 						<DropdownMenuItem onClick={() => router.navigate({ to: "/login" })}>
 							<Sparkles />
-							Entrar
+							{m['login_title']()}
 						</DropdownMenuItem>
 					)}
 				</DropdownMenuGroup>

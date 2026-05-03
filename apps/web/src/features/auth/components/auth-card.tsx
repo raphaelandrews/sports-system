@@ -8,6 +8,7 @@ import {
 } from "@sports-system/ui/components/field";
 import authImage from "@/assets/auth-image.webp";
 import { buildApiUrl } from "@/shared/lib/url";
+import * as m from "@/paraglide/messages";
 import type React from "react";
 
 interface AuthCardProps {
@@ -33,7 +34,7 @@ export function AuthCard({ title, subtitle, switchText, children, onFormSubmit }
               {children}
 
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                Ou continue com
+                {m['auth.card.separator']()}
               </FieldSeparator>
 
               <Field className="grid grid-cols-2 gap-4">
@@ -45,7 +46,7 @@ export function AuthCard({ title, subtitle, switchText, children, onFormSubmit }
                   }}
                 >
                   <GoogleIcon className="mr-2 h-4 w-4" />
-                  Google
+                  {m['auth.provider.google']()}
                 </Button>
                 <Button
                   variant="outline"
@@ -55,7 +56,7 @@ export function AuthCard({ title, subtitle, switchText, children, onFormSubmit }
                   }}
                 >
                   <GithubIcon className="mr-2 h-4 w-4" />
-                  GitHub
+                  {m['auth.provider.github']()}
                 </Button>
               </Field>
 
@@ -66,7 +67,7 @@ export function AuthCard({ title, subtitle, switchText, children, onFormSubmit }
           <div className="relative hidden bg-muted md:block">
             <img
               src={authImage}
-              alt="Image"
+              alt={m['imageUpload.defaultLabel']()}
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.8]"
             />
           </div>
@@ -74,13 +75,13 @@ export function AuthCard({ title, subtitle, switchText, children, onFormSubmit }
       </Card>
 
       <FieldDescription className="px-6 text-center">
-        Ao continuar, você concorda com nossos{" "}
+        {m['auth.card.tosPrefix']()}{" "}
         <a href="/terms" className="underline underline-offset-4 hover:text-foreground">
-          Termos de Uso
+          {m['auth.card.tosLink']()}
         </a>{" "}
-        e{" "}
+        and{" "}
         <a href="/privacy" className="underline underline-offset-4 hover:text-foreground">
-          Política de Privacidade
+          {m['auth.card.privacyLink']()}
         </a>
         .
       </FieldDescription>

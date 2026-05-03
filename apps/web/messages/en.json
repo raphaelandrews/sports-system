@@ -1,0 +1,1493 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "app_title": "Sports System",
+  "nav_dashboard": "Dashboard",
+  "nav_athletes": "Athletes",
+  "nav_competitions": "Competitions",
+  "nav_schedule": "Schedule",
+  "nav_results": "Results",
+  "nav_reports": "Reports",
+  "nav_settings": "Settings",
+  "login_title": "Sign in",
+  "login_email": "Email",
+  "login_password": "Password",
+  "login_submit": "Sign in",
+  "login_no_account": "Don't have an account?",
+  "login_register": "Register",
+  "register_title": "Create account",
+  "register_name": "Full name",
+  "register_submit": "Create account",
+  "register_has_account": "Already have an account?",
+  "register_login": "Sign in",
+  "logout": "Log out",
+  "welcome_message": "Welcome, {name}!",
+  "auth": {
+    "login": {
+      "subtitle": "Access your account to continue",
+      "emailRequired": "Email is required",
+      "passwordRequired": "Password is required",
+      "submitting": "Signing in..."
+    },
+    "register": {
+      "title": "Create account",
+      "subtitle": "Fill in your details to register",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "nameRequired": "Name is required",
+      "namePlaceholder": "John Doe",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email",
+      "emailPlaceholder": "sportshub@email.com",
+      "passwordInvalid": "invalid",
+      "ruleMin8": "Minimum 8 characters",
+      "ruleUppercase": "At least one uppercase letter",
+      "ruleSymbol": "At least one symbol",
+      "passwordLabel": "Password",
+      "confirmPasswordRequired": "Confirm your password",
+      "passwordMismatch": "Passwords do not match",
+      "confirmPasswordLabel": "Confirm password",
+      "submitting": "Registering...",
+      "submit": "Create account"
+    },
+    "card": {
+      "separator": "Or continue with",
+      "tosPrefix": "By continuing, you agree to our",
+      "tosLink": "Terms of Service",
+      "privacyLink": "Privacy Policy"
+    },
+    "provider": {
+      "google": "Google",
+      "github": "GitHub"
+    }
+  },
+  "oauth": {
+    "title": {
+      "loading": "Completing OAuth login",
+      "error": "OAuth login failed",
+      "success": "Login completed"
+    },
+    "desc": {
+      "loading": "Validating authentication with the external provider.",
+      "error": "Unable to complete external authentication.",
+      "success": "Redirecting to dashboard."
+    },
+    "processing": "Processing Google or GitHub credentials.",
+    "btn": {
+      "login": "Go to login",
+      "register": "Go to register"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "leagues": "Leagues",
+    "overview": "Overview",
+    "competitions": "Competitions",
+    "results": "Results",
+    "calendar": "Calendar",
+    "delegations": "Delegations",
+    "sports": "Sports",
+    "exploreLeagues": "Explore leagues",
+    "myLeagues": "My leagues",
+    "createLeague": "Create league",
+    "operationalCalendar": "Operational calendar",
+    "operateResults": "Operate results",
+    "admin": {
+      "competitions": "Competitions",
+      "athletes": "Athletes",
+      "enrollments": "Enrollments",
+      "requests": "Requests",
+      "ai": "AI Generation",
+      "settings": "Settings",
+      "report": "Final Report"
+    },
+    "chief": {
+      "myDelegation": "My delegation",
+      "members": "Members",
+      "invites": "Invites",
+      "transfers": "Transfers",
+      "enrollments": "Enrollments",
+      "athletes": "Athletes"
+    },
+    "quick": {
+      "newCompetition": "New competition",
+      "login": "Sign in",
+      "register": "Create account"
+    },
+    "workspace": {
+      "leaguePanel": "League panel",
+      "explore": "Explore leagues",
+      "myLeagues": "My leagues",
+      "admin": "Admin Center",
+      "personal": "Personal panel"
+    },
+    "meta": {
+      "catalog": "Public catalog",
+      "shortcuts": "Quick access",
+      "generalOps": "General operations",
+      "overview": "Overview"
+    },
+    "user": {
+      "guest": "Guest",
+      "fallbackInitials": "SH",
+      "account": "Account"
+    }
+  },
+  "sidebar": {
+    "home": "Home",
+    "leagues": "Leagues",
+    "myLeagues": "My leagues",
+    "myDelegations": "My delegations",
+    "createLeague": "Create league"
+  },
+  "header": {
+    "siteTitle": "SportsHub",
+    "breadcrumbHome": "Home",
+    "loginButton": "Sign in"
+  },
+  "common": {
+    "toast": {
+      "logoutSuccess": "Session ended"
+    },
+    "table": {
+      "searchPlaceholder": "Search…",
+      "filterSingular": "filter",
+      "filterPluralSuffix": "s",
+      "filterActiveSingular": "active",
+      "filterActivePluralSuffix": "s",
+      "paginationShow": "Show",
+      "paginationPerPage": "per page",
+      "paginationOf": "of",
+      "createdAt": "Created at"
+    },
+    "sort": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "actions": {
+      "clearAria": "Clear",
+      "clearTitle": "Clear",
+      "clearFilters": "Clear filters",
+      "previous": "Previous",
+      "next": "Next",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "create": "Create",
+      "delete": "Delete",
+      "search": "Search",
+      "clear": "Clear",
+      "submit": "Submit",
+      "close": "Close",
+      "open": "Open",
+      "view": "View",
+      "back": "Back",
+      "add": "Add",
+      "remove": "Remove",
+      "update": "Update",
+      "confirm": "Confirm"
+    },
+    "phase": {
+      "group": "Groups",
+      "elimination": "Elimination",
+      "final": "Final",
+      "quarter": "Quarter",
+      "semi": "Semi",
+      "bronze": "Bronze"
+    },
+    "status": {
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "locked": "Locked",
+      "active": "Active",
+      "completed": "Completed",
+      "live": "Live",
+      "cancelled": "Cancelled",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "inactive": "Inactive"
+    },
+    "medal": {
+      "gold": "Gold",
+      "silver": "Silver",
+      "bronze": "Bronze"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female",
+      "mixed": "Mixed"
+    },
+    "filter": {
+      "allStatuses": "All statuses",
+      "onlyActive": "Only active",
+      "onlyInactive": "Only inactive"
+    },
+    "sort": {
+      "byName": "Sort by name",
+      "byCode": "Sort by code",
+      "byCreation": "Sort by creation"
+    },
+    "items": "items",
+    "current": "current",
+    "impact": "Impact",
+    "rank": "Rank",
+    "until": "until"
+  },
+  "bottombar": {
+    "platformActive": "connected · platform active",
+    "authRequired": "Sign in to access private actions and browse your area.",
+    "membershipError": "Authenticated league context unavailable. Public navigation maintained.",
+    "createLeagueHint": "Create a new league or join an existing one to unlock competition mode."
+  },
+  "roles": {
+    "superadmin": "Administrator",
+    "user": "User",
+    "admin": "Administrator",
+    "chief": "Chief",
+    "coach": "Coach",
+    "athlete": "Athlete",
+    "leagueAdmin": "League Admin"
+  },
+  "search": {
+    "quick": {
+      "explore": "Explore leagues",
+      "overview": "Overview",
+      "calendar": "Calendar"
+    },
+    "buttonLabel": "Search",
+    "dialogTitle": "Search",
+    "dialogDescription": "Search people, leagues, and competition entities",
+    "inputPlaceholder": "Search by name, code, modality, sport, or location...",
+    "loading": "Searching...",
+    "group": {
+      "quickActions": "Quick actions",
+      "leagues": "Leagues",
+      "users": "Users",
+      "delegations": "Delegations",
+      "events": "Events"
+    },
+    "noResults": "No results found for"
+  },
+  "notification": {
+    "title": {
+      "invite": "Delegation invite",
+      "requestReviewed": "Request reviewed",
+      "matchReminder": "Match reminder",
+      "result": "Result available",
+      "transfer": "Transfer",
+      "participation": "Participation request"
+    },
+    "desc": {
+      "invite": "You were invited to",
+      "requestApproved": "Request approved — delegation",
+      "requestRejected": "Request from",
+      "requestRejectedSuffix": "was rejected",
+      "matchReminderPrefix": "Match",
+      "matchReminderSuffix": "in 24h",
+      "resultPrefix": "Result of",
+      "resultSuffix": "available",
+      "transferPrefix": "Transfer to",
+      "transferAccepted": "accepted",
+      "transferRefused": "refused",
+      "participationPrefix": "Delegation",
+      "participationMid": "asked to join the league"
+    },
+    "action": {
+      "accept": "Accept",
+      "refuse": "Refuse"
+    },
+    "panelTitle": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications"
+  },
+  "locale": {
+    "en": "English",
+    "ptBr": "Português",
+    "es": "Español",
+    "switchLabel": "Switch language"
+  },
+  "theme": {
+    "toggleLabel": "Toggle theme",
+    "toggleLight": "Switch to light",
+    "toggleDark": "Switch to dark"
+  },
+  "league": {
+    "card": {
+      "members": "members",
+      "cta": "View league"
+    },
+    "new": {
+      "title": "Create new league",
+      "subtitle": "Set up a new competition. Choose sports and define initial rules.",
+      "label": {
+        "name": "Name",
+        "slug": "Slug",
+        "description": "Description",
+        "logo": "League logo",
+        "timezone": "Timezone",
+        "sports": "Sports"
+      },
+      "placeholder": {
+        "name": "Federal Institute Games",
+        "description": "Brief summary about the league..."
+      },
+      "timezone": {
+        "saoPaulo": "America/Sao_Paulo",
+        "newYork": "America/New_York",
+        "london": "Europe/London",
+        "utc": "UTC"
+      }
+    },
+    "layout": {
+      "notFound": "League not found"
+    },
+    "public": {
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "card": {
+        "summary": "League Summary"
+      }
+    },
+    "report": {
+      "badge": {
+        "final": "Final report",
+        "public": "Public"
+      },
+      "stat": {
+        "delegations": "Delegations",
+        "athletes": "Athletes",
+        "competitions": "Competitions",
+        "events": "Events",
+        "matches": "Matches",
+        "completed": "Completed"
+      },
+      "card": {
+        "routesTitle": "Quick routes",
+        "routesDesc": "Public entries to deepen reading."
+      },
+      "empty": {
+        "highlights": "No highlights available yet.",
+        "modalities": "No modalities available."
+      },
+      "recordsTitle": "Records and best marks",
+      "classificationTitle": "Classification by modality"
+    },
+    "feed": {
+      "title": "Activity feed",
+      "pill": {
+        "items": "Loaded items",
+        "live": "Live matches",
+        "records": "Recent records"
+      },
+      "card": {
+        "navTitle": "Navigation",
+        "timelineTitle": "Timeline"
+      },
+      "badge": {
+        "live": "Live"
+      },
+      "empty": "No global activity registered yet."
+    },
+    "settings": {
+      "title": "League Settings",
+      "card": {
+        "general": {
+          "title": "General information",
+          "desc": "Update the main league data."
+        },
+        "members": {
+          "title": "Members"
+        }
+      },
+      "label": {
+        "name": "Name",
+        "slug": "Slug",
+        "description": "Description",
+        "logo": "League logo",
+        "timezone": "Timezone",
+        "sports": "Sports",
+        "transferWindow": "Transfer window"
+      },
+      "timezone": {
+        "saoPaulo": "America/Sao_Paulo",
+        "newYork": "America/New_York",
+        "london": "Europe/London",
+        "utc": "UTC"
+      },
+      "membersHeading": "Members",
+      "table": {
+        "user": "User",
+        "role": "Role",
+        "actions": "Actions"
+      },
+      "membersEmpty": "No members found.",
+      "danger": {
+        "title": "Danger zone",
+        "desc": "Irreversible actions for this league."
+      },
+      "role": {
+        "admin": "League Admin",
+        "chief": "Chief",
+        "coach": "Coach",
+        "athlete": "Athlete"
+      }
+    }
+  },
+  "imageUpload": {
+    "defaultLabel": "Image",
+    "fallback": "?",
+    "errorType": "Select an image file.",
+    "errorSizePrefix": "Image must be at most",
+    "errorSizeSuffix": "MB.",
+    "success": "Image uploaded successfully.",
+    "errorGeneric": "Upload failed",
+    "altPreview": "Preview",
+    "buttonSending": "Sending...",
+    "buttonSend": "Upload image",
+    "hintPrefix": "WebP, PNG, JPG or GIF. Max.",
+    "hintSuffix": "MB. Resized to 800x800."
+  },
+  "home": {
+    "title": "SportsHub",
+    "subtitle": "Create, join, and follow sports leagues.",
+    "popularLeagues": "Popular leagues",
+    "recentLeagues": "Recent leagues"
+  },
+  "leagues": {
+    "listTitle": "Leagues",
+    "listEmpty": "No leagues registered"
+  },
+  "myLeagues": {
+    "title": "My leagues",
+    "createButton": "Create league",
+    "empty": "You do not participate in any league yet.",
+    "exploreButton": "Explore leagues",
+    "role": {
+      "admin": "Admin",
+      "chief": "Chief",
+      "coach": "Coach",
+      "athlete": "Athlete"
+    }
+  },
+  "sports": {
+    "public": {
+      "title": "Sports",
+      "table": {
+        "name": "Name",
+        "type": "Type",
+        "athletes": "Athletes"
+      },
+      "empty": "No sports found."
+    },
+    "type": {
+      "team": "Team",
+      "individual": "Individual"
+    },
+    "admin": {
+      "title": "Sports and modalities",
+      "stat": {
+        "total": "Sports",
+        "team": "Team",
+        "individual": "Individual"
+      },
+      "card": {
+        "status": {
+          "title": "Quick status"
+        },
+        "list": {
+          "title": "Sports list"
+        }
+      },
+      "searchPlaceholder": "Search sport",
+      "filter": {
+        "allTypes": "All types",
+        "team": "Team only",
+        "individual": "Individual only"
+      },
+      "sort": {
+        "name": "Sort by name",
+        "created": "Sort by creation",
+        "asc": "Ascending",
+        "desc": "Descending"
+      },
+      "table": {
+        "sport": "Sport",
+        "type": "Type",
+        "players": "Players",
+        "status": "Status",
+        "created": "Created at",
+        "actions": "Actions"
+      },
+      "empty": "No sports found."
+    }
+  },
+  "sport": {
+    "detail": {
+      "status": {
+        "inactive": "Inactive"
+      },
+      "modalitiesHeading": "Modalities",
+      "table": {
+        "name": "Name",
+        "gender": "Gender",
+        "category": "Category"
+      },
+      "empty": {
+        "modalities": "No modalities registered."
+      },
+      "type": {
+        "team": "Team",
+        "individual": "Individual"
+      },
+      "gender": {
+        "male": "Male",
+        "female": "Female",
+        "mixed": "Mixed"
+      }
+    },
+    "admin": {
+      "stat": {
+        "modalities": "Modalities",
+        "schemaLabel": "Stats schema",
+        "schemaConfigured": "Configured",
+        "schemaEmpty": "Empty"
+      },
+      "card": {
+        "actions": {
+          "title": "Actions"
+        },
+        "modalities": {
+          "title": "Modalities"
+        }
+      },
+      "table": {
+        "name": "Name",
+        "gender": "Gender",
+        "category": "Category",
+        "rules": "Rules",
+        "actions": "Actions"
+      },
+      "empty": {
+        "modalities": "No active modalities registered."
+      },
+      "schema": {
+        "title": "Statistics schema",
+        "desc": "Schema used for dynamic sport statistics."
+      }
+    },
+    "rules": {
+      "title": "Sport rules",
+      "desc": "Admin can adjust `rules_json` without changing code.",
+      "label": "Rules JSON",
+      "examplePrefix": "Example:",
+      "error": {
+        "json": "Invalid JSON. Check keys, quotes, and commas."
+      },
+      "alert": {
+        "jsonTitle": "Invalid Rules JSON",
+        "saveTitle": "Unable to save"
+      },
+      "submitting": "Saving...",
+      "submit": "Save rules"
+    }
+  },
+  "modality": {
+    "form": {
+      "title": {
+        "create": "New modality",
+        "edit": "Edit modality"
+      },
+      "desc": {
+        "create": "Register a new modality for",
+        "edit": "Adjust rules and metadata for the modality in",
+        "category": "Use for age group, weight, or technical division."
+      },
+      "label": {
+        "name": "Name",
+        "gender": "Gender",
+        "category": "Category",
+        "rules": "Rules JSON"
+      },
+      "placeholder": {
+        "name": "Ex: 100m dash",
+        "category": "Optional"
+      },
+      "gender": {
+        "male": "Male",
+        "female": "Female",
+        "mixed": "Mixed"
+      },
+      "rulesExamplePrefix": "Example:",
+      "error": {
+        "name": "Enter a name with at least 3 characters.",
+        "json": "Invalid JSON. Check keys, quotes, and commas."
+      },
+      "alert": {
+        "jsonTitle": "Invalid Rules JSON",
+        "saveTitle": "Unable to save"
+      },
+      "submitting": {
+        "create": "Creating...",
+        "edit": "Saving..."
+      },
+      "submit": {
+        "create": "Create modality",
+        "edit": "Save changes"
+      },
+      "cancel": "Cancel and go back"
+    }
+  },
+  "competitions": {
+    "public": {
+      "title": "Competitions",
+      "filter": {
+        "status": "Status"
+      },
+      "table": {
+        "competition": "Competition",
+        "period": "Period",
+        "status": "Status",
+        "sports": "Sports",
+        "actions": "Actions"
+      },
+      "empty": "No competitions found."
+    },
+    "admin": {
+      "title": "Competitions",
+      "stat": {
+        "total": "Total",
+        "active": "Active",
+        "locked": "Locked+"
+      },
+      "card": {
+        "transfer": {
+          "title": "Transfer window",
+          "desc": "Rules calculated in UTC-3 / America_Sao_Paulo."
+        },
+        "list": {
+          "title": "Competitions list"
+        }
+      },
+      "table": {
+        "competition": "Competition",
+        "period": "Period",
+        "status": "Status",
+        "sports": "Focus sports",
+        "actions": "Actions"
+      }
+    }
+  },
+  "competition": {
+    "detail": {
+      "stat": {
+        "events": "Total Events",
+        "completed": "Completed Matches",
+        "matches": "Total Matches"
+      },
+      "tab": {
+        "medals": "Medal Table",
+        "events": "Events and Results"
+      },
+      "table": {
+        "rank": "#",
+        "delegation": "Delegation",
+        "total": "Total",
+        "teamA": "Team A",
+        "score": "Score",
+        "teamB": "Team B"
+      },
+      "empty": {
+        "medals": "No medals distributed yet.",
+        "events": "No events in this competition.",
+        "matches": "No matches registered."
+      }
+    },
+    "form": {
+      "title": "New competition",
+      "description": "Define number, period, and focus sports to prepare the competition.",
+      "label": {
+        "number": "Competition number",
+        "start": "Start",
+        "end": "End",
+        "sports": "Focus sports"
+      },
+      "error": {
+        "number": "Enter a valid competition number."
+      },
+      "desc": {
+        "sports": "Optional. Mark sports with priority for this competition."
+      },
+      "alert": {
+        "error": "Unable to create competition"
+      },
+      "submitting": "Creating...",
+      "submit": "Create competition",
+      "cancel": "Cancel and go back"
+    },
+    "admin": {
+      "detail": {
+        "title": "Competition detail",
+        "period": "Period",
+        "stat": {
+          "events": "Events",
+          "preview": "Match preview"
+        }
+      },
+      "card": {
+        "actions": {
+          "title": "State actions",
+          "desc": "Official flow: Publish, Lock, Activate, and Complete."
+        },
+        "status": {
+          "title": "Status and focus",
+          "desc": "Summary of period and prioritized sports."
+        },
+        "preview": {
+          "title": "Generation preview"
+        },
+        "events": {
+          "title": "Registered events"
+        }
+      },
+      "badge": {
+        "competition": "Competition #{competition.number}"
+      },
+      "empty": {
+        "transitions": "No transition available for the current status.",
+        "matches": "No match predicted yet for this competition.",
+        "events": "No events created for this competition."
+      }
+    },
+    "transition": {
+      "publish": "Publish competition",
+      "lock": "Lock competition",
+      "activate": "Activate competition",
+      "complete": "Complete competition",
+      "verb": {
+        "publish": "published",
+        "lock": "locked",
+        "activate": "activated",
+        "complete": "completed"
+      }
+    }
+  },
+  "calendar": {
+    "public": {
+      "title": "Calendar",
+      "filter": {
+        "competition": "Competition",
+        "placeholder": "Filter…",
+        "status": "Status"
+      },
+      "table": {
+        "date": "Date",
+        "time": "Time",
+        "venue": "Venue",
+        "phase": "Phase",
+        "status": "Status",
+        "competition": "Competition"
+      },
+      "empty": "No events found."
+    },
+    "competition": {
+      "badge": {
+        "official": "Official calendar"
+      },
+      "card": {
+        "title": "Competition {competition.number}",
+        "navTitle": "Navigation"
+      },
+      "stat": {
+        "period": "Period",
+        "events": "Events",
+        "status": "Status"
+      },
+      "phase": {
+        "*": "phaseLabel mapping"
+      },
+      "empty": {
+        "matches": "No matches generated yet."
+      }
+    },
+    "admin": {
+      "title": "Event calendar",
+      "stat": {
+        "activeCompetition": "Active competition",
+        "visibleEvents": "Visible events",
+        "period": "Period"
+      },
+      "card": {
+        "controls": {
+          "title": "Controls"
+        }
+      },
+      "selectCompetition": "Select competition",
+      "searchPlaceholder": "Search events…",
+      "clearAria": "Clear",
+      "clearTitle": "Clear",
+      "filter": {
+        "status": "Status"
+      },
+      "table": {
+        "date": "Date",
+        "time": "Time",
+        "venue": "Venue",
+        "phase": "Phase",
+        "status": "Status",
+        "modality": "Modality",
+        "actions": "Actions"
+      },
+      "empty": "No events found."
+    }
+  },
+  "event": {
+    "form": {
+      "title": "New calendar event",
+      "label": {
+        "competition": "Competition",
+        "modality": "Modality",
+        "date": "Date",
+        "time": "Time",
+        "phase": "Phase",
+        "venue": "Venue"
+      },
+      "placeholder": {
+        "competition": "Select competition",
+        "modality": "Select modality",
+        "phase": "Select phase",
+        "venue": "Main gym, mat 2..."
+      },
+      "alert": {
+        "error": "Failed to save event"
+      }
+    }
+  },
+  "athlete": {
+    "detail": {
+      "status": {
+        "inactive": "Inactive"
+      },
+      "tab": {
+        "history": "History",
+        "statistics": "Statistics",
+        "medals": "Medals"
+      },
+      "section": {
+        "delegations": "Delegations",
+        "matches": "Matches"
+      },
+      "table": {
+        "delegation": "Delegation",
+        "role": "Role",
+        "entry": "Entry",
+        "exit": "Exit",
+        "modality": "Modality",
+        "sport": "Sport",
+        "date": "Date",
+        "match": "Match",
+        "medal": "Medal",
+        "position": "Position"
+      },
+      "empty": {
+        "statistics": "No statistics recorded.",
+        "medals": "No medals won."
+      }
+    },
+    "form": {
+      "title": {
+        "create": "New athlete",
+        "edit": "Edit athlete"
+      },
+      "desc": {
+        "admin": "Register athletes globally and link a user when it makes sense.",
+        "chief": "Register athletes for your delegation and optionally link a user.",
+        "code": "Will be sent in uppercase to maintain administrative standard.",
+        "linkedUser": "Optional. Use search to relate the athlete to a system account."
+      },
+      "label": {
+        "name": "Name",
+        "code": "Code",
+        "gender": "Gender",
+        "birthdate": "Birthdate",
+        "linkedUser": "Linked user"
+      },
+      "placeholder": {
+        "all": "All",
+        "competition": "Select competition",
+        "event": "Select event",
+        "delegation": "Select delegation",
+        "athlete": "Select athlete"
+      },
+      "error": {
+        "name": "Enter a name with at least 3 characters.",
+        "code": "Use a code with at least 3 characters."
+      },
+      "gender": {
+        "none": "Do not inform",
+        "male": "Male",
+        "female": "Female"
+      },
+      "searchPlaceholder": "Search user by name or email",
+      "linkedUserBadge": "User #{linkedUserId}",
+      "linkedUserFallback": "Linked",
+      "unlinkButton": "Remove link",
+      "searchLoading": "Searching users...",
+      "linkButton": "Link",
+      "searchEmpty": "No users found.",
+      "alert": {
+        "error": "Unable to save"
+      },
+      "submitting": "Saving...",
+      "submit": "Register athlete",
+      "cancel": "Cancel and go back"
+    }
+  },
+  "athletes": {
+    "admin": {
+      "stat": {
+        "total": "Total",
+        "linked": "With user",
+        "missing": "Missing gender / birthdate"
+      },
+      "hint": {
+        "linked": "Linked to accounts"
+      },
+      "card": {
+        "actions": {
+          "title": "Actions"
+        }
+      },
+      "list": {
+        "global": "Global list",
+        "my": "My list"
+      },
+      "searchPlaceholder": "Search athlete",
+      "filter": {
+        "allLinks": "All links",
+        "linked": "With user",
+        "unlinked": "Without user"
+      },
+      "sort": {
+        "name": "Sort by name",
+        "code": "Sort by code",
+        "birthdate": "Sort by birthdate",
+        "asc": "Ascending",
+        "desc": "Descending"
+      },
+      "table": {
+        "name": "Name",
+        "code": "Code",
+        "gender": "Gender",
+        "birthdate": "Birthdate",
+        "user": "User",
+        "profile": "Profile"
+      },
+      "cell": {
+        "noLink": "No link"
+      },
+      "empty": "No athletes found."
+    }
+  },
+  "delegations": {
+    "public": {
+      "title": "Delegations",
+      "card": {
+        "title": "Delegations"
+      },
+      "table": {
+        "code": "Code",
+        "name": "Name"
+      },
+      "empty": "No delegations found."
+    }
+  },
+  "delegation": {
+    "detail": {
+      "status": {
+        "inactive": "Inactive"
+      },
+      "card": {
+        "summary": {
+          "title": "Quick summary"
+        }
+      },
+      "campaign": {
+        "title": "Full campaign",
+        "desc": "All associated athletes, registered medals, and historical performance by week."
+      },
+      "section": {
+        "members": "Active members"
+      },
+      "table": {
+        "name": "Name",
+        "role": "Role",
+        "since": "Since",
+        "until": "Until"
+      },
+      "empty": {
+        "members": "No active members.",
+        "former": "No former members."
+      }
+    },
+    "public": {
+      "status": {
+        "inactive": "Inactive"
+      },
+      "card": {
+        "leagues": "Leagues",
+        "members": "Members"
+      },
+      "table": {
+        "name": "Name",
+        "action": "Action",
+        "role": "Role",
+        "joined": "Joined on"
+      },
+      "empty": {
+        "members": "No active members."
+      }
+    },
+    "new": {
+      "title": "New delegation"
+    },
+    "edit": {
+      "title": "Edit delegation"
+    },
+    "form": {
+      "title": {
+        "create": "New delegation",
+        "edit": "Edit delegation"
+      },
+      "desc": {
+        "create": "Register delegations with clear identity for the calendar, enrollments, and reports.",
+        "edit": "Update the public name and flag without losing competitive history.",
+        "name": "Name visible in listings, medal table, and public pages.",
+        "code": "Optional. If empty, the backend may generate a code automatically.",
+        "imageUrl": "Optional. Use a stable link to render the delegation emblem."
+      },
+      "label": {
+        "name": "Name",
+        "code": "Code",
+        "image": "Delegation image",
+        "imageUrl": "Image URL"
+      },
+      "placeholder": {
+        "name": "Ex: Delegation Bahia Athletic",
+        "code": "Ex: BAH",
+        "imageUrl": "https://..."
+      },
+      "error": {
+        "name": "Enter a name with at least 3 characters.",
+        "code": "Use at least 2 characters or leave blank.",
+        "imageUrl": "Use a URL starting with http:// or https://."
+      },
+      "alert": {
+        "codeTitle": "Code preserved",
+        "codeDesc": "The delegation code remains stable to avoid breaking historical references.",
+        "error": "Unable to save"
+      },
+      "submitting": {
+        "create": "Creating...",
+        "edit": "Saving..."
+      },
+      "submit": {
+        "create": "Create delegation",
+        "edit": "Save changes"
+      },
+      "cancel": "Cancel and go back"
+    },
+    "stats": {
+      "defaultTitle": "Delegation statistics",
+      "defaultDesc": "Consolidated slice of athletes, medals, and weekly performance.",
+      "label": {
+        "athletes": "Athletes",
+        "medals": "Medals",
+        "matches": "Matches",
+        "wins": "Wins",
+        "weeks": "Weeks with activity"
+      },
+      "hint": {
+        "athletes": "active at the moment",
+        "gold": "gold",
+        "silver": "silver",
+        "bronze": "bronze"
+      },
+      "tab": {
+        "athletes": "Athletes",
+        "medals": "Medals",
+        "weeks": "Weeks"
+      },
+      "table": {
+        "noChief": "No chief",
+        "assigning": "Assigning...",
+        "becomeChief": "Become chief",
+        "emptyFiltered": "No delegations found for current filters."
+      },
+      "badge": {
+        "active": "Active",
+        "historic": "Historic",
+        "inactive": "Inactive card"
+      },
+      "abbr": {
+        "gold": "G",
+        "silver": "S",
+        "bronze": "B"
+      },
+      "cell": {
+        "since": "Since",
+        "noLink": "No formal link",
+        "until": "Until",
+        "delegation": "Delegation",
+        "completed": "completed"
+      },
+      "empty": {
+        "athletes": "No athletes associated with this delegation yet.",
+        "medals": "No medals recorded.",
+        "weeks": "No weekly performance history yet."
+      }
+    }
+  },
+  "myDelegations": {
+    "badge": "Delegations",
+    "card": {
+      "title": "My delegations",
+      "controls": {
+        "title": "Controls",
+        "desc": "Create and manage your delegations."
+      }
+    },
+    "stat": {
+      "total": "Total",
+      "independent": "Independent",
+      "inLeague": "In leagues"
+    },
+    "listHeading": "Delegation list",
+    "table": {
+      "name": "Name",
+      "code": "Code",
+      "status": "Status",
+      "created": "Created at",
+      "actions": "Actions"
+    },
+    "empty": "No delegations found.",
+    "action": {
+      "edit": "Edit",
+      "request": "Request participation",
+      "view": "View in league"
+    },
+    "dialog": {
+      "title": "Request participation"
+    },
+    "selectLeague": "Select a league",
+    "requestPlaceholder": "Describe the delegations you want..."
+  },
+  "profile": {
+    "title": "My profile",
+    "card": {
+      "title": "Personal data",
+      "desc": "Update your name and profile photo."
+    },
+    "label": {
+      "photo": "Profile photo",
+      "name": "Name",
+      "avatarUrl": "Image URL",
+      "email": "Email"
+    },
+    "placeholder": {
+      "avatar": "https://..."
+    }
+  },
+  "chief": {
+    "shell": {
+      "badge": {
+        "open": "Window open",
+        "closed": "Window closed"
+      },
+      "delegationDesc": "Active base for members, invites, and transfers.",
+      "alert": {
+        "title": "No linked delegation",
+        "desc": "Your user does not yet appear as chief of an active delegation."
+      },
+      "nav": {
+        "title": "Quick navigation",
+        "desc": "Chief flow for members, invites, and transfer window.",
+        "overview": "Overview",
+        "members": "Members and invites",
+        "invite": "Invite user",
+        "transfers": "Transfers"
+      },
+      "unavailable": "Nothing to manage yet. Link a chief to a delegation to unlock this area.",
+      "unavailableAction": "View request status"
+    }
+  },
+  "transferWindow": {
+    "openMessage": "Window open today in America/Sao_Paulo.",
+    "closedMessage": "Transfers allowed only on Mondays in America/Sao_Paulo."
+  },
+  "enrollments": {
+    "admin": {
+      "title": "Enrollment panel",
+      "stat": {
+        "total": "Total",
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "card": {
+        "actions": {
+          "title": "Actions"
+        }
+      },
+      "noDelegation": "No managed delegation. Request approval before enrolling athletes.",
+      "filter": {
+        "allStatus": "All statuses",
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "allCompetitions": "All competitions"
+      },
+      "sort": {
+        "competition": "Sort by competition",
+        "athlete": "Sort by athlete",
+        "status": "Sort by status",
+        "asc": "Ascending",
+        "desc": "Descending"
+      },
+      "table": {
+        "athlete": "Athlete",
+        "event": "Event",
+        "delegation": "Delegation",
+        "status": "Status",
+        "validation": "Validation",
+        "actions": "Actions"
+      },
+      "empty": "No enrollments found with current filters."
+    }
+  },
+  "enrollment": {
+    "form": {
+      "title": {
+        "create": "Create enrollment"
+      },
+      "desc": {
+        "create": "Register an athlete for a competition event."
+      },
+      "label": {
+        "competition": "Competition",
+        "sport": "Sport",
+        "event": "Event",
+        "delegation": "Delegation",
+        "athlete": "Athlete"
+      },
+      "placeholder": {
+        "competition": "Select competition",
+        "event": "Select event",
+        "delegation": "Select delegation",
+        "athlete": "Select athlete"
+      },
+      "filter": {
+        "all": "All"
+      },
+      "card": {
+        "summary": {
+          "title": "Selection summary"
+        },
+        "validation": {
+          "title": "Real-time validation"
+        }
+      },
+      "summary": {
+        "modality": "Modality",
+        "athlete": "Athlete"
+      },
+      "alert": {
+        "lockedTitle": "Competition locked",
+        "errorTitle": "Submission failed"
+      },
+      "validation": {
+        "athleteLimit": "Athlete limit per delegation reached ({maxAthletes}).",
+        "genderRequired": "Modality requires gender {requiredGender}.",
+        "scheduleConflict": "Athlete already enrolled in another event at the same time.",
+        "alreadyEnrolled": "Athlete already enrolled in this event."
+      },
+      "descLockedEvents": "Events in locked competitions appear visually locked on submission."
+    }
+  },
+  "results": {
+    "public": {
+      "title": "Results",
+      "badge": {
+        "refresh": "Updates every 30s"
+      },
+      "card": {
+        "title": "Medal table",
+        "nav": {
+          "title": "Navigation"
+        }
+      },
+      "pill": {
+        "ranking": "Delegations in ranking",
+        "golds": "Golds distributed",
+        "total": "Total medals"
+      },
+      "section": {
+        "medalBoard": "Medal table"
+      },
+      "table": {
+        "rank": "#",
+        "delegation": "Delegation"
+      },
+      "empty": "No medals recorded yet."
+    },
+    "sport": {
+      "badge": "Results by sport",
+      "card": {
+        "title": "Sport table"
+      },
+      "stat": {
+        "modalities": "Modalities",
+        "scoring": "Scoring delegations",
+        "medals": "Medals in sport"
+      },
+      "section": {
+        "standings": "Standings by modality"
+      },
+      "empty": {
+        "modalities": "No modalities registered"
+      }
+    },
+    "records": {
+      "badge": "Records",
+      "title": "Best marks of the competition",
+      "desc": "History of records registered by modality.",
+      "table": {
+        "modality": "Modality",
+        "athlete": "Athlete",
+        "delegation": "Delegation",
+        "value": "Value",
+        "week": "Week",
+        "date": "Date"
+      },
+      "empty": "No records registered yet."
+    },
+    "admin": {
+      "title": "Results panel",
+      "stat": {
+        "board": "Delegations on board",
+        "golds": "Golds",
+        "total": "Total medals"
+      },
+      "card": {
+        "actions": {
+          "title": "Quick actions"
+        },
+        "manual": {
+          "title": "Events for manual entry"
+        }
+      },
+      "selectEvent": "Select an event",
+      "empty": {
+        "events": "No events available."
+      }
+    }
+  },
+  "ai": {
+    "generating": "Generating...",
+    "generate": "Generate with AI",
+    "populating": "Populating...",
+    "populate": "Populate with AI"
+  },
+  "result": {
+    "form": {
+      "badge": {
+        "manual": "Manual entry",
+        "match": "Match #{match.id}"
+      },
+      "label": {
+        "delegationA": "Delegation A",
+        "score": "Score",
+        "delegationB": "Delegation B",
+        "rank": "Position",
+        "medal": "Medal",
+        "delegation": "Delegation",
+        "athlete": "Athlete"
+      },
+      "card": {
+        "actions": {
+          "title": "Actions"
+        }
+      },
+      "title": {
+        "create": "New result",
+        "edit": "Edit result"
+      },
+      "desc": "Sport-specific fields go into `value_json`.",
+      "medal": {
+        "none": "No medal",
+        "gold": "Gold",
+        "silver": "Silver",
+        "bronze": "Bronze"
+      },
+      "delegation": {
+        "none": "None"
+      },
+      "athlete": {
+        "none": "None"
+      }
+    }
+  },
+  "calendar.admin.error.selectCompetition": "Select a competition before generating.",
+  "calendar.admin.success.generated": "Calendar generated with AI.",
+  "calendar.admin.error.generateFailed": "Failed to generate calendar.",
+  "calendar.admin.description": "Track scheduled events by competition and phase.",
+  "calendar.admin.stat.noCompetition": "No competition",
+  "calendar.admin.card.controls.desc.admin": "Competition, manual creation and AI.",
+  "calendar.admin.card.controls.desc.user": "Select the competition to view.",
+  "calendar.admin.button.createEvent": "Create event",
+  "calendar.admin.button.generating": "Generating...",
+  "calendar.admin.button.generateAi": "Generate Calendar with AI",
+  "calendar.admin.button.publicCalendar": "View public calendar",
+  "calendar.admin.table.weeklyGrid": "Weekly grid",
+  "calendar.admin.table.visibleOfTotal": "{visible} visible of {total} events",
+  "calendar.admin.table.duplicateBase": "Duplicate base",
+  "ai.admin.badge.adminOnly": "Admin only",
+  "ai.admin.title": "AI Control Room",
+  "ai.admin.description": "Trigger generations by category, validate the preview before confirming, and track the consolidated automation history.",
+  "ai.admin.stat.basesAvailable": "available bases",
+  "ai.admin.card.preview.title": "Live preview",
+  "ai.admin.card.preview.desc": "Latest available narrative and the next selected target.",
+  "ai.admin.narrative.currentLabel": "Current activity feed",
+  "ai.admin.narrative.emptyPrompt": "Use the narrative card to generate the first editorial text of the day.",
+  "ai.admin.nextEvent.title": "Next event for results",
+  "ai.preview.label.endpoint": "Endpoint",
+  "ai.preview.label.quantity": "Quantity",
+  "ai.preview.label.currentBase": "Current base",
+  "ai.preview.label.impact": "Impact",
+  "ai.preview.value.sportsBase": "{count} sports",
+  "ai.preview.label.batch": "Batch",
+  "ai.preview.value.records": "{count} records",
+  "ai.preview.value.athletesRegistered": "{count} athletes registered",
+  "ai.preview.label.competition": "Competition",
+  "ai.preview.label.period": "Period",
+  "ai.preview.value.eventsGenerated": "{count} events generated with AI.",
+  "ai.preview.label.availableEvents": "Available events",
+  "ai.preview.value.availableEvents": "{count} available events",
+  "ai.preview.label.date": "Date",
+  "ai.preview.success.narrativeGenerated": "{title} generated for {date}.",
+  "event.form.success.created": "Event created successfully.",
+  "event.form.desc": "Manual registration of event by competition, modality, date, and competitive phase.",
+  "event.form.error.createFailed": "Failed to create event.",
+  "event.form.label.category": "Category",
+  "event.form.category.open": "open",
+  "event.form.submitting": "Creating...",
+  "event.form.submit": "Create event",
+  "chief.myDelegation.transferWindow.open": "Open",
+  "chief.myDelegation.transferWindow.closed": "Closed",
+  "result.form.statusLabel": "Status",
+  "result.form.sportFallback": "Sport",
+  "result.form.modalityFallback": "Modality #{id}",
+  "result.form.rankLabel": "Rank",
+  "result.form.jsonError": "Invalid JSON in result payload."
+}

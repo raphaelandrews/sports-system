@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import * as m from "@/paraglide/messages";
 import { AdminDelegationForm } from "@/features/delegations/components/admin-delegation-form";
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { myDelegationsQueryOptions } from "@/features/delegations/api/queries";
@@ -27,7 +28,7 @@ function EditMyDelegationPage() {
   if (!delegation) {
     return (
       <div className="container mx-auto max-w-3xl px-4 py-10">
-        <p className="text-muted-foreground">Delegação não encontrada.</p>
+        <p className="text-muted-foreground">{m['delegations.public.empty']()}</p>
       </div>
     );
   }
@@ -44,17 +45,17 @@ function EditMyDelegationPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.delegations.my(),
       });
-      toast.success("Delegação atualizada com sucesso.");
+      toast.success(m['common.actions.update']());
       await navigate({ to: "/my-delegations" });
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao atualizar delegação.");
+      toast.error(error instanceof ApiError ? error.message : m['delegation.form.alert.error']());
     },
   });
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6">Editar delegação</h1>
+      <h1 className="text-2xl font-bold mb-6">{m['delegation.edit.title']()}</h1>
       <AdminDelegationForm
         mode="edit"
         leagueId={0}

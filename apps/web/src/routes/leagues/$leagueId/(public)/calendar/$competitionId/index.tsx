@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/comp
 import { buttonVariants } from "@sports-system/ui/components/button";
 import { cn } from "@sports-system/ui/lib/utils";
 
+import * as m from "@/paraglide/messages";
 import { formatDate, formatTime } from "@/shared/lib/date";
 import { delegationListQueryOptions } from "@/features/delegations/api/queries";
 import {
@@ -41,10 +42,10 @@ const statusVariant: Record<EventStatus, "default" | "secondary" | "outline" | "
 };
 
 const phaseLabel: Record<string, string> = {
-  GROUPS: "Grupos",
-  QUARTER: "Quartas",
-  SEMI: "Semis",
-  FINAL: "Final",
+  GROUPS: m['common.phase.group'](),
+  QUARTER: "Quarter",
+  SEMI: "Semi",
+  FINAL: m['common.phase.final'](),
   BRONZE: "Bronze",
 };
 
@@ -88,19 +89,19 @@ function PublicCompetitionCalendarPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_38%),linear-gradient(180deg,hsl(var(--card)),hsl(var(--muted)/0.18))]">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Calendario oficial</Badge>
+              <Badge variant="outline">{m['calendar.competition.badge.official']()}</Badge>
               <Badge variant="secondary">{competition.status}</Badge>
             </div>
-            <CardTitle className="text-3xl">Competicao {competition.number}</CardTitle>
+            <CardTitle className="text-3xl">{m['calendar.competition.card.title']({ "competition.number": competition.number })}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-3">
             <QuickPill
-              label="Periodo"
+              label={m['calendar.competition.stat.period']()}
               value={`${formatDate(competition.start_date)} - ${formatDate(competition.end_date)}`}
             />
-            <QuickPill label="Eventos" value={String(eventsData.data.length)} />
+            <QuickPill label={m['calendar.competition.stat.events']()} value={String(eventsData.data.length)} />
             <QuickPill
-              label="Status"
+              label={m['calendar.competition.stat.status']()}
               value={competition.status === "ACTIVE" ? "Em disputa" : competition.status}
             />
           </CardContent>
@@ -108,7 +109,7 @@ function PublicCompetitionCalendarPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Navegacao</CardTitle>
+            <CardTitle>{m['calendar.competition.card.navTitle']()}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Link
@@ -116,14 +117,14 @@ function PublicCompetitionCalendarPage() {
               params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}
             >
-              Voltar para todas as competicoes
+              {m['common.actions.back']()}
             </Link>
             <Link
               to="/leagues/$leagueId/competitions/$competitionId"
               params={{ leagueId, competitionId }}
               className={cn(buttonVariants({ variant: "ghost" }), "w-full justify-start")}
             >
-              Ver resumo da competicao
+              {m['common.actions.view']()}
             </Link>
           </CardContent>
         </Card>
@@ -199,7 +200,7 @@ function PublicCompetitionCalendarPage() {
                           ))
                         ) : (
                           <div className="rounded-3xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                            Nenhuma partida gerada ainda.
+                            {m['calendar.competition.empty.matches']()}
                           </div>
                         )}
                       </div>
@@ -215,7 +216,7 @@ function PublicCompetitionCalendarPage() {
                         )}
                       >
                         <ArrowRight className="mr-2 size-4" />
-                        Resumo
+                        {m['common.actions.view']()}
                       </Link>
                     </div>
                   </CardContent>

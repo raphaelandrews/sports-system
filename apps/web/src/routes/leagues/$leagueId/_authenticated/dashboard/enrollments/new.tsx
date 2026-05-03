@@ -44,6 +44,7 @@ import { queryKeys } from "@/features/keys";
 import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sports/api/queries";
 import type { CompetitionResponse } from "@/types/competitions";
 import type { EnrollmentCreate } from "@/types/enrollments";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/dashboard/enrollments/new")(
   {
@@ -176,14 +177,14 @@ function NewEnrollmentPage() {
     if (isEnrollmentLocked(selectedCompetition)) {
       return {
         type: "error" as const,
-        message: "Competição travada. Inscrições bloqueadas para esta agenda.",
+        message: m['enrollment.form.alert.lockedTitle'](),
       };
     }
 
     if (!selectedAthlete) {
       return {
         type: "info" as const,
-        message: "Selecione um atleta para validar regras da modalidade.",
+        message: m['enrollment.form.label.athlete'](),
       };
     }
 
@@ -206,7 +207,7 @@ function NewEnrollmentPage() {
     ) {
       return {
         type: "error" as const,
-        message: "Atleta já inscrito neste evento.",
+        message: m['enrollment.form.validation.alreadyEnrolled'](),
       };
     }
 
@@ -218,7 +219,7 @@ function NewEnrollmentPage() {
     if (maxAthletes != null && activeEventEnrollments.length >= maxAthletes) {
       return {
         type: "error" as const,
-        message: `Limite de atletas por delegação atingido (${maxAthletes}).`,
+        message: m['enrollment.form.validation.athleteLimit']({ maxAthletes: String(maxAthletes) }),
       };
     }
 
@@ -227,14 +228,14 @@ function NewEnrollmentPage() {
       if (!selectedAthlete.gender) {
         return {
           type: "error" as const,
-          message: "Modalidade exige gênero definido no cadastro do atleta.",
+          message: m['athlete.form.label.gender'](),
         };
       }
 
       if (selectedAthlete.gender !== requiredGender) {
         return {
           type: "error" as const,
-          message: `Modalidade exige gênero ${requiredGender}.`,
+          message: m['enrollment.form.validation.genderRequired']({ requiredGender }),
         };
       }
     }
@@ -264,7 +265,7 @@ function NewEnrollmentPage() {
 
     return {
       type: "success" as const,
-      message: "Validação local sem conflitos conhecidos. Backend fará a checagem final.",
+        message: m['common.status.approved'](),
     };
   }, [
     delegationId,
@@ -288,11 +289,11 @@ function NewEnrollmentPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.enrollments.all(Number(leagueId)),
       });
-      toast.success("Inscrição criada com sucesso.");
+      toast.success(m["common.actions.create"]());
       await navigate({ to: "/leagues/$leagueId/dashboard/enrollments", params: { leagueId } });
     },
     onError: (error) => {
-      setLocalMessage(error instanceof ApiError ? error.message : "Falha ao criar inscrição.");
+      setLocalMessage(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
@@ -307,10 +308,9 @@ function NewEnrollmentPage() {
     <div className="mx-auto w-full max-w-5xl space-y-6">
       <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(165deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.18))]">
         <CardHeader>
-          <CardTitle>Nova inscrição</CardTitle>
+          <CardTitle>{m["enrollment.form.title"]()}</CardTitle>
           <CardDescription>
-            Selecione competição, esporte, evento e atleta. Regras locais são validadas antes do
-            envio.
+            {m['enrollment.form.desc.create']()}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -334,15 +334,15 @@ function NewEnrollmentPage() {
             <FieldGroup>
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
                 <Field>
-                  <FieldLabel>Competição</FieldLabel>
+                  <FieldLabel>{m["enrollment.form.label.competition"]()}</FieldLabel>
                   <Select value={weekId} onValueChange={(value) => setWeekId(value ?? "")}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione a competição" />
+                      <SelectValue placeholder={m["enrollment.form.placeholder.competition"]() } />
                     </SelectTrigger>
                     <SelectContent>
                       {competitionsData.data.map((competition) => (
                         <SelectItem key={competition.id} value={String(competition.id)}>
-                          Competição {competition.number} · {competition.status}
+                          m["enrollment.form.label.competition"]() {competition.number} · {competition.status}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -350,13 +350,13 @@ function NewEnrollmentPage() {
                 </Field>
 
                 <Field>
-                  <FieldLabel>Esporte</FieldLabel>
+                  <FieldLabel>{m["enrollment.form.label.sport"]()}</FieldLabel>
                   <Select value={sportId} onValueChange={(value) => setSportId(value ?? "ALL")}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ALL">Todos</SelectItem>
+                      <SelectItem value="ALL">{m["enrollment.form.filter.all"]()}</SelectItem>
                       {sportsData.data.map((sport) => (
                         <SelectItem key={sport.id} value={String(sport.id)}>
                           {sport.name}
@@ -367,7 +367,7 @@ function NewEnrollmentPage() {
                 </Field>
 
                 <Field>
-                  <FieldLabel>Evento</FieldLabel>
+                  <FieldLabel>{m["enrollment.form.label.event"]()}</FieldLabel>
                   <Select
                     value={eventId}
                     onValueChange={(value) => {
@@ -376,7 +376,7 @@ function NewEnrollmentPage() {
                     }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o evento" />
+                      <SelectValue placeholder={m["enrollment.form.placeholder.event"]() } />
                     </SelectTrigger>
                     <SelectContent>
                       {selectableEvents.map((event) => {
@@ -387,28 +387,28 @@ function NewEnrollmentPage() {
 
                         return (
                           <SelectItem key={event.id} value={String(event.id)}>
-                            {modality?.name ?? `Evento #${event.id}`} · {sport?.name ?? "Esporte"} ·{" "}
+                            {modality?.name ?? `${m['enrollment.form.label.event']()} #${event.id}`} · {sport?.name ?? m['enrollment.form.label.sport']()} ·{" "}
                             {formatDate(event.event_date)} · {formatTime(event.start_time)}
-                            {locked ? " · bloqueado" : ""}
+                            {locked ? ` · ${m['common.status.locked']()}` : ""}
                           </SelectItem>
                         );
                       })}
                     </SelectContent>
                   </Select>
                   <FieldDescription>
-                    Eventos em competições travadas ficam visualmente bloqueados no envio.
+                    {m['enrollment.form.descLockedEvents']()}
                   </FieldDescription>
                 </Field>
 
                 <Field>
-                  <FieldLabel>Delegação</FieldLabel>
+                  <FieldLabel>{m["enrollment.form.label.delegation"]()}</FieldLabel>
                   <Select
                     value={delegationId}
                     onValueChange={(value) => setDelegationId(value ?? "")}
                     disabled={!isAdmin}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione a delegação" />
+                      <SelectValue placeholder={m["enrollment.form.placeholder.delegation"]() } />
                     </SelectTrigger>
                     <SelectContent>
                       {delegationsData.data.map((delegation) => (
@@ -422,10 +422,10 @@ function NewEnrollmentPage() {
               </div>
 
               <Field>
-                <FieldLabel>Atleta</FieldLabel>
+                <FieldLabel>{m["enrollment.form.label.athlete"]()}</FieldLabel>
                 <Select value={athleteId} onValueChange={(value) => setAthleteId(value ?? "")}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione o atleta" />
+                    <SelectValue placeholder={m["enrollment.form.placeholder.athlete"]() } />
                   </SelectTrigger>
                   <SelectContent>
                     {athletesData.data.map((athlete) => (
@@ -441,21 +441,21 @@ function NewEnrollmentPage() {
             <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
               <Card className="border border-border/70">
                 <CardHeader>
-                  <CardTitle className="text-base">Resumo da seleção</CardTitle>
+                  <CardTitle className="text-base">{m["enrollment.form.card.summary.title"]()}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm text-muted-foreground">
                   <SummaryRow
-                    label="Competição"
+                    label={m['enrollment.form.label.competition']()}
                     value={
                       selectedCompetition
                         ? `#${selectedCompetition.number} · ${selectedCompetition.status}`
                         : "—"
                     }
                   />
-                  <SummaryRow label="Esporte" value={selectedSport?.name ?? "—"} />
-                  <SummaryRow label="Modalidade" value={selectedModality?.name ?? "—"} />
+                  <SummaryRow label={m['enrollment.form.label.sport']()} value={selectedSport?.name ?? "—"} />
+                  <SummaryRow label={m["enrollment.form.summary.modality"]() } value={selectedModality?.name ?? "—"} />
                   <SummaryRow
-                    label="Evento"
+                    label={m['enrollment.form.label.event']()}
                     value={
                       selectedEvent
                         ? `${formatDate(selectedEvent.event_date)} · ${formatTime(selectedEvent.start_time)}`
@@ -463,7 +463,7 @@ function NewEnrollmentPage() {
                     }
                   />
                   <SummaryRow
-                    label="Atleta"
+                    label={m["enrollment.form.summary.athlete"]() }
                     value={
                       selectedAthlete ? `${selectedAthlete.name} · ${selectedAthlete.code}` : "—"
                     }
@@ -473,15 +473,15 @@ function NewEnrollmentPage() {
 
               <Card className="border border-border/70">
                 <CardHeader>
-                  <CardTitle className="text-base">Validação em tempo real</CardTitle>
+                  <CardTitle className="text-base">{m["enrollment.form.card.validation.title"]()}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {selectedCompetition && isEnrollmentLocked(selectedCompetition) ? (
                     <Alert variant="destructive">
                       <ShieldAlert className="size-4" />
-                      <AlertTitle>Competição travada</AlertTitle>
+                      <AlertTitle>{m['enrollment.form.alert.lockedTitle']()}</AlertTitle>
                       <AlertDescription>
-                        Inscrições bloqueadas quando a competição está LOCKED, ACTIVE ou COMPLETED.
+                        {m['chief.shell.delegationDesc']()}
                       </AlertDescription>
                     </Alert>
                   ) : null}
@@ -490,20 +490,20 @@ function NewEnrollmentPage() {
                     <Alert variant={localValidation.type === "error" ? "destructive" : "default"}>
                       <AlertTitle>
                         {localValidation.type === "success"
-                          ? "Pré-validação ok"
-                          : "Ajuste necessário"}
+                          ? m["common.status.approved"]()
+                          : m["common.actions.edit"]()}
                       </AlertTitle>
                       <AlertDescription>{localValidation.message}</AlertDescription>
                     </Alert>
                   ) : (
                     <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                      Selecione evento e atleta para avaliar regras da modalidade.
+                      {m['enrollment.form.card.validation.title']()}
                     </div>
                   )}
 
                   {localMessage ? (
                     <Alert variant="destructive">
-                      <AlertTitle>Falha no envio</AlertTitle>
+                      <AlertTitle>{m['enrollment.form.alert.errorTitle']()}</AlertTitle>
                       <AlertDescription>{localMessage}</AlertDescription>
                     </Alert>
                   ) : null}
@@ -513,14 +513,14 @@ function NewEnrollmentPage() {
 
             <div className="flex flex-wrap items-center gap-3">
               <Button type="submit" disabled={mutation.isPending || submitBlocked}>
-                {mutation.isPending ? "Enviando..." : "Criar inscrição"}
+                {mutation.isPending ? m["common.actions.submit"]() : m["enrollment.form.title.create"]()}
               </Button>
               <Link
                 to="/leagues/$leagueId/dashboard/enrollments"
                 params={{ leagueId }}
                 className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
-                Voltar para lista
+                {m["common.actions.back"]() }
               </Link>
             </div>
           </form>

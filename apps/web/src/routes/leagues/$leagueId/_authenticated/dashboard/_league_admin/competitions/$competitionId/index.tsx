@@ -12,6 +12,7 @@ import {
 } from "@sports-system/ui/components/card";
 import { cn } from "@sports-system/ui/lib/utils";
 
+import * as m from "@/paraglide/messages";
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatDate } from "@/shared/lib/date";
 import { competitionEventsQueryOptions } from "@/features/events/api/queries";
@@ -38,11 +39,11 @@ export const Route = createFileRoute(
 });
 
 const statusLabel: Record<CompetitionStatus, string> = {
-  DRAFT: "Rascunho",
-  SCHEDULED: "Agendada",
-  LOCKED: "Travada",
-  ACTIVE: "Ativa",
-  COMPLETED: "Encerrada",
+  DRAFT: m['common.status.draft'](),
+  SCHEDULED: m['common.status.scheduled'](),
+  LOCKED: m['common.status.locked'](),
+  ACTIVE: m['common.status.active'](),
+  COMPLETED: m['common.status.completed'](),
 };
 
 function CompetitionDetailPage() {
@@ -106,12 +107,12 @@ function CompetitionDetailPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(160deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Competicao #{competition.number}</Badge>
+              <Badge variant="outline">{m['competition.admin.badge.competition']({ "competition.number": competition.number })}</Badge>
               <Badge variant={competition.status === "ACTIVE" ? "secondary" : "outline"}>
                 {statusLabel[competition.status]}
               </Badge>
             </div>
-            <CardTitle className="text-2xl">Detalhe da competicao</CardTitle>
+            <CardTitle className="text-2xl">{m['competition.admin.detail.title']()}</CardTitle>
             <CardDescription className="max-w-2xl">
               Controle o ciclo da competicao com transicoes administrativas e acompanhe o calendario
               associado.
@@ -119,18 +120,18 @@ function CompetitionDetailPage() {
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
             <QuickStat
-              label="Periodo"
+              label={m['competition.admin.detail.period']()}
               value={`${formatDate(competition.start_date)} - ${formatDate(competition.end_date)}`}
             />
-            <QuickStat label="Eventos" value={String(events.data.length)} />
-            <QuickStat label="Preview de partidas" value={String(preview.matches.length)} />
+            <QuickStat label={m['competition.admin.detail.stat.events']()} value={String(events.data.length)} />
+            <QuickStat label={m['competition.admin.detail.stat.preview']()} value={String(preview.matches.length)} />
           </CardContent>
         </Card>
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Ações de estado</CardTitle>
-            <CardDescription>Fluxo oficial: Publicar, Travar, Ativar e Encerrar.</CardDescription>
+            <CardTitle>{m['competition.admin.card.actions.title']()}</CardTitle>
+            <CardDescription>{m['competition.admin.card.actions.desc']()}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {availableActions.map((action) => (
@@ -149,7 +150,7 @@ function CompetitionDetailPage() {
             ))}
             {availableActions.length === 0 ? (
               <div className="rounded-xl border border-dashed border-border/80 p-3 text-sm text-muted-foreground">
-                Nenhuma transicao disponivel para o status atual.
+                {m['competition.admin.empty.transitions']()}
               </div>
             ) : null}
             <Link
@@ -157,7 +158,7 @@ function CompetitionDetailPage() {
               params={{ leagueId }}
               className={cn(buttonVariants({ variant: "ghost" }), "w-full justify-start")}
             >
-              Voltar para lista
+              {m['common.actions.back']()}
             </Link>
           </CardContent>
         </Card>
@@ -166,8 +167,8 @@ function CompetitionDetailPage() {
       <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Status e foco</CardTitle>
-            <CardDescription>Resumo do periodo e dos esportes priorizados.</CardDescription>
+            <CardTitle>{m['competition.admin.card.status.title']()}</CardTitle>
+            <CardDescription>{m['competition.admin.card.status.desc']()}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-sm text-muted-foreground">
@@ -188,7 +189,7 @@ function CompetitionDetailPage() {
             </div>
             <div className="rounded-xl border border-dashed border-border/80 p-3 text-sm text-muted-foreground">
               {transferInfo.open
-                ? "Janela de transferencia aberta hoje em UTC-3."
+                ? m['transferWindow.openMessage']()
                 : `Proxima janela de transferencia: ${transferInfo.nextLabel}.`}
             </div>
           </CardContent>
@@ -196,7 +197,7 @@ function CompetitionDetailPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Preview da geracao</CardTitle>
+            <CardTitle>{m['competition.admin.card.preview.title']()}</CardTitle>
             <CardDescription>
               Resposta atual do endpoint de pre-visualizacao do calendario.
             </CardDescription>
@@ -216,7 +217,7 @@ function CompetitionDetailPage() {
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-                Nenhum match previsto ainda para esta competicao.
+                {m['competition.admin.empty.matches']()}
               </div>
             )}
           </CardContent>
@@ -225,7 +226,7 @@ function CompetitionDetailPage() {
 
       <Card className="border border-border/70">
         <CardHeader>
-          <CardTitle>Eventos cadastrados</CardTitle>
+          <CardTitle>{m['competition.admin.card.events.title']()}</CardTitle>
           <CardDescription>
             Calendario atual desta competicao, com status visivel para auditoria operacional.
           </CardDescription>
@@ -251,7 +252,7 @@ function CompetitionDetailPage() {
             ))
           ) : (
             <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-              Nenhum evento criado para esta competicao.
+              {m['competition.admin.empty.events']()}
             </div>
           )}
         </CardContent>
@@ -261,17 +262,17 @@ function CompetitionDetailPage() {
 }
 
 const transitionLabel = {
-  publish: "Publicar competicao",
-  lock: "Travar competicao",
-  activate: "Ativar competicao",
-  complete: "Encerrar competicao",
+  publish: m['competition.transition.publish'](),
+  lock: m['competition.transition.lock'](),
+  activate: m['competition.transition.activate'](),
+  complete: m['competition.transition.complete'](),
 } as const;
 
 const transitionVerb = {
-  publish: "publicada",
-  lock: "travada",
-  activate: "ativada",
-  complete: "encerrada",
+  publish: m['competition.transition.verb.publish'](),
+  lock: m['competition.transition.verb.lock'](),
+  activate: m['competition.transition.verb.activate'](),
+  complete: m['competition.transition.verb.complete'](),
 } as const;
 
 function getAvailableActions(status: CompetitionStatus) {

@@ -27,6 +27,7 @@ import {
   FunnelIcon,
 } from "lucide-react";
 
+import * as m from "@/paraglide/messages";
 import { formatDate } from "@/shared/lib/date";
 import { competitionListQueryOptions } from "@/features/competitions/api/queries";
 import type { CompetitionStatus } from "@/types/competitions";
@@ -42,11 +43,11 @@ const STATUS_META: Record<
   CompetitionStatus,
   { label: string; icon: typeof CheckIcon; cls: string }
 > = {
-  DRAFT: { label: "Rascunho", icon: CircleIcon, cls: "text-muted-foreground" },
-  SCHEDULED: { label: "Agendada", icon: CircleDotIcon, cls: "text-sky-500" },
-  LOCKED: { label: "Bloqueada", icon: CircleDashedIcon, cls: "text-amber-500" },
-  ACTIVE: { label: "Ativa", icon: CircleDotIcon, cls: "text-emerald-500" },
-  COMPLETED: { label: "Concluída", icon: CheckIcon, cls: "text-violet-500" },
+  DRAFT: { label: m['common.status.draft'](), icon: CircleIcon, cls: "text-muted-foreground" },
+  SCHEDULED: { label: m['common.status.scheduled'](), icon: CircleDotIcon, cls: "text-sky-500" },
+  LOCKED: { label: m['common.status.locked'](), icon: CircleDashedIcon, cls: "text-amber-500" },
+  ACTIVE: { label: m['common.status.active'](), icon: CircleDotIcon, cls: "text-emerald-500" },
+  COMPLETED: { label: m['common.status.completed'](), icon: CheckIcon, cls: "text-violet-500" },
 };
 
 function CompetitionsPage() {
@@ -126,11 +127,11 @@ function CompetitionsPage() {
 
   return (
     <TableLayout
-      title="Competições"
+      title={m['competitions.public.title']()}
       countLabel="competições"
       visibleCount={pagedData.length}
       totalCount={filteredData.length}
-      searchPlaceholder="Buscar competições…"
+      searchPlaceholder={m['common.table.searchPlaceholder']()}
       searchQuery={searchQuery}
       onSearchChange={(value) => {
         setSearchQuery(value);
@@ -144,7 +145,7 @@ function CompetitionsPage() {
       onPageSizeChange={setPageSize}
       filterActions={
         <FacetButton
-          label="Status"
+          label={m['competitions.public.filter.status']()}
           icon={<FunnelIcon className="size-3.5" />}
           count={selectedStatuses.length}
           chips={selectedStatuses.map((s) => STATUS_META[s].label)}
@@ -159,8 +160,8 @@ function CompetitionsPage() {
                 "COMPLETED",
               ] as CompetitionStatus[]
             ).map((status) => {
-              const m = STATUS_META[status];
-              const Icon = m.icon;
+              const meta = STATUS_META[status];
+              const Icon = meta.icon;
               return (
                 <Label
                   key={status}
@@ -170,8 +171,8 @@ function CompetitionsPage() {
                     checked={selectedStatuses.includes(status)}
                     onCheckedChange={() => toggleStatus(status)}
                   />
-                  <Icon className={"size-3.5 " + m.cls} />
-                  <span className="flex-1">{m.label}</span>
+                  <Icon className={"size-3.5 " + meta.cls} />
+                  <span className="flex-1">{meta.label}</span>
                   <span className="text-muted-foreground text-xs">
                     {statusCounts[status] ?? 0}
                   </span>
@@ -185,11 +186,11 @@ function CompetitionsPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="ps-4 w-40">Competição</TableHead>
-            <TableHead className="w-32">Período</TableHead>
-            <TableHead className="w-36">Status</TableHead>
-            <TableHead className="w-24">Esportes</TableHead>
-            <TableHead className="pe-4 w-40 text-right">Ações</TableHead>
+            <TableHead className="ps-4 w-40">{m['competitions.public.table.competition']()}</TableHead>
+            <TableHead className="w-32">{m['competitions.public.table.period']()}</TableHead>
+            <TableHead className="w-36">{m['competitions.public.table.status']()}</TableHead>
+            <TableHead className="w-24">{m['competitions.public.table.sports']()}</TableHead>
+            <TableHead className="pe-4 w-40 text-right">{m['competitions.public.table.actions']()}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -199,18 +200,18 @@ function CompetitionsPage() {
                 colSpan={5}
                 className="h-24 text-center text-muted-foreground"
               >
-                Nenhuma competição encontrada.
+                {m['competitions.public.empty']()}
               </TableCell>
             </TableRow>
           )}
           {pagedData.map((competition) => {
-            const m = STATUS_META[competition.status];
+            const meta = STATUS_META[competition.status];
             return (
               <TableRow key={competition.id}>
                 <TableCell className="ps-4">
                   <span className="inline-flex items-center gap-2 font-mono text-muted-foreground text-xs">
                     <span className="font-medium text-foreground text-sm">
-                      Competição {competition.number}
+                      {m['competition.admin.badge.competition']({ 'competition.number': competition.number })}
                     </span>
                   </span>
                 </TableCell>
@@ -236,7 +237,7 @@ function CompetitionsPage() {
                               : "border-violet-500/30 text-violet-700 dark:text-violet-400")
                     }
                   >
-                    {m.label}
+                    {meta.label}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -253,7 +254,7 @@ function CompetitionsPage() {
                     }}
                     className="text-sm text-primary underline-offset-4 hover:underline"
                   >
-                    Ver detalhes
+                    {m['common.actions.view']()}
                   </Link>
                 </TableCell>
               </TableRow>

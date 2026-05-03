@@ -3,6 +3,7 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { flushSync } from "react-dom";
 
+import * as m from "@/paraglide/messages";
 import { cn } from "@sports-system/ui/lib/utils";
 
 import { Button } from "@sports-system/ui/components/button";
@@ -81,10 +82,10 @@ export const AnimatedThemeToggler = ({
         }
       >
         {mounted ? isDark ? <Sun size={16} /> : <Moon size={16} /> : <Moon size={16} />}
-        <span className="sr-only">Toggle theme</span>
+        <span className="sr-only">{m['theme.toggleLabel']()}</span>
       </TooltipTrigger>
       <TooltipContent>
-        <p>{mounted && isDark ? "Alternar para claro" : "Alternar para escuro"}</p>
+        <p>{mounted && isDark ? m['theme.toggleLight']() : m['theme.toggleDark']()}</p>
       </TooltipContent>
     </Tooltip>
   );

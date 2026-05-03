@@ -33,6 +33,7 @@ import {
   delegationListQueryOptions,
 } from "@/features/delegations/api/queries";
 import { queryKeys } from "@/features/keys";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_chief/my-delegation/members",
@@ -82,18 +83,18 @@ function DelegationMembersPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.delegations.invites(Number(leagueId), delegationId),
       });
-      toast.success("Convite revogado.");
+      toast.success(m["common.actions.remove"]());
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao revogar convite.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
   if (!delegation || !delegationId) {
     return (
       <ChiefDelegationShell
-        title="Membros e convites"
-        description="Controle de quem compoe a delegacao e quais acessos aguardam resposta."
+        title={m["nav.chief.members"]() }
+        description={m["chief.shell.nav.members"]() }
         leagueId={leagueId}
         delegation={delegation}
       >
@@ -114,25 +115,25 @@ function DelegationMembersPage() {
 
   return (
     <ChiefDelegationShell
-      title="Membros e convites"
-      description="Painel do chefe para revisar equipe atual, historico preservado e pendencias de entrada."
+      title={m["nav.chief.members"]() }
+      description={m["chief.shell.nav.members"]() }
       leagueId={leagueId}
       delegation={delegation}
     >
       <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Membros ativos</CardTitle>
-            <CardDescription>Lista operacional da composicao atual da delegacao.</CardDescription>
+            <CardTitle>{m["delegation.detail.section.members"]()}</CardTitle>
+            <CardDescription>m["chief.shell.delegationDesc"]()</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Usuario</TableHead>
-                  <TableHead>Funcao</TableHead>
-                  <TableHead>Entrada</TableHead>
+                  <TableHead>{m["delegation.detail.table.name"]() }</TableHead>
+                  <TableHead>{m["nav.user.account"]() }</TableHead>
+                  <TableHead>{m["delegation.detail.table.role"]() }</TableHead>
+                  <TableHead>{m["athlete.detail.table.entry"]() }</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -153,7 +154,7 @@ function DelegationMembersPage() {
                 {detail.members.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
-                      Nenhum membro ativo nesta delegacao.
+                      m["delegation.detail.empty.members"]()
                     </TableCell>
                   </TableRow>
                 ) : null}
@@ -164,9 +165,9 @@ function DelegationMembersPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Convites pendentes</CardTitle>
+            <CardTitle>{m["notification.title.invite"]()}</CardTitle>
             <CardDescription>
-              Convites ainda sem aceite. Voce pode revogar antes da resposta.
+              m["chief.shell.nav.invite"]()
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -178,9 +179,9 @@ function DelegationMembersPage() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <div className="font-medium">Usuario #{invite.user_id}</div>
+                      <div className="font-medium">m["nav.user.account"]() #{invite.user_id}</div>
                       <div className="text-sm text-muted-foreground">
-                        Criado em {formatEventDate(invite.created_at)}
+                        m["common.actions.create"]() {formatEventDate(invite.created_at)}
                       </div>
                     </div>
                     <Badge variant="secondary">{invite.status}</Badge>
@@ -188,8 +189,8 @@ function DelegationMembersPage() {
                   <div className="mt-3">
                     <ChiefActionButton
                       pending={revokeMutation.isPending}
-                      idleLabel="Revogar convite"
-                      busyLabel="Revogando..."
+                      idleLabel={m["common.actions.remove"]() }
+                      busyLabel={m["common.actions.remove"]() }
                       onClick={() => revokeMutation.mutate(invite.id)}
                       variant="outline"
                     />
@@ -198,7 +199,7 @@ function DelegationMembersPage() {
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-                Nenhum convite pendente no momento.
+                m["notification.empty"]()
               </div>
             )}
           </CardContent>
@@ -207,8 +208,8 @@ function DelegationMembersPage() {
 
       <Card className="border border-border/70">
         <CardHeader>
-          <CardTitle>Historico de vinculos</CardTitle>
-          <CardDescription>Auditoria simples das entradas e saidas da delegacao.</CardDescription>
+          <CardTitle>{m["delegation.detail.campaign.title"]()}</CardTitle>
+          <CardDescription>m["chief.shell.delegationDesc"]()</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {history.length > 0 ? (
@@ -223,13 +224,13 @@ function DelegationMembersPage() {
                   {" - "}
                   {item.left_at
                     ? formatEventDate(item.left_at, { dateStyle: "medium" })
-                    : "vinculo ativo"}
+                    : m['common.status.active']()}
                 </div>
               </div>
             ))
           ) : (
             <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-              Sem historico adicional para exibir.
+              m["delegation.detail.empty.former"]()
             </div>
           )}
         </CardContent>

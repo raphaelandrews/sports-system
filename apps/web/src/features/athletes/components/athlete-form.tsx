@@ -29,6 +29,7 @@ import {
 } from "@sports-system/ui/components/select";
 import { Search } from "lucide-react";
 
+import * as m from "@/paraglide/messages";
 import { userSearchQueryOptions } from "@/features/users/api/queries";
 import type { AthleteResponse } from "@/types/athletes";
 
@@ -91,11 +92,11 @@ export function AthleteForm({
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <Card className="border border-border/70 bg-gradient-to-br from-card via-card to-muted/20">
         <CardHeader>
-          <CardTitle>{mode === "create" ? "Novo atleta" : "Editar atleta"}</CardTitle>
+          <CardTitle>{mode === "create" ? m['athlete.form.title.create']() : m['athlete.form.title.edit']()}</CardTitle>
           <CardDescription>
             {roleScope === "admin"
-              ? "Cadastre atletas globalmente e vincule um usuario quando fizer sentido."
-              : "Cadastre atletas para sua delegacao e vincule um usuario opcionalmente."}
+              ? m['athlete.form.desc.admin']()
+              : m['athlete.form.desc.chief']()}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -112,16 +113,16 @@ export function AthleteForm({
                 validators={{
                   onChange: ({ value }) =>
                     value.trim().length < 3
-                      ? { message: "Informe um nome com pelo menos 3 caracteres." }
+                      ? { message: m['athlete.form.error.name']() }
                       : undefined,
                 }}
               >
                 {(field) => (
                   <Field>
-                    <FieldLabel htmlFor="athlete-name">Nome</FieldLabel>
+                    <FieldLabel htmlFor="athlete-name">{m['athlete.form.label.name']()}</FieldLabel>
                     <Input
                       id="athlete-name"
-                      placeholder="Ex: Ana Souza"
+                      placeholder={m['athlete.form.placeholder.name']()}
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(event) => field.handleChange(event.target.value)}
@@ -136,22 +137,22 @@ export function AthleteForm({
                 validators={{
                   onChange: ({ value }) =>
                     value.trim().length < 3
-                      ? { message: "Use um codigo com pelo menos 3 caracteres." }
+                      ? { message: m['athlete.form.error.code']() }
                       : undefined,
                 }}
               >
                 {(field) => (
                   <Field>
-                    <FieldLabel htmlFor="athlete-code">Codigo</FieldLabel>
+                    <FieldLabel htmlFor="athlete-code">{m['athlete.form.label.code']()}</FieldLabel>
                     <Input
                       id="athlete-code"
-                      placeholder="Ex: ATH-001"
+                      placeholder={m['athlete.form.placeholder.code']()}
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(event) => field.handleChange(event.target.value)}
                     />
                     <FieldDescription>
-                      Sera enviado em caixa alta para manter padrao administrativo.
+                      {m['athlete.form.desc.code']()}
                     </FieldDescription>
                     <FieldError errors={field.state.meta.errors} />
                   </Field>
@@ -162,7 +163,7 @@ export function AthleteForm({
                 <form.Field name="gender">
                   {(field) => (
                     <Field>
-                      <FieldLabel htmlFor="athlete-gender">Genero</FieldLabel>
+                      <FieldLabel htmlFor="athlete-gender">{m['athlete.form.label.gender']()}</FieldLabel>
                       <Select
                         value={field.state.value}
                         onValueChange={(value) =>
@@ -173,9 +174,9 @@ export function AthleteForm({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="NONE">Nao informar</SelectItem>
-                          <SelectItem value="M">Masculino</SelectItem>
-                          <SelectItem value="F">Feminino</SelectItem>
+                          <SelectItem value="NONE">{m['athlete.form.gender.none']()}</SelectItem>
+                          <SelectItem value="M">{m['athlete.form.gender.male']()}</SelectItem>
+                          <SelectItem value="F">{m['athlete.form.gender.female']()}</SelectItem>
                         </SelectContent>
                       </Select>
                     </Field>
@@ -185,7 +186,7 @@ export function AthleteForm({
                 <form.Field name="birthdate">
                   {(field) => (
                     <Field>
-                      <FieldLabel htmlFor="athlete-birthdate">Nascimento</FieldLabel>
+                      <FieldLabel htmlFor="athlete-birthdate">{m['athlete.form.label.birthdate']()}</FieldLabel>
                       <Input
                         id="athlete-birthdate"
                         type="date"
@@ -214,21 +215,21 @@ export function AthleteForm({
 
             {errorMessage ? (
               <Alert variant="destructive">
-                <AlertTitle>Nao foi possivel salvar</AlertTitle>
+                <AlertTitle>{m['athlete.form.alert.error']()}</AlertTitle>
                 <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
             ) : null}
 
             <div className="flex flex-wrap items-center gap-3">
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Salvando..." : "Cadastrar atleta"}
+                {isSubmitting ? m['athlete.form.submitting']() : m['athlete.form.submit']()}
               </Button>
               <Link
                 to="/leagues/$leagueId/dashboard/athletes"
                 params={{ leagueId: String(leagueId) }}
                 className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
-                Cancelar e voltar
+                {m['athlete.form.cancel']()}
               </Link>
             </div>
           </form>
@@ -262,14 +263,14 @@ function LinkedUserSearch({
 
   return (
     <Field>
-      <FieldLabel htmlFor="athlete-user-search">Usuario vinculado</FieldLabel>
+      <FieldLabel htmlFor="athlete-user-search">{m['athlete.form.label.linkedUser']()}</FieldLabel>
       <div className="space-y-3">
         <div className="relative">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="athlete-user-search"
             className="pl-9"
-            placeholder="Buscar usuario por nome ou email"
+            placeholder={m['athlete.form.searchPlaceholder']()}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -277,10 +278,10 @@ function LinkedUserSearch({
 
         {linkedUserId ? (
           <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border/70 bg-muted/25 p-3 text-sm">
-            <Badge variant="secondary">Usuario #{linkedUserId}</Badge>
-            <span className="text-muted-foreground">{linkedUserLabel ?? "Vinculado"}</span>
+            <Badge variant="secondary">{m['athlete.form.linkedUserBadge']({ linkedUserId })}</Badge>
+            <span className="text-muted-foreground">{linkedUserLabel ?? m['athlete.form.linkedUserFallback']()}</span>
             <Button type="button" variant="ghost" size="sm" onClick={onClear}>
-              Remover vinculo
+              {m['athlete.form.unlinkButton']()}
             </Button>
           </div>
         ) : null}
@@ -289,7 +290,7 @@ function LinkedUserSearch({
           <div className="space-y-2">
             {isFetching ? (
               <div className="rounded-xl border border-dashed border-border/80 p-4 text-sm text-muted-foreground">
-                Buscando usuarios...
+                {m['athlete.form.searchLoading']()}
               </div>
             ) : filtered.length > 0 ? (
               filtered.slice(0, 6).map((user) => (
@@ -302,19 +303,19 @@ function LinkedUserSearch({
                     <div className="text-sm text-muted-foreground">{user.email}</div>
                   </div>
                   <Button type="button" variant="outline" size="sm" onClick={() => onSelect(user)}>
-                    Vincular
+                    {m['athlete.form.linkButton']()}
                   </Button>
                 </div>
               ))
             ) : (
               <div className="rounded-xl border border-dashed border-border/80 p-4 text-sm text-muted-foreground">
-                Nenhum usuario encontrado.
+                {m['athlete.form.searchEmpty']()}
               </div>
             )}
           </div>
         ) : (
           <FieldDescription>
-            Opcional. Use a busca para relacionar o atleta a uma conta do sistema.
+            {m['athlete.form.desc.linkedUser']()}
           </FieldDescription>
         )}
       </div>

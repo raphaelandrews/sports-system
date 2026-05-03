@@ -7,6 +7,7 @@ import { CheckCircle, Clock, XCircle } from "lucide-react";
 import { ApiError } from "@/shared/lib/api";
 import { formatEventDate } from "@/shared/lib/date";
 import { chiefRequestQueryOptions } from "@/features/notifications/api/queries";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_authenticated/request-chief/status")({
   component: RequestChiefStatusPage,
@@ -33,7 +34,7 @@ function RequestChiefStatusPage() {
           Você ainda não enviou uma solicitação de chefe de delegação.
         </p>
         <Link to="/request-chief">
-          <Button>Enviar solicitação</Button>
+          <Button>{m["common.actions.submit"]()}</Button>
         </Link>
       </div>
     );
@@ -44,21 +45,21 @@ function RequestChiefStatusPage() {
   const statusConfig = {
     PENDING: {
       icon: <Clock className="h-8 w-8 text-yellow-500" />,
-      label: "Em análise",
+      label: m["common.status.pending"](),
       variant: "secondary" as const,
-      message: "Sua solicitação foi recebida e está aguardando revisão do administrador.",
+      message: m["chief.shell.alert.desc"](),
     },
     APPROVED: {
       icon: <CheckCircle className="h-8 w-8 text-green-500" />,
-      label: "Aprovada",
+      label: m["common.status.approved"](),
       variant: "default" as const,
       message: `Parabéns! Sua solicitação foi aprovada. A delegação "${request.delegation_name}" foi criada e você já é o chefe.`,
     },
     REJECTED: {
       icon: <XCircle className="h-8 w-8 text-destructive" />,
-      label: "Rejeitada",
+      label: m["common.status.rejected"](),
       variant: "destructive" as const,
-      message: "Sua solicitação foi rejeitada. Você pode enviar uma nova solicitação.",
+      message: m["chief.shell.unavailable"](),
     },
   };
 
@@ -99,16 +100,14 @@ function RequestChiefStatusPage() {
       {request.status === "REJECTED" && (
         <div className="mt-4">
           <Link to="/request-chief">
-            <Button variant="outline">Enviar nova solicitação</Button>
+            <Button variant="outline">{m["common.actions.submit"]()}</Button>
           </Link>
         </div>
       )}
 
       <div className="mt-4">
         <Link to="/leagues">
-          <Button variant="ghost" className="text-muted-foreground">
-            Voltar ao dashboard
-          </Button>
+          <Button variant="ghost" className="text-muted-foreground">{m["nav.workspace.personal"]()}</Button>
         </Link>
       </div>
     </div>

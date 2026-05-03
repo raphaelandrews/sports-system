@@ -6,6 +6,7 @@ import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import * as m from "@/paraglide/messages";
 import { AuthCard } from "@/features/auth/components/auth-card";
 import { loginFn } from "@/features/auth/server/auth";
 
@@ -38,13 +39,13 @@ export function LoginForm() {
 
   return (
     <AuthCard
-      title="Bem-vindo de volta"
-      subtitle="Acesse sua conta para continuar"
+      title={m['login_title']()}
+      subtitle={m['auth.login.subtitle']()}
       switchText={
         <>
-          Não tem conta?{" "}
+          {m['login_no_account']()}{" "}
           <a href="/register" className="underline underline-offset-4 hover:text-foreground">
-            Cadastre-se
+            {m['login_register']()}
           </a>
         </>
       }
@@ -56,16 +57,16 @@ export function LoginForm() {
       <form.Field
         name="email"
         validators={{
-          onChange: ({ value }) => (!value.trim() ? "E-mail obrigatório" : undefined),
+          onChange: ({ value }) => (!value.trim() ? m['auth.login.emailRequired']() : undefined),
         }}
       >
         {(field) => (
           <Field>
-            <FieldLabel htmlFor="email">E-mail</FieldLabel>
+            <FieldLabel htmlFor="email">{m['login_email']()}</FieldLabel>
             <Input
               id="email"
               type="email"
-              placeholder="sportshub@email.com"
+              placeholder={m['auth.register.emailPlaceholder']()}
               autoComplete="email"
               value={field.state.value}
               onChange={(e) => field.handleChange(e.target.value)}
@@ -81,12 +82,12 @@ export function LoginForm() {
       <form.Field
         name="password"
         validators={{
-          onChange: ({ value }) => (!value ? "Senha obrigatória" : undefined),
+          onChange: ({ value }) => (!value ? m['auth.login.passwordRequired']() : undefined),
         }}
       >
         {(field) => (
           <Field>
-            <FieldLabel htmlFor="password">Senha</FieldLabel>
+            <FieldLabel htmlFor="password">{m['login_password']()}</FieldLabel>
             <Input
               id="password"
               type="password"
@@ -108,7 +109,7 @@ export function LoginForm() {
         <form.Subscribe selector={(s) => s.isSubmitting}>
           {(isSubmitting) => (
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Entrando..." : "Entrar"}
+              {isSubmitting ? m['auth.login.submitting']() : m['login_submit']()}
             </Button>
           )}
         </form.Subscribe>

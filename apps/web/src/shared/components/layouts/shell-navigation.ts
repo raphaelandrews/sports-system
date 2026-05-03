@@ -15,6 +15,7 @@ import {
   UserCheck,
 } from "lucide-react";
 
+import * as m from "@/paraglide/messages";
 import type { Session } from "@/types/auth";
 import type { LeagueMemberRole, LeagueResponse } from "@/types/leagues";
 
@@ -76,13 +77,13 @@ export function roleLabel(
   if (!role) return undefined;
 
   const labels: Record<Session["role"] | LeagueMemberRole, string> = {
-    SUPERADMIN: "Administrador",
-    USER: "Usuário",
-    ADMIN: "Administrador",
-    CHIEF: "Chefe",
-    COACH: "Técnico",
-    ATHLETE: "Atleta",
-    LEAGUE_ADMIN: "Admin da liga",
+    SUPERADMIN: m['roles.superadmin'](),
+    USER: m['roles.user'](),
+    ADMIN: m['roles.admin'](),
+    CHIEF: m['roles.chief'](),
+    COACH: m['roles.coach'](),
+    ATHLETE: m['roles.athlete'](),
+    LEAGUE_ADMIN: m['roles.leagueAdmin'](),
   };
 
   return labels[role];
@@ -91,57 +92,57 @@ export function roleLabel(
 function buildPublicNav(leagueBase: string): ShellNavItem[] {
   if (!leagueBase) {
     return [
-      { href: "/", label: "Início", icon: Home, exact: true },
-      { href: "/leagues", label: "Ligas", icon: Trophy },
+      { href: "/", label: m['nav.home'](), icon: Home, exact: true },
+      { href: "/leagues", label: m['nav.leagues'](), icon: Trophy },
     ];
   }
 
   return [
-    { href: leagueBase, label: "Visão geral", icon: Home, exact: true },
-    { href: `${leagueBase}/competitions`, label: "Competições", icon: CalendarDays },
-    { href: `${leagueBase}/results`, label: "Resultados", icon: Medal },
-    { href: `${leagueBase}/calendar`, label: "Calendário", icon: CalendarDays },
-    { href: `${leagueBase}/delegations`, label: "Delegações", icon: Flag },
-    { href: `${leagueBase}/sports`, label: "Esportes", icon: Trophy },
+    { href: leagueBase, label: m['nav.overview'](), icon: Home, exact: true },
+    { href: `${leagueBase}/competitions`, label: m['nav.competitions'](), icon: CalendarDays },
+    { href: `${leagueBase}/results`, label: m['nav.results'](), icon: Medal },
+    { href: `${leagueBase}/calendar`, label: m['nav.calendar'](), icon: CalendarDays },
+    { href: `${leagueBase}/delegations`, label: m['nav.delegations'](), icon: Flag },
+    { href: `${leagueBase}/sports`, label: m['nav.sports'](), icon: Trophy },
   ];
 }
 
 function buildGlobalNav(): ShellNavItem[] {
   return [
-    { href: "/", label: "Início", icon: Home, exact: true },
-    { href: "/leagues", label: "Explorar ligas", icon: Compass },
-    { href: "/my-leagues", label: "Minhas ligas", icon: Shield },
-    { href: "/leagues/new", label: "Criar liga", icon: PlusCircle },
+    { href: "/", label: m['nav.home'](), icon: Home, exact: true },
+    { href: "/leagues", label: m['nav.exploreLeagues'](), icon: Compass },
+    { href: "/my-leagues", label: m['nav.myLeagues'](), icon: Shield },
+    { href: "/leagues/new", label: m['nav.createLeague'](), icon: PlusCircle },
   ];
 }
 
 function buildMemberNav(dash: string): ShellNavItem[] {
   return [
-    { href: `${dash}/calendar`, label: "Agenda operacional", icon: CalendarDays },
-    { href: `${dash}/results`, label: "Operar resultados", icon: Medal },
+    { href: `${dash}/calendar`, label: m['nav.operationalCalendar'](), icon: CalendarDays },
+    { href: `${dash}/results`, label: m['nav.operateResults'](), icon: Medal },
   ];
 }
 
 function buildAdminNav(dash: string, leagueBase: string): ShellNavItem[] {
   return [
-    { href: `${dash}/competitions`, label: "Competições", icon: Settings },
-    { href: `${dash}/athletes`, label: "Atletas", icon: UserCheck },
-    { href: `${dash}/enrollments`, label: "Inscrições", icon: Medal },
-    { href: `${dash}/participation-requests`, label: "Solicitações", icon: Hand },
-    { href: `${dash}/ai`, label: "Geração IA", icon: Sparkles },
-    { href: `${leagueBase}/settings`, label: "Configurações", icon: Settings },
-    { href: `${leagueBase}/report`, label: "Relatório Final", icon: BarChart3 },
+    { href: `${dash}/competitions`, label: m['nav.admin.competitions'](), icon: Settings },
+    { href: `${dash}/athletes`, label: m['nav.admin.athletes'](), icon: UserCheck },
+    { href: `${dash}/enrollments`, label: m['nav.admin.enrollments'](), icon: Medal },
+    { href: `${dash}/participation-requests`, label: m['nav.admin.requests'](), icon: Hand },
+    { href: `${dash}/ai`, label: m['nav.admin.ai'](), icon: Sparkles },
+    { href: `${leagueBase}/settings`, label: m['nav.admin.settings'](), icon: Settings },
+    { href: `${leagueBase}/report`, label: m['nav.admin.report'](), icon: BarChart3 },
   ];
 }
 
 function buildChiefNav(dash: string): ShellNavItem[] {
   return [
-    { href: `${dash}/my-delegation`, label: "Minha delegação", icon: UserCheck },
-    { href: `${dash}/my-delegation/members`, label: "Membros", icon: Shield },
-    { href: `${dash}/my-delegation/invite`, label: "Convites", icon: PlusCircle },
-    { href: `${dash}/my-delegation/transfers`, label: "Transferências", icon: Compass },
-    { href: `${dash}/enrollments`, label: "Inscrições", icon: Medal },
-    { href: `${dash}/athletes`, label: "Atletas", icon: UserCheck },
+    { href: `${dash}/my-delegation`, label: m['nav.chief.myDelegation'](), icon: UserCheck },
+    { href: `${dash}/my-delegation/members`, label: m['nav.chief.members'](), icon: Shield },
+    { href: `${dash}/my-delegation/invite`, label: m['nav.chief.invites'](), icon: PlusCircle },
+    { href: `${dash}/my-delegation/transfers`, label: m['nav.chief.transfers'](), icon: Compass },
+    { href: `${dash}/enrollments`, label: m['nav.chief.enrollments'](), icon: Medal },
+    { href: `${dash}/athletes`, label: m['nav.chief.athletes'](), icon: UserCheck },
   ];
 }
 
@@ -229,27 +230,27 @@ export function buildQuickActions(args: {
 
   if (scope === "league-authenticated" && membershipRole === "LEAGUE_ADMIN") {
     return [
-      { href: `${dashBase}/competitions/new`, label: "Nova competição", icon: PlusCircle },
+      { href: `${dashBase}/competitions/new`, label: m['nav.quick.newCompetition'](), icon: PlusCircle },
     ];
   }
 
   if (scope === "league-authenticated" && membershipRole === "CHIEF") {
     return [
-      { href: `${dashBase}/my-delegation`, label: "Minha delegação", icon: UserCheck },
+      { href: `${dashBase}/my-delegation`, label: m['nav.chief.myDelegation'](), icon: UserCheck },
     ];
   }
 
   if (scope === "site-authenticated") {
     return [
-      { href: "/my-leagues", label: "Minhas ligas", icon: Shield },
-      { href: "/leagues/new", label: "Criar liga", icon: PlusCircle },
+      { href: "/my-leagues", label: m['nav.myLeagues'](), icon: Shield },
+      { href: "/leagues/new", label: m['nav.createLeague'](), icon: PlusCircle },
     ];
   }
 
   if (!session) {
     return [
-      { href: "/login", label: "Entrar", icon: Shield },
-      { href: "/register", label: "Criar conta", icon: PlusCircle },
+      { href: "/login", label: m['nav.quick.login'](), icon: Shield },
+      { href: "/register", label: m['nav.quick.register'](), icon: PlusCircle },
     ];
   }
 
@@ -273,8 +274,8 @@ export function buildWorkspaces(args: {
         href: `/leagues/${currentLeague.id}`,
       },
       {
-        name: "Painel da liga",
-        meta: "Área autenticada",
+        name: m['nav.workspace.leaguePanel'](),
+        meta: m['nav.meta.catalog'](),
         icon: Shield,
         href: `/leagues/${currentLeague.id}/dashboard`,
       },
@@ -282,13 +283,13 @@ export function buildWorkspaces(args: {
   }
 
   const base: WorkspaceItem[] = [
-    { name: "Explorar ligas", meta: "Catálogo público", icon: Compass, href: "/leagues" },
-    { name: "Minhas ligas", meta: "Acessos rápidos", icon: Shield, href: "/my-leagues" },
+    { name: m['nav.workspace.explore'](), meta: m['nav.meta.catalog'](), icon: Compass, href: "/leagues" },
+    { name: m['nav.workspace.myLeagues'](), meta: m['nav.meta.shortcuts'](), icon: Shield, href: "/my-leagues" },
   ];
 
   if (role === "SUPERADMIN") {
-    return [{ name: "Central Admin", meta: "Operação geral", icon: Sparkles, href: "/" }, ...base];
+    return [{ name: m['nav.workspace.admin'](), meta: "Operação geral", icon: Sparkles, href: "/" }, ...base];
   }
 
-  return [{ name: "Painel pessoal", meta: "Visão geral", icon: Sparkles, href: "/" }, ...base];
+  return [{ name: m['nav.workspace.personal'](), meta: m['nav.meta.overview'](), icon: Sparkles, href: "/" }, ...base];
 }

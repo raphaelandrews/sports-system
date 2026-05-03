@@ -1,6 +1,7 @@
 import { Badge } from "@sports-system/ui/components/badge";
 
 import type { EnrollmentStatus } from "@/types/enrollments";
+import * as m from "@/paraglide/messages";
 
 const variantByStatus: Record<
   EnrollmentStatus,
@@ -12,9 +13,9 @@ const variantByStatus: Record<
 };
 
 const labelByStatus: Record<EnrollmentStatus, string> = {
-  PENDING: "Pendente",
-  APPROVED: "Aprovada",
-  REJECTED: "Rejeitada",
+  PENDING: m["common.status.pending"](),
+  APPROVED: m["common.status.approved"](),
+  REJECTED: m["common.status.rejected"](),
 };
 
 export function EnrollmentStatusBadge({ status }: { status: EnrollmentStatus }) {

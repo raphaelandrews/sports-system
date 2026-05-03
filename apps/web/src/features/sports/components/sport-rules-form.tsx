@@ -11,6 +11,8 @@ import {
 } from "@sports-system/ui/components/card";
 import { Field, FieldDescription, FieldLabel } from "@sports-system/ui/components/field";
 
+import * as m from "@/paraglide/messages";
+
 type SportRulesFormValues = {
   rules_json_text: string;
 };
@@ -40,7 +42,7 @@ export function SportRulesForm({
         setJsonError(null);
         await onSubmit({ rules_json: parsed });
       } catch {
-        setJsonError("JSON invalido. Revise chaves, aspas e virgulas.");
+        setJsonError(m['sport.rules.error.json']());
       }
     },
   });
@@ -48,8 +50,8 @@ export function SportRulesForm({
   return (
     <Card className="border border-border/70">
       <CardHeader>
-        <CardTitle>Regras do esporte</CardTitle>
-        <CardDescription>Admin pode ajustar `rules_json` sem alterar codigo.</CardDescription>
+        <CardTitle>{m['sport.rules.title']()}</CardTitle>
+        <CardDescription>{m['sport.rules.desc']()}</CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -62,7 +64,7 @@ export function SportRulesForm({
           <form.Field name="rules_json_text">
             {(field) => (
               <Field>
-                <FieldLabel htmlFor="sport-rules">Rules JSON</FieldLabel>
+                <FieldLabel htmlFor="sport-rules">{m['sport.rules.label']()}</FieldLabel>
                 <textarea
                   id="sport-rules"
                   className="min-h-72 w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
@@ -71,7 +73,7 @@ export function SportRulesForm({
                   onChange={(event) => field.handleChange(event.target.value)}
                 />
                 <FieldDescription>
-                  Exemplo:{" "}
+                  {m['sport.rules.examplePrefix']()}{" "}
                   {`{"roster_size": 18, "substitutes": 7, "schedule_conflict_check": true}`}
                 </FieldDescription>
               </Field>
@@ -80,20 +82,20 @@ export function SportRulesForm({
 
           {jsonError ? (
             <Alert variant="destructive">
-              <AlertTitle>Rules JSON invalido</AlertTitle>
+              <AlertTitle>{m['sport.rules.alert.jsonTitle']()}</AlertTitle>
               <AlertDescription>{jsonError}</AlertDescription>
             </Alert>
           ) : null}
 
           {errorMessage ? (
             <Alert variant="destructive">
-              <AlertTitle>Nao foi possivel salvar</AlertTitle>
+              <AlertTitle>{m['sport.rules.alert.saveTitle']()}</AlertTitle>
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
           ) : null}
 
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Salvando..." : "Salvar regras"}
+            {isSubmitting ? m['sport.rules.submitting']() : m['sport.rules.submit']()}
           </Button>
         </form>
       </CardContent>

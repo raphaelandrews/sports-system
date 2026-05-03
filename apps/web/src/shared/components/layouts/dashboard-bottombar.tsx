@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { AlertCircleIcon, XIcon } from "lucide-react";
 
+import * as m from "@/paraglide/messages";
 import { cn } from "@sports-system/ui/lib/utils";
 import { roleLabel, type ShellScope } from "@/shared/components/layouts/shell-navigation";
 import type { Session } from "@/types/auth";
@@ -36,14 +37,14 @@ export function DashboardBottomBar({
         id: "league-context",
         severity: "neutral",
         message: membership
-          ? `${roleLabel(membership.role)} em ${league.name} · ${league.timezone}`
+          ? `${roleLabel(membership.role)} in ${league.name} · ${league.timezone}`
           : `${league.name} · ${league.timezone}`,
       });
     } else if (session) {
       nextItems.push({
         id: "platform-context",
         severity: "neutral",
-        message: `${roleLabel(session.role)} conectado · plataforma ativa`,
+        message: `${roleLabel(session.role)} · ${m['bottombar.platformActive']()}`,
       });
     }
 
@@ -51,7 +52,7 @@ export function DashboardBottomBar({
       nextItems.push({
         id: "auth-required",
         severity: "warning",
-        message: "Entre para acessar ações privadas e navegar pela sua área.",
+        message: m['bottombar.authRequired'](),
       });
     }
 
@@ -59,7 +60,7 @@ export function DashboardBottomBar({
       nextItems.push({
         id: "membership-error",
         severity: "error",
-        message: "Contexto autenticado da liga indisponível. Navegação pública mantida.",
+        message: m['bottombar.membershipError'](),
         dismissible: true,
       });
     }
@@ -68,7 +69,7 @@ export function DashboardBottomBar({
       nextItems.push({
         id: "create-league",
         severity: "warning",
-        message: "Crie uma liga nova ou entre em uma existente para liberar o modo competição.",
+        message: m['bottombar.createLeagueHint'](),
         dismissible: true,
       });
     }

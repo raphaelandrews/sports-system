@@ -3,6 +3,7 @@ import { ArrowRight, Users } from "lucide-react";
 
 import { Card } from "@sports-system/ui/components/card";
 import leaguePlaceholder from "@/assets/league-placeholder.webp";
+import * as m from "@/paraglide/messages";
 
 interface LeagueCardProps {
   id: number;
@@ -35,10 +36,10 @@ export function LeagueCard({ id, name, logoUrl, memberCount, href }: LeagueCardP
           <h3 className="text-xl font-bold text-foreground">{name}</h3>
           <p className="mt-2 text-sm font-medium text-foreground/90 flex items-center gap-1">
             <Users className="size-3.5" />
-            {memberCount} membros
+            {memberCount} {m["league.card.members"]() }
           </p>
           <div className="mt-3 inline-flex items-center gap-2 self-start rounded-md bg-foreground/20 px-3 py-1.5 text-sm font-medium text-foreground backdrop-blur-sm transition-colors group-hover/card:bg-foreground/30">
-            Ver liga
+            m["league.card.cta"]()
             <ArrowRight className="size-4" />
           </div>
         </div>

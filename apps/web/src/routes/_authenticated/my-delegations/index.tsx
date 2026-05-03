@@ -3,6 +3,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 
+import * as m from "@/paraglide/messages";
 import { Badge } from "@sports-system/ui/components/badge";
 import { Button, buttonVariants } from "@sports-system/ui/components/button";
 import {
@@ -59,10 +60,10 @@ export const Route = createFileRoute("/_authenticated/my-delegations/")({
 });
 
 const statusLabel: Record<string, string> = {
-  INDEPENDENT: "Independente",
-  PENDING: "Pendente",
-  APPROVED: "Aprovada",
-  REJECTED: "Rejeitada",
+  INDEPENDENT: m['myDelegations.stat.independent'](),
+  PENDING: m['common.status.pending'](),
+  APPROVED: m['common.status.approved'](),
+  REJECTED: m['common.status.rejected'](),
 };
 
 const statusVariant: Record<string, string> = {
@@ -90,20 +91,20 @@ function MyDelegationsPage() {
       <section className="grid gap-4 xl:grid-cols-[1.45fr_1fr]">
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_38%),linear-gradient(165deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.2))]">
           <CardHeader className="gap-3">
-            <Badge variant="outline">Delegações</Badge>
-            <CardTitle className="text-2xl">Minhas delegações</CardTitle>
+            <Badge variant="outline">{m['myDelegations.badge']()}</Badge>
+            <CardTitle className="text-2xl">{m['myDelegations.card.title']()}</CardTitle>
             <CardDescription className="max-w-2xl">
-              Gerencie suas delegações independentes e acompanhe o status de participação em ligas.
+              {m['myDelegations.card.controls.desc']()}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
-            <StatCard label="Total" value={String(delegations.length)} />
+            <StatCard label={m['myDelegations.stat.total']()} value={String(delegations.length)} />
             <StatCard
-              label="Independentes"
+              label={m['myDelegations.stat.independent']()}
               value={String(delegations.filter((d) => d.status === "INDEPENDENT").length)}
             />
             <StatCard
-              label="Em ligas"
+              label={m['myDelegations.stat.inLeague']()}
               value={String(delegations.filter((d) => d.league_id != null).length)}
             />
           </CardContent>
@@ -111,8 +112,8 @@ function MyDelegationsPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Controles</CardTitle>
-            <CardDescription>Crie e gerencie suas delegações.</CardDescription>
+            <CardTitle>{m['myDelegations.card.controls.title']()}</CardTitle>
+            <CardDescription>{m['myDelegations.card.controls.desc']()}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Link
@@ -120,7 +121,7 @@ function MyDelegationsPage() {
               className={cn(buttonVariants({ variant: "default" }), "w-full justify-start")}
             >
               <Sparkles className="mr-2 size-4" />
-              Nova delegação
+              {m['delegation.new.title']()}
             </Link>
             <Button
               variant="outline"
@@ -128,7 +129,7 @@ function MyDelegationsPage() {
               onClick={() => setAiDialogOpen(true)}
             >
               <Bot className="mr-2 size-4" />
-              Criar com IA
+              {m['common.actions.create']()}
             </Button>
           </CardContent>
         </Card>
@@ -137,9 +138,9 @@ function MyDelegationsPage() {
       <div className="mx-auto max-w-6xl">
         <header className="mb-4 flex items-end justify-between gap-4">
           <div>
-            <h1 className="text-xl font-semibold">Lista de delegações</h1>
+            <h1 className="text-xl font-semibold">{m['myDelegations.listHeading']()}</h1>
             <p className="text-muted-foreground text-sm">
-              {delegations.length} delegação{delegations.length !== 1 ? "es" : ""}
+              {delegations.length} {m['myDelegations.badge']()}
             </p>
           </div>
         </header>
@@ -148,11 +149,11 @@ function MyDelegationsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="ps-4">Nome</TableHead>
-                <TableHead className="w-28">Código</TableHead>
-                <TableHead className="w-32">Status</TableHead>
-                <TableHead className="w-36">Criada em</TableHead>
-                <TableHead className="pe-4 w-24 text-right">Ações</TableHead>
+                <TableHead className="ps-4">{m['myDelegations.table.name']()}</TableHead>
+                <TableHead className="w-28">{m['myDelegations.table.code']()}</TableHead>
+                <TableHead className="w-32">{m['myDelegations.table.status']()}</TableHead>
+                <TableHead className="w-36">{m['myDelegations.table.created']()}</TableHead>
+                <TableHead className="pe-4 w-24 text-right">{m['myDelegations.table.actions']()}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -162,7 +163,7 @@ function MyDelegationsPage() {
                     colSpan={5}
                     className="h-24 text-center text-muted-foreground"
                   >
-                    Nenhuma delegação encontrada.
+                    {m['myDelegations.empty']()}
                   </TableCell>
                 </TableRow>
               )}
@@ -235,7 +236,7 @@ function MyDelegationsPage() {
                             className="flex items-center gap-2 w-full"
                           >
                             <Pencil className="size-3.5" />
-                            Editar
+                            {m['myDelegations.action.edit']()}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -246,7 +247,7 @@ function MyDelegationsPage() {
                         >
                           <span className="flex items-center gap-2 w-full whitespace-nowrap">
                             <Hand className="size-3.5" />
-                            Solicitar participação
+                            {m['myDelegations.action.request']()}
                           </span>
                         </DropdownMenuItem>
                         {delegation.league_id ? (
@@ -260,7 +261,7 @@ function MyDelegationsPage() {
                               className="flex items-center gap-2 w-full"
                             >
                               <ExternalLink className="size-3.5" />
-                              Ver na liga
+                              {m['myDelegations.action.view']()}
                             </Link>
                           </DropdownMenuItem>
                         ) : null}
@@ -276,7 +277,7 @@ function MyDelegationsPage() {
         {totalPages > 1 && (
           <div className="mt-4 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Página {page} de {totalPages} ({delegations.length} total)
+              {m['common.table.paginationShow']()} {page} {m['common.table.paginationOf']()} {totalPages} ({delegations.length} {m['common.table.paginationShow']()})
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -345,12 +346,12 @@ function RequestParticipationDialog({
       ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.delegations.my() });
-      toast.success("Solicitação enviada com sucesso.");
+      toast.success(m['common.actions.create']());
       onOpenChange(false);
       setSelectedLeagueId("");
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao enviar solicitação.");
+      toast.error(error instanceof ApiError ? error.message : m['delegation.form.alert.error']());
     },
   });
 
@@ -358,9 +359,9 @@ function RequestParticipationDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Solicitar participação</DialogTitle>
+          <DialogTitle>{m['myDelegations.dialog.title']()}</DialogTitle>
           <DialogDescription>
-            Escolha a liga onde deseja participar com{" "}
+            {m['myDelegations.card.controls.desc']()}{" "}
             <strong>{delegation.name}</strong>.
           </DialogDescription>
         </DialogHeader>
@@ -368,7 +369,7 @@ function RequestParticipationDialog({
         <div className="space-y-4">
           <Select value={selectedLeagueId} onValueChange={(value) => setSelectedLeagueId(value ?? "")}>
             <SelectTrigger>
-              <SelectValue placeholder="Selecione uma liga" />
+              <SelectValue placeholder={m['myDelegations.selectLeague']()} />
             </SelectTrigger>
             <SelectContent>
               {leagues.map((league) => (
@@ -382,13 +383,13 @@ function RequestParticipationDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancelar
+            {m['common.actions.cancel']()}
           </Button>
           <Button
             disabled={!selectedLeagueId || mutation.isPending}
             onClick={() => mutation.mutate(Number(selectedLeagueId))}
           >
-            {mutation.isPending ? "Enviando..." : "Solicitar"}
+            {mutation.isPending ? m['competition.form.submitting']() : m['common.actions.submit']()}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -409,8 +410,7 @@ function AIGenerateDialog({
   >([
     {
       role: "assistant",
-      content:
-        "Olá! Sou seu assistente de criação de delegações. Me diga quantas delegações você quer e o tema.",
+      content: m['myDelegations.card.controls.desc'](),
     },
   ]);
   const [input, setInput] = useState("");
@@ -429,17 +429,17 @@ function AIGenerateDialog({
         ...prev,
         {
           role: "assistant",
-          content: `Pronto! Criei ${created.length} delegações: ${names}.`,
+          content: `${m['common.actions.create']()}: ${names}.`,
         },
       ]);
       toast.success(
         created.length === 1
-          ? "1 delegação criada com IA."
-          : `${created.length} delegações criadas com IA.`,
+          ? m['common.actions.create']()
+          : `${created.length} ${m['common.actions.create']()}`,
       );
     },
     onError: (error) => {
-      const msg = error instanceof ApiError ? error.message : "Falha ao gerar delegações.";
+      const msg = error instanceof ApiError ? error.message : m['delegation.form.alert.error']();
       setMessages((prev) => [...prev, { role: "assistant", content: `Erro: ${msg}` }]);
       toast.error(msg);
     },
@@ -459,10 +459,10 @@ function AIGenerateDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bot className="size-5" />
-            Criar delegações com IA
+            {m['common.actions.create']()}
           </DialogTitle>
           <DialogDescription>
-            Descreva o tema e quantidade. Ex: "5 delegações com nomes de times europeus"
+            {m['myDelegations.requestPlaceholder']()}
           </DialogDescription>
         </DialogHeader>
 
@@ -484,7 +484,7 @@ function AIGenerateDialog({
             {mutation.isPending && (
               <div className="mr-auto flex items-center gap-2 rounded-xl border bg-background px-3 py-2 text-sm text-muted-foreground">
                 <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                Criando delegações...
+                {m['competition.form.submitting']()}
               </div>
             )}
           </div>
@@ -495,7 +495,7 @@ function AIGenerateDialog({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Descreva as delegações que deseja..."
+              placeholder={m['myDelegations.requestPlaceholder']()}
               className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
               disabled={mutation.isPending}
             />

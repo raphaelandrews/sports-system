@@ -4,6 +4,7 @@ import { Button } from "@sports-system/ui/components/button";
 import { Avatar, AvatarFallback } from "@sports-system/ui/components/avatar";
 import { toast } from "sonner";
 import { buildApiUrl } from "@/shared/lib/url";
+import * as m from "@/paraglide/messages";
 
 function getAccessToken(): string | undefined {
   if (typeof document === "undefined") return undefined;
@@ -118,8 +119,8 @@ interface ImageUploadProps {
 export function ImageUpload({
   value,
   onChange,
-  label = "Imagem",
-  fallback = "?",
+  label = m['imageUpload.defaultLabel'](),
+  fallback = m['imageUpload.fallback'](),
   accept = "image/*",
   maxSizeMB = 5,
   endpoint = "/upload/image",
@@ -133,12 +134,12 @@ export function ImageUpload({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Selecione um arquivo de imagem.");
+      toast.error(m["imageUpload.errorType"]());
       return;
     }
 
     if (file.size > maxSizeMB * 1024 * 1024) {
-      toast.error(`A imagem deve ter no máximo ${maxSizeMB}MB.`);
+      toast.error(`${m["imageUpload.errorSizePrefix"]()} ${maxSizeMB}${m["imageUpload.errorSizeSuffix"]()}`.trim());
       return;
     }
 
@@ -147,9 +148,9 @@ export function ImageUpload({
       const url = await uploadImage(file, endpoint);
       setPreviewUrl(url);
       onChange(url);
-      toast.success("Imagem enviada com sucesso.");
+      toast.success(m["imageUpload.success"]());
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha no upload");
+      toast.error(err instanceof Error ? err.message : m["imageUpload.errorGeneric"]());
     } finally {
       setUploading(false);
     }
@@ -173,7 +174,7 @@ export function ImageUpload({
           <div className="relative">
             <img
               src={previewUrl}
-              alt="Preview"
+              alt={m["imageUpload.altPreview"]() }
               className="h-20 w-20 rounded-md object-cover border"
             />
             <button
@@ -198,7 +199,7 @@ export function ImageUpload({
             disabled={uploading}
           >
             <Upload className="mr-2 size-4" />
-            {uploading ? "Enviando..." : "Enviar imagem"}
+            {uploading ? m["imageUpload.buttonSending"]() : m["imageUpload.buttonSend"]()}
           </Button>
           <input
             ref={fileInputRef}
@@ -208,7 +209,7 @@ export function ImageUpload({
             onChange={handleFileChange}
           />
           <p className="text-xs text-muted-foreground">
-            WebP, PNG, JPG ou GIF. Máx. {maxSizeMB}MB. Redimensionado para 800x800.
+            {m["imageUpload.hintPrefix"]() } {maxSizeMB}{m["imageUpload.hintSuffix"]() }
           </p>
         </div>
       </div>

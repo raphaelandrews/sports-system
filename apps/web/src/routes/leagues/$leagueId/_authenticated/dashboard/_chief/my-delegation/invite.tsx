@@ -29,6 +29,7 @@ import {
 } from "@/features/delegations/api/queries";
 import { queryKeys } from "@/features/keys";
 import { userSearchQueryOptions } from "@/features/users/api/queries";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_chief/my-delegation/invite",
@@ -73,18 +74,18 @@ function InviteUserPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.delegations.invites(Number(leagueId), delegationId),
       });
-      toast.success("Convite enviado.");
+      toast.success(m["notification.title.invite"]());
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao enviar convite.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
   if (!delegation || !delegationId) {
     return (
       <ChiefDelegationShell
-        title="Convitar usuario"
-        description="Envio de convites para novos membros da delegacao."
+        title={m["chief.shell.nav.invite"]() }
+        description={m["chief.shell.nav.invite"]() }
         leagueId={leagueId}
         delegation={delegation}
       >
@@ -112,34 +113,34 @@ function InviteUserPage() {
 
   return (
     <ChiefDelegationShell
-      title="Convitar usuario"
-      description="Busque por nome ou email, revise os resultados e envie o convite com um clique."
+      title={m["chief.shell.nav.invite"]() }
+      description={m["search.dialogDescription"]() }
       leagueId={leagueId}
       delegation={delegation}
     >
       <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Buscar usuario</CardTitle>
+            <CardTitle>{m["search.buttonLabel"]()}</CardTitle>
             <CardDescription>
-              Pesquisa autenticada para localizar usuarios ativos por nome ou email.
+              m["search.dialogDescription"]()
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             <Alert>
               <Search className="size-4" />
-              <AlertTitle>Busca liberada</AlertTitle>
+              <AlertTitle>{m["search.buttonLabel"]()}</AlertTitle>
               <AlertDescription>
-                Digite pelo menos 2 caracteres. Resultados ja convidados ficam separados abaixo.
+                m["search.inputPlaceholder"]()
               </AlertDescription>
             </Alert>
 
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="invite-search">Nome ou email</FieldLabel>
+                <FieldLabel htmlFor="invite-search">{m["search.dialogDescription"]() }</FieldLabel>
                 <Input
                   id="invite-search"
-                  placeholder="Ex: ana ou ana@time.com"
+                  placeholder={m["search.inputPlaceholder"]() }
                   value={searchValue}
                   onChange={(event) => setSearchValue(event.target.value)}
                 />
@@ -149,11 +150,11 @@ function InviteUserPage() {
             <div className="space-y-3">
               {searchValue.trim().length < 2 ? (
                 <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-                  Digite ao menos 2 caracteres para iniciar a busca.
+                  m["search.inputPlaceholder"]()
                 </div>
               ) : isFetching ? (
                 <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-                  Buscando usuarios...
+                  m["search.loading"]()
                 </div>
               ) : availableUsers.length > 0 ? (
                 availableUsers.map((user) => (
@@ -175,13 +176,13 @@ function InviteUserPage() {
                       onClick={() => inviteMutation.mutate(user.id)}
                     >
                       <UserPlus className="size-4" />
-                      {inviteMutation.isPending ? "Enviando..." : "Convidar"}
+                      {inviteMutation.isPending ? m["common.actions.submit"]() : m["notification.title.invite"]()}
                     </Button>
                   </div>
                 ))
               ) : (
                 <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-                  Nenhum usuario elegivel encontrado para a busca atual.
+                  m["search.noResults"]()
                 </div>
               )}
             </div>
@@ -190,9 +191,9 @@ function InviteUserPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Convites pendentes</CardTitle>
+            <CardTitle>{m["notification.title.invite"]()}</CardTitle>
             <CardDescription>
-              Fila atual para evitar duplicidade e acompanhar o que ainda aguarda resposta.
+              {m['chief.shell.delegationDesc']()}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -203,7 +204,7 @@ function InviteUserPage() {
                     key={invite.id}
                     className="rounded-2xl border border-border/70 bg-muted/25 p-4"
                   >
-                    <div className="font-medium">Usuario #{invite.user_id}</div>
+                    <div className="font-medium">m["nav.user.account"]() #{invite.user_id}</div>
                     <div className="mt-1 text-sm text-muted-foreground">
                       Enviado em {formatEventDate(invite.created_at)}
                     </div>
@@ -211,7 +212,7 @@ function InviteUserPage() {
                 ))
               ) : (
                 <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-                  Nenhum convite encontrado para o filtro atual.
+                  m["notification.empty"]()
                 </div>
               )}
             </div>

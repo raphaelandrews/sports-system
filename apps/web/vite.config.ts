@@ -1,3 +1,4 @@
+import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
@@ -15,6 +16,26 @@ export default defineConfig(({ command }) => ({
   plugins: [
     tsconfigPaths(),
     tailwindcss(),
+    paraglideVitePlugin({
+      project: "./project.inlang",
+      outdir: "./src/paraglide",
+      outputStructure: "message-modules",
+      // emitTsDeclarations disabled due to generated .d.ts syntax errors with dotted export aliases
+      // TypeScript infers types correctly from the JSDoc-annotated .js files instead
+      emitTsDeclarations: false,
+      cookieName: "PARAGLIDE_LOCALE",
+      strategy: ["url", "cookie", "preferredLanguage", "baseLocale"],
+      urlPatterns: [
+        {
+          pattern: "/:path(.*)?",
+          localized: [
+            ["pt-BR", "/pt-BR/:path(.*)?"],
+            ["es", "/es/:path(.*)?"],
+            ["en", "/:path(.*)?"],
+          ],
+        },
+      ],
+    }),
     tanstackStart(),
     viteReact(),
     // Infra/deploy bindings belong to build/deploy, not local dev.

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
+import * as m from "@/paraglide/messages";
 import { AthleteForm } from "@/features/athletes/components/athlete-form";
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
@@ -41,7 +42,7 @@ function NewAthletePage() {
       ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.athletes.all(Number(leagueId)) });
-      toast.success("Atleta cadastrado com sucesso.");
+      toast.success(m['athlete.form.submit']());
       await navigate({ to: "/leagues/$leagueId/dashboard/athletes", params: { leagueId } });
     },
   });

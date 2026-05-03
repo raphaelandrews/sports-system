@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
+import * as m from "@/paraglide/messages";
 import {
   Avatar,
   AvatarFallback,
@@ -37,10 +38,10 @@ export const Route = createFileRoute("/delegations/$delegationId/")({
 });
 
 const statusLabel: Record<string, string> = {
-  INDEPENDENT: "Independente",
-  PENDING: "Pendente",
-  APPROVED: "Aprovada",
-  REJECTED: "Rejeitada",
+  INDEPENDENT: m['myDelegations.stat.independent'](),
+  PENDING: m['common.status.pending'](),
+  APPROVED: m['common.status.approved'](),
+  REJECTED: m['common.status.rejected'](),
 };
 
 function StandaloneDelegationPage() {
@@ -59,7 +60,7 @@ function StandaloneDelegationPage() {
             <span className="font-mono text-sm text-muted-foreground bg-muted px-2 py-0.5 rounded">
               {data.code}
             </span>
-            {!data.is_active && <Badge variant="destructive">Inativa</Badge>}
+            {!data.is_active && <Badge variant="destructive">{m['delegation.public.status.inactive']()}</Badge>}
             <Badge variant="outline">{statusLabel[data.status] ?? data.status}</Badge>
           </div>
           <div className="flex items-center gap-3">
@@ -74,30 +75,30 @@ function StandaloneDelegationPage() {
             </div>
           </div>
           <CardDescription>
-            Criada em {new Date(data.created_at).toLocaleDateString("pt-BR")}
+            {m['myDelegations.table.created']()} {new Date(data.created_at).toLocaleDateString("pt-BR")}
           </CardDescription>
         </CardHeader>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Ligas</CardTitle>
+          <CardTitle>{m['delegation.public.card.leagues']()}</CardTitle>
           <CardDescription>
-            Participando em {leagues.length} liga{leagues.length !== 1 ? "s" : ""}
+            {m['myDelegations.stat.inLeague']()}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {leagues.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              Esta delegação ainda não participa de nenhuma liga.
+              {m['myDelegations.empty']()}
             </p>
           ) : (
             <div className="rounded-xl border bg-card shadow-xs/5">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead className="w-28 text-right">Ação</TableHead>
+                    <TableHead>{m['delegation.public.table.name']()}</TableHead>
+                    <TableHead className="w-28 text-right">{m['delegation.public.table.action']()}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -110,7 +111,7 @@ function StandaloneDelegationPage() {
                           params={{ leagueId: String(league.id) }}
                           className="text-sm text-primary hover:underline"
                         >
-                          Ver liga
+                          {m['league.card.cta']()}
                         </Link>
                       </TableCell>
                     </TableRow>
@@ -124,23 +125,22 @@ function StandaloneDelegationPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Membros</CardTitle>
+          <CardTitle>{m['delegation.public.card.members']()}</CardTitle>
           <CardDescription>
-            {activeMembers.length} membro{activeMembers.length !== 1 ? "s" : ""} ativo
-            {activeMembers.length !== 1 ? "s" : ""}
+            {activeMembers.length} {m['delegation.public.card.members']()}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {activeMembers.length === 0 ? (
-            <p className="text-muted-foreground text-sm">Nenhum membro ativo.</p>
+            <p className="text-muted-foreground text-sm">{m['delegation.public.empty.members']()}</p>
           ) : (
             <div className="rounded-xl border bg-card shadow-xs/5">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead className="w-28">Função</TableHead>
-                    <TableHead className="w-36">Entrou em</TableHead>
+                    <TableHead>{m['delegation.public.table.name']()}</TableHead>
+                    <TableHead className="w-28">{m['delegation.public.table.role']()}</TableHead>
+                    <TableHead className="w-36">{m['delegation.public.table.joined']()}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

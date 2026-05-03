@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
+import * as m from "@/paraglide/messages";
 import { leagueListQueryOptions } from "@/features/leagues/api/queries";
 import { LeagueCard } from "@/shared/components/ui/league-card";
 import { Title } from "@/shared/components/ui/title";
@@ -23,12 +24,12 @@ function HomePage() {
 
   return (
     <main className="flex flex-col gap-8">
-      <Title title="SportsHub" subtitle="Crie, participe e acompanhe ligas esportivas." />
+      <Title title={m['home.title']()} subtitle={m['home.subtitle']()} />
 
       {popularLeagues.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Ligas populares</h2>
+            <h2 className="text-xl font-semibold">{m['home.popularLeagues']()}</h2>
             <Link
               to="/leagues"
               className="font-medium text-sm text-muted-foreground hover:text-foreground"
@@ -54,7 +55,7 @@ function HomePage() {
       {latestLeagues.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Ligas recentes</h2>
+            <h2 className="text-xl font-semibold">{m['home.recentLeagues']()}</h2>
             <Link
               to="/leagues"
               className="font-medium text-sm text-muted-foreground hover:text-foreground"

@@ -11,6 +11,7 @@ import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
+import * as m from "@/paraglide/messages";
 import { finalizeOAuthFn } from "@/features/auth/server/auth";
 
 const callbackSearchSchema = z.object({
@@ -51,7 +52,7 @@ function OAuthCallbackPage() {
         await navigate({ to: "/leagues" });
       } catch (err) {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : "OAuth login failed");
+        setError(err instanceof Error ? err.message : m['oauth.title.error']());
       } finally {
         if (!cancelled) {
           setIsLoading(false);
@@ -70,33 +71,33 @@ function OAuthCallbackPage() {
         <CardHeader>
           <CardTitle>
             {isLoading
-              ? "Finalizando login OAuth"
+              ? m['oauth.title.loading']()
               : error
-                ? "Falha no login OAuth"
-                : "Login concluído"}
+                ? m['oauth.title.error']()
+                : m['oauth.title.success']()}
           </CardTitle>
           <CardDescription>
             {isLoading
-              ? "Validando a autenticação com o provedor externo."
+              ? m['oauth.desc.loading']()
               : error
-                ? "Nao foi possivel concluir a autenticacao externa."
-                : "Redirecionando para o dashboard."}
+                ? m['oauth.desc.error']()
+                : m['oauth.desc.success']()}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <LoaderCircle className="h-4 w-4 animate-spin" />
-              Processando credenciais do Google ou GitHub.
+              {m['oauth.processing']()}
             </div>
           ) : null}
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           {!isLoading ? (
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => navigate({ to: "/login" })}>
-                Ir para login
+                {m['oauth.btn.login']()}
               </Button>
-              <Button onClick={() => navigate({ to: "/register" })}>Ir para cadastro</Button>
+              <Button onClick={() => navigate({ to: "/register" })}>{m['oauth.btn.register']()}</Button>
             </div>
           ) : null}
         </CardContent>

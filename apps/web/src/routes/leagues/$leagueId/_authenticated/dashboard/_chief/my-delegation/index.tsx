@@ -24,6 +24,7 @@ import {
   delegationListQueryOptions,
 } from "@/features/delegations/api/queries";
 import { competitionListQueryOptions } from "@/features/competitions/api/queries";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_chief/my-delegation/",
@@ -60,8 +61,8 @@ function MyDelegationOverviewPage() {
   if (!delegation || !delegationId) {
     return (
       <ChiefDelegationShell
-        title="Minha delegacao"
-        description="Visao do chefe sobre estrutura atual, convites e janela operacional."
+        title={m['nav.chief.myDelegation']() }
+        description={m['chief.shell.delegationDesc']() }
         leagueId={leagueId}
         delegation={delegation}
       >
@@ -88,44 +89,44 @@ function MyDelegationOverviewPage() {
 
   return (
     <ChiefDelegationShell
-      title="Minha delegacao"
-      description="Resumo operacional do chefe para acompanhar composicao atual, convites em aberto e estado da competicao."
+      title={m['nav.chief.myDelegation']() }
+      description={m['chief.shell.delegationDesc']() }
       leagueId={leagueId}
       delegation={delegation}
     >
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <OverviewStat
           icon={Users}
-          label="Membros ativos"
+          label={m["delegation.detail.section.members"]() }
           value={String(activeMembers.length)}
-          hint="Equipe com vinculo vigente"
+          hint={m["chief.shell.delegationDesc"]() }
         />
         <OverviewStat
           icon={UserPlus}
-          label="Convites pendentes"
+          label={m["notification.title.invite"]() }
           value={String(invites.length)}
-          hint="Aguardando resposta"
+          hint={m["common.status.pending"]() }
         />
         <OverviewStat
           icon={ShieldCheck}
-          label="Janela de transferencia"
-          value={transferOpen ? "Aberta" : "Fechada"}
-          hint="Regras em America/Sao_Paulo"
+          label={m["nav.chief.transfers"]() }
+          value={transferOpen ? m['chief.myDelegation.transferWindow.open']() : m['chief.myDelegation.transferWindow.closed']()}
+          hint={m["transferWindow.closedMessage"]() }
         />
         <OverviewStat
           icon={CalendarDays}
-          label="Competição atual"
+          label={m["competitions.public.title"]() }
           value={activeCompetition ? `#${activeCompetition.number}` : "—"}
-          hint={activeCompetition ? activeCompetition.status : "Sem competição ativa"}
+          hint={activeCompetition ? activeCompetition.status : m["calendar.admin.empty"]() }
         />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Equipe atual</CardTitle>
+            <CardTitle>{m["delegation.detail.section.members"]()}</CardTitle>
             <CardDescription>
-              Recorte rapido dos membros com vinculo ativo nesta delegacao.
+              {m["chief.shell.delegationDesc"]()}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -134,18 +135,18 @@ function MyDelegationOverviewPage() {
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <div className="font-medium">{member.user_name}</div>
-                    <div className="text-sm text-muted-foreground">Usuario #{member.user_id}</div>
+                    <div className="text-sm text-muted-foreground">{m["nav.user.account"]()} #{member.user_id}</div>
                   </div>
                   <Badge variant="outline">{member.role}</Badge>
                 </div>
                 <div className="mt-2 text-sm text-muted-foreground">
-                  Desde {formatEventDate(member.joined_at, { dateStyle: "medium" })}
+                  {m['delegation.detail.table.since']()} {formatEventDate(member.joined_at, { dateStyle: "medium" })}
                 </div>
               </div>
             ))}
             {activeMembers.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-                Nenhum membro ativo ainda.
+                {m["delegation.detail.empty.members"]() }
               </div>
             ) : null}
           </CardContent>
@@ -153,9 +154,9 @@ function MyDelegationOverviewPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Proximos passos</CardTitle>
+            <CardTitle>{m["common.actions.next"]()}</CardTitle>
             <CardDescription>
-              Atalhos mais usados pelo chefe durante a preparacao da delegacao.
+              m["chief.shell.nav.desc"]()
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -165,36 +166,35 @@ function MyDelegationOverviewPage() {
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}
             >
               <Pencil className="mr-2 size-4" />
-              Editar informações
+              {m["common.actions.edit"]() }
             </Link>
             <Link
               to="/leagues/$leagueId/dashboard/my-delegation/members"
               params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}
             >
-              Ver membros e convites
+              {m["nav.chief.members"]() }
             </Link>
             <Link
               to="/leagues/$leagueId/dashboard/my-delegation/invite"
               params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}
             >
-              Enviar novo convite
+              {m["notification.title.invite"]() }
             </Link>
             <Link
               to="/leagues/$leagueId/dashboard/my-delegation/transfers"
               params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}
             >
-              Abrir painel de transferencias
+              {m["nav.chief.transfers"]() }
             </Link>
             <div className="rounded-xl border border-dashed border-border/80 p-3 text-sm text-muted-foreground">
-              Criada em {formatEventDate(delegation.created_at, { dateStyle: "long" })}.
+              {m['common.actions.create']()} {formatEventDate(delegation.created_at, { dateStyle: "long" })}.
             </div>
             {activeCompetition ? (
               <div className="rounded-xl border border-border/70 bg-muted/25 p-3 text-sm text-muted-foreground">
-                Competição #{activeCompetition.number}: {formatDate(activeCompetition.start_date)}{" "}
-                ate {formatDate(activeCompetition.end_date)}.
+                {m['competitions.public.title']()} #{activeCompetition.number}: {formatDate(activeCompetition.start_date)}{' – '}{formatDate(activeCompetition.end_date)}.
               </div>
             ) : null}
           </CardContent>

@@ -7,6 +7,7 @@ import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { delegationDetailQueryOptions } from "@/features/delegations/api/queries";
 import { queryKeys } from "@/features/keys";
 import type { DelegationUpdateInput } from "@/types/delegations";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_league_admin/delegations/$delegationId/edit",
@@ -46,7 +47,7 @@ function EditDelegationPage() {
           queryKey: queryKeys.delegations.detail(Number(leagueId), delegationNumber),
         }),
       ]);
-      toast.success("Delegação atualizada com sucesso.");
+      toast.success(m["common.actions.update"]());
       await navigate({
         to: "/leagues/$leagueId/delegations/$delegationId",
         params: { leagueId, delegationId: String(delegationNumber) },

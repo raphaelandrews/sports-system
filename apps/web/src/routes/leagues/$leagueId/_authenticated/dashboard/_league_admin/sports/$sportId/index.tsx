@@ -20,11 +20,13 @@ import {
 import { cn } from "@sports-system/ui/lib/utils";
 import { toast } from "sonner";
 
+import * as m from "@/paraglide/messages";
 import { SportRulesForm } from "@/features/sports/components/sport-rules-form";
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { resolveRosterSize } from "@/shared/lib/sports";
 import { queryKeys } from "@/features/keys";
 import { sportDetailQueryOptions } from "@/features/sports/api/queries";
+import type { Gender } from "@/types/sports";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_league_admin/sports/$sportId/",
@@ -35,6 +37,17 @@ export const Route = createFileRoute(
   },
   component: SportDetailPage,
 });
+
+function getGenderLabel(gender: Gender): string {
+  switch (gender) {
+    case "M":
+      return m['common.gender.male']();
+    case "F":
+      return m['common.gender.female']();
+    case "MIXED":
+      return m['common.gender.mixed']();
+  }
+}
 
 function SportDetailPage() {
   const queryClient = useQueryClient();
@@ -65,10 +78,10 @@ function SportDetailPage() {
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">
-                {sport.sport_type === "TEAM" ? "Coletivo" : "Individual"}
+                {sport.sport_type === "TEAM" ? m['sports.type.team']() : m['sports.type.individual']()}
               </Badge>
               <Badge variant={sport.is_active ? "secondary" : "outline"}>
-                {sport.is_active ? "Ativo" : "Arquivado"}
+                {sport.is_active ? m['common.status.active']() : m['common.status.inactive']()}
               </Badge>
             </div>
             <CardTitle className="text-2xl">{sport.name}</CardTitle>
@@ -77,7 +90,7 @@ function SportDetailPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
-            <QuickStat label="Modalidades" value={String(sport.modalities.length)} />
+            <QuickStat label={m['sport.admin.stat.modalities']()} value={String(sport.modalities.length)} />
             <QuickStat
               label={sport.sport_type === "TEAM" ? "Roster size" : "Player count"}
               value={String(
@@ -86,13 +99,13 @@ function SportDetailPage() {
                   : (sport.player_count ?? "-"),
               )}
             />
-            <QuickStat label="Stats schema" value={sport.stats_schema ? "Configurado" : "Vazio"} />
+            <QuickStat label={m['sport.admin.stat.schemaLabel']()} value={sport.stats_schema ? m['sport.admin.stat.schemaConfigured']() : m['sport.admin.stat.schemaEmpty']()} />
           </CardContent>
         </Card>
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Ações</CardTitle>
+            <CardTitle>{m['sport.admin.card.actions.title']()}</CardTitle>
             <CardDescription>
               Entre no fluxo de criacao ou ajuste de modalidades deste esporte.
             </CardDescription>
@@ -103,14 +116,14 @@ function SportDetailPage() {
               params={{ leagueId, sportId: String(sport.id) }}
               className={cn(buttonVariants({ variant: "default" }), "w-full justify-start")}
             >
-              Nova modalidade
+              {m['modality.form.title.create']()}
             </Link>
             <Link
               to="/leagues/$leagueId/dashboard/sports"
               params={{ leagueId }}
               className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}
             >
-              Voltar para lista
+              {m['common.actions.back']()}
             </Link>
           </CardContent>
         </Card>
@@ -119,7 +132,7 @@ function SportDetailPage() {
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Modalidades</CardTitle>
+            <CardTitle>{m['sport.admin.card.modalities.title']()}</CardTitle>
             <CardDescription>
               Edite regras, genero e categoria de cada modalidade ativa.
             </CardDescription>
@@ -128,18 +141,18 @@ function SportDetailPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Genero</TableHead>
-                  <TableHead>Categoria</TableHead>
-                  <TableHead>Rules</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead>{m['sport.admin.table.name']()}</TableHead>
+                  <TableHead>{m['sport.admin.table.gender']()}</TableHead>
+                  <TableHead>{m['sport.admin.table.category']()}</TableHead>
+                  <TableHead>{m['sport.admin.table.rules']()}</TableHead>
+                  <TableHead className="text-right">{m['sport.admin.table.actions']()}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sport.modalities.map((modality) => (
                   <TableRow key={modality.id}>
                     <TableCell className="font-medium">{modality.name}</TableCell>
-                    <TableCell>{modality.gender}</TableCell>
+                    <TableCell>{getGenderLabel(modality.gender)}</TableCell>
                     <TableCell>{modality.category ?? "-"}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {Object.keys(modality.rules_json).length} chaves
@@ -154,7 +167,7 @@ function SportDetailPage() {
                         }}
                         className={cn(buttonVariants({ variant: "outline" }))}
                       >
-                        Editar
+                        {m['common.actions.edit']()}
                       </Link>
                     </TableCell>
                   </TableRow>
@@ -162,7 +175,7 @@ function SportDetailPage() {
                 {sport.modalities.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
-                      Nenhuma modalidade ativa cadastrada.
+                      {m['sport.admin.empty.modalities']()}
                     </TableCell>
                   </TableRow>
                 ) : null}
@@ -183,8 +196,8 @@ function SportDetailPage() {
             }}
           />
           <JsonCard
-            title="Estatisticas-schema"
-            description="Schema utilizado para estatisticas esportivas dinamicas."
+            title={m['sport.admin.schema.title']()}
+            description={m['sport.admin.schema.desc']()}
             value={sport.stats_schema ?? {}}
           />
         </div>

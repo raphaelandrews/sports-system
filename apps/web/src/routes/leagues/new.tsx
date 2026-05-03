@@ -7,6 +7,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
+import * as m from "@/paraglide/messages";
 import {
   Select,
   SelectContent,
@@ -89,15 +90,15 @@ function NewLeaguePage() {
       className="w-full bg-background/60"
     >
       <Title
-        title="Criar nova liga"
-        subtitle="Configure uma nova competição. Escolha os esportes e defina as regras iniciais."
+        title={m['league.new.title']()}
+        subtitle={m['league.new.subtitle']()}
       />
 
       <div className="mt-6 flex flex-col gap-1.5">
-        <Label htmlFor="name">Nome</Label>
+        <Label htmlFor="name">{m['league.new.label.name']()}</Label>
         <Input
           id="name"
-          placeholder="Jogos dos Institutos Federais"
+          placeholder={m['league.new.placeholder.name']()}
           value={name}
           onChange={(e) => {
             const val = e.target.value.replace(/^\s+/, "").replace(/\s+/g, " ");
@@ -112,7 +113,7 @@ function NewLeaguePage() {
       </div>
 
       <div className="mt-4 flex flex-col gap-1.5">
-        <Label htmlFor="slug">Slug</Label>
+        <Label htmlFor="slug">{m['league.new.label.slug']()}</Label>
         <Input id="slug" value={slug} disabled readOnly required />
         <p className="text-muted-foreground text-xs">
           Gerado automaticamente a partir do nome.
@@ -120,10 +121,10 @@ function NewLeaguePage() {
       </div>
 
       <div className="mt-4 flex flex-col gap-1.5">
-        <Label htmlFor="description">Descrição</Label>
+        <Label htmlFor="description">{m['league.new.label.description']()}</Label>
         <textarea
           id="description"
-          placeholder="Breve resumo sobre a liga..."
+          placeholder={m['league.new.placeholder.description']()}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="flex min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/24 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
@@ -134,28 +135,28 @@ function NewLeaguePage() {
         <ImageUpload
           value={logoUrl}
           onChange={setLogoUrl}
-          label="Logo da liga"
+          label={m['league.new.label.logo']()}
           fallback={name.charAt(0) || "?"}
         />
       </div>
 
       <div className="mt-4 flex flex-col gap-1.5">
-        <Label htmlFor="timezone">Fuso horário</Label>
+        <Label htmlFor="timezone">{m['league.new.label.timezone']()}</Label>
         <Select value={timezone} onValueChange={(v) => v && setTimezone(v)}>
           <SelectTrigger className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition-shadow focus-visible:ring-[3px] focus-visible:ring-ring/24 focus-visible:border-ring">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="America/Sao_Paulo">America/Sao_Paulo</SelectItem>
-            <SelectItem value="America/New_York">America/New_York</SelectItem>
-            <SelectItem value="Europe/London">Europe/London</SelectItem>
-            <SelectItem value="UTC">UTC</SelectItem>
+            <SelectItem value="America/Sao_Paulo">{m['league.new.timezone.saoPaulo']()}</SelectItem>
+            <SelectItem value="America/New_York">{m['league.new.timezone.newYork']()}</SelectItem>
+            <SelectItem value="Europe/London">{m['league.new.timezone.london']()}</SelectItem>
+            <SelectItem value="UTC">{m['league.new.timezone.utc']()}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="mt-6">
-        <Label className="font-medium text-sm">Esportes</Label>
+        <Label className="font-medium text-sm">{m['league.new.label.sports']()}</Label>
         <p className="mt-0.5 text-muted-foreground text-xs">
           Selecione as modalidades que farão parte da competição.
         </p>
@@ -209,7 +210,7 @@ function NewLeaguePage() {
               </span>
               {transferWindow ? (
                 <Badge variant="secondary">
-                  Ativo
+                  {m['common.status.active']()}
                 </Badge>
               ) : null}
             </div>
@@ -236,14 +237,14 @@ function NewLeaguePage() {
             type="button"
             onClick={() => navigate({ to: "/leagues" })}
           >
-            Cancelar
+            {m['common.actions.cancel']()}
           </Button>
           <Button
             type="submit"
             size="sm"
             disabled={mutation.isPending || !name.trim()}
           >
-            {mutation.isPending ? "Criando..." : "Criar liga"}
+            {mutation.isPending ? "Criando..." : m['nav.createLeague']()}
           </Button>
         </div>
       </div>

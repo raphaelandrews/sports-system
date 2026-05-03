@@ -2,6 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 
+import { deLocalizeUrl, localizeUrl } from "@/paraglide/runtime";
 import Loader from "@/shared/components/ui/loader";
 import { RouteErrorComponent } from "@/shared/components/ui/route-error";
 
@@ -34,6 +35,10 @@ export const getRouter = () => {
       ),
       defaultNotFoundComponent: () => <div>Not Found</div>,
       Wrap: ({ children }) => <>{children}</>,
+      rewrite: {
+        input: ({ url }) => deLocalizeUrl(url),
+        output: ({ url }) => localizeUrl(url),
+      },
     }),
     queryClient,
   );

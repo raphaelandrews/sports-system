@@ -38,6 +38,7 @@ import {
   delegationListQueryOptions,
 } from "@/features/delegations/api/queries";
 import { queryKeys } from "@/features/keys";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_chief/my-delegation/transfers",
@@ -89,18 +90,18 @@ function TransferPanelPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.delegations.invites(Number(leagueId), delegationId),
       });
-      toast.success("Transferencia solicitada.");
+      toast.success(m["nav.chief.transfers"]());
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao solicitar transferencia.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
   if (!delegation || !delegationId) {
     return (
       <ChiefDelegationShell
-        title="Transferencias"
-        description="Abertura de transferencias apenas dentro da janela permitida."
+        title={m["nav.chief.transfers"]() }
+        description={m["transferWindow.openMessage"]() }
         leagueId={leagueId}
         delegation={delegation}
       >
@@ -118,38 +119,38 @@ function TransferPanelPage() {
 
   return (
     <ChiefDelegationShell
-      title="Transferencias"
-      description="Solicite entrada de atletas vindos de outra delegacao quando a janela semanal estiver aberta."
+      title={m["nav.chief.transfers"]() }
+      description={m["transferWindow.openMessage"]() }
       leagueId={leagueId}
       delegation={delegation}
     >
       <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Solicitar transferencia</CardTitle>
+            <CardTitle>{m["nav.chief.transfers"]()}</CardTitle>
             <CardDescription>
-              A rota do backend exige um user_id que hoje esteja vinculado a outra delegacao.
+              m["chief.shell.delegationDesc"]()
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             <Alert variant={transferOpen ? "default" : "destructive"}>
               <Clock3 className="size-4" />
-              <AlertTitle>{transferOpen ? "Janela ativa" : "Janela indisponivel"}</AlertTitle>
+              <AlertTitle>{transferOpen ? m["chief.shell.badge.open"]() : m["chief.shell.badge.closed"]() }</AlertTitle>
               <AlertDescription>{getTransferWindowMessage()}</AlertDescription>
             </Alert>
 
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="transfer-user-id">User ID</FieldLabel>
+                <FieldLabel htmlFor="transfer-user-id">{m["nav.user.account"]() }</FieldLabel>
                 <Input
                   id="transfer-user-id"
                   inputMode="numeric"
-                  placeholder="Ex: 88"
+                  placeholder={m["athlete.form.placeholder.code"]() }
                   value={userId}
                   onChange={(event) => setUserId(event.target.value)}
                 />
                 <FieldDescription>
-                  O backend rejeita usuario sem delegacao atual ou fora da janela de segunda-feira.
+                  m["transferWindow.closedMessage"]()
                 </FieldDescription>
               </Field>
             </FieldGroup>
@@ -160,17 +161,16 @@ function TransferPanelPage() {
               onClick={() => transferMutation.mutate(Number(userId))}
             >
               <ArrowLeftRight className="size-4" />
-              {transferMutation.isPending ? "Solicitando..." : "Solicitar transferencia"}
+              {transferMutation.isPending ? m["common.actions.submit"]() : m["nav.chief.transfers"]()}
             </Button>
           </CardContent>
         </Card>
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Pendencias atuais</CardTitle>
+            <CardTitle>{m["enrollments.admin.stat.pending"]()}</CardTitle>
             <CardDescription>
-              Como o backend compartilha a fila de convites, acompanhe aqui entradas ainda
-              aguardando aceite.
+              m["chief.shell.delegationDesc"]()
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -182,9 +182,9 @@ function TransferPanelPage() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <div className="font-medium">Usuario #{invite.user_id}</div>
+                      <div className="font-medium">m["nav.user.account"]() #{invite.user_id}</div>
                       <div className="text-sm text-muted-foreground">
-                        Criado em {formatEventDate(invite.created_at)}
+                        m["common.actions.create"]() {formatEventDate(invite.created_at)}
                       </div>
                     </div>
                     <Badge variant="secondary">{invite.status}</Badge>
@@ -193,7 +193,7 @@ function TransferPanelPage() {
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-                Nenhuma solicitacao pendente.
+                m["notification.empty"]()
               </div>
             )}
           </CardContent>
@@ -202,9 +202,9 @@ function TransferPanelPage() {
 
       <Card className="border border-border/70">
         <CardHeader>
-          <CardTitle>Historico útil para auditoria</CardTitle>
+          <CardTitle>{m["delegation.detail.campaign.title"]()}</CardTitle>
           <CardDescription>
-            Consulte a linha do tempo recente da delegacao antes de abrir novas movimentações.
+            m["chief.shell.delegationDesc"]()
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -223,13 +223,13 @@ function TransferPanelPage() {
                     {" - "}
                     {item.left_at
                       ? formatEventDate(item.left_at, { dateStyle: "medium" })
-                      : "vinculo ativo"}
+                      : m['common.status.active']()}
                   </div>
                 </div>
               ))
           ) : (
             <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-              Sem historico suficiente para exibir.
+              m["delegation.detail.empty.former"]()
             </div>
           )}
         </CardContent>

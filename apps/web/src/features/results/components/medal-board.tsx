@@ -9,6 +9,7 @@ import {
 } from "@sports-system/ui/components/table";
 
 import type { MedalBoardEntry } from "@/types/results";
+import * as m from "@/paraglide/messages";
 
 export function MedalBoard({
   entries,
@@ -23,11 +24,11 @@ export function MedalBoard({
         <TableHeader>
           <TableRow>
             <TableHead className="ps-4 w-14">#</TableHead>
-            <TableHead>Delegação</TableHead>
+            <TableHead>{m['results.public.table.delegation']()}</TableHead>
             <TableHead className="text-center">🥇</TableHead>
             <TableHead className="text-center">🥈</TableHead>
             <TableHead className="text-center">🥉</TableHead>
-            <TableHead className="pe-4 text-center">Total</TableHead>
+            <TableHead className="pe-4 text-center">{m['competition.detail.table.total']()}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -61,7 +62,7 @@ export function MedalBoard({
                     : "h-24 text-center text-muted-foreground"
                 }
               >
-                Nenhuma medalha registrada ainda.
+                {m["results.public.empty"]()}
               </TableCell>
             </TableRow>
           ) : null}

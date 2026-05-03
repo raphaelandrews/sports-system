@@ -23,6 +23,7 @@ import {
   sportMedalBoardQueryOptions,
 } from "@/features/results/api/queries";
 import { sportDetailQueryOptions } from "@/features/sports/api/queries";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/results/sports/$sportId/")({
   loader: async ({ context: { queryClient }, params: { leagueId, sportId } }) => {
@@ -62,17 +63,17 @@ function SportResultsPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(180deg,hsl(var(--card)),hsl(var(--muted)/0.18))]">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Resultados por esporte</Badge>
+              <Badge variant="outline">{m["results.sport.badge"]()}</Badge>
               <Badge variant="secondary">{sport.sport_type}</Badge>
             </div>
             <CardTitle className="text-3xl">{sport.name}</CardTitle>
             {sport.description ? <CardDescription>{sport.description}</CardDescription> : null}
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-3">
-            <QuickPill label="Modalidades" value={String(sport.modalities.length)} />
-            <QuickPill label="Delegações pontuando" value={String(medalBoard.length)} />
+            <QuickPill label={m["results.sport.stat.modalities"]()} value={String(sport.modalities.length)} />
+            <QuickPill label={m["results.sport.stat.scoring"]()} value={String(medalBoard.length)} />
             <QuickPill
-              label="Medalhas no esporte"
+              label={m["results.sport.stat.medals"]()}
               value={String(medalBoard.reduce((sum, entry) => sum + entry.total, 0))}
             />
           </CardContent>
@@ -80,7 +81,7 @@ function SportResultsPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Quadro do esporte</CardTitle>
+            <CardTitle>{m["results.sport.card.title"]()}</CardTitle>
           </CardHeader>
           <CardContent>
             <MedalBoard entries={medalBoard} compact />
@@ -90,18 +91,18 @@ function SportResultsPage() {
 
       <Card className="border border-border/70">
         <CardHeader>
-          <CardTitle>Classificações por modalidade</CardTitle>
+          <CardTitle>{m["results.sport.section.standings"]()}</CardTitle>
           <CardDescription>
-            Cada aba mostra a classificação já registrada para uma modalidade do esporte.
+            m["results.sport.section.standings"]()
           </CardDescription>
         </CardHeader>
         <CardContent>
           {sport.modalities.length === 0 ? (
             <Empty>
               <EmptyHeader>
-                <EmptyTitle>Nenhuma modalidade cadastrada</EmptyTitle>
+                <EmptyTitle>{m["results.sport.empty.modalities"]()}</EmptyTitle>
                 <EmptyDescription>
-                  Este esporte ainda não possui modalidades configuradas.
+                  m["results.sport.empty.modalities"]()
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>

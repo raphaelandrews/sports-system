@@ -8,6 +8,7 @@ import { delegationDetailQueryOptions, delegationListQueryOptions } from "@/feat
 import { findManagedDelegation } from "@/shared/lib/chief-delegation";
 import { queryKeys } from "@/features/keys";
 import type { DelegationUpdateInput } from "@/types/delegations";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_chief/my-delegation/edit",
@@ -40,7 +41,7 @@ function EditMyDelegationPage() {
   if (!delegation) {
     return (
       <div className="container mx-auto max-w-3xl px-4 py-10">
-        <p className="text-muted-foreground">Você não gerencia nenhuma delegação.</p>
+        <p className="text-muted-foreground">{m["chief.shell.alert.desc"]() }</p>
       </div>
     );
   }
@@ -68,7 +69,7 @@ function EditMyDelegationPage() {
           queryKey: queryKeys.delegations.detail(Number(leagueId), delegation.id),
         }),
       ]);
-      toast.success("Delegação atualizada com sucesso.");
+      toast.success(m["common.actions.update"]());
       await navigate({
         to: "/leagues/$leagueId/dashboard/my-delegation",
         params: { leagueId },

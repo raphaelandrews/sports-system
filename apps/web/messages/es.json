@@ -1,0 +1,1474 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "app_title": "Sistema Deportivo",
+  "nav_dashboard": "Panel",
+  "nav_athletes": "Atletas",
+  "nav_competitions": "Competiciones",
+  "nav_schedule": "Calendario",
+  "nav_results": "Resultados",
+  "nav_reports": "Informes",
+  "nav_settings": "Configuración",
+  "login_title": "Iniciar sesión",
+  "login_email": "Correo electrónico",
+  "login_password": "Contraseña",
+  "login_submit": "Iniciar sesión",
+  "login_no_account": "¿No tienes una cuenta?",
+  "login_register": "Registrarse",
+  "register_title": "Crear cuenta",
+  "register_name": "Nombre completo",
+  "register_submit": "Crear cuenta",
+  "register_has_account": "¿Ya tienes una cuenta?",
+  "register_login": "Iniciar sesión",
+  "logout": "Cerrar sesión",
+  "welcome_message": "Bienvenido, {name}!",
+  "auth": {
+    "login": {
+      "subtitle": "Acceda a su cuenta para continuar.",
+      "emailRequired": "Se requiere correo electrónico",
+      "passwordRequired": "Se requiere contraseña",
+      "submitting": "Iniciando sesión..."
+    },
+    "register": {
+      "title": "Crear una cuenta",
+      "subtitle": "Rellena tus datos para registrarte.",
+      "hasAccount": "¿Ya tienes una cuenta?",
+      "loginLink": "Iniciar sesión",
+      "nameRequired": "Se requiere el nombre",
+      "namePlaceholder": "Juan Doe",
+      "emailRequired": "Se requiere correo electrónico",
+      "emailInvalid": "Correo electrónico no válido",
+      "emailPlaceholder": "sportshub@email.com",
+      "passwordInvalid": "inválido",
+      "ruleMin8": "Mínimo 8 caracteres",
+      "ruleUppercase": "Al menos una letra mayúscula",
+      "ruleSymbol": "Al menos un símbolo",
+      "passwordLabel": "Contraseña",
+      "confirmPasswordRequired": "Confirma tu contraseña",
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "confirmPasswordLabel": "Confirmar Contraseña",
+      "submitting": "Registrando...",
+      "submit": "Crear una cuenta"
+    },
+    "card": {
+      "separator": "O continuar con",
+      "tosPrefix": "Al continuar, aceptas nuestros términos y condiciones.",
+      "tosLink": "Condiciones de servicio",
+      "privacyLink": "política de privacidad"
+    },
+    "provider": {
+      "google": "Google",
+      "github": "GitHub"
+    }
+  },
+  "oauth": {
+    "title": {
+      "loading": "Completando el inicio de sesión de OAuth",
+      "error": "Falló el inicio de sesión de OAuth.",
+      "success": "Inicio de sesión completado"
+    },
+    "desc": {
+      "loading": "Validando la autenticación con el proveedor externo.",
+      "error": "No se pudo completar la autenticación externa.",
+      "success": "Redireccionando al panel de control."
+    },
+    "processing": "Procesando credenciales de Google o GitHub.",
+    "btn": {
+      "login": "Ir a iniciar sesión",
+      "register": "Ve a registrarte"
+    }
+  },
+  "nav": {
+    "home": "Hogar",
+    "leagues": "Ligas",
+    "overview": "Descripción general",
+    "competitions": "Competiciones",
+    "results": "Resultados",
+    "calendar": "Calendario",
+    "delegations": "Delegaciones",
+    "sports": "Deportes",
+    "exploreLeagues": "Explorar ligas",
+    "myLeagues": "Mis ligas",
+    "createLeague": "Crear liga",
+    "operationalCalendar": "Calendario operativo",
+    "operateResults": "Resultados de la operación",
+    "admin": {
+      "competitions": "Competiciones",
+      "athletes": "atletas",
+      "enrollments": "Inscripciones",
+      "requests": "Solicitudes",
+      "ai": "Generación de IA",
+      "settings": "Ajustes",
+      "report": "Informe final"
+    },
+    "chief": {
+      "myDelegation": "Mi delegación",
+      "members": "Miembros",
+      "invites": "Invitaciones",
+      "transfers": "Transferencias",
+      "enrollments": "Inscripciones",
+      "athletes": "atletas"
+    },
+    "quick": {
+      "newCompetition": "Nueva competencia",
+      "login": "Iniciar sesión",
+      "register": "Crear una cuenta"
+    },
+    "workspace": {
+      "leaguePanel": "panel de la liga",
+      "explore": "Explorar ligas",
+      "myLeagues": "Mis ligas",
+      "admin": "Centro de administración",
+      "personal": "Panel personal"
+    },
+    "meta": {
+      "catalog": "Catálogo público",
+      "shortcuts": "Acceso rápido",
+      "generalOps": "Operaciones generales",
+      "overview": "Descripción general"
+    },
+    "user": {
+      "guest": "Invitado",
+      "fallbackInitials": "SH",
+      "account": "Cuenta"
+    }
+  },
+  "sidebar": {
+    "home": "Hogar",
+    "leagues": "Ligas",
+    "myLeagues": "Mis ligas",
+    "myDelegations": "Mis delegaciones",
+    "createLeague": "Crear liga"
+  },
+  "header": {
+    "siteTitle": "SportsHub",
+    "breadcrumbHome": "Hogar",
+    "loginButton": "Iniciar sesión"
+  },
+  "common": {
+    "toast": {
+      "logoutSuccess": "Finalizó la sesión"
+    },
+    "table": {
+      "searchPlaceholder": "Buscar…",
+      "filterSingular": "filtrar",
+      "filterPluralSuffix": "s",
+      "filterActiveSingular": "activo",
+      "filterActivePluralSuffix": "s",
+      "paginationShow": "Espectáculo",
+      "paginationPerPage": "por página",
+      "paginationOf": "de",
+      "createdAt": "Creado en"
+    },
+    "sort": {
+      "asc": "Ascendente",
+      "desc": "Descendente"
+    },
+    "actions": {
+      "clearAria": "Claro",
+      "clearTitle": "Claro",
+      "clearFilters": "Filtros transparentes",
+      "previous": "Anterior",
+      "next": "Próximo",
+      "save": "Ahorrar",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "create": "Crear",
+      "delete": "Borrar",
+      "search": "Buscar",
+      "clear": "Claro",
+      "submit": "Entregar",
+      "close": "Cerca",
+      "open": "Abierto",
+      "view": "Vista",
+      "back": "Atrás",
+      "add": "Agregar",
+      "remove": "Eliminar",
+      "update": "Actualizar",
+      "confirm": "Confirmar"
+    },
+    "phase": {
+      "group": "Grupos",
+      "elimination": "Eliminación",
+      "final": "Final",
+      "quarter": "Cuartos de final",
+      "semi": "Semifinal",
+      "bronze": "Bronce"
+    },
+    "status": {
+      "draft": "Borrador",
+      "scheduled": "Programado",
+      "locked": "Bloqueado",
+      "active": "Activo",
+      "completed": "Terminado",
+      "live": "Vivir",
+      "cancelled": "Cancelado",
+      "pending": "Pendiente",
+      "approved": "Aprobado",
+      "rejected": "Rechazado",
+      "inactive": "Inactivo"
+    },
+    "medal": {
+      "gold": "Oro",
+      "silver": "Plata",
+      "bronze": "Bronce"
+    },
+    "gender": {
+      "male": "Masculino",
+      "female": "Femenino",
+      "mixed": "Mezclado"
+    },
+    "items": "artículos",
+    "current": "actual",
+    "impact": "Impacto",
+    "rank": "Clasificación",
+    "until": "hasta"
+  },
+  "bottombar": {
+    "platformActive": "conectado · plataforma activa",
+    "authRequired": "Inicia sesión para acceder a las acciones privadas y explorar tu zona.",
+    "membershipError": "Contexto de liga autenticado no disponible. Navegación pública mantenida.",
+    "createLeagueHint": "Crea una nueva liga o únete a una existente para desbloquear el modo de competición."
+  },
+  "roles": {
+    "superadmin": "Administrador",
+    "user": "Usuario",
+    "admin": "Administrador",
+    "chief": "Jefe",
+    "coach": "Entrenador",
+    "athlete": "Atleta",
+    "leagueAdmin": "Administrador de la liga"
+  },
+  "search": {
+    "quick": {
+      "explore": "Explorar ligas",
+      "overview": "Descripción general",
+      "calendar": "Calendario"
+    },
+    "buttonLabel": "Buscar",
+    "dialogTitle": "Buscar",
+    "dialogDescription": "Buscar personas, ligas y entidades de competición",
+    "inputPlaceholder": "Buscar por nombre, código, modalidad, deporte o ubicación...",
+    "loading": "Búsqueda...",
+    "group": {
+      "quickActions": "Acciones rápidas",
+      "leagues": "Ligas",
+      "users": "Usuarios",
+      "delegations": "Delegaciones",
+      "events": "Eventos"
+    },
+    "noResults": "No se encontraron resultados para"
+  },
+  "notification": {
+    "title": {
+      "invite": "Invitación a la delegación",
+      "requestReviewed": "Solicitud revisada",
+      "matchReminder": "Recordatorio del partido",
+      "result": "Resultado disponible",
+      "transfer": "Transferir",
+      "participation": "Solicitud de participación"
+    },
+    "desc": {
+      "invite": "Fuiste invitado a",
+      "requestApproved": "Solicitud aprobada — delegación",
+      "requestRejected": "Solicitud de",
+      "requestRejectedSuffix": "fue rechazado",
+      "matchReminderPrefix": "Fósforo",
+      "matchReminderSuffix": "en 24 horas",
+      "resultPrefix": "Resultado de",
+      "resultSuffix": "disponible",
+      "transferPrefix": "Transferir a",
+      "transferAccepted": "aceptado",
+      "transferRefused": "rechazado",
+      "participationPrefix": "Delegación",
+      "participationMid": "Le pidieron que se uniera a la liga."
+    },
+    "action": {
+      "accept": "Aceptar",
+      "refuse": "Rechazar"
+    },
+    "panelTitle": "Notificaciones",
+    "markAllRead": "Marcar todo como leído",
+    "empty": "Sin notificaciones"
+  },
+  "locale": {
+    "en": "Inglés",
+    "ptBr": "Portugués",
+    "es": "Español",
+    "switchLabel": "Cambiar idioma"
+  },
+  "theme": {
+    "toggleLabel": "Cambiar tema",
+    "toggleLight": "Encienda la luz",
+    "toggleDark": "Cambiar a oscuro"
+  },
+  "league": {
+    "card": {
+      "members": "miembros",
+      "cta": "Ver liga"
+    },
+    "new": {
+      "title": "Crear nueva liga",
+      "subtitle": "Crea una nueva competición. Elige los deportes y define las reglas iniciales.",
+      "label": {
+        "name": "Nombre",
+        "slug": "Babosa",
+        "description": "Descripción",
+        "logo": "Logotipo de la liga",
+        "timezone": "Zona horaria",
+        "sports": "Deportes"
+      },
+      "placeholder": {
+        "name": "Juegos del Instituto Federal",
+        "description": "Breve resumen sobre la liga..."
+      },
+      "timezone": {
+        "saoPaulo": "América/Sao_Paulo",
+        "newYork": "América/Nueva York",
+        "london": "Europa/Londres",
+        "utc": "UTC"
+      }
+    },
+    "layout": {
+      "notFound": "Liga no encontrada"
+    },
+    "public": {
+      "status": {
+        "active": "Activo",
+        "inactive": "Inactivo"
+      },
+      "card": {
+        "summary": "Resumen de la liga"
+      }
+    },
+    "report": {
+      "badge": {
+        "final": "Informe final",
+        "public": "Público"
+      },
+      "stat": {
+        "delegations": "Delegaciones",
+        "athletes": "atletas",
+        "competitions": "Competiciones",
+        "events": "Eventos",
+        "matches": "Partidos",
+        "completed": "Terminado"
+      },
+      "card": {
+        "routesTitle": "Rutas rápidas",
+        "routesDesc": "Contribuciones públicas para profundizar la lectura."
+      },
+      "empty": {
+        "highlights": "Aún no hay momentos destacados disponibles.",
+        "modalities": "No hay modalidades disponibles."
+      },
+      "recordsTitle": "Récords y mejores marcas",
+      "classificationTitle": "Clasificación por modalidad"
+    },
+    "feed": {
+      "title": "Fuente de actividad",
+      "pill": {
+        "items": "Artículos cargados",
+        "live": "Partidos en directo",
+        "records": "Registros recientes"
+      },
+      "card": {
+        "navTitle": "Navegación",
+        "timelineTitle": "Cronología"
+      },
+      "badge": {
+        "live": "Vivir"
+      },
+      "empty": "Aún no se ha registrado ninguna actividad global."
+    },
+    "settings": {
+      "title": "Configuración de la liga",
+      "card": {
+        "general": {
+          "title": "información general",
+          "desc": "Actualizar los datos de la liga principal."
+        },
+        "members": {
+          "title": "Miembros"
+        }
+      },
+      "label": {
+        "name": "Nombre",
+        "slug": "Babosa",
+        "description": "Descripción",
+        "logo": "Logotipo de la liga",
+        "timezone": "Zona horaria",
+        "sports": "Deportes",
+        "transferWindow": "Ventana de transferencias"
+      },
+      "timezone": {
+        "saoPaulo": "América/Sao_Paulo",
+        "newYork": "América/Nueva York",
+        "london": "Europa/Londres",
+        "utc": "UTC"
+      },
+      "membersHeading": "Miembros",
+      "table": {
+        "user": "Usuario",
+        "role": "Role",
+        "actions": "Comportamiento"
+      },
+      "membersEmpty": "No se encontraron miembros.",
+      "danger": {
+        "title": "Zona de peligro",
+        "desc": "Medidas irreversibles para esta liga."
+      },
+      "role": {
+        "admin": "Administrador de la liga",
+        "chief": "Jefe",
+        "coach": "Entrenador",
+        "athlete": "Atleta"
+      }
+    }
+  },
+  "imageUpload": {
+    "defaultLabel": "Imagen",
+    "fallback": "¿",
+    "errorType": "Seleccione un archivo de imagen.",
+    "errorSizePrefix": "La imagen debe ser como máximo",
+    "errorSizeSuffix": "MEGABYTE.",
+    "success": "Imagen cargada correctamente.",
+    "errorGeneric": "Error al cargar",
+    "altPreview": "Avance",
+    "buttonSending": "Envío...",
+    "buttonSend": "Subir imagen",
+    "hintPrefix": "WebP, PNG, JPG o GIF. Máx.",
+    "hintSuffix": "MB. Redimensionado a 800x800."
+  },
+  "home": {
+    "title": "SportsHub",
+    "subtitle": "Crea, únete y sigue ligas deportivas.",
+    "popularLeagues": "ligas populares",
+    "recentLeagues": "ligas recientes"
+  },
+  "leagues": {
+    "listTitle": "Ligas",
+    "listEmpty": "No hay ligas registradas"
+  },
+  "myLeagues": {
+    "title": "Mis ligas",
+    "createButton": "Crear liga",
+    "empty": "Aún no participas en ninguna liga.",
+    "exploreButton": "Explorar ligas",
+    "role": {
+      "admin": "Administración",
+      "chief": "Jefe",
+      "coach": "Entrenador",
+      "athlete": "Atleta"
+    }
+  },
+  "sports": {
+    "public": {
+      "title": "Deportes",
+      "table": {
+        "name": "Nombre",
+        "type": "Tipo",
+        "athletes": "atletas"
+      },
+      "empty": "No se encontraron deportes."
+    },
+    "type": {
+      "team": "Equipo",
+      "individual": "Individual"
+    },
+    "admin": {
+      "title": "Deportes y modalidades",
+      "stat": {
+        "total": "Deportes",
+        "team": "Equipo",
+        "individual": "Individual"
+      },
+      "card": {
+        "status": {
+          "title": "Estado rápido"
+        },
+        "list": {
+          "title": "Lista de deportes"
+        }
+      },
+      "searchPlaceholder": "Buscar deporte",
+      "filter": {
+        "allTypes": "Todo tipo",
+        "team": "Solo para el equipo",
+        "individual": "Individual"
+      },
+      "sort": {
+        "name": "Ordenar por nombre",
+        "created": "Ordenar por creación",
+        "asc": "Ascendente",
+        "desc": "Descendiendo"
+      },
+      "table": {
+        "sport": "Deporte",
+        "type": "Tipo",
+        "players": "Jugadores",
+        "status": "Estado",
+        "created": "Creado en",
+        "actions": "Comportamiento"
+      },
+      "empty": "No se encontraron deportes."
+    }
+  },
+  "sport": {
+    "detail": {
+      "status": {
+        "inactive": "Inactivo"
+      },
+      "modalitiesHeading": "Modalidades",
+      "table": {
+        "name": "Nombre",
+        "gender": "Género",
+        "category": "Categoría"
+      },
+      "empty": {
+        "modalities": "No se han registrado modalidades."
+      },
+      "type": {
+        "team": "Equipo",
+        "individual": "Individual"
+      },
+      "gender": {
+        "male": "Masculino",
+        "female": "Femenino",
+        "mixed": "Mezclado"
+      }
+    },
+    "admin": {
+      "stat": {
+        "modalities": "Modalidades",
+        "schemaLabel": "Esquema de estadísticas",
+        "schemaConfigured": "Configurado",
+        "schemaEmpty": "Vacío"
+      },
+      "card": {
+        "actions": {
+          "title": "Comportamiento"
+        },
+        "modalities": {
+          "title": "Modalidades"
+        }
+      },
+      "table": {
+        "name": "Nombre",
+        "gender": "Género",
+        "category": "Categoría",
+        "rules": "Normas",
+        "actions": "Comportamiento"
+      },
+      "empty": {
+        "modalities": "No se han registrado modalidades activas."
+      },
+      "schema": {
+        "title": "Esquema estadístico",
+        "desc": "Esquema utilizado para estadísticas deportivas dinámicas."
+      }
+    },
+    "rules": {
+      "title": "Reglas del deporte",
+      "desc": "El administrador puede ajustar `rules_json` sin modificar el código.",
+      "label": "Reglas JSON",
+      "examplePrefix": "Ejemplo:",
+      "error": {
+        "json": "JSON no válido. Compruebe las claves, las comillas y las comas."
+      },
+      "alert": {
+        "jsonTitle": "JSON de reglas no válidas",
+        "saveTitle": "No se pudo guardar"
+      },
+      "submitting": "Ahorro...",
+      "submit": "Guardar reglas"
+    }
+  },
+  "modality": {
+    "form": {
+      "title": {
+        "create": "Nueva modalidad",
+        "edit": "Modalidad de edición"
+      },
+      "desc": {
+        "create": "Registra una nueva modalidad para",
+        "edit": "Ajustar reglas y metadatos para la modalidad en",
+        "category": "Úselo para grupos de edad, peso o división técnica."
+      },
+      "label": {
+        "name": "Nombre",
+        "gender": "Género",
+        "category": "Categoría",
+        "rules": "Reglas JSON"
+      },
+      "placeholder": {
+        "name": "Ejemplo: carrera de 100 metros",
+        "category": "Opcional"
+      },
+      "gender": {
+        "male": "Masculino",
+        "female": "Femenino",
+        "mixed": "Mezclado"
+      },
+      "rulesExamplePrefix": "Ejemplo:",
+      "error": {
+        "name": "Introduce un nombre de al menos 3 caracteres.",
+        "json": "JSON no válido. Compruebe las claves, las comillas y las comas."
+      },
+      "alert": {
+        "jsonTitle": "JSON de reglas no válidas",
+        "saveTitle": "No se pudo guardar"
+      },
+      "submitting": {
+        "create": "Creando...",
+        "edit": "Ahorro..."
+      },
+      "submit": {
+        "create": "Crear modalidad",
+        "edit": "Guardar cambios"
+      },
+      "cancel": "Cancela y regresa"
+    }
+  },
+  "competitions": {
+    "public": {
+      "title": "Competiciones",
+      "filter": {
+        "status": "Estado"
+      },
+      "table": {
+        "competition": "Competencia",
+        "period": "Período",
+        "status": "Estado",
+        "sports": "Deportes",
+        "actions": "Comportamiento"
+      },
+      "empty": "No se encontraron competiciones."
+    },
+    "admin": {
+      "title": "Competiciones",
+      "stat": {
+        "total": "Total",
+        "active": "Activo",
+        "locked": "Bloqueado+"
+      },
+      "card": {
+        "transfer": {
+          "title": "Ventana de transferencias",
+          "desc": "Reglas calculadas en UTC-3 / América_Sao_Paulo."
+        },
+        "list": {
+          "title": "Lista de competiciones"
+        }
+      },
+      "table": {
+        "competition": "Competencia",
+        "period": "Período",
+        "status": "Estado",
+        "sports": "Deportes de enfoque",
+        "actions": "Comportamiento"
+      }
+    }
+  },
+  "competition": {
+    "detail": {
+      "stat": {
+        "events": "Eventos totales",
+        "completed": "Partidos finalizados",
+        "matches": "Partidos totales"
+      },
+      "tab": {
+        "medals": "Tabla de medallas",
+        "events": "Eventos y resultados"
+      },
+      "table": {
+        "rank": "#",
+        "delegation": "Delegación",
+        "total": "Total",
+        "teamA": "Equipo A",
+        "score": "Puntaje",
+        "teamB": "Equipo B"
+      },
+      "empty": {
+        "medals": "Aún no se han entregado medallas.",
+        "events": "No hay eventos en esta competición.",
+        "matches": "No se registraron coincidencias."
+      }
+    },
+    "form": {
+      "title": "Nueva competencia",
+      "description": "Definir el número, el período y los deportes en los que centrarse para preparar la competición.",
+      "label": {
+        "number": "Número de competición",
+        "start": "Comenzar",
+        "end": "Fin",
+        "sports": "Deportes de enfoque"
+      },
+      "error": {
+        "number": "Introduce un número de concurso válido."
+      },
+      "desc": {
+        "sports": "Opcional. Marque los deportes con prioridad para esta competición."
+      },
+      "alert": {
+        "error": "Incapaz de crear competencia"
+      },
+      "submitting": "Creando...",
+      "submit": "Crear competencia",
+      "cancel": "Cancela y regresa"
+    },
+    "admin": {
+      "detail": {
+        "title": "Detalles de la competición",
+        "period": "Período",
+        "stat": {
+          "events": "Eventos",
+          "preview": "Previa del partido"
+        }
+      },
+      "card": {
+        "actions": {
+          "title": "acciones estatales",
+          "desc": "Flujo oficial: Publicar, Bloquear, Activar y Completar."
+        },
+        "status": {
+          "title": "Estado y enfoque",
+          "desc": "Resumen del periodo y deportes priorizados."
+        },
+        "preview": {
+          "title": "Avance de la generación"
+        },
+        "events": {
+          "title": "Eventos registrados"
+        }
+      },
+      "badge": {
+        "competition": "Concurso n.º {competition.number}"
+      },
+      "empty": {
+        "transitions": "No hay ninguna transición disponible para el estado actual.",
+        "matches": "Aún no hay ningún partido previsto para esta competición.",
+        "events": "No se han creado eventos para esta competición."
+      }
+    },
+    "transition": {
+      "publish": "Publicar concurso",
+      "lock": "Competencia de cerraduras",
+      "activate": "Activar la competencia",
+      "complete": "Competencia completa",
+      "verb": {
+        "publish": "publicado",
+        "lock": "cerrado",
+        "activate": "activado",
+        "complete": "terminado"
+      }
+    }
+  },
+  "calendar": {
+    "public": {
+      "title": "Calendario",
+      "filter": {
+        "competition": "Competencia",
+        "placeholder": "Filtrar…",
+        "status": "Estado"
+      },
+      "table": {
+        "date": "Fecha",
+        "time": "Tiempo",
+        "venue": "Evento",
+        "phase": "Fase",
+        "status": "Estado",
+        "competition": "Competencia"
+      },
+      "empty": "No se encontraron eventos."
+    },
+    "competition": {
+      "badge": {
+        "official": "Calendario oficial"
+      },
+      "card": {
+        "title": "Competencia {competition.number}",
+        "navTitle": "Navegación"
+      },
+      "stat": {
+        "period": "Período",
+        "events": "Eventos",
+        "status": "Estado"
+      },
+      "phase": {
+        "*": "mapeo de etiquetas de fase"
+      },
+      "empty": {
+        "matches": "Aún no se han generado coincidencias."
+      }
+    },
+    "admin": {
+      "title": "Calendario de eventos",
+      "stat": {
+        "activeCompetition": "Competencia activa",
+        "visibleEvents": "Eventos visibles",
+        "period": "Período"
+      },
+      "card": {
+        "controls": {
+          "title": "Controles"
+        }
+      },
+      "selectCompetition": "Seleccionar competición",
+      "searchPlaceholder": "Buscar eventos…",
+      "clearAria": "Claro",
+      "clearTitle": "Claro",
+      "filter": {
+        "status": "Estado"
+      },
+      "table": {
+        "date": "Fecha",
+        "time": "Tiempo",
+        "venue": "Evento",
+        "phase": "Fase",
+        "status": "Estado",
+        "modality": "Modalidad",
+        "actions": "Comportamiento"
+      },
+      "empty": "No se encontraron eventos."
+    }
+  },
+  "event": {
+    "form": {
+      "title": "Nuevo evento en el calendario",
+      "label": {
+        "competition": "Competencia",
+        "modality": "Modalidad",
+        "date": "Fecha",
+        "time": "Tiempo",
+        "phase": "Fase",
+        "venue": "Evento"
+      },
+      "placeholder": {
+        "competition": "Seleccionar competición",
+        "modality": "Seleccionar modalidad",
+        "phase": "Seleccionar fase",
+        "venue": "Gimnasio principal, colchoneta 2..."
+      },
+      "alert": {
+        "error": "No se pudo guardar el evento."
+      }
+    }
+  },
+  "athlete": {
+    "detail": {
+      "status": {
+        "inactive": "Inactivo"
+      },
+      "tab": {
+        "history": "Historia",
+        "statistics": "Estadística",
+        "medals": "Medallas"
+      },
+      "section": {
+        "delegations": "Delegaciones",
+        "matches": "Partidos"
+      },
+      "table": {
+        "delegation": "Delegación",
+        "role": "Role",
+        "entry": "Entrada",
+        "exit": "Salida",
+        "modality": "Modalidad",
+        "sport": "Deporte",
+        "date": "Fecha",
+        "match": "Fósforo",
+        "medal": "Medalla",
+        "position": "Posición"
+      },
+      "empty": {
+        "statistics": "No se registraron estadísticas.",
+        "medals": "No se ganaron medallas."
+      }
+    },
+    "form": {
+      "title": {
+        "create": "Nuevo atleta",
+        "edit": "Editar atleta"
+      },
+      "desc": {
+        "admin": "Registra a los atletas a nivel mundial y vincula un usuario cuando sea conveniente.",
+        "chief": "Registre a los atletas de su delegación y, opcionalmente, vincule un usuario.",
+        "code": "Se enviará en mayúsculas para mantener el estándar administrativo.",
+        "linkedUser": "Opcional. Utilice la función de búsqueda para vincular al atleta con una cuenta del sistema."
+      },
+      "label": {
+        "name": "Nombre",
+        "code": "Código",
+        "gender": "Género",
+        "birthdate": "Fecha de nacimiento",
+        "linkedUser": "Usuario vinculado"
+      },
+      "placeholder": {
+        "name": "Ejemplo: Ana Souza",
+        "code": "Ejemplo: ATH-001"
+      },
+      "error": {
+        "name": "Introduce un nombre de al menos 3 caracteres.",
+        "code": "Utilice un código de al menos 3 caracteres."
+      },
+      "gender": {
+        "none": "No informar",
+        "male": "Masculino",
+        "female": "Femenino"
+      },
+      "searchPlaceholder": "Buscar usuario por nombre o correo electrónico",
+      "linkedUserBadge": "Usuario # {linkedUserId}",
+      "linkedUserFallback": "Vinculado",
+      "unlinkButton": "Eliminar enlace",
+      "searchLoading": "Buscando usuarios...",
+      "linkButton": "Enlace",
+      "searchEmpty": "No se encontraron usuarios.",
+      "alert": {
+        "error": "No se pudo guardar"
+      },
+      "submitting": "Ahorro...",
+      "submit": "Registrar atleta",
+      "cancel": "Cancela y regresa"
+    }
+  },
+  "athletes": {
+    "admin": {
+      "stat": {
+        "total": "Total",
+        "linked": "Con el usuario",
+        "missing": "Falta el género/fecha de nacimiento"
+      },
+      "hint": {
+        "linked": "Vinculado a cuentas"
+      },
+      "card": {
+        "actions": {
+          "title": "Comportamiento"
+        }
+      },
+      "list": {
+        "global": "Lista global",
+        "my": "Mi lista"
+      },
+      "searchPlaceholder": "Buscar atleta",
+      "filter": {
+        "allLinks": "Todos los enlaces",
+        "linked": "Con el usuario",
+        "unlinked": "Sin usuario"
+      },
+      "sort": {
+        "name": "Ordenar por nombre",
+        "code": "Ordenar por código",
+        "birthdate": "Ordenar por fecha de nacimiento",
+        "asc": "Ascendente",
+        "desc": "Descendiendo"
+      },
+      "table": {
+        "name": "Nombre",
+        "code": "Código",
+        "gender": "Género",
+        "birthdate": "Fecha de nacimiento",
+        "user": "Usuario",
+        "profile": "Perfil"
+      },
+      "cell": {
+        "noLink": "Sin enlace"
+      },
+      "empty": "No se encontraron atletas."
+    }
+  },
+  "delegations": {
+    "public": {
+      "title": "Delegaciones",
+      "card": {
+        "title": "Delegaciones"
+      },
+      "table": {
+        "code": "Código",
+        "name": "Nombre"
+      },
+      "empty": "No se encontraron delegaciones."
+    }
+  },
+  "delegation": {
+    "detail": {
+      "status": {
+        "inactive": "Inactivo"
+      },
+      "card": {
+        "summary": {
+          "title": "Resumen rápido"
+        }
+      },
+      "campaign": {
+        "title": "Campaña completa",
+        "desc": "Todos los atletas asociados, medallas registradas y rendimiento histórico por semana."
+      },
+      "section": {
+        "members": "Miembros activos"
+      },
+      "table": {
+        "name": "Nombre",
+        "role": "Role",
+        "since": "Desde",
+        "until": "Hasta"
+      },
+      "empty": {
+        "members": "No hay miembros activos.",
+        "former": "Ningún exmiembro."
+      }
+    },
+    "public": {
+      "status": {
+        "inactive": "Inactivo"
+      },
+      "card": {
+        "leagues": "Ligas",
+        "members": "Miembros"
+      },
+      "table": {
+        "name": "Nombre",
+        "action": "Acción",
+        "role": "Role",
+        "joined": "Se unió el"
+      },
+      "empty": {
+        "members": "No hay miembros activos."
+      }
+    },
+    "new": {
+      "title": "Nueva delegación"
+    },
+    "edit": {
+      "title": "Editar delegación"
+    },
+    "form": {
+      "title": {
+        "create": "Nueva delegación",
+        "edit": "Editar delegación"
+      },
+      "desc": {
+        "create": "Registre las delegaciones con una identidad clara para el calendario, las inscripciones y los informes.",
+        "edit": "Actualizar el nombre público y la bandera sin perder el historial competitivo.",
+        "name": "Nombre visible en listados, tabla de medallas y páginas públicas.",
+        "code": "Opcional. Si se deja vacío, el sistema puede generar un código automáticamente.",
+        "imageUrl": "Opcional. Utilice un enlace estable para mostrar el emblema de la delegación."
+      },
+      "label": {
+        "name": "Nombre",
+        "code": "Código",
+        "image": "Imagen de delegación",
+        "imageUrl": "URL de la imagen"
+      },
+      "placeholder": {
+        "name": "Ejemplo: Delegación Bahia Athletic",
+        "code": "Ejemplo: BAH",
+        "imageUrl": "https://..."
+      },
+      "error": {
+        "name": "Introduce un nombre de al menos 3 caracteres.",
+        "code": "Utilice al menos 2 caracteres o deje el campo en blanco.",
+        "imageUrl": "Utilice una URL que comience con http:// o https://."
+      },
+      "alert": {
+        "codeTitle": "Código preservado",
+        "codeDesc": "El código de delegación se mantiene estable para evitar romper las referencias históricas.",
+        "error": "No se pudo guardar"
+      },
+      "submitting": {
+        "create": "Creando...",
+        "edit": "Ahorro..."
+      },
+      "submit": {
+        "create": "Crear delegación",
+        "edit": "Guardar cambios"
+      },
+      "cancel": "Cancela y regresa"
+    },
+    "stats": {
+      "defaultTitle": "Estadísticas de delegación",
+      "defaultDesc": "Resumen consolidado de atletas, medallas y rendimiento semanal.",
+      "label": {
+        "athletes": "atletas",
+        "medals": "Medallas",
+        "matches": "Partidos",
+        "wins": "Victorias",
+        "weeks": "Semanas con actividad"
+      },
+      "hint": {
+        "athletes": "activo en este momento",
+        "gold": "oro",
+        "silver": "plata",
+        "bronze": "bronce"
+      },
+      "tab": {
+        "athletes": "atletas",
+        "medals": "Medallas",
+        "weeks": "Semanas"
+      },
+      "table": {
+        "athlete": "Atleta",
+        "status": "Estado",
+        "matches": "Partidos",
+        "medals": "Medallas",
+        "link": "Enlace",
+        "match": "Fósforo",
+        "rank": "Colocación",
+        "competition": "Competencia",
+        "period": "Período",
+        "wins": "Victorias"
+      },
+      "badge": {
+        "active": "Activo",
+        "historic": "Histórico",
+        "inactive": "Tarjeta inactiva"
+      },
+      "abbr": {
+        "gold": "GRAMO",
+        "silver": "S",
+        "bronze": "B"
+      },
+      "cell": {
+        "since": "Desde",
+        "noLink": "No hay ningún vínculo formal",
+        "until": "Hasta",
+        "delegation": "Delegación",
+        "completed": "terminado"
+      },
+      "empty": {
+        "athletes": "Aún no hay atletas asociados a esta delegación.",
+        "medals": "No se registraron medallas.",
+        "weeks": "Aún no hay historial de rendimiento semanal."
+      }
+    }
+  },
+  "myDelegations": {
+    "badge": "Delegaciones",
+    "card": {
+      "title": "Mis delegaciones",
+      "controls": {
+        "title": "Controles",
+        "desc": "Crea y gestiona tus delegaciones."
+      }
+    },
+    "stat": {
+      "total": "Total",
+      "independent": "Independiente",
+      "inLeague": "En ligas"
+    },
+    "listHeading": "Lista de delegados",
+    "table": {
+      "name": "Nombre",
+      "code": "Código",
+      "status": "Estado",
+      "created": "Creado en",
+      "actions": "Comportamiento"
+    },
+    "empty": "No se encontraron delegaciones.",
+    "action": {
+      "edit": "Editar",
+      "request": "Solicitar participación",
+      "view": "Ver en la liga"
+    },
+    "dialog": {
+      "title": "Solicitar participación"
+    },
+    "selectLeague": "Selecciona una liga",
+    "requestPlaceholder": "Describe las delegaciones que deseas..."
+  },
+  "profile": {
+    "title": "Mi perfil",
+    "card": {
+      "title": "datos personales",
+      "desc": "Actualiza tu nombre y foto de perfil."
+    },
+    "label": {
+      "photo": "Foto de perfil",
+      "name": "Nombre",
+      "avatarUrl": "URL de la imagen",
+      "email": "Correo electrónico"
+    },
+    "placeholder": {
+      "avatar": "https://..."
+    }
+  },
+  "chief": {
+    "shell": {
+      "badge": {
+        "open": "Ventana abierta",
+        "closed": "Ventana cerrada"
+      },
+      "delegationDesc": "Base de datos activa para miembros, invitaciones y transferencias.",
+      "alert": {
+        "title": "No hay delegación vinculada",
+        "desc": "Su usuario aún no aparece como jefe de una delegación activa."
+      },
+      "nav": {
+        "title": "Navegación rápida",
+        "desc": "Flujo principal para miembros, invitaciones y ventana de transferencia.",
+        "overview": "Descripción general",
+        "members": "Miembros e invitados",
+        "invite": "Invitar usuario",
+        "transfers": "Transferencias"
+      },
+      "unavailable": "Aún no hay nada que gestionar. Vincula un jefe a una delegación para desbloquear esta área.",
+      "unavailableAction": "Ver estado de la solicitud"
+    }
+  },
+  "transferWindow": {
+    "openMessage": "Ventana abierta hoy en América/Sao_Paulo.",
+    "closedMessage": "Los traslados solo están permitidos los lunes en América/Sao_Paulo."
+  },
+  "enrollments": {
+    "admin": {
+      "title": "Panel de inscripción",
+      "stat": {
+        "total": "Total",
+        "pending": "Pendiente",
+        "approved": "Aprobado",
+        "rejected": "Rechazado"
+      },
+      "card": {
+        "actions": {
+          "title": "Comportamiento"
+        }
+      },
+      "noDelegation": "No se permite la delegación gestionada. Solicite aprobación antes de inscribir a los atletas.",
+      "filter": {
+        "allStatus": "Todos los estados",
+        "pending": "Pendiente",
+        "approved": "Aprobado",
+        "rejected": "Rechazado",
+        "allCompetitions": "Todas las competiciones"
+      },
+      "sort": {
+        "competition": "Ordenar por competencia",
+        "athlete": "Ordenar por atleta",
+        "status": "Ordenar por estado",
+        "asc": "Ascendente",
+        "desc": "Descendiendo"
+      },
+      "table": {
+        "athlete": "Atleta",
+        "event": "Evento",
+        "delegation": "Delegación",
+        "status": "Estado",
+        "validation": "Validación",
+        "actions": "Comportamiento"
+      },
+      "empty": "No se encontraron inscripciones con los filtros actuales."
+    }
+  },
+  "enrollment": {
+    "form": {
+      "title": "Nueva inscripción",
+      "desc": {
+        "create": "Inscriba un atleta en un evento de competición."
+      },
+      "label": {
+        "competition": "Competencia",
+        "sport": "Deporte",
+        "event": "Evento",
+        "delegation": "Delegación",
+        "athlete": "Atleta"
+      },
+      "placeholder": {
+        "competition": "Seleccionar competición",
+        "event": "Seleccionar evento",
+        "delegation": "Seleccionar delegación",
+        "athlete": "Seleccionar atleta"
+      },
+      "filter": {
+        "all": "Todo"
+      },
+      "card": {
+        "summary": {
+          "title": "Resumen de la selección"
+        },
+        "validation": {
+          "title": "Validación en tiempo real"
+        }
+      },
+      "summary": {
+        "competition": "Competencia",
+        "sport": "Deporte",
+        "modality": "Modalidad",
+        "event": "Evento",
+        "athlete": "Atleta"
+      },
+      "alert": {
+        "lockedTitle": "Competencia cerrada",
+        "errorTitle": "El envío falló."
+      }
+    }
+  },
+  "results": {
+    "public": {
+      "title": "Resultados",
+      "badge": {
+        "refresh": "Actualizaciones cada 30 segundos"
+      },
+      "card": {
+        "title": "Tabla de medallas",
+        "nav": {
+          "title": "Navegación"
+        }
+      },
+      "pill": {
+        "ranking": "Delegaciones en la clasificación",
+        "golds": "Oros distribuidos",
+        "total": "Medallas totales"
+      },
+      "section": {
+        "medalBoard": "Tabla de medallas"
+      },
+      "table": {
+        "rank": "#",
+        "delegation": "Delegación"
+      },
+      "empty": "Aún no se han registrado medallas."
+    },
+    "sport": {
+      "badge": "Resultados por deporte",
+      "card": {
+        "title": "Mesa deportiva"
+      },
+      "stat": {
+        "modalities": "Modalidades",
+        "scoring": "Delegaciones de puntuación",
+        "medals": "Medallas en el deporte"
+      },
+      "section": {
+        "standings": "Clasificación por modalidad"
+      },
+      "empty": {
+        "modalities": "No se han registrado modalidades"
+      }
+    },
+    "records": {
+      "badge": "Archivos",
+      "title": "Las mejores calificaciones de la competición",
+      "desc": "Historial de registros por modalidad.",
+      "table": {
+        "modality": "Modalidad",
+        "athlete": "Atleta",
+        "delegation": "Delegación",
+        "value": "Valor",
+        "week": "Semana",
+        "date": "Fecha"
+      },
+      "empty": "Aún no se han registrado registros."
+    },
+    "admin": {
+      "title": "Panel de resultados",
+      "stat": {
+        "board": "Delegaciones a bordo",
+        "golds": "Oros",
+        "total": "Medallas totales"
+      },
+      "card": {
+        "actions": {
+          "title": "Acciones rápidas"
+        },
+        "manual": {
+          "title": "Eventos para entrada manual"
+        }
+      },
+      "selectEvent": "Seleccione un evento",
+      "empty": {
+        "events": "No hay eventos disponibles."
+      }
+    }
+  },
+  "result": {
+    "form": {
+      "badge": {
+        "manual": "Entrada manual",
+        "match": "Coincidencia n.º {match.id}"
+      },
+      "label": {
+        "delegationA": "Delegación A",
+        "score": "Puntaje",
+        "delegationB": "Delegación B",
+        "rank": "Posición",
+        "medal": "Medalla",
+        "delegation": "Delegación",
+        "athlete": "Atleta"
+      },
+      "card": {
+        "actions": {
+          "title": "Comportamiento"
+        }
+      },
+      "title": {
+        "create": "Nuevo resultado",
+        "edit": "Editar resultado"
+      },
+      "desc": "Los campos específicos de cada deporte se incluyen en `value_json`.",
+      "medal": {
+        "none": "Sin medalla",
+        "gold": "Oro",
+        "silver": "Plata",
+        "bronze": "Bronce"
+      },
+      "delegation": {
+        "none": "Ninguno"
+      },
+      "athlete": {
+        "none": "Ninguno"
+      }
+    }
+  },
+  "calendar.admin.error.selectCompetition": "Seleccione una competición antes de generar.",
+  "calendar.admin.success.generated": "Calendario generado con IA.",
+  "calendar.admin.error.generateFailed": "Error al generar calendario.",
+  "calendar.admin.description": "Siga los eventos programados por competición y fase.",
+  "calendar.admin.stat.noCompetition": "Sin competición",
+  "calendar.admin.card.controls.desc.admin": "Competición, creación manual e IA.",
+  "calendar.admin.card.controls.desc.user": "Seleccione la competición para visualizar.",
+  "calendar.admin.button.createEvent": "Crear evento",
+  "calendar.admin.button.generating": "Generando...",
+  "calendar.admin.button.generateAi": "Generar Calendario con IA",
+  "calendar.admin.button.publicCalendar": "Ver calendario público",
+  "calendar.admin.table.weeklyGrid": "Cuadro semanal",
+  "calendar.admin.table.visibleOfTotal": "{visible} visibles de {total} eventos",
+  "calendar.admin.table.duplicateBase": "Duplicar base",
+  "ai.admin.badge.adminOnly": "Solo admin",
+  "ai.admin.title": "Sala de control de IA",
+  "ai.admin.description": "Dispare generaciones por categoría, valide la vista previa antes de confirmar y siga el historial consolidado de la automatización.",
+  "ai.admin.stat.basesAvailable": "bases disponibles",
+  "ai.admin.card.preview.title": "Vista previa en vivo",
+  "ai.admin.card.preview.desc": "Última narrativa disponible y el siguiente objetivo seleccionado.",
+  "ai.admin.narrative.currentLabel": "Fuente de actividad actual",
+  "ai.admin.narrative.emptyPrompt": "Use la tarjeta de narrativa para generar el primer texto editorial del día.",
+  "ai.admin.nextEvent.title": "Próximo evento para resultados",
+  "ai.preview.label.endpoint": "Endpoint",
+  "ai.preview.label.quantity": "Cantidad",
+  "ai.preview.label.currentBase": "Base actual",
+  "ai.preview.label.impact": "Impacto",
+  "ai.preview.value.sportsBase": "{count} deportes",
+  "ai.preview.label.batch": "Lote",
+  "ai.preview.value.records": "{count} registros",
+  "ai.preview.value.athletesRegistered": "{count} atletas registrados",
+  "ai.preview.label.competition": "Competición",
+  "ai.preview.label.period": "Período",
+  "ai.preview.value.eventsGenerated": "{count} eventos generados con IA.",
+  "ai.preview.label.availableEvents": "Eventos disponibles",
+  "ai.preview.value.availableEvents": "{count} eventos disponibles",
+  "ai.preview.label.date": "Fecha",
+  "ai.preview.success.narrativeGenerated": "{title} generado para el {date}.",
+  "event.form.success.created": "Evento creado con éxito.",
+  "event.form.desc": "Registro manual de evento por competición, modalidad, fecha y fase competitiva.",
+  "event.form.error.createFailed": "Error al crear evento.",
+  "event.form.label.category": "Categoría",
+  "event.form.category.open": "abierta",
+  "event.form.submitting": "Creando...",
+  "event.form.submit": "Crear evento",
+  "chief.myDelegation.transferWindow.open": "Abierta",
+  "chief.myDelegation.transferWindow.closed": "Cerrada",
+  "result.form.statusLabel": "Estado",
+  "result.form.sportFallback": "Deporte",
+  "result.form.modalityFallback": "Modalidad #{id}",
+  "result.form.rankLabel": "Clasificación",
+  "result.form.jsonError": "JSON inválido en el payload del resultado."
+}

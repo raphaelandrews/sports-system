@@ -1,6 +1,8 @@
 import type { Session } from "@/types/auth";
 import type { DelegationSummary } from "@/types/delegations";
 
+import * as m from "@/paraglide/messages";
+
 const BUSINESS_TIMEZONE = "America/Sao_Paulo";
 
 export function findManagedDelegation(
@@ -25,8 +27,8 @@ export function isTransferWindowOpen(date = new Date()): boolean {
 
 export function getTransferWindowMessage(date = new Date()): string {
   if (isTransferWindowOpen(date)) {
-    return "Janela aberta hoje em America/Sao_Paulo.";
+    return m['transferWindow.openMessage']();
   }
 
-  return "Transferências liberadas apenas às segundas em America/Sao_Paulo.";
+  return m['transferWindow.closedMessage']();
 }

@@ -20,6 +20,7 @@ import {
 } from "@sports-system/ui/components/table";
 import { cn } from "@sports-system/ui/lib/utils";
 
+import * as m from "@/paraglide/messages";
 import { formatDate } from "@/shared/lib/date";
 import { sportListQueryOptions } from "@/features/sports/api/queries";
 import { competitionListQueryOptions } from "@/features/competitions/api/queries";
@@ -37,11 +38,11 @@ export const Route = createFileRoute(
 });
 
 const statusLabel: Record<CompetitionStatus, string> = {
-  DRAFT: "Rascunho",
-  SCHEDULED: "Agendada",
-  LOCKED: "Travada",
-  ACTIVE: "Ativa",
-  COMPLETED: "Encerrada",
+  DRAFT: m['common.status.draft'](),
+  SCHEDULED: m['common.status.scheduled'](),
+  LOCKED: m['common.status.locked'](),
+  ACTIVE: m['common.status.active'](),
+  COMPLETED: m['common.status.completed'](),
 };
 
 function AdminCompetitionsPage() {
@@ -61,27 +62,26 @@ function AdminCompetitionsPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(160deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
           <CardHeader className="gap-3">
             <Badge variant="outline" className="w-fit">
-              Competições
+              {m['competitions.admin.title']()}
             </Badge>
-            <CardTitle className="text-2xl">Competições</CardTitle>
+            <CardTitle className="text-2xl">{m['competitions.admin.title']()}</CardTitle>
             <CardDescription className="max-w-2xl">
-              Gerencie o ciclo de competição, acompanhe status visual e entre no detalhe para
-              acionar transições.
+              {m['competitions.admin.card.transfer.desc']()}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
             <MetricCard
-              label="Total"
+              label={m['competitions.admin.stat.total']()}
               value={String(competitions.data.length)}
               hint="Competições cadastradas"
             />
             <MetricCard
-              label="Ativas"
+              label={m['competitions.admin.stat.active']()}
               value={String(competitions.data.filter((c) => c.status === "ACTIVE").length)}
               hint="Competição em andamento"
             />
             <MetricCard
-              label="Travadas+"
+              label={m['competitions.admin.stat.locked']()}
               value={String(
                 competitions.data.filter((c) =>
                   ["LOCKED", "ACTIVE", "COMPLETED"].includes(c.status),
@@ -94,16 +94,16 @@ function AdminCompetitionsPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Janela de transferência</CardTitle>
-            <CardDescription>Regras calculadas em UTC-3 / America_Sao_Paulo.</CardDescription>
+            <CardTitle>{m['competitions.admin.card.transfer.title']()}</CardTitle>
+            <CardDescription>{m['competitions.admin.card.transfer.desc']()}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Badge variant={transferInfo.open ? "secondary" : "outline"}>
-              {transferInfo.open ? "Janela aberta" : "Janela fechada"}
+              {transferInfo.open ? m['chief.shell.badge.open']() : m['chief.shell.badge.closed']()}
             </Badge>
             <p className="text-sm text-muted-foreground">
               {transferInfo.open
-                ? "Transferências liberadas hoje."
+                ? m['transferWindow.openMessage']()
                 : `Próxima janela: ${transferInfo.nextLabel}.`}
             </p>
             <Link
@@ -111,7 +111,7 @@ function AdminCompetitionsPage() {
               params={{ leagueId }}
               className={cn(buttonVariants({ variant: "default" }), "w-full justify-start")}
             >
-              Nova competição
+              {m['competition.form.title']()}
             </Link>
           </CardContent>
         </Card>
@@ -119,7 +119,7 @@ function AdminCompetitionsPage() {
 
       <Card className="border border-border/70">
         <CardHeader>
-          <CardTitle>Lista das competições</CardTitle>
+          <CardTitle>{m['competitions.admin.card.list.title']()}</CardTitle>
           <CardDescription>
             Veja período, status e esportes foco antes de abrir o detalhe.
           </CardDescription>
@@ -128,11 +128,11 @@ function AdminCompetitionsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Competição</TableHead>
-                <TableHead>Período</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Esportes foco</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                <TableHead>{m['competitions.admin.table.competition']()}</TableHead>
+                <TableHead>{m['competitions.admin.table.period']()}</TableHead>
+                <TableHead>{m['competitions.admin.table.status']()}</TableHead>
+                <TableHead>{m['competitions.admin.table.sports']()}</TableHead>
+                <TableHead className="text-right">{m['competitions.admin.table.actions']()}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -161,7 +161,7 @@ function AdminCompetitionsPage() {
                       params={{ leagueId, competitionId: String(competition.id) }}
                       className={cn(buttonVariants({ variant: "outline" }))}
                     >
-                      Abrir detalhe
+                      {m['common.actions.open']()}
                     </Link>
                   </TableCell>
                 </TableRow>

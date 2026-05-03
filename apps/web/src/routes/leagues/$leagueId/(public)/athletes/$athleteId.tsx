@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sports-system/ui/comp
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
+import * as m from "@/paraglide/messages";
 import { formatDate } from "@/shared/lib/date";
 import { athleteReportQueryOptions } from "@/features/athletes/api/queries";
 import type { Medal } from "@/types/athletes";
@@ -31,14 +32,14 @@ const medalEmoji: Record<Medal, string> = {
 };
 
 const medalLabel: Record<Medal, string> = {
-  GOLD: "Ouro",
-  SILVER: "Prata",
-  BRONZE: "Bronze",
+  GOLD: m['common.medal.gold'](),
+  SILVER: m['common.medal.silver'](),
+  BRONZE: m['common.medal.bronze'](),
 };
 
 const genderLabel: Record<"M" | "F", string> = {
-  M: "Masculino",
-  F: "Feminino",
+  M: m['common.gender.male'](),
+  F: m['common.gender.female'](),
 };
 
 function AthleteProfilePage() {
@@ -66,7 +67,7 @@ function AthleteProfilePage() {
             <Badge variant="outline" className="font-mono">
               {athlete.code}
             </Badge>
-            {!athlete.is_active && <Badge variant="secondary">Inativo</Badge>}
+            {!athlete.is_active && <Badge variant="secondary">{m['athlete.detail.status.inactive']()}</Badge>}
           </div>
           <div className="text-muted-foreground mt-1 flex gap-3 text-sm">
             {athlete.gender && <span>{genderLabel[athlete.gender]}</span>}
@@ -82,24 +83,24 @@ function AthleteProfilePage() {
 
       <Tabs defaultValue="history">
         <TabsList>
-          <TabsTrigger value="history">Histórico</TabsTrigger>
-          <TabsTrigger value="statistics">Estatísticas</TabsTrigger>
-          <TabsTrigger value="medals">Medalhas</TabsTrigger>
+          <TabsTrigger value="history">{m['athlete.detail.tab.history']()}</TabsTrigger>
+          <TabsTrigger value="statistics">{m['athlete.detail.tab.statistics']()}</TabsTrigger>
+          <TabsTrigger value="medals">{m['athlete.detail.tab.medals']()}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="history" className="mt-4 space-y-6">
           <div>
-            <h3 className="mb-3 font-medium">Delegações</h3>
+            <h3 className="mb-3 font-medium">{m['athlete.detail.section.delegations']()}</h3>
             {delegation_history.length === 0 ? (
-              <p className="text-muted-foreground text-sm">Sem histórico de delegações.</p>
+              <p className="text-muted-foreground text-sm">{m['delegation.detail.empty.members']()}</p>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Delegação</TableHead>
-                    <TableHead>Função</TableHead>
-                    <TableHead>Entrada</TableHead>
-                    <TableHead>Saída</TableHead>
+                    <TableHead>{m['athlete.detail.table.delegation']()}</TableHead>
+                    <TableHead>{m['athlete.detail.table.role']()}</TableHead>
+                    <TableHead>{m['athlete.detail.table.entry']()}</TableHead>
+                    <TableHead>{m['athlete.detail.table.exit']()}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -112,7 +113,7 @@ function AthleteProfilePage() {
                       <TableCell>{item.role}</TableCell>
                       <TableCell>{formatDate(item.joined_at.slice(0, 10))}</TableCell>
                       <TableCell>
-                        {item.left_at ? formatDate(item.left_at.slice(0, 10)) : "Atual"}
+                        {item.left_at ? formatDate(item.left_at.slice(0, 10)) : m['common.status.active']()}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -122,18 +123,18 @@ function AthleteProfilePage() {
           </div>
 
           <div>
-            <h3 className="mb-3 font-medium">Partidas</h3>
+            <h3 className="mb-3 font-medium">{m['athlete.detail.section.matches']()}</h3>
             {match_history.length === 0 ? (
-              <p className="text-muted-foreground text-sm">Sem histórico de partidas.</p>
+              <p className="text-muted-foreground text-sm">{m['competition.detail.empty.matches']()}</p>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Modalidade</TableHead>
-                    <TableHead>Esporte</TableHead>
-                    <TableHead>Delegação</TableHead>
-                    <TableHead>Função</TableHead>
-                    <TableHead>Data</TableHead>
+                    <TableHead>{m['athlete.detail.table.modality']()}</TableHead>
+                    <TableHead>{m['athlete.detail.table.sport']()}</TableHead>
+                    <TableHead>{m['athlete.detail.table.delegation']()}</TableHead>
+                    <TableHead>{m['athlete.detail.table.role']()}</TableHead>
+                    <TableHead>{m['athlete.detail.table.date']()}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -156,7 +157,7 @@ function AthleteProfilePage() {
 
         <TabsContent value="statistics" className="mt-4">
           {Object.keys(statistics).length === 0 ? (
-            <p className="text-muted-foreground text-sm">Nenhuma estatística registrada.</p>
+            <p className="text-muted-foreground text-sm">{m['athlete.detail.empty.statistics']()}</p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Object.entries(statistics).map(([key, stats]) => {
@@ -183,14 +184,14 @@ function AthleteProfilePage() {
 
         <TabsContent value="medals" className="mt-4">
           {medals.length === 0 ? (
-            <p className="text-muted-foreground text-sm">Nenhuma medalha conquistada.</p>
+            <p className="text-muted-foreground text-sm">{m['athlete.detail.empty.medals']()}</p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Partida</TableHead>
-                  <TableHead>Medalha</TableHead>
-                  <TableHead>Posição</TableHead>
+                  <TableHead>{m['athlete.detail.table.match']()}</TableHead>
+                  <TableHead>{m['athlete.detail.table.medal']()}</TableHead>
+                  <TableHead>{m['athlete.detail.table.position']()}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

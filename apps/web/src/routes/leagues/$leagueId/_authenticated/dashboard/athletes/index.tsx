@@ -30,6 +30,7 @@ import {
 import { cn } from "@sports-system/ui/lib/utils";
 import { Bot, Search, UserPlus } from "lucide-react";
 
+import * as m from "@/paraglide/messages";
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatDate } from "@/shared/lib/date";
 import { athleteListQueryOptions } from "@/features/athletes/api/queries";
@@ -81,10 +82,10 @@ function AthletesPage() {
       ),
     onSuccess: async (athlete) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.athletes.all(Number(leagueId)) });
-      toast.success(`Atleta gerado com IA: ${athlete.name}.`);
+      toast.success(`${m['common.actions.create']()}: ${athlete.name}.`);
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao gerar atleta com IA.");
+      toast.error(error instanceof ApiError ? error.message : m['athlete.form.alert.error']());
     },
   });
 
@@ -121,42 +122,42 @@ function AthletesPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(160deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
           <CardHeader className="gap-3">
             <CardTitle className="text-2xl">
-              {isAdmin ? "Atletas e tecnicos" : "Atletas da delegacao"}
+              {isAdmin ? m['nav.admin.athletes']() : m['nav.chief.athletes']()}
             </CardTitle>
             <CardDescription className="max-w-2xl">
               {isAdmin
-                ? "Visao global com filtros administrativos, acesso ao perfil e geracao assistida."
-                : "Visao do chefe com os atletas visiveis para sua delegacao atual."}
+                ? m['athlete.form.desc.admin']()
+                : m['athlete.form.desc.chief']()}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
             <MetricCard
-              label={isAdmin ? "Total" : "Atletas"}
+              label={isAdmin ? m['athletes.admin.stat.total']() : m['nav_athletes']()}
               value={String(data.data.length)}
-              hint={isAdmin ? "Atletas ativos no sistema" : "Registros visiveis ao chefe"}
+              hint={isAdmin ? m['athletes.admin.hint.linked']() : m['athletes.admin.hint.linked']()}
             />
             <MetricCard
-              label="Com usuario"
+              label={m['athletes.admin.stat.linked']()}
               value={String(data.data.filter((athlete) => athlete.user_id != null).length)}
-              hint="Vinculados a contas"
+              hint={m['athletes.admin.hint.linked']()}
             />
             <MetricCard
-              label={isAdmin ? "Sem genero" : "Sem nascimento"}
+              label={isAdmin ? m['athletes.admin.stat.missing']() : m['athletes.admin.stat.missing']()}
               value={String(
                 data.data.filter((athlete) =>
                   isAdmin ? athlete.gender == null : !athlete.birthdate,
                 ).length,
               )}
-              hint={isAdmin ? "Cadastro incompleto" : "Dados a completar"}
+              hint={isAdmin ? m['athletes.admin.stat.missing']() : m['athletes.admin.stat.missing']()}
             />
           </CardContent>
         </Card>
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Ações</CardTitle>
+            <CardTitle>{m['athletes.admin.card.actions.title']()}</CardTitle>
             <CardDescription>
-              Cadastre manualmente e, no admin, acelere o povoamento com IA.
+              {m['athlete.form.desc.admin']()}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -166,7 +167,7 @@ function AthletesPage() {
               className={cn(buttonVariants({ variant: "default" }), "w-full justify-start")}
             >
               <UserPlus className="size-4" />
-              Novo atleta
+              {m['athlete.form.title.create']()}
             </Link>
             {isAdmin ? (
               <button
@@ -176,7 +177,7 @@ function AthletesPage() {
                 disabled={aiMutation.isPending}
               >
                 <Bot className="size-4" />
-                {aiMutation.isPending ? "Gerando..." : "Gerar com IA"}
+                {aiMutation.isPending ? m['competition.form.submitting']() : m['common.actions.create']()}
               </button>
             ) : null}
           </CardContent>
@@ -186,11 +187,11 @@ function AthletesPage() {
       <Card className="border border-border/70">
         <CardHeader className="gap-4">
           <div>
-            <CardTitle>{isAdmin ? "Lista global" : "Minha lista"}</CardTitle>
+            <CardTitle>{isAdmin ? m['athletes.admin.list.global']() : m['athletes.admin.list.my']()}</CardTitle>
             <CardDescription>
               {isAdmin
-                ? "Filtre por nome, codigo ou usuario vinculado."
-                : "Busca simples por nome ou codigo."}
+                ? m['athletes.admin.searchPlaceholder']()
+                : m['athletes.admin.searchPlaceholder']()}
             </CardDescription>
           </div>
           <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_200px_200px_180px]">
@@ -198,7 +199,7 @@ function AthletesPage() {
               <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="pl-9"
-                placeholder="Buscar atleta"
+                placeholder={m['athletes.admin.searchPlaceholder']()}
                 value={search}
                 onChange={(event) =>
                   void navigate({
@@ -225,9 +226,9 @@ function AthletesPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos vínculos</SelectItem>
-                <SelectItem value="linked">Com usuário</SelectItem>
-                <SelectItem value="unlinked">Sem usuário</SelectItem>
+                <SelectItem value="all">{m['athletes.admin.filter.allLinks']()}</SelectItem>
+                <SelectItem value="linked">{m['athletes.admin.filter.linked']()}</SelectItem>
+                <SelectItem value="unlinked">{m['athletes.admin.filter.unlinked']()}</SelectItem>
               </SelectContent>
             </Select>
             <Select
@@ -245,9 +246,9 @@ function AthletesPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="name">Ordenar por nome</SelectItem>
-                <SelectItem value="code">Ordenar por código</SelectItem>
-                <SelectItem value="birthdate">Ordenar por nascimento</SelectItem>
+                <SelectItem value="name">{m['athletes.admin.sort.name']()}</SelectItem>
+                <SelectItem value="code">{m['athletes.admin.sort.code']()}</SelectItem>
+                <SelectItem value="birthdate">{m['athletes.admin.sort.birthdate']()}</SelectItem>
               </SelectContent>
             </Select>
             <Select
@@ -265,8 +266,8 @@ function AthletesPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="asc">Ascendente</SelectItem>
-                <SelectItem value="desc">Descendente</SelectItem>
+                <SelectItem value="asc">{m['athletes.admin.sort.asc']()}</SelectItem>
+                <SelectItem value="desc">{m['athletes.admin.sort.desc']()}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -275,12 +276,12 @@ function AthletesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Codigo</TableHead>
-                <TableHead>Genero</TableHead>
-                <TableHead>Nascimento</TableHead>
-                {isAdmin ? <TableHead>Usuario</TableHead> : null}
-                <TableHead className="text-right">Perfil</TableHead>
+                <TableHead>{m['athletes.admin.table.name']()}</TableHead>
+                <TableHead>{m['athletes.admin.table.code']()}</TableHead>
+                <TableHead>{m['athletes.admin.table.gender']()}</TableHead>
+                <TableHead>{m['athletes.admin.table.birthdate']()}</TableHead>
+                {isAdmin ? <TableHead>{m['athletes.admin.table.user']()}</TableHead> : null}
+                <TableHead className="text-right">{m['athletes.admin.table.profile']()}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -291,7 +292,7 @@ function AthletesPage() {
                   <TableCell>{athlete.gender ?? "-"}</TableCell>
                   <TableCell>{athlete.birthdate ? formatDate(athlete.birthdate) : "-"}</TableCell>
                   {isAdmin ? (
-                    <TableCell>{athlete.user_id ? `#${athlete.user_id}` : "Sem vinculo"}</TableCell>
+                    <TableCell>{athlete.user_id ? `#${athlete.user_id}` : m['athletes.admin.cell.noLink']()}</TableCell>
                   ) : null}
                   <TableCell className="text-right">
                     <Link
@@ -299,7 +300,7 @@ function AthletesPage() {
                       params={{ leagueId, athleteId: String(athlete.id) }}
                       className={cn(buttonVariants({ variant: "outline" }))}
                     >
-                      Abrir
+                      {m['common.actions.open']()}
                     </Link>
                   </TableCell>
                 </TableRow>
@@ -310,7 +311,7 @@ function AthletesPage() {
                     colSpan={isAdmin ? 6 : 5}
                     className="py-8 text-center text-muted-foreground"
                   >
-                    Nenhum atleta encontrado.
+                    {m['athletes.admin.empty']()}
                   </TableCell>
                 </TableRow>
               ) : null}

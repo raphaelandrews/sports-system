@@ -14,9 +14,11 @@ import { SidebarTrigger } from "@sports-system/ui/components/sidebar";
 import { Button } from "@sports-system/ui/components/button";
 import { Link } from "@tanstack/react-router";
 
+import * as m from "@/paraglide/messages";
 import { SearchCommand } from "@/shared/components/layouts/search-command";
 import { AnimatedThemeToggler } from "@/shared/components/ui/animated-theme-toggler";
 import { NotificationBell } from "@/shared/components/ui/notification-bell";
+import { LocaleSwitcher } from "@/shared/components/ui/locale-switcher";
 import { NavUser } from "./nav-user";
 import type { Session } from "@/types/auth";
 import type { LeagueMemberResponse, LeagueResponse } from "@/types/leagues";
@@ -37,8 +39,8 @@ export function AppHeader({ session, scope, league, membership, leagues }: AppHe
 	const breadcrumbTitle = league
 		? league.name
 		: scope === "site-authenticated"
-			? "SportsHub"
-			: "Início";
+			? m['header.siteTitle']()
+			: m['header.breadcrumbHome']();
 
 
 	return (
@@ -69,6 +71,7 @@ export function AppHeader({ session, scope, league, membership, leagues }: AppHe
 					membershipRole={membership?.role}
 					leagues={leagues}
 				/>
+				<LocaleSwitcher />
 				<AnimatedThemeToggler
 					variant="ghost"
 					size="icon"
@@ -81,7 +84,7 @@ export function AppHeader({ session, scope, league, membership, leagues }: AppHe
 				/>
 				{session ? <NavUser session={session} /> : (
 					<Button size="sm" variant="default" className="text-sm" render={<Link to="/login" />}>
-						Entrar
+						{m['header.loginButton']()}
 					</Button>
 				)}
 			</div>

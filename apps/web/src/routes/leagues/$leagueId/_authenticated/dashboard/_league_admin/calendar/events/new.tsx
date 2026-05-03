@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@sports-system/ui/components/select";
 
+import * as m from "@/paraglide/messages";
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
 import { competitionListQueryOptions } from "@/features/competitions/api/queries";
@@ -50,11 +51,11 @@ export const Route = createFileRoute(
 });
 
 const phaseOptions: { value: EventPhase; label: string }[] = [
-  { value: "GROUPS", label: "Grupos" },
-  { value: "QUARTER", label: "Quartas" },
-  { value: "SEMI", label: "Semifinal" },
-  { value: "FINAL", label: "Final" },
-  { value: "BRONZE", label: "Bronze" },
+  { value: "GROUPS", label: m['common.phase.group']() },
+  { value: "QUARTER", label: m['common.phase.quarter']() },
+  { value: "SEMI", label: m['common.phase.semi']() },
+  { value: "FINAL", label: m['common.phase.final']() },
+  { value: "BRONZE", label: m['common.phase.bronze']() },
 ];
 
 function NewCalendarEventPage() {
@@ -101,11 +102,11 @@ function NewCalendarEventPage() {
         queryClient.invalidateQueries({ queryKey: queryKeys.events.all(Number(leagueId)) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.competitions.all(Number(leagueId)) }),
       ]);
-      toast.success("Evento criado com sucesso.");
+      toast.success(m['event.form.success.created']());
       await navigate({ to: "/leagues/$leagueId/calendar", params: { leagueId } });
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao criar evento.");
+      toast.error(error instanceof ApiError ? error.message : m['event.form.error.createFailed']());
     },
   });
 
@@ -115,9 +116,9 @@ function NewCalendarEventPage() {
     <div className="mx-auto w-full max-w-4xl">
       <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.16),transparent_38%),linear-gradient(180deg,hsl(var(--card)),hsl(var(--muted)/0.18))]">
         <CardHeader>
-          <CardTitle>Novo evento de calendario</CardTitle>
+          <CardTitle>{m['event.form.title']()}</CardTitle>
           <CardDescription>
-            Cadastro manual de evento por competição, modalidade, data e fase competitiva.
+            {m['event.form.desc']()}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -138,7 +139,7 @@ function NewCalendarEventPage() {
             <FieldGroup>
               <div className="grid gap-5 md:grid-cols-2">
                 <Field>
-                  <FieldLabel>Competição</FieldLabel>
+                  <FieldLabel>{m['event.form.label.competition']()}</FieldLabel>
                   <Select
                     value={form.competition_id}
                     onValueChange={(value) =>
@@ -146,12 +147,12 @@ function NewCalendarEventPage() {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione a competição" />
+                      <SelectValue placeholder={m['event.form.placeholder.competition']()} />
                     </SelectTrigger>
                     <SelectContent>
                       {competitionsData.data.map((competition) => (
                         <SelectItem key={competition.id} value={String(competition.id)}>
-                          Competição {competition.number} · {competition.status}
+                          {m['competition.admin.badge.competition']({ "competition.number": competition.number })} · {competition.status}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -159,7 +160,7 @@ function NewCalendarEventPage() {
                 </Field>
 
                 <Field>
-                  <FieldLabel>Modalidade</FieldLabel>
+                  <FieldLabel>{m['event.form.label.modality']()}</FieldLabel>
                   <Select
                     value={form.modality_id}
                     onValueChange={(value) =>
@@ -167,7 +168,7 @@ function NewCalendarEventPage() {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione a modalidade" />
+                      <SelectValue placeholder={m['event.form.placeholder.modality']()} />
                     </SelectTrigger>
                     <SelectContent>
                       {modalities.map((modality) => (
@@ -179,7 +180,7 @@ function NewCalendarEventPage() {
                   </Select>
                   {selectedModality ? (
                     <FieldDescription>
-                      Categoria: {selectedModality.category ?? "aberta"}.
+                      {m['event.form.label.category']()}: {selectedModality.category ?? m['event.form.category.open']()}.
                     </FieldDescription>
                   ) : null}
                 </Field>
@@ -187,7 +188,7 @@ function NewCalendarEventPage() {
 
               <div className="grid gap-5 md:grid-cols-2">
                 <Field>
-                  <FieldLabel htmlFor="event-date">Data</FieldLabel>
+                  <FieldLabel htmlFor="event-date">{m['event.form.label.date']()}</FieldLabel>
                   <Input
                     id="event-date"
                     type="date"
@@ -199,7 +200,7 @@ function NewCalendarEventPage() {
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="event-time">Horario</FieldLabel>
+                  <FieldLabel htmlFor="event-time">{m['event.form.label.time']()}</FieldLabel>
                   <Input
                     id="event-time"
                     type="time"
@@ -214,7 +215,7 @@ function NewCalendarEventPage() {
 
               <div className="grid gap-5 md:grid-cols-2">
                 <Field>
-                  <FieldLabel>Fase</FieldLabel>
+                  <FieldLabel>{m['event.form.label.phase']()}</FieldLabel>
                   <Select
                     value={form.phase}
                     onValueChange={(value) =>
@@ -222,7 +223,7 @@ function NewCalendarEventPage() {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione a fase" />
+                      <SelectValue placeholder={m['event.form.placeholder.phase']()} />
                     </SelectTrigger>
                     <SelectContent>
                       {phaseOptions.map((option) => (
@@ -235,10 +236,10 @@ function NewCalendarEventPage() {
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="event-venue">Local</FieldLabel>
+                  <FieldLabel htmlFor="event-venue">{m['event.form.label.venue']()}</FieldLabel>
                   <Input
                     id="event-venue"
-                    placeholder="Ginásio central, tatame 2..."
+                    placeholder={m['event.form.placeholder.venue']()}
                     value={form.venue}
                     onChange={(event) =>
                       setForm((current) => ({ ...current, venue: event.target.value }))
@@ -250,7 +251,7 @@ function NewCalendarEventPage() {
 
             {mutation.error ? (
               <Alert variant="destructive">
-                <AlertTitle>Falha ao salvar evento</AlertTitle>
+                <AlertTitle>{m['event.form.alert.error']()}</AlertTitle>
                 <AlertDescription>
                   {mutation.error instanceof ApiError ? mutation.error.message : "Erro inesperado."}
                 </AlertDescription>
@@ -259,7 +260,7 @@ function NewCalendarEventPage() {
 
             <div className="flex flex-wrap items-center gap-3">
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Criando..." : "Criar evento"}
+                {mutation.isPending ? m['event.form.submitting']() : m['event.form.submit']()}
               </Button>
               <Button
                 type="button"
@@ -268,7 +269,7 @@ function NewCalendarEventPage() {
                   navigate({ to: "/leagues/$leagueId/calendar", params: { leagueId } })
                 }
               >
-                Voltar
+                {m['common.actions.back']()}
               </Button>
             </div>
           </form>

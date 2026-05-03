@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import * as m from "@/paraglide/messages";
 import { Badge } from "@sports-system/ui/components/badge";
 import {
   Table,
@@ -21,10 +22,11 @@ export const Route = createFileRoute("/leagues/$leagueId/(public)/sports/")({
   component: SportsPage,
 });
 
-const typeLabel: Record<SportType, string> = {
-  INDIVIDUAL: "Individual",
-  TEAM: "Coletivo",
-};
+function getTypeLabel(type: SportType): string {
+  return type === "INDIVIDUAL"
+    ? m['sports.type.individual']()
+    : m['sports.type.team']();
+}
 
 function SportsPage() {
   const { data } = useSuspenseQuery(sportListQueryOptions());
@@ -41,7 +43,7 @@ function SportsPage() {
     return sports.filter(
       (s) =>
         s.name.toLowerCase().includes(lower) ||
-        typeLabel[s.sport_type].toLowerCase().includes(lower),
+        getTypeLabel(s.sport_type).toLowerCase().includes(lower),
     );
   }, [sports, searchQuery]);
 
@@ -52,11 +54,11 @@ function SportsPage() {
 
   return (
     <TableLayout
-      title="Esportes"
-      countLabel="esportes"
+      title={m['sports.public.title']()}
+      countLabel={m['sports.public.title']()}
       visibleCount={pagedData.length}
       totalCount={filteredData.length}
-      searchPlaceholder="Buscar esportes…"
+      searchPlaceholder={m['common.table.searchPlaceholder']()}
       searchQuery={searchQuery}
       onSearchChange={(value) => {
         setSearchQuery(value);
@@ -75,9 +77,9 @@ function SportsPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="ps-4">Nome</TableHead>
-            <TableHead className="w-32">Tipo</TableHead>
-            <TableHead className="pe-4 w-40">Atletas</TableHead>
+            <TableHead className="ps-4">{m['sports.public.table.name']()}</TableHead>
+            <TableHead className="w-32">{m['sports.public.table.type']()}</TableHead>
+            <TableHead className="pe-4 w-40">{m['sports.public.table.athletes']()}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -87,7 +89,7 @@ function SportsPage() {
                 colSpan={3}
                 className="h-24 text-center text-muted-foreground"
               >
-                Nenhum esporte encontrado.
+                {m['sports.public.empty']()}
               </TableCell>
             </TableRow>
           )}
@@ -103,7 +105,7 @@ function SportsPage() {
                 </Link>
               </TableCell>
               <TableCell>
-                <Badge variant="secondary">{typeLabel[sport.sport_type]}</Badge>
+                <Badge variant="secondary">{getTypeLabel(sport.sport_type)}</Badge>
               </TableCell>
               <TableCell className="pe-4 text-muted-foreground text-sm">
                 {sport.player_count != null

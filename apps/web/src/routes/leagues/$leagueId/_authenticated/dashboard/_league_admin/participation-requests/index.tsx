@@ -22,6 +22,7 @@ import {
 import { Check, X } from "lucide-react";
 import { participationRequestsQueryOptions, type ParticipationRequest } from "@/features/delegations/api/queries";
 import { client, unwrap, ApiError } from "@/shared/lib/api";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_league_admin/participation-requests/",
@@ -34,9 +35,9 @@ export const Route = createFileRoute(
 });
 
 const statusLabel: Record<string, string> = {
-  PENDING: "Pendente",
-  APPROVED: "Aprovada",
-  REJECTED: "Rejeitada",
+  PENDING: m["common.status.pending"](),
+  APPROVED: m["common.status.approved"](),
+  REJECTED: m["common.status.rejected"](),
 };
 
 const statusVariant: Record<string, string> = {
@@ -63,10 +64,10 @@ function ParticipationRequestsPage() {
       await queryClient.invalidateQueries({
         queryKey: ["participation-requests", numericLeagueId],
       });
-      toast.success("Solicitação atualizada.");
+      toast.success(m["common.actions.update"]());
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao atualizar solicitação.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
@@ -76,17 +77,15 @@ function ParticipationRequestsPage() {
     <div className="space-y-6">
       <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(160deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
         <CardHeader className="gap-3">
-          <Badge variant="outline" className="w-fit">
-            Solicitações
-          </Badge>
-          <CardTitle className="text-2xl">Pedidos de participação</CardTitle>
+          <Badge variant="outline" className="w-fit">{m["common.actions.submit"]() }</Badge>
+          <CardTitle className="text-2xl">{m["notification.title.participation"]()}</CardTitle>
           <CardDescription className="max-w-2xl">
-            Aprove ou rejeite solicitações de delegações que querem participar desta liga.
+            m["notification.desc.participationPrefix"]()
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
-          <MetricCard label="Pendentes" value={String(pendingRequests.length)} />
-          <MetricCard label="Total" value={String(requests.length)} />
+          <MetricCard label={m["enrollments.admin.stat.pending"]() } value={String(pendingRequests.length)} />
+          <MetricCard label={m["enrollments.admin.stat.total"]() } value={String(requests.length)} />
         </CardContent>
       </Card>
 
@@ -94,10 +93,10 @@ function ParticipationRequestsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="ps-4">Delegação</TableHead>
-              <TableHead className="w-28">Status</TableHead>
-              <TableHead className="w-36">Solicitado em</TableHead>
-              <TableHead className="pe-4 w-36 text-right">Ações</TableHead>
+              <TableHead className="ps-4">{m["delegations.public.title"]() }</TableHead>
+              <TableHead className="w-28">{m["enrollments.admin.table.status"]() }</TableHead>
+              <TableHead className="w-36">{m["enrollments.admin.table.validation"]() }</TableHead>
+              <TableHead className="pe-4 w-36 text-right">{m["enrollments.admin.table.actions"]() }</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -107,7 +106,7 @@ function ParticipationRequestsPage() {
                   colSpan={4}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  Nenhuma solicitação encontrada.
+                  {m["search.noResults"]() }
                 </TableCell>
               </TableRow>
             )}
@@ -115,7 +114,7 @@ function ParticipationRequestsPage() {
               <TableRow key={request.id}>
                 <TableCell className="ps-4">
                   <span className="font-medium">
-                    Delegação #{request.delegation_id}
+                    {m["delegations.public.title"]() } #{request.delegation_id}
                   </span>
                 </TableCell>
                 <TableCell>
@@ -144,7 +143,7 @@ function ParticipationRequestsPage() {
                         }
                       >
                         <X className="size-3.5 mr-1" />
-                        Rejeitar
+                        {m["notification.action.refuse"]() }
                       </Button>
                       <Button
                         variant="outline"
@@ -156,12 +155,12 @@ function ParticipationRequestsPage() {
                         }
                       >
                         <Check className="size-3.5 mr-1" />
-                        Aprovar
+                        {m["notification.action.accept"]() }
                       </Button>
                     </div>
                   ) : (
                     <span className="text-muted-foreground text-xs">
-                      {request.status === "APPROVED" ? "Aprovada" : "Rejeitada"}
+                      {request.status === "APPROVED" ? m["common.status.approved"]() : m["common.status.rejected"]() }
                     </span>
                   )}
                 </TableCell>

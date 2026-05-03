@@ -11,6 +11,7 @@ import {
   EmptyTitle,
 } from "@sports-system/ui/components/empty";
 import { cn } from "@sports-system/ui/lib/utils";
+import * as m from "@/paraglide/messages";
 import { leagueListQueryOptions } from "@/features/leagues/api/queries";
 import { LeagueCard } from "@/shared/components/ui/league-card";
 import { Title } from "@/shared/components/ui/title";
@@ -26,10 +27,10 @@ function LeaguesPage() {
   return (
     <>
       <div className="flex items-center justify-between mb-8">
-        <Title title="Ligas"/>
+        <Title title={m['leagues.listTitle']()}/>
 
         <Link to="/leagues/new" className={cn(buttonVariants({size: "sm"}), "text-sm")}>
-          Criar liga
+          {m['nav.createLeague']()}
         </Link>
       </div>
 
@@ -52,12 +53,12 @@ function LeaguesPage() {
             <EmptyMedia variant="icon">
               <Trophy />
             </EmptyMedia>
-            <EmptyTitle>Nenhuma liga cadastrada</EmptyTitle>
+            <EmptyTitle>{m['leagues.listEmpty']()}</EmptyTitle>
             <EmptyDescription>Crie a primeira liga para começar.</EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
             <Link to="/leagues/new" className={cn(buttonVariants({size: "sm"}), "text-sm")}>
-              Criar liga
+              {m['nav.createLeague']()}
             </Link>
           </EmptyContent>
         </Empty>

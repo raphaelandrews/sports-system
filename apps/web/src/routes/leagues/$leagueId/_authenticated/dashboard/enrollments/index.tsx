@@ -50,6 +50,7 @@ import { sportDetailQueryOptions, sportListQueryOptions } from "@/features/sport
 import { TableLayout } from "@/shared/components/ui/table-layout";
 import type { CompetitionResponse } from "@/types/competitions";
 import type { EnrollmentReview, EnrollmentStatus } from "@/types/enrollments";
+import * as m from "@/paraglide/messages";
 
 const enrollmentsSearchSchema = z.object({
   q: z.string().optional(),
@@ -241,11 +242,11 @@ function EnrollmentsPage() {
     onSuccess: async (_, variables) => {
       await refresh();
       toast.success(
-        variables.payload.status === "APPROVED" ? "Inscrição aprovada." : "Inscrição rejeitada.",
+        variables.payload.status === "APPROVED" ? m["common.status.approved"]() : m["common.status.rejected"](),
       );
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao revisar inscrição.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
@@ -260,12 +261,12 @@ function EnrollmentsPage() {
       await refresh();
       toast.success(
         created.length === 1
-          ? "1 inscrição criada com IA."
-          : `${created.length} inscrições criadas com IA.`,
+          ? m["common.actions.create"]()
+          : `${created.length} ${m['enrollments.admin.title']()} created with AI.`,
       );
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao gerar inscrições.");
+      toast.error(error instanceof ApiError ? error.message : `Failed to generate ${m['enrollments.admin.title']()}.`);
     },
   });
 
@@ -278,10 +279,10 @@ function EnrollmentsPage() {
       ),
     onSuccess: async () => {
       await refresh();
-      toast.success("Inscrição cancelada.");
+      toast.success(m["common.actions.cancel"]());
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao cancelar inscrição.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
@@ -292,33 +293,33 @@ function EnrollmentsPage() {
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
               {isAdmin ? (
-                <Badge variant="secondary">Admin</Badge>
+                <Badge variant="secondary">{m["roles.admin"]()}</Badge>
               ) : (
-                <Badge variant="secondary">Chefe</Badge>
+                <Badge variant="secondary">{m["roles.chief"]()}</Badge>
               )}
             </div>
-            <CardTitle className="text-2xl">Painel de inscrições</CardTitle>
+            <CardTitle className="text-2xl">{m["enrollments.admin.title"]()}</CardTitle>
             <CardDescription className="max-w-2xl">
               {isAdmin
-                ? "Visão global para revisar status, acompanhar gargalos e acionar geração automática."
-                : "Acompanhe sua delegação, estado das revisões e bloqueios operacionais da semana."}
+                ? m["enrollments.admin.card.actions.title"]()
+                : m["chief.shell.delegationDesc"]()}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-4">
-            <StatTile label="Total" value={String(stats.total)} />
-            <StatTile label="Pendentes" value={String(stats.pending)} />
-            <StatTile label="Aprovadas" value={String(stats.approved)} />
-            <StatTile label="Rejeitadas" value={String(stats.rejected)} />
+            <StatTile label={m["enrollments.admin.stat.total"]()} value={String(stats.total)} />
+            <StatTile label={m["enrollments.admin.stat.pending"]()} value={String(stats.pending)} />
+            <StatTile label={m["enrollments.admin.stat.approved"]()} value={String(stats.approved)} />
+            <StatTile label={m["enrollments.admin.stat.rejected"]()} value={String(stats.rejected)} />
           </CardContent>
         </Card>
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Ações</CardTitle>
+            <CardTitle>{m["enrollments.admin.card.actions.title"]()}</CardTitle>
             <CardDescription>
               {isAdmin
-                ? "Use IA para preencher base e revise rapidamente o que entrou."
-                : "Cadastre inscrições novas e acompanhe o ciclo da sua delegação."}
+                ? m["enrollments.admin.card.actions.title"]()
+                : m["chief.shell.delegationDesc"]()}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -329,7 +330,7 @@ function EnrollmentsPage() {
                 className={cn(buttonVariants({ variant: "default" }), "w-full justify-start")}
               >
                 <Plus className="mr-2 size-4" />
-                Nova inscrição
+                {m["enrollment.form.title"]()}
               </Link>
             ) : null}
 
@@ -342,22 +343,22 @@ function EnrollmentsPage() {
                 onClick={() => aiMutation.mutate()}
               >
                 <Bot className="mr-2 size-4" />
-                {aiMutation.isPending ? "Gerando..." : "Gerar Inscrições com IA"}
+                {aiMutation.isPending ? m["common.actions.submit"]() : m["common.actions.submit"]()}
               </Button>
             ) : null}
 
             {chiefDelegation ? (
               <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                Delegação gerenciada:{" "}
+                {m["chief.shell.delegationDesc"]() }{" "}
                 <span className="font-medium text-foreground">{chiefDelegation.name}</span>.
               </div>
             ) : !isAdmin ? (
               <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-                Nenhuma delegação gerenciada. Solicite aprovação antes de inscrever atletas.
+                {m["enrollments.admin.noDelegation"]() }
               </div>
             ) : (
               <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                Filtro global habilitado para todas as delegações.
+                {m["chief.shell.delegationDesc"]() }
               </div>
             )}
           </CardContent>
@@ -366,9 +367,9 @@ function EnrollmentsPage() {
 
       <header className="mb-1 flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold">Lista operacional</h1>
+          <h1 className="text-xl font-semibold">{m["enrollments.admin.table.actions"]()}</h1>
           <p className="text-muted-foreground text-sm">
-            {pagedData.length} visíveis de {filtered.length} inscrições
+            {pagedData.length} {m["common.table.paginationOf"]() } {filtered.length} {m["enrollments.admin.title"]() }
           </p>
         </div>
         {!isAdmin ? (
@@ -378,13 +379,13 @@ function EnrollmentsPage() {
             className={buttonVariants({ variant: "outline" })}
           >
             <Plus className="mr-2 size-4" />
-            Inscrever atleta
+            {m["athlete.form.title.create"]() }
           </Link>
         ) : null}
       </header>
 
       <TableLayout
-        searchPlaceholder="Buscar atleta, delegação ou modalidade"
+        searchPlaceholder={m["common.table.searchPlaceholder"]() }
         searchQuery={search}
         onSearchChange={(value) =>
           void navigate({
@@ -426,10 +427,10 @@ function EnrollmentsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Todos os status</SelectItem>
-                <SelectItem value="PENDING">Pendentes</SelectItem>
-                <SelectItem value="APPROVED">Aprovadas</SelectItem>
-                <SelectItem value="REJECTED">Rejeitadas</SelectItem>
+                <SelectItem value="ALL">{m["enrollments.admin.filter.allStatus"]()}</SelectItem>
+                <SelectItem value="PENDING">{m["enrollments.admin.filter.pending"]()}</SelectItem>
+                <SelectItem value="APPROVED">{m["enrollments.admin.filter.approved"]()}</SelectItem>
+                <SelectItem value="REJECTED">{m["enrollments.admin.filter.rejected"]()}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -448,10 +449,10 @@ function EnrollmentsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Todas as competições</SelectItem>
+                <SelectItem value="ALL">{m["enrollments.admin.filter.allCompetitions"]()}</SelectItem>
                 {competitionsData.data.map((competition) => (
                   <SelectItem key={competition.id} value={String(competition.id)}>
-                    Competição {competition.number} · {competition.status}
+                    {m["enrollments.admin.table.event"]() } {competition.number} · {competition.status}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -472,9 +473,9 @@ function EnrollmentsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="week">Ordenar por competição</SelectItem>
-                <SelectItem value="athlete">Ordenar por atleta</SelectItem>
-                <SelectItem value="status">Ordenar por status</SelectItem>
+                <SelectItem value="week">{m["enrollments.admin.sort.competition"]()}</SelectItem>
+                <SelectItem value="athlete">{m["enrollments.admin.sort.athlete"]()}</SelectItem>
+                <SelectItem value="status">{m["enrollments.admin.sort.status"]()}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -493,8 +494,8 @@ function EnrollmentsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="asc">Ascendente</SelectItem>
-                <SelectItem value="desc">Descendente</SelectItem>
+                <SelectItem value="asc">{m["enrollments.admin.sort.asc"]()}</SelectItem>
+                <SelectItem value="desc">{m["enrollments.admin.sort.desc"]()}</SelectItem>
               </SelectContent>
             </Select>
           </>
@@ -503,12 +504,12 @@ function EnrollmentsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="ps-4">Atleta</TableHead>
-              <TableHead>Evento</TableHead>
-              <TableHead>Delegação</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Validação</TableHead>
-              <TableHead className="pe-4 text-right">Ações</TableHead>
+              <TableHead className="ps-4">{m["enrollments.admin.table.athlete"]()}</TableHead>
+              <TableHead>{m["enrollments.admin.table.event"]()}</TableHead>
+              <TableHead>{m["enrollments.admin.table.delegation"]()}</TableHead>
+              <TableHead>{m["enrollments.admin.table.status"]()}</TableHead>
+              <TableHead>{m["enrollments.admin.table.validation"]()}</TableHead>
+              <TableHead className="pe-4 text-right">{m["enrollments.admin.table.actions"]()}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -518,7 +519,7 @@ function EnrollmentsPage() {
                   colSpan={6}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  Nenhuma inscrição encontrada com os filtros atuais.
+                  {m["enrollments.admin.empty"]()}
                 </TableCell>
               </TableRow>
             )}
@@ -535,7 +536,7 @@ function EnrollmentsPage() {
                 <TableRow key={enrollment.id}>
                   <TableCell className="ps-4">
                     <div className="font-medium">
-                      {athlete?.name ?? `Atleta #${enrollment.athlete_id}`}
+                      {athlete?.name ?? `m["enrollments.admin.table.athlete"]() #${enrollment.athlete_id}`}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {athlete?.code ?? `#${enrollment.athlete_id}`}
@@ -546,19 +547,19 @@ function EnrollmentsPage() {
                       {modality?.name ?? `Evento #${enrollment.event_id}`}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {sport?.name ?? "Esporte"} ·{" "}
+                      {sport?.name ?? m['enrollment.form.label.sport']()} ·{" "}
                       {event
                         ? `${formatDate(event.event_date)} · ${formatTime(event.start_time)}`
-                        : "Sem agenda"}
+                        : m['calendar.public.empty']()}
                     </div>
                     {competition ? (
                       <div className="mt-1 text-xs text-muted-foreground">
-                        Competição {competition.number} · {competition.status}
+                        {m["enrollments.admin.table.event"]() } {competition.number} · {competition.status}
                       </div>
                     ) : null}
                   </TableCell>
                   <TableCell>
-                    {delegation ? delegation.name : `Delegação #${enrollment.delegation_id}`}
+                    {delegation ? delegation.name : `m["delegations.public.title"]() #${enrollment.delegation_id}`}
                   </TableCell>
                   <TableCell>
                     <EnrollmentStatusBadge status={enrollment.status} />
@@ -585,7 +586,7 @@ function EnrollmentsPage() {
                                 enrollmentId: enrollment.id,
                                 payload: {
                                   status: "APPROVED",
-                                  validation_message: "Aprovada manualmente pelo admin.",
+                                  validation_message: m["common.status.approved"](),
                                 },
                               })
                             }
@@ -601,7 +602,7 @@ function EnrollmentsPage() {
                                 enrollmentId: enrollment.id,
                                 payload: {
                                   status: "REJECTED",
-                                  validation_message: "Rejeitada em revisão administrativa.",
+                                  validation_message: m["common.status.rejected"](),
                                 },
                               })
                             }
@@ -632,11 +633,11 @@ function EnrollmentsPage() {
 
       {!isAdmin ? (
         <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-          Cancelamento fica indisponível quando a competição está travada, ativa ou concluída.
+          m["chief.shell.delegationDesc"]()
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-          Admin revisa inscrições pendentes e pode disparar geração automática para ambiente
+          Admin revisa {m["enrollments.admin.title"]() } pendentes e pode disparar geração automática para ambiente
           demo.
         </div>
       )}

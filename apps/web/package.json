@@ -13,6 +13,7 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@inlang/paraglide-js": "^2.18.0",
     "@sports-system/contracts": "workspace:*",
     "@sports-system/env": "workspace:*",
     "@sports-system/ui": "workspace:*",

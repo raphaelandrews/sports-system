@@ -33,6 +33,7 @@ import {
   delegationHistoryQueryOptions,
 } from "@/features/delegations/api/queries";
 import { allEventsQueryOptions, eventDetailQueryOptions } from "@/features/events/api/queries";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_league_admin/delegations/$delegationId/",
@@ -88,7 +89,7 @@ function DelegationDetailPage() {
             phase: event.phase,
             status: match.status,
             score: `${match.score_a ?? "-"} x ${match.score_b ?? "-"}`,
-            side: match.team_a_delegation_id === delegationNumber ? "Mandante/A" : "Visitante/B",
+            side: match.team_a_delegation_id === delegationNumber ? m['result.form.label.delegationA']() : m['result.form.label.delegationB'](),
             won: match.winner_delegation_id === delegationNumber,
           }));
       })
@@ -106,7 +107,7 @@ function DelegationDetailPage() {
                 {delegation.code}
               </Badge>
               <Badge variant={delegation.is_active ? "secondary" : "outline"}>
-                {delegation.is_active ? "Ativa" : "Inativa"}
+                {delegation.is_active ? m["common.status.active"]() : m["common.status.inactive"]() }
               </Badge>
             </div>
             <div className="flex items-center gap-3">
@@ -119,20 +120,19 @@ function DelegationDetailPage() {
               <CardTitle className="text-2xl">{delegation.name}</CardTitle>
             </div>
             <CardDescription className="max-w-2xl">
-              Resumo administrativo da delegação, com membros atuais, histórico preservado e recorte
-              das partidas mais recentes.
+              m["delegation.detail.card.summary.title"]()
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
-            <DetailStat icon={Users} label="Membros ativos" value={String(activeMembers.length)} />
+            <DetailStat icon={Users} label={m["delegation.detail.section.members"]() } value={String(activeMembers.length)} />
             <DetailStat
               icon={History}
-              label="Registros históricos"
+              label={m["delegation.detail.campaign.title"]() }
               value={String(history.length)}
             />
             <DetailStat
               icon={CalendarDays}
-              label="Partidas listadas"
+              label={m["competition.detail.stat.matches"]() }
               value={String(recentMatches.length)}
             />
           </CardContent>
@@ -140,9 +140,9 @@ function DelegationDetailPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Ações rápidas</CardTitle>
+            <CardTitle>{m["results.admin.card.actions.title"]()}</CardTitle>
             <CardDescription>
-              Siga para edição ou volte para a visão geral das delegações.
+              m["common.actions.edit"]()
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
@@ -152,7 +152,7 @@ function DelegationDetailPage() {
               className={buttonVariants({ variant: "default" })}
             >
               <Pencil className="size-4" />
-              Editar delegação
+              {m["common.actions.edit"]() }
             </Link>
             <Link
               to="/leagues/$leagueId/delegations/$delegationId"
@@ -160,13 +160,13 @@ function DelegationDetailPage() {
               className={cn(buttonVariants({ variant: "outline" }), "justify-start")}
             >
               <ArrowUpRight className="size-4" />
-              Ver página pública
+              {m["common.actions.view"]() }
             </Link>
             <div className="rounded-xl border border-dashed border-border/80 p-3 text-sm text-muted-foreground">
-              Criada em {formatEventDate(delegation.created_at, { dateStyle: "long" })}.
+              {m["common.actions.create"]() } {formatEventDate(delegation.created_at, { dateStyle: "long" })}.
               {delegation.chief_id
-                ? ` Chefe atual: usuário #${delegation.chief_id}.`
-                : " Ainda sem chefe definido."}
+                ? ` Current chief: User #${delegation.chief_id}.`
+                : ` ${m['result.form.delegation.none']()}`}
             </div>
           </CardContent>
         </Card>
@@ -175,18 +175,18 @@ function DelegationDetailPage() {
       <section className="grid gap-6 xl:grid-cols-[1.25fr_1fr]">
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Membros atuais</CardTitle>
+            <CardTitle>{m["delegation.detail.section.members"]()}</CardTitle>
             <CardDescription>
-              Quem compõe a delegação neste momento e desde quando cada vínculo está ativo.
+              m["delegation.detail.campaign.desc"]()
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Função</TableHead>
-                  <TableHead>Entrada</TableHead>
+                  <TableHead>{m["delegation.detail.table.name"]() }</TableHead>
+                  <TableHead>{m["delegation.detail.table.role"]() }</TableHead>
+                  <TableHead>{m["athlete.detail.table.entry"]() }</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -202,7 +202,7 @@ function DelegationDetailPage() {
                 {activeMembers.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} className="py-8 text-center text-muted-foreground">
-                      Nenhum membro ativo nesta delegação.
+                      m["delegation.detail.empty.members"]()
                     </TableCell>
                   </TableRow>
                 ) : null}
@@ -213,9 +213,9 @@ function DelegationDetailPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Histórico de vínculos</CardTitle>
+            <CardTitle>{m["delegation.detail.campaign.title"]()}</CardTitle>
             <CardDescription>
-              Linha do tempo preservada para transferências e auditoria de participação.
+              m["delegation.detail.campaign.desc"]()
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -231,13 +231,13 @@ function DelegationDetailPage() {
                     {" — "}
                     {item.left_at
                       ? formatEventDate(item.left_at, { dateStyle: "medium" })
-                      : "vínculo ativo"}
+                      : m['common.status.active']()}
                   </div>
                 </div>
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-                Nenhum registro histórico adicional.
+                {m['delegation.detail.empty.former']()}
               </div>
             )}
           </CardContent>
@@ -247,9 +247,9 @@ function DelegationDetailPage() {
       <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Partidas recentes</CardTitle>
+            <CardTitle>{m["competition.detail.stat.matches"]()}</CardTitle>
             <CardDescription>
-              Recorte operacional das últimas partidas em eventos já cadastrados.
+              m["competition.detail.campaign.desc"]()
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -262,7 +262,7 @@ function DelegationDetailPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <Flag className="size-4 text-muted-foreground" />
-                      <span className="font-medium">Partida #{match.id}</span>
+                      <span className="font-medium">m["competition.detail.table.match"]() #{match.id}</span>
                       <Badge variant="outline">{match.phase}</Badge>
                     </div>
                     <div className="mt-1 text-sm text-muted-foreground">
@@ -275,16 +275,16 @@ function DelegationDetailPage() {
                     <Badge variant={match.won ? "secondary" : "outline"}>
                       {match.status === "COMPLETED"
                         ? match.won
-                          ? "Vitória"
-                          : "Encerrada"
-                        : "Agendada"}
+                          ? m['common.status.approved']()
+                          : m['common.status.completed']()
+                        : m['common.status.scheduled']()}
                     </Badge>
                   </div>
                 </div>
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-border/80 p-6 text-sm text-muted-foreground">
-                Ainda não há partidas recentes vinculadas a esta delegação no recorte carregado.
+                m["calendar.competition.empty.matches"]()
               </div>
             )}
           </CardContent>
@@ -292,17 +292,17 @@ function DelegationDetailPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Ex-membros</CardTitle>
+            <CardTitle>{m["delegation.detail.empty.former"]()}</CardTitle>
             <CardDescription>
-              Vínculos encerrados continuam visíveis para preservar contexto histórico.
+              m["delegation.detail.campaign.desc"]()
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Saída</TableHead>
+                  <TableHead>{m["delegation.detail.table.name"]() }</TableHead>
+                  <TableHead>{m["athlete.detail.table.exit"]() }</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -319,7 +319,7 @@ function DelegationDetailPage() {
                 {formerMembers.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={2} className="py-8 text-center text-muted-foreground">
-                      Nenhum ex-membro registrado.
+                      m["delegation.detail.empty.former"]()
                     </TableCell>
                   </TableRow>
                 ) : null}

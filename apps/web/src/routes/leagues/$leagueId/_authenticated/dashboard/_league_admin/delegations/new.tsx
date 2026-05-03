@@ -6,6 +6,7 @@ import { AdminDelegationForm } from "@/features/delegations/components/admin-del
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
 import type { DelegationCreateInput } from "@/types/delegations";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute(
   "/leagues/$leagueId/_authenticated/dashboard/_league_admin/delegations/new",
@@ -31,7 +32,7 @@ function NewDelegationPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.delegations.all(Number(leagueId)),
       });
-      toast.success("Delegação criada com sucesso.");
+      toast.success(m["common.actions.create"]());
       await navigate({
         to: "/leagues/$leagueId/delegations/$delegationId",
         params: { leagueId, delegationId: String(delegation.id) },

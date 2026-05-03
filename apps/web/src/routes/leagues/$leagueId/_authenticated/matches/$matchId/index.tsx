@@ -32,6 +32,7 @@ import { delegationListQueryOptions } from "@/features/delegations/api/queries";
 import { matchDetailQueryOptions } from "@/features/matches/api/queries";
 import { queryKeys } from "@/features/keys";
 import type { MatchEventCreate, MatchEventType, MatchParticipantResponse } from "@/types/events";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute("/leagues/$leagueId/_authenticated/matches/$matchId/")({
   ssr: false,
@@ -48,15 +49,15 @@ export const Route = createFileRoute("/leagues/$leagueId/_authenticated/matches/
 });
 
 const eventTypeOptions: { value: MatchEventType; label: string }[] = [
-  { value: "GOAL", label: "Gol" },
-  { value: "POINT", label: "Ponto" },
-  { value: "PENALTY", label: "Penalidade" },
-  { value: "CARD_YELLOW", label: "Cartao amarelo" },
-  { value: "CARD_RED", label: "Cartao vermelho" },
-  { value: "SUBSTITUTION", label: "Substituicao" },
-  { value: "SET_END", label: "Fim de set" },
-  { value: "IPPON", label: "Ippon" },
-  { value: "WAZA_ARI", label: "Waza-ari" },
+  { value: "GOAL", label: m["common.medal.gold"]() },
+  { value: "POINT", label: m["common.actions.add"]() },
+  { value: "PENALTY", label: m["common.actions.remove"]() },
+  { value: "CARD_YELLOW", label: m["common.status.pending"]() },
+  { value: "CARD_RED", label: m["common.status.rejected"]() },
+  { value: "SUBSTITUTION", label: m["common.actions.update"]() },
+  { value: "SET_END", label: m["common.phase.final"]() },
+  { value: "IPPON", label: m["common.medal.gold"]() },
+  { value: "WAZA_ARI", label: m["common.medal.silver"]() },
 ];
 
 function MatchLivePage() {
@@ -102,10 +103,10 @@ function MatchLivePage() {
       ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.matches.detail(numericMatchId) });
-      toast.success("Evento registrado.");
+      toast.success(m["common.actions.create"]());
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao registrar evento.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
@@ -119,12 +120,10 @@ function MatchLivePage() {
     },
     onSuccess: async (_, action) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.matches.detail(numericMatchId) });
-      toast.success(
-        action === "start" ? "Partida iniciada." : "Partida encerrada.",
-      );
+      toast.success(action === "start" ? m["common.actions.open"]() : m["common.actions.close"]() );
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao atualizar partida.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
@@ -134,7 +133,7 @@ function MatchLivePage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.2),transparent_36%),linear-gradient(180deg,hsl(var(--card)),hsl(var(--muted)/0.18))]">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Partida #{match.id}</Badge>
+              <Badge variant="outline">{m["competition.detail.table.teamA"]() } #{match.id}</Badge>
               <Badge variant={match.status === "IN_PROGRESS" ? "default" : "secondary"}>
                 {match.status}
               </Badge>
@@ -143,7 +142,7 @@ function MatchLivePage() {
               {labelDelegation(match.team_a_delegation_id, delegationById)} x{" "}
               {labelDelegation(match.team_b_delegation_id, delegationById)}
             </CardTitle>
-            <CardDescription>Placar atualizado via SSE.</CardDescription>
+            <CardDescription>m["results.public.badge.refresh"]()</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
             <ScorePanel
@@ -153,7 +152,7 @@ function MatchLivePage() {
             <div className="flex items-center justify-center rounded-3xl border border-border/70 bg-background/80 p-4 text-2xl font-semibold">
               {match.score_a != null && match.score_b != null
                 ? `${match.score_a} x ${match.score_b}`
-                : "Aguardando"}
+                : m['common.status.pending']()}
             </div>
             <ScorePanel
               title={labelDelegation(match.team_b_delegation_id, delegationById)}
@@ -164,7 +163,7 @@ function MatchLivePage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Participantes</CardTitle>
+            <CardTitle>{m["competition.detail.table.teamA"]() }</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {match.participants.length > 0 ? (
@@ -175,7 +174,7 @@ function MatchLivePage() {
                 >
                   <div className="font-medium">
                     {athleteById.get(participant.athlete_id)?.name ??
-                      `Atleta #${participant.athlete_id}`}
+                      `m["result.form.label.athlete"]() #${participant.athlete_id}`}
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {labelDelegation(participant.delegation_id_at_time, delegationById)} ·{" "}
@@ -185,7 +184,7 @@ function MatchLivePage() {
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                Sem participantes registrados.
+                {m["results.admin.empty.events"]() }
               </div>
             )}
           </CardContent>
@@ -195,8 +194,8 @@ function MatchLivePage() {
       <section className="grid gap-4 xl:grid-cols-[1fr_0.95fr]">
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Feed ao vivo</CardTitle>
-            <CardDescription>Eventos registrados e sincronizados em tempo real.</CardDescription>
+            <CardTitle>{m["league.feed.badge.live"]() }</CardTitle>
+            <CardDescription>m["results.public.badge.refresh"]()</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {match.events.length > 0 ? (
@@ -213,7 +212,7 @@ function MatchLivePage() {
                     className="grid gap-3 rounded-3xl border border-border/70 bg-muted/15 p-4 md:grid-cols-[auto,1fr]"
                   >
                     <div className="rounded-2xl bg-background px-3 py-2 text-center text-sm font-semibold">
-                      {event.minute != null ? `${event.minute}'` : "Tempo"}
+                      {event.minute != null ? `${event.minute}'` : m['calendar.public.table.time']()}
                     </div>
                     <div className="space-y-1">
                       <div className="font-medium">
@@ -223,19 +222,19 @@ function MatchLivePage() {
                       <div className="text-sm text-muted-foreground">
                         {event.athlete_id
                           ? (athleteById.get(event.athlete_id)?.name ??
-                            `Atleta #${event.athlete_id}`)
-                          : "Sem atleta"}
+                            `${m['result.form.label.athlete']()} #${event.athlete_id}`)
+                          : m['result.form.athlete.none']()}
                         {" · "}
                         {event.delegation_id_at_time
                           ? labelDelegation(event.delegation_id_at_time, delegationById)
-                          : "Sem delegacao"}
+                          : m['result.form.delegation.none']()}
                       </div>
                     </div>
                   </div>
                 ))
             ) : (
               <div className="rounded-3xl border border-dashed border-border/70 p-8 text-sm text-muted-foreground">
-                Nenhum evento registrado ainda.
+                {m["results.admin.empty.events"]() }
               </div>
             )}
           </CardContent>
@@ -243,8 +242,8 @@ function MatchLivePage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Controle admin</CardTitle>
-            <CardDescription>Inicio, encerramento e registro manual de eventos.</CardDescription>
+            <CardTitle>{m["nav.admin.settings"]() }</CardTitle>
+            <CardDescription>m["results.admin.card.manual.title"]()</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {adminView ? (
@@ -256,7 +255,7 @@ function MatchLivePage() {
                     disabled={lifecycleMutation.isPending}
                     onClick={() => lifecycleMutation.mutate("start")}
                   >
-                    Iniciar
+                    m["common.actions.open"]()
                   </Button>
                   <Button
                     type="button"
@@ -264,7 +263,7 @@ function MatchLivePage() {
                     disabled={lifecycleMutation.isPending}
                     onClick={() => lifecycleMutation.mutate("finish")}
                   >
-                    Encerrar
+                    m["common.actions.close"]()
                   </Button>
                 </div>
 
@@ -280,7 +279,7 @@ function MatchLivePage() {
               </>
             ) : (
               <div className="rounded-3xl border border-dashed border-border/70 p-6 text-sm text-muted-foreground">
-                Somente administradores podem controlar esta partida.
+                m["roles.admin"]()
               </div>
             )}
           </CardContent>
@@ -329,7 +328,7 @@ function MatchEventForm({
       <FieldGroup>
         <div className="grid gap-4 md:grid-cols-2">
           <Field>
-            <FieldLabel>Tipo</FieldLabel>
+            <FieldLabel>{m["sports.public.table.type"]() }</FieldLabel>
             <Select
               value={form.event_type}
               onValueChange={(value) =>
@@ -337,7 +336,7 @@ function MatchEventForm({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Tipo" />
+                <SelectValue placeholder={m["sports.public.table.type"]() } />
               </SelectTrigger>
               <SelectContent>
                 {eventTypeOptions.map((option) => (
@@ -350,7 +349,7 @@ function MatchEventForm({
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="event-minute">Minuto</FieldLabel>
+            <FieldLabel htmlFor="event-minute">{m["calendar.public.table.time"]() }</FieldLabel>
             <Input
               id="event-minute"
               type="number"
@@ -366,7 +365,7 @@ function MatchEventForm({
 
         <div className="grid gap-4 md:grid-cols-2">
           <Field>
-            <FieldLabel>Atleta</FieldLabel>
+            <FieldLabel>{m["result.form.label.athlete"]() }</FieldLabel>
             <Select
               value={form.athlete_id}
               onValueChange={(value) =>
@@ -374,13 +373,13 @@ function MatchEventForm({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Opcional" />
+                <SelectValue placeholder={m["common.actions.open"]() } />
               </SelectTrigger>
               <SelectContent>
                 {participants.map((participant) => (
                   <SelectItem key={participant.id} value={String(participant.athlete_id)}>
                     {athleteById.get(participant.athlete_id)?.name ??
-                      `Atleta #${participant.athlete_id}`}
+                      `m["result.form.label.athlete"]() #${participant.athlete_id}`}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -388,7 +387,7 @@ function MatchEventForm({
           </Field>
 
           <Field>
-            <FieldLabel>Delegacao</FieldLabel>
+            <FieldLabel>{m["result.form.label.delegation"]() }</FieldLabel>
             <Select
               value={form.delegation_id_at_time}
               onValueChange={(value) =>
@@ -399,25 +398,25 @@ function MatchEventForm({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Opcional" />
+                <SelectValue placeholder={m["common.actions.open"]() } />
               </SelectTrigger>
               <SelectContent>
                 {Array.from(
                   new Set(participants.map((participant) => participant.delegation_id_at_time)),
                 ).map((delegationId) => (
                   <SelectItem key={delegationId} value={String(delegationId)}>
-                    {delegationById.get(delegationId)?.name ?? `Delegacao #${delegationId}`}
+                    {delegationById.get(delegationId)?.name ?? `m["result.form.label.delegation"]() #${delegationId}`}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <FieldDescription>Use snapshot da delegacao no momento da partida.</FieldDescription>
+            <FieldDescription>m["chief.shell.delegationDesc"]()</FieldDescription>
           </Field>
         </div>
       </FieldGroup>
 
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Registrando..." : "Registrar evento"}
+        {isPending ? m["common.actions.submit"]() : m["common.actions.create"]()}
       </Button>
     </form>
   );
@@ -437,8 +436,8 @@ function labelDelegation(
   delegationById: Map<number, { name: string }>,
 ) {
   if (!delegationId) {
-    return "A definir";
+    return m["result.form.delegation.none"]();
   }
 
-  return delegationById.get(delegationId)?.name ?? `Delegacao #${delegationId}`;
+  return delegationById.get(delegationId)?.name ?? `m["result.form.label.delegation"]() #${delegationId}`;
 }

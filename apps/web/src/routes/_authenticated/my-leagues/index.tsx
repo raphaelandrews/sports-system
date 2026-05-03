@@ -1,6 +1,7 @@
 import { useQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
+import * as m from "@/paraglide/messages";
 import { Badge } from "@sports-system/ui/components/badge";
 import { buttonVariants } from "@sports-system/ui/components/button";
 import { cn } from "@sports-system/ui/lib/utils";
@@ -16,10 +17,10 @@ export const Route = createFileRoute("/_authenticated/my-leagues/")({
 });
 
 const roleLabel: Record<string, string> = {
-  LEAGUE_ADMIN: "Admin",
-  CHIEF: "Chefe",
-  COACH: "Técnico",
-  ATHLETE: "Atleta",
+  LEAGUE_ADMIN: m['myLeagues.role.admin'](),
+  CHIEF: m['myLeagues.role.chief'](),
+  COACH: m['myLeagues.role.coach'](),
+  ATHLETE: m['myLeagues.role.athlete'](),
 };
 
 function MyLeaguesPage() {
@@ -32,9 +33,9 @@ function MyLeaguesPage() {
   return (
     <>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Minhas ligas</h1>
+        <h1 className="text-3xl font-bold">{m['myLeagues.title']()}</h1>
         <Link to="/leagues/new" className={cn(buttonVariants({ size: "sm" }), "text-sm")}>
-          Criar liga
+          {m['myLeagues.createButton']()}
         </Link>
       </div>
 
@@ -65,9 +66,9 @@ function MyLeaguesPage() {
 
       {leagues.length === 0 && (
         <div className="text-center space-y-4">
-          <p className="text-muted-foreground">Você ainda não participa de nenhuma liga.</p>
+          <p className="text-muted-foreground">{m['myLeagues.empty']()}</p>
           <Link to="/leagues" className={cn(buttonVariants())}>
-            Explorar ligas
+            {m['nav.exploreLeagues']()}
           </Link>
         </div>
       )}

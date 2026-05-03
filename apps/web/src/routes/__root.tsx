@@ -11,6 +11,8 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "next-themes";
 
+import { getLocale } from "@/paraglide/runtime";
+import { m } from "@/paraglide/messages";
 import { DashboardViewportLoading } from "@/shared/components/layouts/dashboard-content-loading";
 import { DashboardLayout } from "@/shared/components/layouts/dashboard";
 import { ErrorScreen } from "@/shared/components/layouts/error-screen";
@@ -38,7 +40,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Sports System" },
+      { title: m.app_title() },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
@@ -52,7 +54,7 @@ function RootDocument() {
   const isAuthPage = AUTH_PATHS.some((p) => pathname.startsWith(p));
 
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang={getLocale()} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

@@ -6,6 +6,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { client, unwrap } from "@/shared/lib/api";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_authenticated/request-chief/")({
   component: RequestChiefPage,
@@ -25,7 +26,7 @@ function RequestChiefPage() {
           },
         }),
       );
-      toast.success("Solicitação enviada com sucesso!");
+      toast.success(m["common.actions.confirm"]());
       await router.navigate({ to: "/leagues" });
     },
   });
@@ -49,18 +50,18 @@ function RequestChiefPage() {
         <form.Field
           name="delegation_name"
           validators={{
-            onChange: ({ value }) => (!value.trim() ? "Nome da delegação obrigatório" : undefined),
+            onChange: ({ value }) => (!value.trim() ? m["delegation.form.error.name"]() : undefined),
           }}
         >
           {(field) => (
             <div className="space-y-1">
-              <Label htmlFor="delegation_name">Nome da delegação</Label>
+              <Label htmlFor="delegation_name">{m["delegation.form.label.name"]()}</Label>
               <Input
                 id="delegation_name"
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
-                placeholder="Ex: Delegação Brasil"
+                placeholder={m["delegation.form.placeholder.name"]()}
               />
               {field.state.meta.errors.length > 0 && (
                 <p className="text-destructive text-sm">{field.state.meta.errors[0]}</p>
@@ -72,13 +73,13 @@ function RequestChiefPage() {
         <form.Field name="message">
           {(field) => (
             <div className="space-y-1">
-              <Label htmlFor="message">Mensagem (opcional)</Label>
+              <Label htmlFor="message">{m["notification.desc.requestRejected"]()}</Label>
               <Input
                 id="message"
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
-                placeholder="Motivação ou contexto"
+                placeholder={m["common.actions.search"]()}
               />
             </div>
           )}
@@ -89,7 +90,7 @@ function RequestChiefPage() {
             <>
               {errors.length > 0 && <p className="text-destructive text-sm">{String(errors[0])}</p>}
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Enviando..." : "Enviar solicitação"}
+                {isSubmitting ? m["common.actions.submit"]() : m["common.actions.submit"]()}
               </Button>
             </>
           )}

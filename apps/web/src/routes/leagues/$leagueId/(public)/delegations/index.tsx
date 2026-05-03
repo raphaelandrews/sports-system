@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 
+import * as m from "@/paraglide/messages";
 import { delegationListQueryOptions } from "@/features/delegations/api/queries";
 import { TableLayout } from "@/shared/components/ui/table-layout";
 import { Title } from "@/shared/components/ui/title";
@@ -52,14 +53,14 @@ function DelegationsPage() {
 
   return (
     <>
-      <Title title="Delegações" />
+      <Title title={m['delegations.public.title']()} />
 
       <TableLayout
-        title="Delegações"
+        title={m['delegations.public.card.title']()}
         countLabel="delegações"
         visibleCount={pagedData.length}
         totalCount={filteredData.length}
-        searchPlaceholder="Buscar delegações…"
+        searchPlaceholder={m['common.table.searchPlaceholder']()}
         searchQuery={searchQuery}
         onSearchChange={(value) => {
           setSearchQuery(value);
@@ -78,8 +79,8 @@ function DelegationsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="ps-4 w-32">Código</TableHead>
-              <TableHead className="pe-4">Nome</TableHead>
+              <TableHead className="ps-4 w-32">{m['delegations.public.table.code']()}</TableHead>
+              <TableHead className="pe-4">{m['delegations.public.table.name']()}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -89,7 +90,7 @@ function DelegationsPage() {
                   colSpan={2}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  Nenhuma delegação encontrada.
+                  {m['delegations.public.empty']()}
                 </TableCell>
               </TableRow>
             )}

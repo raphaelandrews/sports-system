@@ -19,6 +19,7 @@ import {
 } from "@sports-system/ui/components/field";
 import { Input } from "@sports-system/ui/components/input";
 
+import * as m from "@/paraglide/messages";
 import type { SportResponse } from "@/types/sports";
 
 interface CompetitionFormProps {
@@ -63,9 +64,9 @@ export function CompetitionForm({
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <Card className="border border-border/70 bg-gradient-to-br from-card via-card to-muted/20">
         <CardHeader>
-          <CardTitle>Nova competicao</CardTitle>
+          <CardTitle>{m['competition.form.title']()}</CardTitle>
           <CardDescription>
-            Defina numero, periodo e esportes foco para preparar a competicao.
+            {m['competition.form.description']()}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -81,12 +82,12 @@ export function CompetitionForm({
                 name="number"
                 validators={{
                   onChange: ({ value }) =>
-                    Number(value) <= 0 ? { message: "Informe um numero de competicao valido." } : undefined,
+                    Number(value) <= 0 ? { message: m['competition.form.error.number']() } : undefined,
                 }}
               >
                 {(field) => (
                   <Field>
-                    <FieldLabel htmlFor="competition-number">Numero da competicao</FieldLabel>
+                    <FieldLabel htmlFor="competition-number">{m['competition.form.label.number']()}</FieldLabel>
                     <Input
                       id="competition-number"
                       type="number"
@@ -104,7 +105,7 @@ export function CompetitionForm({
                 <form.Field name="start_date">
                   {(field) => (
                     <Field>
-                      <FieldLabel htmlFor="competition-start-date">Inicio</FieldLabel>
+                      <FieldLabel htmlFor="competition-start-date">{m['competition.form.label.start']()}</FieldLabel>
                       <Input
                         id="competition-start-date"
                         type="date"
@@ -119,7 +120,7 @@ export function CompetitionForm({
                 <form.Field name="end_date">
                   {(field) => (
                     <Field>
-                      <FieldLabel htmlFor="competition-end-date">Fim</FieldLabel>
+                      <FieldLabel htmlFor="competition-end-date">{m['competition.form.label.end']()}</FieldLabel>
                       <Input
                         id="competition-end-date"
                         type="date"
@@ -133,9 +134,9 @@ export function CompetitionForm({
               </div>
 
               <Field>
-                <FieldLabel>Esportes foco</FieldLabel>
+                <FieldLabel>{m['competition.form.label.sports']()}</FieldLabel>
                 <FieldDescription>
-                  Opcional. Marque os esportes com prioridade para esta competicao.
+                  {m['competition.form.desc.sports']()}
                 </FieldDescription>
                 <div className="grid gap-2 md:grid-cols-2">
                   {sports.map((sport) => {
@@ -167,21 +168,21 @@ export function CompetitionForm({
 
             {errorMessage ? (
               <Alert variant="destructive">
-                <AlertTitle>Nao foi possivel criar a competicao</AlertTitle>
+                <AlertTitle>{m['competition.form.alert.error']()}</AlertTitle>
                 <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
             ) : null}
 
             <div className="flex flex-wrap items-center gap-3">
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Criando..." : "Criar competicao"}
+                {isSubmitting ? m['competition.form.submitting']() : m['competition.form.submit']()}
               </Button>
               <Link
                 to="/leagues/$leagueId/dashboard/competitions"
                 params={{ leagueId: String(leagueId) }}
                 className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
-                Cancelar e voltar
+                {m['competition.form.cancel']()}
               </Link>
             </div>
           </form>

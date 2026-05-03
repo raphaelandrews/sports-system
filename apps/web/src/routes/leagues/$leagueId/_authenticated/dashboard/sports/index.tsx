@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
+import * as m from "@/paraglide/messages";
 import { Badge } from "@sports-system/ui/components/badge";
 import { buttonVariants } from "@sports-system/ui/components/button";
 import {
@@ -91,9 +92,9 @@ function SportsPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(160deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.22))]">
           <CardHeader className="gap-3">
             <Badge variant="outline" className="w-fit">
-              Esportes
+              {m['sports.public.title']()}
             </Badge>
-            <CardTitle className="text-2xl">Esportes e modalidades</CardTitle>
+            <CardTitle className="text-2xl">{m['sports.admin.title']()}</CardTitle>
             <CardDescription className="max-w-2xl">
               {isAdmin
                 ? "Painel administrativo para acompanhar os esportes ativos, revisar status e entrar nas modalidades configuradas."
@@ -102,19 +103,19 @@ function SportsPage() {
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
             <MetricCard
-              label="Esportes"
+              label={m['sports.admin.stat.total']()}
               value={String(data.data.length)}
               hint="Cadastros ativos"
               icon={Trophy}
             />
             <MetricCard
-              label="Coletivos"
+              label={m['sports.admin.stat.team']()}
               value={String(teamSports)}
               hint="Esportes por equipe"
               icon={Users}
             />
             <MetricCard
-              label="Individuais"
+              label={m['sports.admin.stat.individual']()}
               value={String(data.data.length - teamSports)}
               hint="Esportes individuais"
               icon={Trophy}
@@ -124,7 +125,7 @@ function SportsPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Status rapido</CardTitle>
+            <CardTitle>{m['sports.admin.card.status.title']()}</CardTitle>
             <CardDescription>
               {isAdmin
                 ? "Cada esporte leva para uma tela com modalidades, regras e estatisticas-schema."
@@ -143,7 +144,7 @@ function SportsPage() {
       <Card className="border border-border/70">
         <CardHeader className="gap-4">
           <div>
-            <CardTitle>Lista dos esportes</CardTitle>
+            <CardTitle>{m['sports.admin.card.list.title']()}</CardTitle>
             <CardDescription>
               {isAdmin
                 ? "Acesse o detalhe para editar modalidades e revisar as regras JSON."
@@ -155,7 +156,7 @@ function SportsPage() {
               <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="pl-9"
-                placeholder="Buscar esporte"
+                placeholder={m['sports.admin.searchPlaceholder']()}
                 value={search}
                 onChange={(event) =>
                   void navigate({
@@ -182,9 +183,9 @@ function SportsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os tipos</SelectItem>
-                <SelectItem value="team">Somente coletivos</SelectItem>
-                <SelectItem value="individual">Somente individuais</SelectItem>
+                <SelectItem value="all">{m['sports.admin.filter.allTypes']()}</SelectItem>
+                <SelectItem value="team">{m['sports.admin.filter.team']()}</SelectItem>
+                <SelectItem value="individual">{m['sports.admin.filter.individual']()}</SelectItem>
               </SelectContent>
             </Select>
             <Select
@@ -202,8 +203,8 @@ function SportsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="name">Ordenar por nome</SelectItem>
-                <SelectItem value="created_at">Ordenar por criação</SelectItem>
+                <SelectItem value="name">{m['sports.admin.sort.name']()}</SelectItem>
+                <SelectItem value="created_at">{m['sports.admin.sort.created']()}</SelectItem>
               </SelectContent>
             </Select>
             <Select
@@ -221,8 +222,8 @@ function SportsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="asc">Ascendente</SelectItem>
-                <SelectItem value="desc">Descendente</SelectItem>
+                <SelectItem value="asc">{m['sports.admin.sort.asc']()}</SelectItem>
+                <SelectItem value="desc">{m['sports.admin.sort.desc']()}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -231,12 +232,12 @@ function SportsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Esporte</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Jogadores</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Criado em</TableHead>
-                {isAdmin ? <TableHead className="text-right">Ações</TableHead> : null}
+                <TableHead>{m['sports.admin.table.sport']()}</TableHead>
+                <TableHead>{m['sports.admin.table.type']()}</TableHead>
+                <TableHead>{m['sports.admin.table.players']()}</TableHead>
+                <TableHead>{m['sports.admin.table.status']()}</TableHead>
+                <TableHead>{m['sports.admin.table.created']()}</TableHead>
+                {isAdmin ? <TableHead className="text-right">{m['sports.admin.table.actions']()}</TableHead> : null}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -245,7 +246,7 @@ function SportsPage() {
                   <TableCell className="font-medium">{sport.name}</TableCell>
                   <TableCell>
                     <Badge variant="outline">
-                      {sport.sport_type === "TEAM" ? "Coletivo" : "Individual"}
+                      {sport.sport_type === "TEAM" ? m['sports.type.team']() : m['sports.type.individual']()}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -255,7 +256,7 @@ function SportsPage() {
                   </TableCell>
                   <TableCell>
                     <Badge variant={sport.is_active ? "secondary" : "outline"}>
-                      {sport.is_active ? "Ativo" : "Arquivado"}
+                      {sport.is_active ? m['common.status.active']() : m['common.status.inactive']()}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -268,7 +269,7 @@ function SportsPage() {
                         params={{ leagueId, sportId: String(sport.id) }}
                         className={cn(buttonVariants({ variant: "outline" }))}
                       >
-                        Abrir detalhe
+                        {m['common.actions.open']()}
                       </Link>
                     </TableCell>
                   ) : null}
@@ -280,7 +281,7 @@ function SportsPage() {
                     colSpan={isAdmin ? 6 : 5}
                     className="py-8 text-center text-muted-foreground"
                   >
-                    Nenhum esporte encontrado.
+                    {m['sports.admin.empty']()}
                   </TableCell>
                 </TableRow>
               ) : null}

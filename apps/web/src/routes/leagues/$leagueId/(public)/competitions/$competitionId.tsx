@@ -14,6 +14,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Suspense, useState } from "react";
 
+import * as m from "@/paraglide/messages";
 import { formatDate, formatTime } from "@/shared/lib/date";
 import { delegationListQueryOptions } from "@/features/delegations/api/queries";
 import {
@@ -38,11 +39,11 @@ export const Route = createFileRoute("/leagues/$leagueId/(public)/competitions/$
 });
 
 const phaseLabel: Record<string, string> = {
-  GROUPS: "Grupos",
-  QUARTER: "Quartas",
-  SEMI: "Semis",
-  FINAL: "Final",
-  BRONZE: "3º Lugar",
+  GROUPS: m['common.phase.group'](),
+  QUARTER: "Quarter",
+  SEMI: "Semi",
+  FINAL: m['common.phase.final'](),
+  BRONZE: "Bronze",
 };
 
 const eventStatusVariant: Record<EventStatus, "default" | "secondary" | "outline" | "destructive"> =
@@ -54,10 +55,10 @@ const eventStatusVariant: Record<EventStatus, "default" | "secondary" | "outline
   };
 
 const eventStatusLabel: Record<EventStatus, string> = {
-  SCHEDULED: "Agendado",
-  IN_PROGRESS: "Em Andamento",
-  COMPLETED: "Concluído",
-  CANCELLED: "Cancelado",
+  SCHEDULED: m['common.status.scheduled'](),
+  IN_PROGRESS: m['common.status.live'](),
+  COMPLETED: m['common.status.completed'](),
+  CANCELLED: m['common.status.cancelled'](),
 };
 
 function CompetitionDetailPage() {
@@ -90,12 +91,12 @@ function CompetitionDetailPage() {
           params={{ leagueId }}
           className="text-muted-foreground text-sm hover:underline"
         >
-          ← Competições
+          ← {m['competitions.public.title']()}
         </Link>
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-semibold">Competição {report.number}</h1>
+        <h1 className="text-2xl font-semibold">{m['competition.admin.badge.competition']({ "competition.number": report.number })}</h1>
         <Badge variant={report.status === "ACTIVE" ? "default" : "secondary"}>
           {report.status}
         </Badge>
@@ -105,27 +106,27 @@ function CompetitionDetailPage() {
       </div>
 
       <div className="mb-6 grid grid-cols-3 gap-4">
-        <SummaryCard label="Total de Eventos" value={report.summary.total_events} />
-        <SummaryCard label="Partidas Concluídas" value={report.summary.completed_matches} />
-        <SummaryCard label="Total de Partidas" value={report.summary.total_matches} />
+        <SummaryCard label={m['competition.detail.stat.events']()} value={report.summary.total_events} />
+        <SummaryCard label={m['competition.detail.stat.completed']()} value={report.summary.completed_matches} />
+        <SummaryCard label={m['competition.detail.stat.matches']()} value={report.summary.total_matches} />
       </div>
 
       <Tabs defaultValue="medals">
         <TabsList>
-          <TabsTrigger value="medals">Quadro de Medalhas</TabsTrigger>
-          <TabsTrigger value="events">Eventos e Resultados</TabsTrigger>
+          <TabsTrigger value="medals">{m['competition.detail.tab.medals']()}</TabsTrigger>
+          <TabsTrigger value="events">{m['competition.detail.tab.events']()}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="medals" className="mt-4">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12">#</TableHead>
-                <TableHead>Delegação</TableHead>
+                <TableHead className="w-12">{m['competition.detail.table.rank']()}</TableHead>
+                <TableHead>{m['competition.detail.table.delegation']()}</TableHead>
                 <TableHead className="text-center">🥇</TableHead>
                 <TableHead className="text-center">🥈</TableHead>
                 <TableHead className="text-center">🥉</TableHead>
-                <TableHead className="text-center">Total</TableHead>
+                <TableHead className="text-center">{m['competition.detail.table.total']()}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -145,7 +146,7 @@ function CompetitionDetailPage() {
               {report.medal_board.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-muted-foreground text-center">
-                    Nenhuma medalha distribuída ainda.
+                    {m['competition.detail.empty.medals']()}
                   </TableCell>
                 </TableRow>
               )}
@@ -155,7 +156,7 @@ function CompetitionDetailPage() {
 
         <TabsContent value="events" className="mt-4 space-y-6">
           {sortedDates.length === 0 && (
-            <p className="text-muted-foreground text-sm">Nenhum evento nesta competição.</p>
+            <p className="text-muted-foreground text-sm">{m['competition.detail.empty.events']()}</p>
           )}
           {sortedDates.map((date) => (
             <div key={date}>
@@ -229,16 +230,16 @@ function EventMatches({
   const { data } = useSuspenseQuery(eventDetailQueryOptions(Number(leagueId), eventId));
 
   if (data.matches.length === 0) {
-    return <p className="text-muted-foreground text-sm">Nenhuma partida registrada.</p>;
+    return <p className="text-muted-foreground text-sm">{m['competition.detail.empty.matches']()}</p>;
   }
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Time A</TableHead>
-          <TableHead className="text-center">Placar</TableHead>
-          <TableHead className="text-right">Time B</TableHead>
+          <TableHead>{m['competition.detail.table.teamA']()}</TableHead>
+          <TableHead className="text-center">{m['competition.detail.table.score']()}</TableHead>
+          <TableHead className="text-right">{m['competition.detail.table.teamB']()}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

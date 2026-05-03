@@ -37,6 +37,7 @@ import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { delegationListQueryOptions } from "@/features/delegations/api/queries";
 import { myLeagueMembershipQueryOptions } from "@/features/leagues/api/queries";
 import { queryKeys } from "@/features/keys";
+import * as m from "@/paraglide/messages";
 
 const PAGE_SIZE = 8;
 const delegationsSearchSchema = z.object({
@@ -86,12 +87,12 @@ function DelegationsPage() {
       });
       toast.success(
         created.length === 1
-          ? "1 delegação criada com IA."
+          ? m["common.actions.create"]()
           : `${created.length} delegações criadas com IA.`,
       );
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao gerar delegações com IA.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
@@ -108,12 +109,12 @@ function DelegationsPage() {
       });
       toast.success(
         created.length === 1
-          ? "1 delegação populada com IA."
+          ? m["common.actions.create"]()
           : `${created.length} delegações populadas com IA baseadas nas existentes.`,
       );
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao popular delegações com IA.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
@@ -128,10 +129,10 @@ function DelegationsPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.delegations.all(Number(leagueId)),
       });
-      toast.success("Você agora é o chefe desta delegação.");
+      toast.success(m["roles.chief"]());
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao atribuir chefe.");
+      toast.error(error instanceof ApiError ? error.message : m["common.actions.submit"]());
     },
   });
 
@@ -174,35 +175,35 @@ function DelegationsPage() {
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_46%),linear-gradient(135deg,hsl(var(--card)),hsl(var(--card)),hsl(var(--muted)/0.28))]">
           <CardHeader className="gap-3">
             <Badge variant="outline" className="w-fit">
-              Delegações
+              {m['delegations.public.title']()}
             </Badge>
             <CardTitle className="text-2xl">
-              {isAdmin ? "Gestão de delegações" : "Delegações"}
+              {isAdmin ? m["delegations.public.title"]() : m["delegations.public.title"]() }
             </CardTitle>
             <CardDescription className="max-w-2xl">
               {isAdmin
-                ? "Organize a base competitiva, filtre status, abra cadastros manuais e acelere a criação inicial com geração por IA."
-                : "Acompanhe as delegações participantes da competição."}
+                ? m["delegations.public.title"]()
+                : m["delegations.public.title"]()}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
             <MetricCard
               icon={ShieldCheck}
-              label="Total"
+              label={m["enrollments.admin.stat.total"]() }
               value={String(data.data.length)}
-              hint="Delegações cadastradas"
+              hint={m["delegations.public.title"]() }
             />
             <MetricCard
               icon={Users}
-              label="Ativas"
+              label={m["common.status.active"]() }
               value={String(activeCount)}
-              hint="Prontas para competir"
+              hint={m["common.status.active"]() }
             />
             <MetricCard
               icon={Bot}
-              label="Com chefe"
+              label={m["roles.chief"]() }
               value={String(withChiefCount)}
-              hint="Vínculo administrativo definido"
+              hint={m["roles.chief"]() }
             />
           </CardContent>
         </Card>
@@ -210,9 +211,9 @@ function DelegationsPage() {
         {isAdmin ? (
           <Card className="border border-border/70">
             <CardHeader>
-              <CardTitle>Geração rápida com IA</CardTitle>
+              <CardTitle>{m["nav.admin.ai"]()}</CardTitle>
               <CardDescription>
-                Crie blocos de delegações para ambiente demo ou povoamento inicial.
+                m["delegation.form.desc.create"]()
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -223,9 +224,9 @@ function DelegationsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {["3", "5", "8", "10", "15"].map((value) => (
-                      <SelectItem key={value} value={value}>
-                        {value} itens
-                      </SelectItem>
+                       <SelectItem key={value} value={value}>
+                         {value} {m['common.items']()}
+                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -235,7 +236,7 @@ function DelegationsPage() {
                   disabled={aiMutation.isPending}
                 >
                   <Bot className="size-4" />
-                  {aiMutation.isPending ? "Gerando..." : "Gerar com IA"}
+                  {aiMutation.isPending ? m['ai.generating']() : m['ai.generate']()}
                 </Button>
                 <Button
                   type="button"
@@ -244,12 +245,11 @@ function DelegationsPage() {
                   disabled={aiPopulateMutation.isPending}
                 >
                   <Bot className="size-4" />
-                  {aiPopulateMutation.isPending ? "Populando..." : "Popular com IA"}
+                  {aiPopulateMutation.isPending ? m['ai.populating']() : m['ai.populate']()}
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground">
-                "Gerar" cria delegações aleatórias. "Popular" analisa as existentes e cria novas no mesmo estilo.
-                Revise nomes e bandeiras depois do preenchimento automático.
+                {m['delegation.form.desc.create']()}
               </p>
             </CardContent>
           </Card>
@@ -260,9 +260,9 @@ function DelegationsPage() {
         <CardHeader className="gap-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <CardTitle>Lista operacional</CardTitle>
+              <CardTitle>{m["enrollments.admin.table.actions"]()}</CardTitle>
               <CardDescription>
-                Filtre por nome, código e status para localizar delegações rapidamente.
+                {m['delegation.form.desc.create']()}
               </CardDescription>
             </div>
             {isAdmin ? (
@@ -271,7 +271,7 @@ function DelegationsPage() {
                 params={{ leagueId }}
                 className={buttonVariants({ variant: "default" })}
               >
-                Nova delegação
+                {m["delegation.form.title.create"]() }
               </Link>
             ) : null}
           </div>
@@ -281,7 +281,7 @@ function DelegationsPage() {
               <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="pl-9"
-                placeholder="Buscar por nome ou código"
+                placeholder={m["common.table.searchPlaceholder"]() }
                 value={search}
                 onChange={(event) =>
                   void navigate({
@@ -311,9 +311,9 @@ function DelegationsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os status</SelectItem>
-                <SelectItem value="active">Somente ativas</SelectItem>
-                <SelectItem value="inactive">Somente inativas</SelectItem>
+                <SelectItem value="all">{m['common.filter.allStatuses']()}</SelectItem>
+                <SelectItem value="active">{m['common.filter.onlyActive']()}</SelectItem>
+                <SelectItem value="inactive">{m['common.filter.onlyInactive']()}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -332,9 +332,9 @@ function DelegationsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="name">Ordenar por nome</SelectItem>
-                <SelectItem value="code">Ordenar por código</SelectItem>
-                <SelectItem value="created_at">Ordenar por criação</SelectItem>
+                <SelectItem value="name">{m['common.sort.byName']()}</SelectItem>
+                <SelectItem value="code">{m['common.sort.byCode']()}</SelectItem>
+                <SelectItem value="created_at">{m['common.sort.byCreation']()}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -353,8 +353,8 @@ function DelegationsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="asc">Ascendente</SelectItem>
-                <SelectItem value="desc">Descendente</SelectItem>
+                <SelectItem value="asc">{m['common.sort.asc']()}</SelectItem>
+                <SelectItem value="desc">{m['common.sort.desc']()}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -364,12 +364,12 @@ function DelegationsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Código</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Chefe</TableHead>
-                <TableHead>Criada em</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                <TableHead>{m['delegations.public.table.code']()}</TableHead>
+                <TableHead>{m['delegations.public.table.name']()}</TableHead>
+                <TableHead>{m['common.status.active']()}</TableHead>
+                <TableHead>{m['roles.chief']()}</TableHead>
+                <TableHead>{m['common.table.createdAt']()}</TableHead>
+                <TableHead className="text-right">{m['competitions.public.table.actions']()}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -381,11 +381,11 @@ function DelegationsPage() {
                   <TableCell className="font-medium">{delegation.name}</TableCell>
                   <TableCell>
                     <Badge variant={delegation.is_active ? "secondary" : "outline"}>
-                      {delegation.is_active ? "Ativa" : "Inativa"}
+                      {delegation.is_active ? m['common.status.active']() : m['common.status.inactive']()}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {delegation.chief_id ? `Usuário #${delegation.chief_id}` : "Sem chefe"}
+                    {delegation.chief_id ? `User #${delegation.chief_id}` : m['delegation.stats.table.noChief']()}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {formatEventDate(delegation.created_at, { dateStyle: "medium" })}
@@ -401,8 +401,8 @@ function DelegationsPage() {
                             disabled={assignChiefMutation.isPending}
                           >
                             {assignChiefMutation.isPending && assignChiefMutation.variables === delegation.id
-                              ? "Atribuindo..."
-                              : "Tornar-me chefe"}
+                              ? m['delegation.stats.table.assigning']()
+                              : m['delegation.stats.table.becomeChief']()}
                           </Button>
                         )}
                         <Link
@@ -410,7 +410,7 @@ function DelegationsPage() {
                           params={{ leagueId, delegationId: String(delegation.id) }}
                           className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "ml-auto")}
                         >
-                          Abrir
+                          {m['common.actions.open']()}
                           <ArrowRight className="size-4" />
                         </Link>
                       </div>
@@ -424,7 +424,7 @@ function DelegationsPage() {
               {paginated.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
-                    Nenhuma delegação encontrada para os filtros atuais.
+                    {m['delegation.stats.table.emptyFiltered']()}
                   </TableCell>
                 </TableRow>
               ) : null}
@@ -433,7 +433,7 @@ function DelegationsPage() {
 
           <div className="flex flex-col gap-3 border-t border-border/70 pt-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
             <span>
-              Mostrando {paginated.length} de {filtered.length} delegações filtradas.
+              {m['common.table.paginationShow']() } {paginated.length} {m['common.table.paginationOf']() } {filtered.length} {m['delegations.public.title']() }
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -449,10 +449,10 @@ function DelegationsPage() {
                 }
                 disabled={currentPage === 1}
               >
-                Anterior
+                {m['common.actions.previous']()}
               </Button>
               <span className="min-w-28 text-center">
-                Página {currentPage} de {totalPages}
+                {currentPage} {m['common.table.paginationOf']() } {totalPages}
               </span>
               <Button
                 type="button"
@@ -467,7 +467,7 @@ function DelegationsPage() {
                 }
                 disabled={currentPage === totalPages}
               >
-                Próxima
+                {m['common.actions.next']()}
               </Button>
             </div>
           </div>

@@ -28,6 +28,7 @@ import {
   FunnelIcon,
 } from "lucide-react";
 
+import * as m from "@/paraglide/messages";
 import { formatDate, formatTime } from "@/shared/lib/date";
 import { allEventsQueryOptions } from "@/features/events/api/queries";
 import { competitionListQueryOptions } from "@/features/competitions/api/queries";
@@ -49,10 +50,10 @@ const STATUS_META: Record<
   EventStatus,
   { label: string; icon: typeof CheckIcon; cls: string }
 > = {
-  SCHEDULED: { label: "Agendado", icon: CircleIcon, cls: "text-muted-foreground" },
-  IN_PROGRESS: { label: "Em andamento", icon: CircleDotIcon, cls: "text-amber-500" },
-  COMPLETED: { label: "Concluído", icon: CheckIcon, cls: "text-emerald-500" },
-  CANCELLED: { label: "Cancelado", icon: CircleDashedIcon, cls: "text-destructive" },
+  SCHEDULED: { label: m['common.status.scheduled'](), icon: CircleIcon, cls: "text-muted-foreground" },
+  IN_PROGRESS: { label: m['common.status.live'](), icon: CircleDotIcon, cls: "text-amber-500" },
+  COMPLETED: { label: m['common.status.completed'](), icon: CheckIcon, cls: "text-emerald-500" },
+  CANCELLED: { label: m['common.status.cancelled'](), icon: CircleDashedIcon, cls: "text-destructive" },
 };
 
 function CalendarPage() {
@@ -165,11 +166,11 @@ function CalendarPage() {
 
   return (
     <TableLayout
-      title="Calendário"
+      title={m['calendar.public.title']()}
       countLabel="eventos"
       visibleCount={pagedData.length}
       totalCount={filteredData.length}
-      searchPlaceholder="Buscar eventos…"
+      searchPlaceholder={m['common.table.searchPlaceholder']()}
       searchQuery={searchQuery}
       onSearchChange={(value) => {
         setSearchQuery(value);
@@ -184,18 +185,18 @@ function CalendarPage() {
       filterActions={
         <>
           <FacetButton
-            label="Competição"
+            label={m['calendar.public.filter.competition']()}
             icon={<TrophyIcon className="size-3.5" />}
             count={selectedCompetitionIds.length}
             chips={selectedCompetitionIds.map((id) => {
               const c = competitions.find((x) => x.id === id);
-              return c ? `Comp. ${c.number}` : String(id);
+              return c ? m['competition.admin.badge.competition']({ "competition.number": c.number }) : String(id);
             })}
           >
             <div className="p-2">
               <div className="relative">
                 <input
-                  placeholder="Filtrar…"
+                  placeholder={m['calendar.public.filter.placeholder']()}
                   className="h-8 w-full rounded-md border border-input bg-background px-3 text-sm outline-none transition-shadow focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/24"
                 />
               </div>
@@ -211,7 +212,7 @@ function CalendarPage() {
                     checked={selectedCompetitionIds.includes(comp.id)}
                     onCheckedChange={() => toggleCompetition(comp.id)}
                   />
-                  <span className="flex-1">Competição {comp.number}</span>
+                  <span className="flex-1">{m['competition.admin.badge.competition']({ "competition.number": comp.number })}</span>
                   <span className="text-muted-foreground text-xs">
                     {competitionCounts[comp.id] ?? 0}
                   </span>
@@ -221,7 +222,7 @@ function CalendarPage() {
           </FacetButton>
 
           <FacetButton
-            label="Status"
+            label={m['calendar.public.filter.status']()}
             icon={<FunnelIcon className="size-3.5" />}
             count={selectedStatuses.length}
             chips={selectedStatuses.map((s) => STATUS_META[s].label)}
@@ -230,8 +231,8 @@ function CalendarPage() {
               {(
                 ["SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELLED"] as EventStatus[]
               ).map((status) => {
-                const m = STATUS_META[status];
-                const Icon = m.icon;
+                const meta = STATUS_META[status];
+                const Icon = meta.icon;
                 return (
                   <Label
                     key={status}
@@ -241,8 +242,8 @@ function CalendarPage() {
                       checked={selectedStatuses.includes(status)}
                       onCheckedChange={() => toggleStatus(status)}
                     />
-                    <Icon className={"size-3.5 " + m.cls} />
-                    <span className="flex-1">{m.label}</span>
+                    <Icon className={"size-3.5 " + meta.cls} />
+                    <span className="flex-1">{meta.label}</span>
                     <span className="text-muted-foreground text-xs">
                       {statusCounts[status] ?? 0}
                     </span>
@@ -257,12 +258,12 @@ function CalendarPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="ps-4 w-28">Data</TableHead>
-            <TableHead className="w-24">Horário</TableHead>
-            <TableHead>Local</TableHead>
-            <TableHead className="w-32">Fase</TableHead>
-            <TableHead className="w-36">Status</TableHead>
-            <TableHead className="pe-4 w-40">Competição</TableHead>
+            <TableHead className="ps-4 w-28">{m['calendar.public.table.date']()}</TableHead>
+            <TableHead className="w-24">{m['calendar.public.table.time']()}</TableHead>
+            <TableHead>{m['calendar.public.table.venue']()}</TableHead>
+            <TableHead className="w-32">{m['calendar.public.table.phase']()}</TableHead>
+            <TableHead className="w-36">{m['calendar.public.table.status']()}</TableHead>
+            <TableHead className="pe-4 w-40">{m['calendar.public.table.competition']()}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -272,12 +273,12 @@ function CalendarPage() {
                 colSpan={6}
                 className="h-24 text-center text-muted-foreground"
               >
-                Nenhum evento encontrado.
+                {m['calendar.public.empty']()}
               </TableCell>
             </TableRow>
           )}
           {pagedData.map((event) => {
-            const m = STATUS_META[event.status];
+            const meta = STATUS_META[event.status];
             const comp = competitions.find(
               (c) => c.id === event.competition_id,
             );
@@ -309,12 +310,12 @@ function CalendarPage() {
                             : "border-destructive/30 text-destructive")
                     }
                   >
-                    {m.label}
+                    {meta.label}
                   </Badge>
                 </TableCell>
                 <TableCell className="pe-4">
                   {comp
-                    ? `Competição ${comp.number}`
+                    ? m['competition.admin.badge.competition']({ "competition.number": comp.number })
                     : `ID ${event.competition_id}`}
                 </TableCell>
               </TableRow>

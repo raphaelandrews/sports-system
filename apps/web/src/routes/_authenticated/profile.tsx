@@ -13,6 +13,7 @@ import { sessionQueryOptions } from "@/features/auth/api/queries";
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { ImageUpload } from "@/shared/components/ui/image-upload";
 import { queryKeys } from "@/features/keys";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
@@ -40,7 +41,7 @@ function ProfilePage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.auth.session() });
       await router.invalidate();
-      toast.success("Perfil atualizado com sucesso.");
+      toast.success(m["common.actions.update"]());
     },
     onError: (err) => {
       if (err instanceof ApiError) {
@@ -80,7 +81,7 @@ function ProfilePage() {
               setPreviewAvatar(url);
               form.setFieldValue("avatar_url", url);
             }}
-            label="Foto de perfil"
+            label={m["profile.label.photo"]()}
             fallback={session.name.charAt(0)}
             endpoint="/upload/avatar"
             maxSizeMB={2}
@@ -97,12 +98,12 @@ function ProfilePage() {
               name="name"
               validators={{
                 onChange: ({ value }) =>
-                  !value.trim() ? "Nome é obrigatório" : undefined,
+                  !value.trim() ? m["auth.register.nameRequired"]() : undefined,
               }}
             >
               {(field) => (
                 <Field>
-                  <FieldLabel htmlFor="name">Nome</FieldLabel>
+                  <FieldLabel htmlFor="name">{m["profile.label.name"]()}</FieldLabel>
                   <Input
                     id="name"
                     value={field.state.value}
@@ -119,10 +120,10 @@ function ProfilePage() {
             <form.Field name="avatar_url">
               {(field) => (
                 <Field>
-                  <FieldLabel htmlFor="avatar_url">URL da imagem</FieldLabel>
+                  <FieldLabel htmlFor="avatar_url">{m["profile.label.avatarUrl"]()}</FieldLabel>
                   <Input
                     id="avatar_url"
-                    placeholder="https://..."
+                    placeholder={m["profile.placeholder.avatar"]()}
                     value={field.state.value}
                     onChange={(e) => {
                       field.handleChange(e.target.value);
@@ -135,7 +136,7 @@ function ProfilePage() {
             </form.Field>
 
             <div className="space-y-1">
-              <FieldLabel>E-mail</FieldLabel>
+              <FieldLabel>{m["profile.label.email"]()}</FieldLabel>
               <Input value={session.email} disabled />
               <p className="text-xs text-muted-foreground">O e-mail não pode ser alterado.</p>
             </div>
@@ -148,7 +149,7 @@ function ProfilePage() {
               <form.Subscribe selector={(s) => [s.isSubmitting, s.canSubmit]}>
                 {([isSubmitting, canSubmit]) => (
                   <Button type="submit" disabled={isSubmitting || !canSubmit}>
-                    {isSubmitting ? "Salvando..." : "Salvar alterações"}
+                    {isSubmitting ? m["common.actions.save"]() : m["common.actions.save"]()}
                   </Button>
                 )}
               </form.Subscribe>

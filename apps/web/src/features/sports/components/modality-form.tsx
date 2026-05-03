@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@sports-system/ui/components/select";
 
+import * as m from "@/paraglide/messages";
 import type { Gender, ModalityResponse } from "@/types/sports";
 
 type ModalityFormValues = {
@@ -82,7 +83,7 @@ export function ModalityForm({
           rules_json: parsed,
         });
       } catch {
-        setJsonError("JSON invalido. Revise chaves, aspas e virgulas.");
+        setJsonError(m['modality.form.error.json']());
       }
     },
   });
@@ -91,11 +92,11 @@ export function ModalityForm({
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <Card className="border border-border/70 bg-gradient-to-br from-card via-card to-muted/20">
         <CardHeader>
-          <CardTitle>{mode === "create" ? "Nova modalidade" : "Editar modalidade"}</CardTitle>
+          <CardTitle>{mode === "create" ? m['modality.form.title.create']() : m['modality.form.title.edit']()}</CardTitle>
           <CardDescription>
             {mode === "create"
-              ? `Cadastre uma nova modalidade para ${sportName}.`
-              : `Ajuste regras e metadados da modalidade em ${sportName}.`}
+              ? `${m['modality.form.desc.create']()} ${sportName}.`
+              : `${m['modality.form.desc.edit']()} ${sportName}.`}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -112,19 +113,19 @@ export function ModalityForm({
                 validators={{
                   onChange: ({ value }) =>
                     value.trim().length < 3
-                      ? { message: "Informe um nome com pelo menos 3 caracteres." }
+                      ? { message: m['modality.form.error.name']() }
                       : undefined,
                 }}
               >
                 {(field) => (
                   <Field>
-                    <FieldLabel htmlFor="modality-name">Nome</FieldLabel>
+                    <FieldLabel htmlFor="modality-name">{m['modality.form.label.name']()}</FieldLabel>
                     <Input
                       id="modality-name"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(event) => field.handleChange(event.target.value)}
-                      placeholder="Ex: 100m rasos"
+                      placeholder={m['modality.form.placeholder.name']()}
                     />
                     <FieldError errors={field.state.meta.errors} />
                   </Field>
@@ -134,7 +135,7 @@ export function ModalityForm({
               <form.Field name="gender">
                 {(field) => (
                   <Field>
-                    <FieldLabel htmlFor="modality-gender">Genero</FieldLabel>
+                    <FieldLabel htmlFor="modality-gender">{m['modality.form.label.gender']()}</FieldLabel>
                     <Select
                       value={field.state.value}
                       onValueChange={(value) => field.handleChange(value as Gender)}
@@ -143,9 +144,9 @@ export function ModalityForm({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="M">Masculino</SelectItem>
-                        <SelectItem value="F">Feminino</SelectItem>
-                        <SelectItem value="MIXED">Misto</SelectItem>
+                        <SelectItem value="M">{m['modality.form.gender.male']()}</SelectItem>
+                        <SelectItem value="F">{m['modality.form.gender.female']()}</SelectItem>
+                        <SelectItem value="MIXED">{m['modality.form.gender.mixed']()}</SelectItem>
                       </SelectContent>
                     </Select>
                   </Field>
@@ -155,16 +156,16 @@ export function ModalityForm({
               <form.Field name="category">
                 {(field) => (
                   <Field>
-                    <FieldLabel htmlFor="modality-category">Categoria</FieldLabel>
+                    <FieldLabel htmlFor="modality-category">{m['modality.form.label.category']()}</FieldLabel>
                     <Input
                       id="modality-category"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(event) => field.handleChange(event.target.value)}
-                      placeholder="Opcional"
+                      placeholder={m['modality.form.placeholder.category']()}
                     />
                     <FieldDescription>
-                      Use para faixa etaria, peso ou divisao tecnica.
+                      {m['modality.form.desc.category']()}
                     </FieldDescription>
                   </Field>
                 )}
@@ -173,7 +174,7 @@ export function ModalityForm({
               <form.Field name="rules_json_text">
                 {(field) => (
                   <Field>
-                    <FieldLabel htmlFor="modality-rules">Rules JSON</FieldLabel>
+                    <FieldLabel htmlFor="modality-rules">{m['modality.form.label.rules']()}</FieldLabel>
                     <textarea
                       id="modality-rules"
                       className="min-h-64 w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
@@ -182,7 +183,7 @@ export function ModalityForm({
                       onChange={(event) => field.handleChange(event.target.value)}
                     />
                     <FieldDescription>
-                      Exemplo:{" "}
+                      {m['modality.form.rulesExamplePrefix']()}{" "}
                       {`{"max_athletes": 12, "substitutes": 6, "gender": "M", "schedule_conflict_check": true}`}
                     </FieldDescription>
                   </Field>
@@ -192,14 +193,14 @@ export function ModalityForm({
 
             {jsonError ? (
               <Alert variant="destructive">
-                <AlertTitle>Rules JSON invalido</AlertTitle>
+                <AlertTitle>{m['modality.form.alert.jsonTitle']()}</AlertTitle>
                 <AlertDescription>{jsonError}</AlertDescription>
               </Alert>
             ) : null}
 
             {errorMessage ? (
               <Alert variant="destructive">
-                <AlertTitle>Nao foi possivel salvar</AlertTitle>
+                <AlertTitle>{m['modality.form.alert.saveTitle']()}</AlertTitle>
                 <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
             ) : null}
@@ -208,18 +209,18 @@ export function ModalityForm({
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting
                   ? mode === "create"
-                    ? "Criando..."
-                    : "Salvando..."
+                    ? m['modality.form.submitting.create']()
+                    : m['modality.form.submitting.edit']()
                   : mode === "create"
-                    ? "Criar modalidade"
-                    : "Salvar alterações"}
+                    ? m['modality.form.submit.create']()
+                    : m['modality.form.submit.edit']()}
               </Button>
               <Link
                 to="/leagues/$leagueId/dashboard/sports/$sportId"
                 params={{ leagueId: String(leagueId), sportId: String(sportId) }}
                 className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
-                Cancelar e voltar
+                {m['modality.form.cancel']()}
               </Link>
             </div>
           </form>

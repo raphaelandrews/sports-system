@@ -23,6 +23,7 @@ import { Title } from "@/shared/components/ui/title";
 import { medalBoardQueryOptions } from "@/features/results/api/queries";
 import { sportListQueryOptions } from "@/features/sports/api/queries";
 import type { MedalBoardEntry } from "@/types/results";
+import * as m from "@/paraglide/messages";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/results/")({
   loader: ({ context: { queryClient }, params: { leagueId } }) =>
@@ -62,26 +63,26 @@ function ResultsPage() {
 
   return (
     <div className="container mx-auto max-w-6xl space-y-8 px-4 py-8">
-      <Title title="Resultados" />
+      <Title title={m["results.public.title"]()} />
       <section className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr]">
         <Card className="border border-border/70 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_42%),linear-gradient(180deg,hsl(var(--card)),hsl(var(--muted)/0.18))]">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">Atualiza a cada 30s</Badge>
+              <Badge variant="secondary">{m["results.public.badge.refresh"]()}</Badge>
             </div>
-            <CardTitle className="text-3xl">Quadro de medalhas</CardTitle>
+            <CardTitle className="text-3xl">{m["results.public.card.title"]()}</CardTitle>
             <CardDescription className="max-w-2xl">
-              Painel público da competição com ranking geral das delegações.
+              m["results.public.section.medalBoard"]()
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-3">
-            <QuickPill label="Delegações no ranking" value={String(data.length)} />
+            <QuickPill label={m["results.public.pill.ranking"]()} value={String(data.length)} />
             <QuickPill
-              label="Ouros distribuídos"
+              label={m["results.public.pill.golds"]()}
               value={String(data.reduce((sum, entry) => sum + entry.gold, 0))}
             />
             <QuickPill
-              label="Medalhas totais"
+              label={m["results.public.pill.total"]()}
               value={String(data.reduce((sum, entry) => sum + entry.total, 0))}
             />
           </CardContent>
@@ -89,7 +90,7 @@ function ResultsPage() {
 
         <Card className="border border-border/70">
           <CardHeader>
-            <CardTitle>Navegação</CardTitle>
+            <CardTitle>{m["results.public.card.nav.title"]()}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Link
@@ -97,7 +98,7 @@ function ResultsPage() {
               params={{ leagueId }}
               className="block text-sm text-muted-foreground hover:text-foreground hover:underline"
             >
-              Ver recordes e melhores marcas
+              m["results.records.title"]()
             </Link>
             {sports.data.slice(0, 6).map((sport) => (
               <Link
@@ -114,11 +115,11 @@ function ResultsPage() {
       </section>
 
       <TableLayout
-        title="Quadro de medalhas"
-        countLabel="delegações"
+        title={m["results.public.card.title"]()}
+        countLabel={m["delegations.public.title"]()}
         visibleCount={pagedData.length}
         totalCount={filteredData.length}
-        searchPlaceholder="Buscar delegações…"
+        searchPlaceholder={m["common.table.searchPlaceholder"]()}
         searchQuery={searchQuery}
         onSearchChange={(value) => {
           setSearchQuery(value);
@@ -146,11 +147,11 @@ function MedalBoardTable({ entries }: { entries: MedalBoardEntry[] }) {
       <TableHeader>
         <TableRow>
           <TableHead className="ps-4 w-14">#</TableHead>
-          <TableHead>Delegação</TableHead>
+          <TableHead>{m["results.public.table.delegation"]()}</TableHead>
           <TableHead className="text-center">🥇</TableHead>
           <TableHead className="text-center">🥈</TableHead>
           <TableHead className="text-center">🥉</TableHead>
-          <TableHead className="pe-4 text-center">Total</TableHead>
+          <TableHead className="pe-4 text-center">{m["competition.detail.table.total"]()}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -177,7 +178,7 @@ function MedalBoardTable({ entries }: { entries: MedalBoardEntry[] }) {
         {entries.length === 0 && (
           <TableRow>
             <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-              Nenhuma medalha registrada ainda.
+              {m["results.public.empty"]()}
             </TableCell>
           </TableRow>
         )}

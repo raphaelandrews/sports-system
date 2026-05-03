@@ -7,6 +7,7 @@ import {
 	useSidebar,
 } from "@sports-system/ui/components/sidebar";
 
+import * as m from "@/paraglide/messages";
 import {
 	buildMembershipNav,
 	buildPrimaryNav,
@@ -59,13 +60,13 @@ export function AppSidebar({
 
 	const mainItems = [
 		{
-			title: "Início",
+			title: m['sidebar.home'](),
 			url: "/",
 			icon: Home,
 			isActive: pathname === "/",
 		},
 		{
-			title: "Ligas",
+			title: m['sidebar.leagues'](),
 			url: "/leagues",
 			icon: Trophy,
 			isActive: pathname === "/leagues" || pathname.startsWith("/leagues?"),
@@ -73,19 +74,19 @@ export function AppSidebar({
 		...(session
 			? [
 					{
-						title: "Minhas ligas",
+						title: m['sidebar.myLeagues'](),
 						url: "/my-leagues",
 						icon: Shield,
 						isActive: pathname === "/my-leagues" || pathname.startsWith("/my-leagues?"),
 					},
 					{
-						title: "Minhas delegações",
+						title: m['sidebar.myDelegations'](),
 						url: "/my-delegations",
 						icon: Users,
 						isActive: pathname === "/my-delegations" || pathname.startsWith("/my-delegations?"),
 					},
 					{
-						title: "Criar liga",
+						title: m['sidebar.createLeague'](),
 						url: "/leagues/new",
 						icon: PlusCircle,
 						isActive: pathname === "/leagues/new",

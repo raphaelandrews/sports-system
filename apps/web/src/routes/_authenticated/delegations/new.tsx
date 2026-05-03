@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
+import * as m from "@/paraglide/messages";
 import { AdminDelegationForm } from "@/features/delegations/components/admin-delegation-form";
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 
@@ -27,17 +28,17 @@ function NewDelegationPage() {
       ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["delegations", "my"] });
-      toast.success("Delegação criada com sucesso.");
+      toast.success(m['common.actions.create']());
       await navigate({ to: "/my-delegations" });
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : "Falha ao criar delegação.");
+      toast.error(error instanceof ApiError ? error.message : m['delegation.form.alert.error']());
     },
   });
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6">Nova delegação</h1>
+      <h1 className="text-2xl font-bold mb-6">{m['delegation.new.title']()}</h1>
       <AdminDelegationForm
         mode="create"
         leagueId={0}

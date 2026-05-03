@@ -6,6 +6,7 @@ import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import * as m from "@/paraglide/messages";
 import { AuthCard } from "@/features/auth/components/auth-card";
 import { registerFn } from "@/features/auth/server/auth";
 
@@ -40,13 +41,13 @@ export function RegisterForm() {
 
   return (
     <AuthCard
-      title="Criar conta"
-      subtitle="Preencha os dados para se cadastrar"
+      title={m['register_title']()}
+      subtitle={m['auth.register.subtitle']()}
       switchText={
         <>
-          Já tem conta?{" "}
+          {m['auth.register.hasAccount']()}{" "}
           <a href="/login" className="underline underline-offset-4 hover:text-foreground">
-            Entrar
+            {m['auth.register.loginLink']()}
           </a>
         </>
       }
@@ -58,16 +59,16 @@ export function RegisterForm() {
       <form.Field
         name="name"
         validators={{
-          onChange: ({ value }) => (!value.trim() ? "Nome obrigatório" : undefined),
+          onChange: ({ value }) => (!value.trim() ? m['auth.register.nameRequired']() : undefined),
         }}
       >
         {(field) => (
           <Field>
-            <FieldLabel htmlFor="name">Nome</FieldLabel>
+            <FieldLabel htmlFor="name">{m['register_name']()}</FieldLabel>
             <Input
               id="name"
               type="text"
-              placeholder="John Doe"
+              placeholder={m['auth.register.namePlaceholder']()}
               autoComplete="name"
               value={field.state.value}
               onChange={(e) => field.handleChange(e.target.value)}
@@ -84,19 +85,19 @@ export function RegisterForm() {
         name="email"
         validators={{
           onChange: ({ value }) => {
-            if (!value.trim()) return "E-mail obrigatório";
-            if (!value.includes("@")) return "E-mail inválido";
+            if (!value.trim()) return m['auth.register.emailRequired']();
+            if (!value.includes("@")) return m['auth.register.emailInvalid']();
             return undefined;
           },
         }}
       >
         {(field) => (
           <Field>
-            <FieldLabel htmlFor="email">E-mail</FieldLabel>
+            <FieldLabel htmlFor="email">{m['login_email']()}</FieldLabel>
             <Input
               id="email"
               type="email"
-              placeholder="sportshub@email.com"
+              placeholder={m['auth.register.emailPlaceholder']()}
               autoComplete="email"
               value={field.state.value}
               onChange={(e) => field.handleChange(e.target.value)}
@@ -114,7 +115,7 @@ export function RegisterForm() {
         validators={{
           onChange: ({ value }) => {
             if (value.length < 8 || !/[A-Z]/.test(value) || !/[^a-zA-Z0-9]/.test(value))
-              return "invalid";
+              return m['auth.register.passwordInvalid']();
             return undefined;
           },
         }}
@@ -123,13 +124,13 @@ export function RegisterForm() {
           const v = field.state.value;
           const touched = field.state.meta.isTouched;
           const rules = [
-            { label: "Mínimo 8 caracteres", ok: v.length >= 8 },
-            { label: "Ao menos uma letra maiúscula", ok: /[A-Z]/.test(v) },
-            { label: "Ao menos um símbolo", ok: /[^a-zA-Z0-9]/.test(v) },
+            { label: m['auth.register.ruleMin8'](), ok: v.length >= 8 },
+            { label: m['auth.register.ruleUppercase'](), ok: /[A-Z]/.test(v) },
+            { label: m['auth.register.ruleSymbol'](), ok: /[^a-zA-Z0-9]/.test(v) },
           ];
           return (
             <Field>
-              <FieldLabel htmlFor="password">Senha</FieldLabel>
+              <FieldLabel htmlFor="password">{m['auth.register.passwordLabel']()}</FieldLabel>
               <Input
                 id="password"
                 type="password"
@@ -162,15 +163,15 @@ export function RegisterForm() {
           onChangeListenTo: ["password"],
           onChange: ({ value, fieldApi }) => {
             const password = fieldApi.form.getFieldValue("password");
-            if (!value) return "Confirme a senha";
-            if (value !== password) return "As senhas não coincidem";
+            if (!value) return m['auth.register.confirmPasswordRequired']();
+            if (value !== password) return m['auth.register.passwordMismatch']();
             return undefined;
           },
         }}
       >
         {(field) => (
           <Field>
-            <FieldLabel htmlFor="confirmPassword">Confirmar senha</FieldLabel>
+            <FieldLabel htmlFor="confirmPassword">{m['auth.register.confirmPasswordLabel']()}</FieldLabel>
             <Input
               id="confirmPassword"
               type="password"
@@ -192,7 +193,7 @@ export function RegisterForm() {
         <form.Subscribe selector={(s) => s.isSubmitting}>
           {(isSubmitting) => (
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Cadastrando..." : "Criar conta"}
+              {isSubmitting ? m['auth.register.submitting']() : m['register_submit']()}
             </Button>
           )}
         </form.Subscribe>

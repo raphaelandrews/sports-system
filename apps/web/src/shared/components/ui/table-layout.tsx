@@ -8,6 +8,7 @@ import {
 } from "@sports-system/ui/components/input-group";
 import { Separator } from "@sports-system/ui/components/separator";
 import { SearchIcon, XIcon } from "lucide-react";
+import * as m from "@/paraglide/messages";
 
 interface TableLayoutProps {
   title?: string;
@@ -31,7 +32,7 @@ interface TableLayoutProps {
 
 export function TableLayout({
   totalCount,
-  searchPlaceholder = "Buscar…",
+  searchPlaceholder = m['common.table.searchPlaceholder'](),
   searchQuery,
   onSearchChange,
   headerActions,
@@ -70,8 +71,8 @@ export function TableLayout({
             {searchQuery.length > 0 && (
               <InputGroupAddon align="inline-end">
                 <InputGroupButton
-                  aria-label="Limpar"
-                  title="Limpar"
+                  aria-label={m["common.actions.clearAria"]()}
+                  title={m["common.actions.clearTitle"]()}
                   size="icon-xs"
                   onClick={() => onSearchChange("")}
                 >
@@ -96,7 +97,7 @@ export function TableLayout({
               onClick={onClearFilters}
             >
               <XIcon className="size-3.5 mr-1" />
-              Limpar filtros
+              {m["common.actions.clearFilters"]()}
             </Button>
           ) : null}
 
