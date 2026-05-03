@@ -4,6 +4,7 @@ export const queryKeys = {
   },
   delegations: {
     all: (leagueId: number) => ["delegations", leagueId] as const,
+    my: () => ["delegations", "my"] as const,
     detail: (leagueId: number, id: number) => ["delegations", leagueId, id] as const,
     statistics: (leagueId: number, id: number) =>
       ["delegations", leagueId, id, "statistics"] as const,

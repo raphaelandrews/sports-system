@@ -39,11 +39,16 @@ async def get_final_report(
     medal_board = await result_service.get_medal_board(session, league_id)
     records = await result_service.get_records(session, league_id)
 
+    from app.domain.models.league_delegation import LeagueDelegation
+
     total_delegations = (
         await session.execute(
             select(func.count())
             .select_from(Delegation)
-            .where(Delegation.league_id == league_id, Delegation.is_active == True)
+            .join(LeagueDelegation, LeagueDelegation.delegation_id == Delegation.id)
+            .where(
+                LeagueDelegation.league_id == league_id, Delegation.is_active == True
+            )
         )
     ).scalar_one()  # noqa: E712
     total_athletes = (

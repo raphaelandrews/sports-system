@@ -52,7 +52,9 @@ async def list_all(
         q = q.where(Enrollment.delegation_id == delegation_id)
     total_result = await session.execute(select(func.count()).select_from(q.subquery()))
     total = total_result.scalar_one()
-    result = await session.execute(q.order_by(Enrollment.created_at.desc()).offset(offset).limit(limit))
+    result = await session.execute(
+        q.order_by(Enrollment.created_at.desc()).offset(offset).limit(limit)
+    )
     return list(result.scalars().all()), total
 
 
@@ -80,7 +82,9 @@ async def list_by_delegation(
         q = q.where(Enrollment.status == status)
     total_result = await session.execute(select(func.count()).select_from(q.subquery()))
     total = total_result.scalar_one()
-    result = await session.execute(q.order_by(Enrollment.created_at.desc()).offset(offset).limit(limit))
+    result = await session.execute(
+        q.order_by(Enrollment.created_at.desc()).offset(offset).limit(limit)
+    )
     return list(result.scalars().all()), total
 
 
@@ -114,10 +118,14 @@ async def get_by_athlete_and_event(
 async def delegation_in_league(
     session: AsyncSession, league_id: int, delegation_id: int
 ) -> bool:
+    from app.domain.models.league_delegation import LeagueDelegation
+
     result = await session.execute(
-        select(Delegation.id).where(
+        select(Delegation.id)
+        .join(LeagueDelegation, LeagueDelegation.delegation_id == Delegation.id)
+        .where(
             Delegation.id == delegation_id,
-            Delegation.league_id == league_id,
+            LeagueDelegation.league_id == league_id,
         )
     )
     return result.scalar_one_or_none() is not None
@@ -130,7 +138,9 @@ async def count_by_event_and_delegation(
     statuses: list[EnrollmentStatus],
 ) -> int:
     result = await session.execute(
-        select(func.count()).select_from(Enrollment).where(
+        select(func.count())
+        .select_from(Enrollment)
+        .where(
             Enrollment.event_id == event_id,
             Enrollment.delegation_id == delegation_id,
             Enrollment.status.in_(statuses),
@@ -159,7 +169,9 @@ async def get_athlete_conflicting_enrollment(
         select(Enrollment).where(
             Enrollment.athlete_id == athlete_id,
             Enrollment.event_id.in_(conflicting_event_ids),
-            Enrollment.status.in_([EnrollmentStatus.PENDING, EnrollmentStatus.APPROVED]),
+            Enrollment.status.in_(
+                [EnrollmentStatus.PENDING, EnrollmentStatus.APPROVED]
+            ),
         )
     )
     return result.scalar_one_or_none()

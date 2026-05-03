@@ -17,7 +17,7 @@ import type { Session } from "@/types/auth";
 import type { LeagueMemberResponse, LeagueResponse } from "@/types/leagues";
 
 import { NavGroup } from "./nav-group";
-import { Home, Trophy, SquareDotIcon, Shield, PlusCircle } from "lucide-react";
+import { Home, Trophy, SquareDotIcon, Shield, PlusCircle, Users } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
@@ -77,6 +77,12 @@ export function AppSidebar({
 						url: "/my-leagues",
 						icon: Shield,
 						isActive: pathname === "/my-leagues" || pathname.startsWith("/my-leagues?"),
+					},
+					{
+						title: "Minhas delegações",
+						url: "/my-delegations",
+						icon: Users,
+						isActive: pathname === "/my-delegations" || pathname.startsWith("/my-delegations?"),
 					},
 					{
 						title: "Criar liga",

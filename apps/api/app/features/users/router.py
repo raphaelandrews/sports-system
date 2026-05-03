@@ -57,6 +57,26 @@ async def upload_avatar(
     return {"url": url}
 
 
+@router.post("/upload/image", response_model=dict[str, str])
+async def upload_image(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+) -> dict[str, str]:
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    content = await file.read()
+    if len(content) > 2 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Image must be under 2MB")
+    try:
+        url = upload_file(content, file.content_type, folder="images")
+    except Exception as exc:
+        import logging
+
+        logging.getLogger(__name__).exception("Upload failed")
+        raise HTTPException(status_code=500, detail=f"Upload failed: {exc}")
+    return {"url": url}
+
+
 @router.get("/users/search", response_model=list[UserSearchResponse])
 async def search_users(
     q: str = Query(..., min_length=2),

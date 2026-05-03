@@ -2,6 +2,29 @@ import { queryOptions } from "@tanstack/react-query";
 
 import { client, unwrap } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
+import type { DelegationResponse } from "@/types/delegations";
+
+export const myDelegationsQueryOptions = () =>
+  queryOptions({
+    queryKey: queryKeys.delegations.my(),
+    queryFn: () =>
+      unwrap(
+        (client as any).GET("/delegations/my/list"),
+      ) as Promise<DelegationResponse[]>,
+    staleTime: 2 * 60 * 1000,
+  });
+
+export const participationRequestsQueryOptions = (leagueId: number) =>
+  queryOptions({
+    queryKey: ["participation-requests", leagueId],
+    queryFn: () =>
+      unwrap(
+        (client as any).GET("/leagues/{league_id}/participation-requests", {
+          params: { path: { league_id: leagueId } },
+        }),
+      ) as Promise<any[]>,
+    staleTime: 30 * 1000,
+  });
 
 export const delegationListQueryOptions = (leagueId: number) =>
   queryOptions({

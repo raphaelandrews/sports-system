@@ -17,6 +17,7 @@ import {
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { queryKeys } from "@/features/keys";
 import { sportListQueryOptions } from "@/features/sports/api/queries";
+import { ImageUpload } from "@/shared/components/ui/image-upload";
 import type { LeagueResponse } from "@/types/leagues";
 import { Badge } from "@sports-system/ui/components/badge";
 import { Title } from "@/shared/components/ui/title";
@@ -41,6 +42,7 @@ function NewLeaguePage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
   const [timezone, setTimezone] = useState("America/Sao_Paulo");
   const [selectedSports, setSelectedSports] = useState<number[]>([]);
   const [transferWindow, setTransferWindow] = useState(false);
@@ -50,6 +52,7 @@ function NewLeaguePage() {
       name: string;
       slug: string;
       description: string;
+      logo_url?: string;
       timezone: string;
       sports_config: number[];
       transfer_window_enabled: boolean;
@@ -73,6 +76,7 @@ function NewLeaguePage() {
       name,
       slug,
       description,
+      ...(logoUrl.trim() ? { logo_url: logoUrl.trim() } : {}),
       timezone,
       sports_config: selectedSports,
       transfer_window_enabled: transferWindow,
@@ -123,6 +127,15 @@ function NewLeaguePage() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="flex min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/24 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50"
+        />
+      </div>
+
+      <div className="mt-4">
+        <ImageUpload
+          value={logoUrl}
+          onChange={setLogoUrl}
+          label="Logo da liga"
+          fallback={name.charAt(0) || "?"}
         />
       </div>
 

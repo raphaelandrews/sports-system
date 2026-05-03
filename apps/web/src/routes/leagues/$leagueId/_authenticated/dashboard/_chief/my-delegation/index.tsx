@@ -10,7 +10,7 @@ import {
 } from "@sports-system/ui/components/card";
 import { buttonVariants } from "@sports-system/ui/components/button";
 import { cn } from "@sports-system/ui/lib/utils";
-import { CalendarDays, ShieldCheck, UserPlus, Users } from "lucide-react";
+import { CalendarDays, Pencil, ShieldCheck, UserPlus, Users } from "lucide-react";
 
 import {
   ChiefDelegationShell,
@@ -159,6 +159,14 @@ function MyDelegationOverviewPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
+            <Link
+              to="/leagues/$leagueId/dashboard/my-delegation/edit"
+              params={{ leagueId }}
+              className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}
+            >
+              <Pencil className="mr-2 size-4" />
+              Editar informações
+            </Link>
             <Link
               to="/leagues/$leagueId/dashboard/my-delegation/members"
               params={{ leagueId }}

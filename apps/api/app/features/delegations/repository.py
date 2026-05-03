@@ -12,33 +12,46 @@ from app.domain.models.event import Event, Match, MatchParticipant, MatchStatus
 from app.domain.models.result import Medal, Result
 from app.domain.models.competition import Competition
 from app.domain.models.user import User
+from app.domain.models.league_delegation import LeagueDelegation
 
 
 async def get_by_id(session: AsyncSession, delegation_id: int) -> Delegation | None:
     return await session.get(Delegation, delegation_id)
 
 
+async def get_by_chief(session: AsyncSession, chief_id: int) -> list[Delegation]:
+    result = await session.execute(
+        select(Delegation)
+        .where(
+            Delegation.chief_id == chief_id,
+            Delegation.is_active == True,  # noqa: E712
+        )
+        .order_by(Delegation.name)
+    )
+    return list(result.scalars().all())
+
+
 async def get_by_id_in_league(
     session: AsyncSession, league_id: int, delegation_id: int
 ) -> Delegation | None:
     result = await session.execute(
-        select(Delegation).where(
+        select(Delegation)
+        .join(LeagueDelegation, LeagueDelegation.delegation_id == Delegation.id)
+        .where(
             Delegation.id == delegation_id,
-            Delegation.league_id == league_id,
+            LeagueDelegation.league_id == league_id,
         )
     )
     return result.scalar_one_or_none()
 
 
 async def get_by_code(
-    session: AsyncSession, league_id: int, code: str
+    session: AsyncSession, code: str, league_id: int | None = None
 ) -> Delegation | None:
-    result = await session.execute(
-        select(Delegation).where(
-            Delegation.league_id == league_id,
-            Delegation.code == code,
-        )
-    )
+    where_clause = [Delegation.code == code]
+    if league_id is not None:
+        where_clause.append(Delegation.league_id == league_id)
+    result = await session.execute(select(Delegation).where(*where_clause))
     return result.scalar_one_or_none()
 
 
@@ -49,20 +62,22 @@ async def search(
     league_id: int | None = None,
 ) -> list[Delegation]:
     pattern = f"%{query.strip()}%"
-    where_clause = [
-        or_(
-            Delegation.name.ilike(pattern),
-            Delegation.code.ilike(pattern),
-        )
-    ]
-    if league_id is not None:
-        where_clause.append(Delegation.league_id == league_id)
-    result = await session.execute(
+    stmt = (
         select(Delegation)
-        .where(*where_clause)
+        .where(
+            or_(
+                Delegation.name.ilike(pattern),
+                Delegation.code.ilike(pattern),
+            )
+        )
         .order_by(Delegation.name.asc())
         .limit(limit)
     )
+    if league_id is not None:
+        stmt = stmt.join(
+            LeagueDelegation, LeagueDelegation.delegation_id == Delegation.id
+        ).where(LeagueDelegation.league_id == league_id)
+    result = await session.execute(stmt)
     return list(result.scalars().all())
 
 
@@ -73,16 +88,18 @@ async def list_active(
     count_result = await session.execute(
         select(func.count())
         .select_from(Delegation)
+        .join(LeagueDelegation, LeagueDelegation.delegation_id == Delegation.id)
         .where(
-            Delegation.league_id == league_id,
+            LeagueDelegation.league_id == league_id,
             Delegation.is_active == True,  # noqa: E712
         )
     )
     total = count_result.scalar_one()
     result = await session.execute(
         select(Delegation)
+        .join(LeagueDelegation, LeagueDelegation.delegation_id == Delegation.id)
         .where(Delegation.is_active == True)  # noqa: E712
-        .where(Delegation.league_id == league_id)
+        .where(LeagueDelegation.league_id == league_id)
         .order_by(Delegation.name)
         .offset(offset)
         .limit(per_page)
@@ -135,10 +152,11 @@ async def get_active_membership(
     result = await session.execute(
         select(DelegationMember)
         .join(Delegation, Delegation.id == DelegationMember.delegation_id)
+        .join(LeagueDelegation, LeagueDelegation.delegation_id == Delegation.id)
         .where(
             DelegationMember.user_id == user_id,
             DelegationMember.left_at == None,  # noqa: E711
-            Delegation.league_id == league_id,
+            LeagueDelegation.league_id == league_id,
         )
     )
     return result.scalar_one_or_none()
@@ -466,3 +484,58 @@ async def get_weekly_performance(
         }
         for row in result.all()
     ]
+
+
+async def create_participation_request(session: AsyncSession, request) -> None:
+    session.add(request)
+    await session.flush()
+    await session.refresh(request)
+
+
+async def get_participation_request_by_id(session: AsyncSession, request_id: int):
+    from app.domain.models.delegation import LeagueParticipationRequest
+
+    result = await session.execute(
+        select(LeagueParticipationRequest).where(
+            LeagueParticipationRequest.id == request_id
+        )
+    )
+    return result.scalar_one_or_none()
+
+
+async def list_participation_requests_for_league(session: AsyncSession, league_id: int):
+    from app.domain.models.delegation import LeagueParticipationRequest
+
+    result = await session.execute(
+        select(LeagueParticipationRequest)
+        .where(LeagueParticipationRequest.league_id == league_id)
+        .order_by(LeagueParticipationRequest.created_at.desc())
+    )
+    return result.scalars().all()
+
+
+async def list_participation_requests_for_delegation(
+    session: AsyncSession, delegation_id: int
+):
+    from app.domain.models.delegation import LeagueParticipationRequest
+
+    result = await session.execute(
+        select(LeagueParticipationRequest)
+        .where(LeagueParticipationRequest.delegation_id == delegation_id)
+        .order_by(LeagueParticipationRequest.created_at.desc())
+    )
+    return result.scalars().all()
+
+
+async def get_league_delegation(
+    session: AsyncSession, league_id: int, delegation_id: int
+):
+    from app.domain.models.league_delegation import LeagueDelegation
+
+    result = await session.execute(
+        select(LeagueDelegation).where(
+            LeagueDelegation.league_id == league_id,
+            LeagueDelegation.delegation_id == delegation_id,
+        )
+    )
+    return result.scalar_one_or_none()

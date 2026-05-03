@@ -1,9 +1,11 @@
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { Badge } from "@sports-system/ui/components/badge";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@sports-system/ui/components/avatar";
+import { buttonVariants } from "@sports-system/ui/components/button";
 import {
   Card,
   CardContent,
@@ -19,8 +21,9 @@ import {
   TableHeader,
   TableRow,
 } from "@sports-system/ui/components/table";
+import { cn } from "@sports-system/ui/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { Pencil } from "lucide-react";
 
 import { DelegationStatisticsPanel } from "@/features/delegations/components/delegation-statistics-panel";
 import { formatDate } from "@/shared/lib/date";
@@ -44,6 +47,7 @@ export const Route = createFileRoute("/leagues/$leagueId/(public)/delegations/$d
 });
 
 function DelegationDetailPage() {
+  const { session } = Route.useRouteContext();
   const { leagueId, delegationId } = Route.useParams();
   const numericLeagueId = Number(leagueId);
   const numericDelegationId = Number(delegationId);
@@ -56,6 +60,12 @@ function DelegationDetailPage() {
 
   const activeMembers = data.members.filter((m) => !m.left_at);
   const formerMembers = data.members.filter((m) => m.left_at);
+
+  const isChief = session
+    ? activeMembers.some(
+        (m) => m.user_id === session.id && m.role === "CHIEF",
+      )
+    : false;
 
   return (
     <div className="container mx-auto max-w-6xl space-y-8 px-4 py-6">
@@ -75,7 +85,22 @@ function DelegationDetailPage() {
                   {data.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
-              <CardTitle className="text-3xl font-semibold">{data.name}</CardTitle>
+              <div className="flex-1">
+                <CardTitle className="text-3xl font-semibold">{data.name}</CardTitle>
+                {isChief && (
+                  <Link
+                    to="/leagues/$leagueId/dashboard/my-delegation/edit"
+                    params={{ leagueId }}
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "sm" }),
+                      "mt-2 inline-flex",
+                    )}
+                  >
+                    <Pencil className="mr-2 size-4" />
+                    Editar informações
+                  </Link>
+                )}
+              </div>
             </div>
             <CardDescription className="max-w-2xl">
               Perfil publico da delegacao com quadro completo de atletas, medalhas e recorte

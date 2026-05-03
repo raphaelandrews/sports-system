@@ -38,6 +38,7 @@ import {
   leagueMembersQueryOptions,
 } from "@/features/leagues/api/queries";
 import { sportListQueryOptions } from "@/features/sports/api/queries";
+import { ImageUpload } from "@/shared/components/ui/image-upload";
 import { TableLayout } from "@/shared/components/ui/table-layout";
 import type { LeagueMemberRole } from "@/types/leagues";
 
@@ -65,6 +66,7 @@ function LeagueSettingsPage() {
   const [name, setName] = useState(league.name);
   const [slug, setSlug] = useState(league.slug);
   const [description, setDescription] = useState(league.description ?? "");
+  const [logoUrl, setLogoUrl] = useState(league.logo_url ?? "");
   const [timezone, setTimezone] = useState(league.timezone);
   const [selectedSports, setSelectedSports] = useState<number[]>(league.sports_config);
   const [transferWindow, setTransferWindow] = useState(league.transfer_window_enabled);
@@ -93,6 +95,7 @@ function LeagueSettingsPage() {
       name: string;
       slug: string;
       description: string;
+      logo_url?: string;
       timezone: string;
       sports_config: number[];
       transfer_window_enabled: boolean;
@@ -170,6 +173,7 @@ function LeagueSettingsPage() {
       name,
       slug,
       description,
+      logo_url: logoUrl.trim() || undefined,
       timezone,
       sports_config: selectedSports,
       transfer_window_enabled: transferWindow,
@@ -204,6 +208,12 @@ function LeagueSettingsPage() {
                 className="flex min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
+            <ImageUpload
+              value={logoUrl}
+              onChange={setLogoUrl}
+              label="Logo da liga"
+              fallback={name.charAt(0) || "?"}
+            />
             <div className="space-y-2">
               <Label htmlFor="timezone">Fuso horário</Label>
               <Select value={timezone} onValueChange={(v) => v && setTimezone(v)}>

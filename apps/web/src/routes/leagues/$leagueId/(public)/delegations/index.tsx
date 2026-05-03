@@ -55,18 +55,8 @@ function DelegationsPage() {
 
   return (
     <>
-      <div className="flex items-center justify-between gap-4 mb-4">
-        <Title title="Delegações"/>
-        {session ? (
-          <Link
-            to="/leagues/$leagueId/dashboard/delegations/new"
-            params={{ leagueId }}
-            className={cn(buttonVariants({ variant: "default", size: "sm" }))}
-          >
-            Nova delegação
-          </Link>
-        ) : null}
-      </div>
+      <Title title="Delegações" />
+
       <TableLayout
         title="Delegações"
         countLabel="delegações"
