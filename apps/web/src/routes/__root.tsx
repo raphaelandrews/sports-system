@@ -14,7 +14,7 @@ import { ThemeProvider } from "next-themes";
 import { getLocale } from "@/paraglide/runtime";
 import { m } from "@/paraglide/messages";
 import { DashboardViewportLoading } from "@/shared/components/layouts/dashboard-content-loading";
-import { DashboardLayout } from "@/shared/components/layouts/dashboard";
+import { SocialLayout } from "@/shared/components/layouts/social";
 import { ErrorScreen } from "@/shared/components/layouts/error-screen";
 import { NotFoundScreen } from "@/shared/components/layouts/not-found-screen";
 import { getSessionFn } from "@/features/auth/server/auth";
@@ -68,13 +68,13 @@ function RootDocument() {
           {isAuthPage ? (
             <Outlet />
           ) : (
-            <DashboardLayout session={session ?? null}>
+            <SocialLayout session={session ?? null}>
               <Outlet />
-            </DashboardLayout>
+            </SocialLayout>
           )}
           <Toaster richColors />
           <ReactQueryDevtools buttonPosition="bottom-right" />
-          <TanStackRouterDevtools position="bottom-left" />
+          <TanStackRouterDevtools position="top-right" />
           <Scripts />
         </ThemeProvider>
       </body>

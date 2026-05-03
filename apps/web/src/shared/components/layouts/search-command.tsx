@@ -162,14 +162,16 @@ export function SearchCommand({
 	return (
 		<>
 			<Button
-				variant="outline"
+				variant="secondary"
 				size="sm"
-				className="text-muted-foreground text-sm"
+				className="text-muted-foreground justify-between text-sm h-10"
 				onClick={() => setOpen(true)}
 			>
-				<Search data-icon="inline-start" />
-				{m['search.buttonLabel']()}
-				<kbd className="pointer-events-none ml-2 inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
+				<div className="flex justify-center gap-1">
+					<Search data-icon="inline-start" className="mt-0.5" />
+					{m['search.buttonLabel']()}
+				</div>
+				<kbd className="pointer-events-none bg-card ml-2 inline-flex h-5 select-none items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100">
 					<span className="text-xs">⌘</span>K
 				</kbd>
 			</Button>
@@ -177,7 +179,7 @@ export function SearchCommand({
 			<CommandDialog
 				open={open}
 				onOpenChange={setOpen}
-					title={m['search.buttonLabel']()}
+				title={m['search.buttonLabel']()}
 				description={m['search.dialogDescription']()}
 				showCloseButton={false}
 			>
@@ -197,7 +199,7 @@ export function SearchCommand({
 							</div>
 						) : trimmedQuery.length < 2 ? (
 							quickActions.length > 0 && (
-								<CommandGroup heading={m['search.group.quickActions']() }>
+								<CommandGroup heading={m['search.group.quickActions']()}>
 									{quickActions.map((action) => (
 										<CommandItem
 											key={action.href}
@@ -218,7 +220,7 @@ export function SearchCommand({
 						) : hasAnyResults ? (
 							<>
 								{matchingLeagues.length > 0 && (
-									<CommandGroup heading={m["search.group.leagues"]() }>
+									<CommandGroup heading={m["search.group.leagues"]()}>
 										{matchingLeagues.map((league) => (
 											<CommandItem
 												key={league.id}
@@ -245,7 +247,7 @@ export function SearchCommand({
 								)}
 
 								{userResults.length > 0 && (
-									<CommandGroup heading={m["search.group.users"]() }>
+									<CommandGroup heading={m["search.group.users"]()}>
 										{userResults.map((user) => (
 											<CommandItem
 												key={user.id}
@@ -266,7 +268,7 @@ export function SearchCommand({
 								)}
 
 								{leagueResults?.delegations?.length ? (
-									<CommandGroup heading={m["search.group.delegations"]() }>
+									<CommandGroup heading={m["search.group.delegations"]()}>
 										{leagueResults.delegations.map((delegation) => (
 											<CommandItem
 												key={delegation.id}
@@ -292,7 +294,7 @@ export function SearchCommand({
 								) : null}
 
 								{leagueResults?.events?.length ? (
-									<CommandGroup heading={m["search.group.events"]() }>
+									<CommandGroup heading={m["search.group.events"]()}>
 										{leagueResults.events.map((event) => (
 											<CommandItem
 												key={event.id}
@@ -321,7 +323,7 @@ export function SearchCommand({
 							</>
 						) : (
 							<div className="py-6 text-center text-sm text-muted-foreground">
-								{m['search.noResults']() } &quot;{trimmedQuery}&quot;.
+								{m['search.noResults']()} &quot;{trimmedQuery}&quot;.
 							</div>
 						)}
 					</CommandList>

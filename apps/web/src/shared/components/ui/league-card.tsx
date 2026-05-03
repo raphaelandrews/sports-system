@@ -1,7 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Users } from "lucide-react";
 
-import { Card } from "@sports-system/ui/components/card";
 import leaguePlaceholder from "@/assets/league-placeholder.webp";
 import * as m from "@/paraglide/messages";
 
@@ -19,31 +17,22 @@ export function LeagueCard({ id, name, logoUrl, memberCount, href }: LeagueCardP
       key={id}
       to={href}
       params={{ leagueId: String(id) }}
-      className="block w-full"
+      className="flex items-center gap-3 rounded-lg p-1.5 transition-colors hover:bg-input"
     >
-      <Card className="group/card relative h-96 w-full overflow-hidden rounded-xl border-0 py-0 gap-0">
+      <div className="h-10 w-8 shrink-0 overflow-hidden rounded bg-input">
         <img
           src={logoUrl ?? leaguePlaceholder}
           alt={name}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-110"
+          className="h-full w-full object-cover"
         />
+      </div>
 
-        {/* Background fade effects */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-background/80 to-transparent transition-opacity duration-500 group-hover/card:from-background/90" />
-
-        {/* Content */}
-        <div className="relative flex h-full flex-col justify-end p-6">
-          <h3 className="text-xl font-bold text-foreground">{name}</h3>
-          <p className="mt-2 text-sm font-medium text-foreground/90 flex items-center gap-1">
-            <Users className="size-3.5" />
-            {memberCount} {m["league.card.members"]() }
-          </p>
-          <div className="mt-3 inline-flex items-center gap-2 self-start rounded-md bg-foreground/20 px-3 py-1.5 text-sm font-medium text-foreground backdrop-blur-sm transition-colors group-hover/card:bg-foreground/30">
-            m["league.card.cta"]()
-            <ArrowRight className="size-4" />
-          </div>
-        </div>
-      </Card>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <span className="truncate text-sm font-medium text-foreground">{name}</span>
+        <span className="text-[11px] text-placeholder">
+          {memberCount} {m["league.card.members"]()}
+        </span>
+      </div>
     </Link>
   );
 }

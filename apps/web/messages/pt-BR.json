@@ -78,7 +78,7 @@
     }
   },
   "nav": {
-    "home": "Lar",
+    "home": "Home",
     "leagues": "Ligas",
     "overview": "Visão geral",
     "competitions": "Competições",
@@ -133,15 +133,15 @@
     }
   },
   "sidebar": {
-    "home": "Lar",
+    "home": "Home",
     "leagues": "Ligas",
     "myLeagues": "Minhas ligas",
     "myDelegations": "Minhas delegações",
     "createLeague": "Criar liga"
   },
   "header": {
-    "siteTitle": "Centro Esportivo",
-    "breadcrumbHome": "Lar",
+    "siteTitle": "SportsHub",
+    "breadcrumbHome": "Home",
     "loginButton": "Entrar"
   },
   "common": {
@@ -440,7 +440,7 @@
     "hintSuffix": "MB. Redimensionado para 800x800."
   },
   "home": {
-    "title": "Centro Esportivo",
+    "title": "SportsHub",
     "subtitle": "Crie, participe e siga ligas esportivas.",
     "popularLeagues": "Ligas populares",
     "recentLeagues": "Ligas recentes"

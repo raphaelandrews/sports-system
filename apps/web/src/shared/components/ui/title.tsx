@@ -1,17 +1,12 @@
-import type { ReactNode } from "react";
+import type { LocalizedString } from "@inlang/paraglide-js";
 
-interface TitlesProps {
-  title: ReactNode;
-  subtitle?: ReactNode;
-}
-
-export function Title({ title, subtitle }: TitlesProps) {
+export function Title({ title, description }: { title: LocalizedString, description?: LocalizedString }) {
   return (
-    <section className="text-start space-y-1">
-      <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-      {subtitle ? (
-        <p className="text-muted-foreground">{subtitle}</p>
-      ) : null}
-    </section>
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      </div>
+    </div>
   );
 }

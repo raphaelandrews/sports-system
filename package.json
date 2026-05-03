@@ -36,6 +36,7 @@
     "ci:api-types": "cd apps/api && PYTHONPATH=$(pwd) uv run python scripts/generate_openapi.py && cd ../web && bun run check:api:local"
   },
   "dependencies": {
+    "@fontsource-variable/geist": "^5.2.8",
     "@sports-system/env": "workspace:*",
     "@tanstack/react-table": "^8.21.3",
     "dotenv": "catalog:",
