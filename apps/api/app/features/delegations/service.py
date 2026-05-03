@@ -10,10 +10,11 @@ from app.domain.models.delegation import (
     DelegationInvite,
     DelegationMember,
     DelegationMemberRole,
+    DelegationStatus,
     InviteStatus,
     LeagueParticipationRequest,
 )
-from app.domain.models.league import LeagueMember, LeagueMemberRole
+from app.domain.models.league import League, LeagueMember, LeagueMemberRole
 from app.domain.models.league_delegation import LeagueDelegation
 from app.domain.models.user import NotificationType, User
 from app.features.delegations import repository as delegation_repository
@@ -101,7 +102,7 @@ async def get_delegation(
 
 
 async def get_delegation_detail(
-    session: AsyncSession, league_id: int, delegation_id: int
+    session: AsyncSession, league_id: int | None, delegation_id: int
 ) -> DelegationDetailResponse:
     delegation = await get_delegation(session, league_id, delegation_id)
     rows = await delegation_repository.get_active_members_with_users(
@@ -121,6 +122,14 @@ async def get_delegation_detail(
     return DelegationDetailResponse(
         **DelegationResponse.model_validate(delegation).model_dump(),
         members=members,
+    )
+
+
+async def get_delegation_leagues(
+    session: AsyncSession, delegation_id: int
+) -> list[League]:
+    return list(
+        await delegation_repository.get_leagues_for_delegation(session, delegation_id)
     )
 
 
@@ -213,9 +222,11 @@ async def create_delegation(
         chief_id=creator.id if creator else None,
     )
     result = await delegation_repository.create(session, delegation)
+    assert result.id is not None
     if league_id is not None:
         session.add(LeagueDelegation(league_id=league_id, delegation_id=result.id))
     if creator is not None:
+        assert creator.id is not None
         session.add(
             DelegationMember(
                 delegation_id=result.id,
@@ -268,7 +279,6 @@ async def archive_delegation(
 async def assign_chief(
     session: AsyncSession, league_id: int, delegation_id: int, user_id: int
 ) -> Delegation:
-    from app.domain.models.league import LeagueMember, LeagueMemberRole
     from app.features.leagues import repository as league_repository
 
     delegation = await get_delegation(session, league_id, delegation_id)
@@ -402,6 +412,8 @@ async def accept_invite(
         )
 
     now = datetime.now(UTC).replace(tzinfo=None)
+    assert user.id is not None
+    assert target_delegation.league_id is not None
     current = await delegation_repository.get_active_membership(
         session, user.id, target_delegation.league_id
     )
@@ -519,8 +531,8 @@ async def ai_generate(
     from sqlalchemy import select
     from app.domain.models.delegation import Delegation
 
-    result = await session.execute(select(Delegation.code))
-    existing_codes = {row[0] for row in result.all()}
+    result = await session.execute(select(Delegation))
+    existing_codes = {d.code for d in result.scalars().all()}
 
     used_codes = set(existing_codes)
     created: list[Delegation] = []
@@ -533,6 +545,7 @@ async def ai_generate(
         used_codes.add(code)
         delegation = Delegation(league_id=league_id, code=code, name=name)
         await delegation_repository.create(session, delegation)
+        assert delegation.id is not None
         session.add(LeagueDelegation(league_id=league_id, delegation_id=delegation.id))
         created.append(delegation)
 
@@ -557,17 +570,17 @@ async def ai_populate(
 
     result = await session.execute(
         select(Delegation)
-        .join(LeagueDelegation, LeagueDelegation.delegation_id == Delegation.id)
+        .join(LeagueDelegation, LeagueDelegation.delegation_id == Delegation.id)  # type: ignore[arg-type]
         .where(
-            LeagueDelegation.league_id == league_id,
-            Delegation.is_active == True,
+            LeagueDelegation.league_id == league_id,  # type: ignore[arg-type]
+            Delegation.is_active == True,  # type: ignore[arg-type]
         )
     )
     existing_delegations = result.scalars().all()
     existing_data = [(d.code, d.name) for d in existing_delegations]
 
-    all_codes_result = await session.execute(select(Delegation.code))
-    all_existing_codes = {row[0] for row in all_codes_result.all()}
+    all_codes_result = await session.execute(select(Delegation))
+    all_existing_codes = {d.code for d in all_codes_result.scalars().all()}
 
     if not existing_data:
         return await ai_generate(session, league_id, count)
@@ -612,6 +625,7 @@ async def ai_populate(
         used_codes.add(code)
         delegation = Delegation(code=code, name=name)
         await delegation_repository.create(session, delegation)
+        assert delegation.id is not None
         session.add(LeagueDelegation(league_id=league_id, delegation_id=delegation.id))
         created.append(delegation)
 
@@ -624,6 +638,89 @@ async def get_current_delegation_id(
     return await delegation_repository.get_current_delegation_id(
         session, user_id, league_id
     )
+
+
+async def ai_generate_independent(
+    session: AsyncSession,
+    prompt: str,
+    count: int,
+    creator: User,
+) -> list[Delegation]:
+    from sqlalchemy import select
+    from app.features.narratives import ai as ai_service
+    from app.domain.models.delegation import Delegation
+
+    result = await session.execute(select(Delegation))
+    existing_codes = {d.code for d in result.scalars().all()}
+    used_codes = set(existing_codes)
+
+    system_prompt = (
+        "Você é um assistente que gera dados de delegações esportivas. "
+        "Responda APENAS com um array JSON no formato: "
+        '[{"code": "ABC", "name": "Nome da Delegação"}, ...]'
+    )
+
+    user_prompt = (
+        f"{prompt}. Gere exatamente {count} delegações. "
+        f"Use códigos únicos de 3 letras maiúsculas. "
+        f"Códigos já usados (não repita): {sorted(existing_codes)[:20]}. "
+        "Apenas o JSON, sem texto adicional."
+    )
+
+    raw = await ai_service.generate_text(
+        system_prompt,
+        user_prompt,
+        max_tokens=1200,
+    )
+
+    import json
+    import re
+
+    match = re.search(r"\[.*?\]", raw, re.DOTALL)
+    if not match:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="AI did not return valid JSON",
+        )
+
+    try:
+        items = json.loads(match.group())
+    except json.JSONDecodeError:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="AI returned malformed JSON",
+        )
+
+    created: list[Delegation] = []
+
+    for item in items[:count]:
+        code = item.get("code", "")
+        name = item.get("name", "")
+        if not code or not name:
+            continue
+        code = code.upper()[:4]
+        if code in used_codes:
+            code = _generate_unique_code(name, used_codes)
+        used_codes.add(code)
+        delegation = Delegation(
+            code=code,
+            name=name,
+            chief_id=creator.id,
+            status=DelegationStatus.INDEPENDENT,
+        )
+        await delegation_repository.create(session, delegation)
+        assert delegation.id is not None
+        if creator.id is not None:
+            session.add(
+                DelegationMember(
+                    delegation_id=delegation.id,
+                    user_id=creator.id,
+                    role=DelegationMemberRole.CHIEF,
+                )
+            )
+        created.append(delegation)
+
+    return created
 
 
 async def create_participation_request(
@@ -670,6 +767,24 @@ async def create_participation_request(
     await delegation_repository.create_participation_request(session, request)
     await session.commit()
     await session.refresh(request)
+
+    # Notify league admins
+    league_members = await league_repository.get_members(session, league_id)
+    for member in league_members:
+        if member.role == LeagueMemberRole.LEAGUE_ADMIN and member.user_id is not None:
+            await notification_service.dispatch(
+                session,
+                member.user_id,
+                NotificationType.PARTICIPATION_REQUEST,
+                {
+                    "request_id": request.id,
+                    "delegation_id": delegation_id,
+                    "delegation_name": delegation.name,
+                    "league_id": league_id,
+                    "league_name": league.name,
+                },
+            )
+
     return request
 
 
@@ -760,4 +875,23 @@ async def review_participation_request(
 
     await session.commit()
     await session.refresh(request)
+
+    # Notify delegation chief
+    delegation = await get_delegation(session, None, request.delegation_id)
+    league = await league_repository.get_by_id(session, league_id)
+    if delegation.chief_id is not None:
+        await notification_service.dispatch(
+            session,
+            delegation.chief_id,
+            NotificationType.REQUEST_REVIEWED,
+            {
+                "request_id": request.id,
+                "delegation_id": delegation.id,
+                "delegation_name": delegation.name,
+                "league_id": league_id,
+                "league_name": league.name if league else None,
+                "status": new_status,
+            },
+        )
+
     return request

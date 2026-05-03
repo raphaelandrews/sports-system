@@ -21,7 +21,7 @@ function NewDelegationPage() {
   const mutation = useMutation({
     mutationFn: (payload: { name: string; code?: string; flag_url?: string }) =>
       unwrap(
-        (client as any).POST("/delegations/independent", {
+        client.POST("/delegations/independent", {
           body: payload,
         }),
       ),

@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.domain.models.delegation import (
     DelegationMemberRole,
@@ -146,3 +146,8 @@ class LeagueParticipationRequestResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class DelegationAIGenerateRequest(BaseModel):
+    prompt: str
+    count: int = Field(default=5, ge=1, le=10)

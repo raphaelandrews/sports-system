@@ -11,14 +11,16 @@
     "prefix": ""
   },
   "iconLibrary": "lucide",
+  "menuColor": "default",
+  "menuAccent": "subtle",
   "aliases": {
     "components": "@sports-system/ui/components",
     "utils": "@sports-system/ui/lib/utils",
-    "hooks": "@sports-system/ui/hooks",
+    "ui": "@sports-system/ui/components",
     "lib": "@sports-system/ui/lib",
-    "ui": "@sports-system/ui/components"
+    "hooks": "@sports-system/ui/hooks"
   },
-  "menuColor": "default",
-  "menuAccent": "subtle",
-  "registries": {}
+  "registries": {
+    "@reui": "https://reui.io/r/{style}/{name}.json"
+  }
 }

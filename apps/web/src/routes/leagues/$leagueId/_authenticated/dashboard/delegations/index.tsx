@@ -120,7 +120,7 @@ function DelegationsPage() {
   const assignChiefMutation = useMutation({
     mutationFn: async (delegationId: number) =>
       unwrap(
-        (client as any).PATCH("/leagues/{league_id}/delegations/{delegation_id}/assign-chief", {
+        client.POST("/leagues/{league_id}/delegations/{delegation_id}/assign-chief", {
           params: { path: { league_id: Number(leagueId), delegation_id: delegationId } },
         }),
       ),

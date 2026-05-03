@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 import { Check, X } from "lucide-react";
-import { participationRequestsQueryOptions } from "@/features/delegations/api/queries";
+import { participationRequestsQueryOptions, type ParticipationRequest } from "@/features/delegations/api/queries";
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 
 export const Route = createFileRoute(
@@ -52,9 +52,9 @@ function ParticipationRequestsPage() {
   const { data: requests } = useSuspenseQuery(participationRequestsQueryOptions(numericLeagueId));
 
   const reviewMutation = useMutation({
-    mutationFn: ({ requestId, status }: { requestId: number; status: string }) =>
+    mutationFn: ({ requestId, status }: { requestId: number; status: ParticipationRequest["status"] }) =>
       unwrap(
-        (client as any).POST("/leagues/{league_id}/participation-requests/{request_id}/review", {
+        client.POST("/leagues/{league_id}/delegations/participation-requests/{request_id}/review", {
           params: { path: { league_id: numericLeagueId, request_id: requestId } },
           body: { status },
         }),
@@ -70,7 +70,7 @@ function ParticipationRequestsPage() {
     },
   });
 
-  const pendingRequests = requests.filter((r: any) => r.status === "PENDING");
+  const pendingRequests = requests.filter((r: ParticipationRequest) => r.status === "PENDING");
 
   return (
     <div className="space-y-6">
@@ -111,7 +111,7 @@ function ParticipationRequestsPage() {
                 </TableCell>
               </TableRow>
             )}
-            {requests.map((request: any) => (
+            {requests.map((request: ParticipationRequest) => (
               <TableRow key={request.id}>
                 <TableCell className="ps-4">
                   <span className="font-medium">

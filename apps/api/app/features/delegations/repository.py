@@ -24,7 +24,7 @@ async def get_by_chief(session: AsyncSession, chief_id: int) -> list[Delegation]
         select(Delegation)
         .where(
             Delegation.chief_id == chief_id,
-            Delegation.is_active == True,  # noqa: E712
+            Delegation.is_active.is_(True),
         )
         .order_by(Delegation.name)
     )
@@ -539,3 +539,16 @@ async def get_league_delegation(
         )
     )
     return result.scalar_one_or_none()
+
+
+async def get_leagues_for_delegation(session: AsyncSession, delegation_id: int):
+    from app.domain.models.league import League
+    from app.domain.models.league_delegation import LeagueDelegation
+
+    result = await session.execute(
+        select(League)
+        .join(LeagueDelegation, LeagueDelegation.league_id == League.id)
+        .where(LeagueDelegation.delegation_id == delegation_id)
+        .order_by(League.name)
+    )
+    return result.scalars().all()

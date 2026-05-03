@@ -12,13 +12,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sports-system/ui/components/tabs";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
 
 import { formatDate } from "@/shared/lib/date";
 import { athleteReportQueryOptions } from "@/features/athletes/api/queries";
 import type { Medal } from "@/types/athletes";
-import { buttonVariants } from "@sports-system/ui/components/button";
-import { cn } from "@/shared/lib/utils";
 
 export const Route = createFileRoute("/leagues/$leagueId/(public)/athletes/$athleteId")({
   ssr: false,
@@ -77,14 +74,9 @@ function AthleteProfilePage() {
           </div>
         </div>
         <div className="ml-auto">
-          <Link
-            to="/leagues/$leagueId/athletes/compare"
-            params={{ leagueId }}
-            search={{ left: athlete.id }}
-            className={cn(buttonVariants({ variant: "outline" }))}
-          >
-            Comparar atleta
-          </Link>
+          <span className="text-muted-foreground text-sm">
+            ID: {athlete.id}
+          </span>
         </div>
       </div>
 

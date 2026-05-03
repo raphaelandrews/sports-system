@@ -3,7 +3,6 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Badge } from "@sports-system/ui/components/badge";
 import { buttonVariants } from "@sports-system/ui/components/button";
 import {
   Card,
@@ -29,7 +28,7 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 import { cn } from "@sports-system/ui/lib/utils";
-import { ArrowLeftRight, Bot, Search, UserPlus } from "lucide-react";
+import { Bot, Search, UserPlus } from "lucide-react";
 
 import { client, unwrap, ApiError } from "@/shared/lib/api";
 import { formatDate } from "@/shared/lib/date";
@@ -168,14 +167,6 @@ function AthletesPage() {
             >
               <UserPlus className="size-4" />
               Novo atleta
-            </Link>
-            <Link
-              to="/leagues/$leagueId/athletes/compare"
-              params={{ leagueId }}
-              className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start")}
-            >
-              <ArrowLeftRight className="size-4" />
-              Comparar atletas
             </Link>
             {isAdmin ? (
               <button

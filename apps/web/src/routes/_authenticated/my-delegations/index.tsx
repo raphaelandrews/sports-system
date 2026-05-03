@@ -42,7 +42,7 @@ import {
   TableRow,
 } from "@sports-system/ui/components/table";
 import { cn } from "@sports-system/ui/lib/utils";
-import { MoreHorizontal, Pencil, ExternalLink, Flag, Hand } from "lucide-react";
+import { MoreHorizontal, Pencil, ExternalLink, Hand, Sparkles, ChevronLeft, ChevronRight, Bot, Send } from "lucide-react";
 import { myDelegationsQueryOptions } from "@/features/delegations/api/queries";
 import { leagueListQueryOptions } from "@/features/leagues/api/queries";
 import { client, unwrap, ApiError } from "@/shared/lib/api";
@@ -72,10 +72,18 @@ const statusVariant: Record<string, string> = {
   REJECTED: "border-destructive/30 text-destructive",
 };
 
+const ITEMS_PER_PAGE = 10;
+
 function MyDelegationsPage() {
   const { data: delegations } = useSuspenseQuery(myDelegationsQueryOptions());
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
   const [selectedDelegation, setSelectedDelegation] = useState<DelegationResponse | null>(null);
+  const [page, setPage] = useState(1);
+
+  const totalPages = Math.ceil(delegations.length / ITEMS_PER_PAGE);
+  const startIndex = (page - 1) * ITEMS_PER_PAGE;
+  const paginatedDelegations = delegations.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <div className="space-y-6">
@@ -111,9 +119,17 @@ function MyDelegationsPage() {
               to="/delegations/new"
               className={cn(buttonVariants({ variant: "default" }), "w-full justify-start")}
             >
-              <Flag className="mr-2 size-4" />
+              <Sparkles className="mr-2 size-4" />
               Nova delegação
             </Link>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => setAiDialogOpen(true)}
+            >
+              <Bot className="mr-2 size-4" />
+              Criar com IA
+            </Button>
           </CardContent>
         </Card>
       </section>
@@ -140,7 +156,7 @@ function MyDelegationsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {delegations.length === 0 && (
+              {paginatedDelegations.length === 0 && (
                 <TableRow>
                   <TableCell
                     colSpan={5}
@@ -150,7 +166,7 @@ function MyDelegationsPage() {
                   </TableCell>
                 </TableRow>
               )}
-              {delegations.map((delegation: DelegationResponse) => (
+              {paginatedDelegations.map((delegation: DelegationResponse) => (
                 <TableRow key={delegation.id}>
                   <TableCell className="ps-4">
                     <div className="flex items-center gap-3">
@@ -165,7 +181,23 @@ function MyDelegationsPage() {
                           {delegation.name.charAt(0)}
                         </div>
                       )}
-                      <span className="font-medium">{delegation.name}</span>
+                      {delegation.league_id ? (
+                        <Link
+                          to="/leagues/$leagueId/delegations/$delegationId"
+                          params={{ leagueId: String(delegation.league_id), delegationId: String(delegation.id) }}
+                          className="font-medium hover:underline"
+                        >
+                          {delegation.name}
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/delegations/$delegationId"
+                          params={{ delegationId: String(delegation.id) }}
+                          className="font-medium hover:underline"
+                        >
+                          {delegation.name}
+                        </Link>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -195,7 +227,7 @@ function MyDelegationsPage() {
                           </Button>
                         }
                       />
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="w-full">
                         <DropdownMenuItem>
                           <Link
                             to="/my-delegations/$delegationId/edit"
@@ -212,7 +244,7 @@ function MyDelegationsPage() {
                             setDialogOpen(true);
                           }}
                         >
-                          <span className="flex items-center gap-2 w-full">
+                          <span className="flex items-center gap-2 w-full whitespace-nowrap">
                             <Hand className="size-3.5" />
                             Solicitar participação
                           </span>
@@ -240,6 +272,32 @@ function MyDelegationsPage() {
             </TableBody>
           </Table>
         </div>
+
+        {totalPages > 1 && (
+          <div className="mt-4 flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Página {page} de {totalPages} ({delegations.length} total)
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {selectedDelegation && (
@@ -249,6 +307,8 @@ function MyDelegationsPage() {
           onOpenChange={setDialogOpen}
         />
       )}
+
+      <AIGenerateDialog open={aiDialogOpen} onOpenChange={setAiDialogOpen} />
     </div>
   );
 }
@@ -278,7 +338,7 @@ function RequestParticipationDialog({
   const mutation = useMutation({
     mutationFn: (leagueId: number) =>
       unwrap(
-        (client as any).POST("/delegations/{delegation_id}/participation-requests", {
+        client.POST("/delegations/{delegation_id}/participation-requests", {
           params: { path: { delegation_id: delegation.id } },
           body: { league_id: leagueId },
         }),
@@ -331,6 +391,119 @@ function RequestParticipationDialog({
             {mutation.isPending ? "Enviando..." : "Solicitar"}
           </Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AIGenerateDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const queryClient = useQueryClient();
+  const [messages, setMessages] = useState<
+    { role: "user" | "assistant"; content: string }[]
+  >([
+    {
+      role: "assistant",
+      content:
+        "Olá! Sou seu assistente de criação de delegações. Me diga quantas delegações você quer e o tema. Por exemplo: \"Crie 5 delegações com nomes de times de basquete europeus\" ou \"4 delegações baseadas em bandas dos anos 2000\".",
+    },
+  ]);
+  const [input, setInput] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: async (prompt: string) =>
+      unwrap(
+        client.POST("/delegations/ai-generate", {
+          body: { prompt, count: 5 },
+        }),
+      ),
+    onSuccess: async (created: DelegationResponse[]) => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.delegations.my() });
+      const names = created.map((d) => d.name).join(", ");
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: `Pronto! Criei ${created.length} delegações: ${names}.`,
+        },
+      ]);
+      toast.success(
+        created.length === 1
+          ? "1 delegação criada com IA."
+          : `${created.length} delegações criadas com IA.`,
+      );
+    },
+    onError: (error) => {
+      const msg = error instanceof ApiError ? error.message : "Falha ao gerar delegações.";
+      setMessages((prev) => [...prev, { role: "assistant", content: `Erro: ${msg}` }]);
+      toast.error(msg);
+    },
+  });
+
+  const handleSend = () => {
+    if (!input.trim() || mutation.isPending) return;
+    const prompt = input.trim();
+    setMessages((prev) => [...prev, { role: "user", content: prompt }]);
+    setInput("");
+    mutation.mutate(prompt);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Bot className="size-5" />
+            Criar delegações com IA
+          </DialogTitle>
+          <DialogDescription>
+            Descreva o tema e quantidade. Ex: "5 delegações com nomes de times europeus"
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex h-96 flex-col gap-3">
+          <div className="flex-1 overflow-y-auto space-y-3 rounded-lg border bg-muted/30 p-3">
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                className={cn(
+                  "flex max-w-[85%] flex-col gap-1 rounded-xl px-3 py-2 text-sm",
+                  msg.role === "user"
+                    ? "ml-auto bg-primary text-primary-foreground"
+                    : "mr-auto bg-background border"
+                )}
+              >
+                {msg.content}
+              </div>
+            ))}
+            {mutation.isPending && (
+              <div className="mr-auto flex items-center gap-2 rounded-xl border bg-background px-3 py-2 text-sm text-muted-foreground">
+                <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                Criando delegações...
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              placeholder="Descreva as delegações que deseja..."
+              className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+              disabled={mutation.isPending}
+            />
+            <Button size="sm" onClick={handleSend} disabled={!input.trim() || mutation.isPending}>
+              <Send className="size-4" />
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

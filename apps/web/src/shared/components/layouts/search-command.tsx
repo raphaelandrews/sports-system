@@ -6,7 +6,6 @@ import {
 	CalendarDays,
 	Globe,
 	Search,
-	Sparkles,
 	Users,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -130,19 +129,6 @@ export function SearchCommand({
 				icon: CalendarDays,
 			},
 		];
-
-		if (session && membershipRole) {
-			actions.push({
-				label: "Painel",
-				href: `/leagues/${leagueId}/dashboard`,
-				icon: Users,
-			});
-			actions.push({
-				label: "Narrativa",
-				href: `/leagues/${leagueId}/narrative`,
-				icon: Sparkles,
-			});
-		}
 
 		return actions;
 	}, [leagueId, membershipRole, session]);

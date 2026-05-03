@@ -11,6 +11,7 @@ from app.domain.models.league import LeagueMember
 from app.domain.models.user import User
 from app.domain.schemas.common import Meta, PaginatedResponse
 from app.domain.schemas.delegation import (
+    DelegationAIGenerateRequest,
     DelegationCreate,
     DelegationDetailResponse,
     DelegationResponse,
@@ -18,6 +19,9 @@ from app.domain.schemas.delegation import (
     DelegationUpdate,
     InviteCreate,
     InviteResponse,
+    LeagueParticipationRequestCreate,
+    LeagueParticipationRequestReview,
+    LeagueParticipationRequestResponse,
     MemberHistoryItem,
 )
 from app.features.delegations import service as delegation_service
@@ -89,6 +93,37 @@ async def ai_populate_delegations(
     for delegation in delegations:
         await session.refresh(delegation)
     return [DelegationResponse.model_validate(delegation) for delegation in delegations]
+
+
+@router.get(
+    "/participation-requests", response_model=list[LeagueParticipationRequestResponse]
+)
+async def list_league_participation_requests(
+    league_id: int,
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+) -> list[LeagueParticipationRequestResponse]:
+    requests = await delegation_service.list_participation_requests_for_league(
+        session, league_id, current_user
+    )
+    return [LeagueParticipationRequestResponse.model_validate(r) for r in requests]
+
+
+@router.post(
+    "/participation-requests/{request_id}/review",
+    response_model=LeagueParticipationRequestResponse,
+)
+async def review_participation_request(
+    league_id: int,
+    request_id: int,
+    data: LeagueParticipationRequestReview,
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+) -> LeagueParticipationRequestResponse:
+    request = await delegation_service.review_participation_request(
+        session, league_id, request_id, data.status, current_user
+    )
+    return LeagueParticipationRequestResponse.model_validate(request)
 
 
 @router.get("/{delegation_id}", response_model=DelegationDetailResponse)
@@ -283,11 +318,21 @@ async def update_independent_delegation(
     return DelegationResponse.model_validate(updated)
 
 
-from app.domain.schemas.delegation import (
-    LeagueParticipationRequestCreate,
-    LeagueParticipationRequestReview,
-    LeagueParticipationRequestResponse,
-)
+@independent_router.get("/{delegation_id}", response_model=DelegationDetailResponse)
+async def get_independent_delegation(
+    delegation_id: int,
+    session: AsyncSession = Depends(get_session),
+) -> DelegationDetailResponse:
+    return await delegation_service.get_delegation_detail(session, None, delegation_id)
+
+
+@independent_router.get("/{delegation_id}/leagues")
+async def get_delegation_leagues(
+    delegation_id: int,
+    session: AsyncSession = Depends(get_session),
+) -> list:
+    leagues = await delegation_service.get_delegation_leagues(session, delegation_id)
+    return [{"id": l.id, "name": l.name, "slug": l.slug} for l in leagues]
 
 
 @independent_router.post(
@@ -307,35 +352,23 @@ async def create_participation_request(
     return LeagueParticipationRequestResponse.model_validate(request)
 
 
-@router.get(
-    "/participation-requests", response_model=list[LeagueParticipationRequestResponse]
+@independent_router.post(
+    "/ai-generate",
+    response_model=list[DelegationResponse],
+    status_code=status.HTTP_201_CREATED,
 )
-async def list_league_participation_requests(
-    league_id: int,
+async def ai_generate_independent_delegations(
+    data: DelegationAIGenerateRequest,
     session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user),
-) -> list[LeagueParticipationRequestResponse]:
-    requests = await delegation_service.list_participation_requests_for_league(
-        session, league_id, current_user
+) -> list[DelegationResponse]:
+    delegations = await delegation_service.ai_generate_independent(
+        session, data.prompt, data.count, current_user
     )
-    return [LeagueParticipationRequestResponse.model_validate(r) for r in requests]
-
-
-@router.post(
-    "/participation-requests/{request_id}/review",
-    response_model=LeagueParticipationRequestResponse,
-)
-async def review_participation_request(
-    league_id: int,
-    request_id: int,
-    data: LeagueParticipationRequestReview,
-    session: AsyncSession = Depends(get_session),
-    current_user: User = Depends(get_current_user),
-) -> LeagueParticipationRequestResponse:
-    request = await delegation_service.review_participation_request(
-        session, league_id, request_id, data.status, current_user
-    )
-    return LeagueParticipationRequestResponse.model_validate(request)
+    await session.commit()
+    for delegation in delegations:
+        await session.refresh(delegation)
+    return [DelegationResponse.model_validate(d) for d in delegations]
 
 
 invites_router = APIRouter(prefix="/invites", tags=["invites"])

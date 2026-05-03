@@ -23,6 +23,8 @@ function notifTitle(type: NotificationType): string {
       return "Resultado disponível";
     case "TRANSFER":
       return "Transferência";
+    case "PARTICIPATION_REQUEST":
+      return "Pedido de participação";
   }
 }
 
@@ -43,6 +45,8 @@ function notifDescription(notif: NotificationResponse): string {
       return p.status === "ACCEPTED"
         ? `Transferência para ${p.delegation_name as string} aceita`
         : `Transferência para ${p.delegation_name as string} recusada`;
+    case "PARTICIPATION_REQUEST":
+      return `Delegação ${p.delegation_name as string} pediu para participar da liga ${p.league_name as string}`;
     default:
       return "";
   }

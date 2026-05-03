@@ -35,7 +35,7 @@ function EditMyDelegationPage() {
   const mutation = useMutation({
     mutationFn: (payload: DelegationUpdateInput) =>
       unwrap(
-        (client as any).PATCH("/delegations/{delegation_id}", {
+        client.PATCH("/delegations/{delegation_id}", {
           params: { path: { delegation_id: numericDelegationId } },
           body: payload,
         }),

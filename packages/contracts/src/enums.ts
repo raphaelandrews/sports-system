@@ -9,6 +9,7 @@ export const NotificationType = z.enum([
   "MATCH_REMINDER",
   "RESULT",
   "TRANSFER",
+  "PARTICIPATION_REQUEST",
 ]);
 export type NotificationType = z.infer<typeof NotificationType>;
 
