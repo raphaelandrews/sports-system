@@ -53,7 +53,6 @@ next-env.d.ts
 
 # Auto-generated
 src/routeTree.gen.ts
-src/types/api.gen.ts
 
 # Other
 dev-dist
