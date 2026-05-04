@@ -18,6 +18,7 @@ import {
 import * as m from "@/paraglide/messages";
 import { logoutFn } from "@/features/auth/server/auth";
 import type { Session } from "@/types/auth";
+import { Button } from "@sports-system/ui/components/button";
 
 interface NavUserProps {
 	session: Session | null;
@@ -38,13 +39,20 @@ export function NavUser({ session }: NavUserProps) {
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger className="flex h-10 items-center gap-2 rounded-md px-2 hover:text-accent-foreground outline-none">
-				<Avatar className="h-8 w-8 rounded-md after:border-none">
+			<DropdownMenuTrigger className="flex h-11 items-center gap-3 px-3">
+				<Avatar className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary">
 					<AvatarImage src={user.avatar} alt={user.name} />
 					<AvatarFallback className="font-semibold text-xs rounded-md">
 						{user.name ? user.name.charAt(0) : m['nav.user.fallbackInitials']()}
 					</AvatarFallback>
 				</Avatar>
+				<div className="flex min-w-0 flex-1 flex-col items-start overflow-hidden">
+					<span className="w-full truncate text-sm font-semibold text-foreground">{user.name}</span>
+					<span className="w-full truncate text-xs text-muted-foreground">{user.email}</span>
+				</div>
+				<Button variant="ghost" size="sm" className="w-8 text-muted-foreground transition-colors duration-150 hover:bg-red-950/40 hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50">
+					<LogOutIcon size={16} />
+				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
 				className="min-w-56 rounded-lg"

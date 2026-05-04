@@ -8,9 +8,10 @@ interface LeagueCardProps {
   logoUrl: string | null | undefined;
   memberCount: number;
   href: string;
+  badge?: React.ReactNode;
 }
 
-export function LeagueCard({ id, name, logoUrl, memberCount, href }: LeagueCardProps) {
+export function LeagueCard({ id, name, logoUrl, memberCount, href, badge }: LeagueCardProps) {
   return (
     <Link
       key={id}
@@ -27,6 +28,11 @@ export function LeagueCard({ id, name, logoUrl, memberCount, href }: LeagueCardP
       </div>
 
       <div className="absolute inset-x-0 top-0 bg-linear-to-b from-black/70 to-transparent px-2 pt-1.5 pb-4">
+        {badge && (
+          <>
+            {badge}
+          </>
+        )}
         <span className="line-clamp-2 text-sm font-bold leading-tight text-white drop-shadow-sm">{name}</span>
       </div>
 

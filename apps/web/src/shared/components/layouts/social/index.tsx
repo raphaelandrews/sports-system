@@ -236,18 +236,20 @@ export function SocialLayout({
             {session ? <NotificationBell userId={session.id} /> : null}
           </div>
 
-          <div className="flex flex-col border-t border-input p-4">
-            {session ? (
+          {session ? (
+            <div className="border-t border-input p-3">
               <NavUser session={session} />
-            ) : (
+            </div>
+          ) : (
+            <div className="flex flex-col border-t border-input p-4">
               <Link
                 to="/login"
                 className="inline-flex h-8 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 {m["header.loginButton"]()}
               </Link>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </aside >
 

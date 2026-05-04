@@ -31,7 +31,7 @@ function LeaguesPage() {
       <div className="flex items-center justify-between mb-8">
         <Title title={m['leagues.listTitle']()}/>
 
-        <Link to="/leagues/new" className={cn(buttonVariants({size: "sm"}), "text-sm")}>
+        <Link to="/leagues/new" className={cn(buttonVariants({variant: "default"}))}>
           {m['nav.createLeague']()}
         </Link>
       </div>
