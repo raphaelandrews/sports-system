@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
 import leaguePlaceholder from "@/assets/league-placeholder.webp";
-import * as m from "@/paraglide/messages";
 
 interface LeagueCardProps {
   id: number;
@@ -17,9 +16,9 @@ export function LeagueCard({ id, name, logoUrl, memberCount, href }: LeagueCardP
       key={id}
       to={href}
       params={{ leagueId: String(id) }}
-      className="flex items-center gap-3 rounded-lg p-1.5 transition-colors hover:bg-input"
+      className="group relative cursor-pointer overflow-hidden rounded-lg lg:rounded-xl bg-input transition-transform hover:scale-105 animate-[gridCardIn_300ms_ease-out_both]"
     >
-      <div className="h-10 w-8 shrink-0 overflow-hidden rounded bg-input">
+      <div className="aspect-3/4">
         <img
           src={logoUrl ?? leaguePlaceholder}
           alt={name}
@@ -27,12 +26,15 @@ export function LeagueCard({ id, name, logoUrl, memberCount, href }: LeagueCardP
         />
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-sm font-medium text-foreground">{name}</span>
-        <span className="text-[11px] text-placeholder">
-          {memberCount} {m["league.card.members"]()}
-        </span>
+      <div className="absolute inset-x-0 top-0 bg-linear-to-b from-black/70 to-transparent px-2 pt-1.5 pb-4">
+        <span className="line-clamp-2 text-sm font-bold leading-tight text-white drop-shadow-sm">{name}</span>
       </div>
-    </Link>
+
+      <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent px-2 pb-1.5 pt-5">
+        <div className="flex items-center justify-center gap-1.5">
+          <span className="text-sm font-semibold text-white/70">{memberCount} membros</span>
+        </div>
+      </div>
+    </Link >
   );
 }

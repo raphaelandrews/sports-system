@@ -187,20 +187,19 @@ async def add_match_event(
     await sse.broadcast(match_id, payload)
     league_id = await _get_match_league_id(session, match)
     if league_id is not None:
-        await sse.broadcast_activity_feed(
-            league_id,
-            ActivityFeedItem(
-                id=f"match-event-{match_event.id}",
-                item_type=ActivityFeedItemType.MATCH_EVENT,
-                created_at=match_event.created_at,
-                title=f"{data.event_type.value.replace('_', ' ').title()} em partida",
-                description="Atualização global da competição",
-                match_id=match_id,
-                athlete_id=data.athlete_id,
-                delegation_id=data.delegation_id_at_time,
-                minute=data.minute,
-            ).model_dump(mode="json"),
+        feed_item = ActivityFeedItem(
+            id=f"match-event-{match_event.id}",
+            item_type=ActivityFeedItemType.MATCH_EVENT,
+            created_at=match_event.created_at,
+            title=f"{data.event_type.value.replace('_', ' ').title()} em partida",
+            description="Atualização global da competição",
+            match_id=match_id,
+            athlete_id=data.athlete_id,
+            delegation_id=data.delegation_id_at_time,
+            minute=data.minute,
         )
+        await sse.broadcast_activity_feed(league_id, feed_item.model_dump(mode="json"))
+        await sse.broadcast_global_activity_feed(feed_item.model_dump(mode="json"))
     return MatchEventResponse.model_validate(match_event)
 
 
@@ -226,18 +225,17 @@ async def start_match(session: AsyncSession, match_id: int) -> MatchResponse:
     await sse.broadcast(match_id, {"type": "match_started", "match_id": match_id})
     league_id = await _get_match_league_id(session, match)
     if league_id is not None:
-        await sse.broadcast_activity_feed(
-            league_id,
-            ActivityFeedItem(
-                id=f"match-started-{match.id}-{match.started_at.isoformat()}",
-                item_type=ActivityFeedItemType.MATCH_STARTED,
-                created_at=match.started_at,
-                title="Partida iniciada",
-                description="Atualização global da competição",
-                match_id=match.id,
-                event_id=match.event_id,
-            ).model_dump(mode="json"),
+        feed_item = ActivityFeedItem(
+            id=f"match-started-{match.id}-{match.started_at.isoformat()}",
+            item_type=ActivityFeedItemType.MATCH_STARTED,
+            created_at=match.started_at,
+            title="Partida iniciada",
+            description="Atualização global da competição",
+            match_id=match.id,
+            event_id=match.event_id,
         )
+        await sse.broadcast_activity_feed(league_id, feed_item.model_dump(mode="json"))
+        await sse.broadcast_global_activity_feed(feed_item.model_dump(mode="json"))
     return MatchResponse.model_validate(match)
 
 
@@ -268,18 +266,17 @@ async def finish_match(session: AsyncSession, match_id: int) -> MatchResponse:
     )
     league_id = await _get_match_league_id(session, match)
     if league_id is not None:
-        await sse.broadcast_activity_feed(
-            league_id,
-            ActivityFeedItem(
-                id=f"match-finished-{match.id}-{match.ended_at.isoformat()}",
-                item_type=ActivityFeedItemType.MATCH_FINISHED,
-                created_at=match.ended_at,
-                title="Partida encerrada",
-                description="Atualização global da competição",
-                match_id=match.id,
-                event_id=match.event_id,
-            ).model_dump(mode="json"),
+        feed_item = ActivityFeedItem(
+            id=f"match-finished-{match.id}-{match.ended_at.isoformat()}",
+            item_type=ActivityFeedItemType.MATCH_FINISHED,
+            created_at=match.ended_at,
+            title="Partida encerrada",
+            description="Atualização global da competição",
+            match_id=match.id,
+            event_id=match.event_id,
         )
+        await sse.broadcast_activity_feed(league_id, feed_item.model_dump(mode="json"))
+        await sse.broadcast_global_activity_feed(feed_item.model_dump(mode="json"))
     # Notify match participants
     participants = await event_repository.get_match_participants(session, match_id)
     notified_users = set()

@@ -11,6 +11,7 @@ from app.domain.schemas.activity import ActivityFeedItem
 from app.features.activities import service as activity_service
 
 router = APIRouter(prefix="/leagues/{league_id}/activities", tags=["activities"])
+global_router = APIRouter(prefix="/activities", tags=["activities"])
 
 
 @router.get("", response_model=list[ActivityFeedItem])
@@ -34,5 +35,29 @@ async def stream_activity_feed(league_id: int, request: Request) -> EventSourceR
             pass
         finally:
             sse.unsubscribe_activity_feed(league_id, q)
+
+    return EventSourceResponse(generator(), ping=20)
+
+
+@global_router.get("", response_model=list[ActivityFeedItem])
+async def list_global_activity_feed(
+    limit: int = Query(30, ge=1, le=100),
+    session: AsyncSession = Depends(get_session),
+) -> list[ActivityFeedItem]:
+    return await activity_service.list_global_feed(session, limit)
+
+
+@global_router.get("/stream")
+async def stream_global_activity_feed(request: Request) -> EventSourceResponse:
+    async def generator() -> AsyncGenerator[str, None]:
+        q = sse.subscribe_global_activity_feed()
+        try:
+            while True:
+                data = await q.get()
+                yield data
+        except asyncio.CancelledError:
+            pass
+        finally:
+            sse.unsubscribe_global_activity_feed(q)
 
     return EventSourceResponse(generator(), ping=20)

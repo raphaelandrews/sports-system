@@ -2,9 +2,6 @@ import { useEffect, useState } from "react";
 import { Activity, Medal, RadioTower, TimerReset } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
-import { Badge } from "@sports-system/ui/components/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@sports-system/ui/components/card";
-
 import { buildApiUrl } from "@/shared/lib/url";
 import type { ActivityFeedItem, ActivityFeedItemType } from "@/types/activity";
 
@@ -33,7 +30,6 @@ export function ActivityFeed({
   limit,
   live = true,
   showMatchLink = false,
-  title = "Feed de atividades",
   leagueId,
 }: {
   initialItems: ActivityFeedItem[];
@@ -52,8 +48,10 @@ export function ActivityFeed({
   useEffect(() => {
     if (!live || typeof window === "undefined") return;
 
-    const streamUrl = new URL(buildApiUrl("/activities/stream"));
-    const eventSource = new EventSource(streamUrl.toString(), { withCredentials: true });
+    const path = leagueId != null
+      ? `/leagues/${leagueId}/activities/stream`
+      : "/activities/stream";
+    const eventSource = new EventSource(buildApiUrl(path), { withCredentials: true });
 
     eventSource.onmessage = (event) => {
       try {
@@ -68,47 +66,33 @@ export function ActivityFeed({
     return () => {
       eventSource.close();
     };
-  }, [limit, live]);
+  }, [limit, live, leagueId]);
 
   return (
-    <Card className="border-border/70 bg-card/85 shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between gap-3">
-        <CardTitle className="text-base">{title}</CardTitle>
-        {live ? <Badge variant="secondary">Ao vivo</Badge> : null}
-      </CardHeader>
-      <CardContent>
+    <>
+      <div className="flex flex-col gap-4 mt-4 will-change-transform">
         {items.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Nenhuma atividade global registrada ainda.
+            Nenhuma atividade registrada.
           </p>
         ) : (
-          <div className="space-y-3">
+          <>
             {items.map((item) => {
               const Icon = itemIcon(item.item_type);
 
               return (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-border/70 bg-background/80 p-4"
+                  className="rounded-[20px] bg-card p-5"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex min-w-0 gap-3">
-                      <div className="mt-0.5 rounded-full border border-border/70 p-2">
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0 space-y-1">
-                        <div className="font-medium">{item.title}</div>
-                        <div className="text-sm text-muted-foreground">{item.description}</div>
-                        <div className="flex flex-wrap gap-2 pt-1 text-xs text-muted-foreground">
-                          {item.competition_number != null ? (
-                            <span>Competição {item.competition_number}</span>
-                          ) : null}
-                          {item.sport_name ? <span>{item.sport_name}</span> : null}
-                          {item.modality_name ? <span>{item.modality_name}</span> : null}
-                          {item.minute != null ? <span>{item.minute}min</span> : null}
-                        </div>
-                      </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <Icon className="h-4 w-4" />
+                      <span>
+                        {item.title}
+                      </span>
                     </div>
+
                     <div className="shrink-0 text-right text-xs text-muted-foreground">
                       <div>{formatTimestamp(item.created_at)}</div>
                       {showMatchLink && item.match_id != null && leagueId != null ? (
@@ -122,12 +106,21 @@ export function ActivityFeed({
                       ) : null}
                     </div>
                   </div>
+
+                    <div className="flex flex-wrap gap-2 pt-1 text-xs text-muted-foreground">
+                      {item.competition_number != null ? (
+                        <span>Competição {item.competition_number}</span>
+                      ) : null}
+                      {item.sport_name ? <span>{item.sport_name}</span> : null}
+                      {item.modality_name ? <span>{item.modality_name}</span> : null}
+                      {item.minute != null ? <span>{item.minute}min</span> : null}
+                    </div>
                 </div>
               );
             })}
-          </div>
+          </>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </>
   );
 }

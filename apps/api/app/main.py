@@ -22,7 +22,10 @@ from app.features.admin.router import router as admin_router, superadmin_router
 from app.features.auth.router import router as auth_router
 from app.features.health.router import router as health_router
 from app.features.users.router import router as users_router
-from app.features.activities.router import router as activities_router
+from app.features.activities.router import (
+    router as activities_router,
+    global_router as global_activities_router,
+)
 from app.features.athletes.router import router as athletes_router
 from app.features.delegations.router import (
     independent_router,
@@ -163,6 +166,7 @@ app.include_router(modalities_router)
 app.include_router(athletes_router)
 app.include_router(competitions_router)
 app.include_router(activities_router)
+app.include_router(global_activities_router)
 app.include_router(events_router)
 app.include_router(matches_router)
 app.include_router(enrollments_router)

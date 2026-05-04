@@ -15,6 +15,8 @@ import * as m from "@/paraglide/messages";
 import { leagueListQueryOptions } from "@/features/leagues/api/queries";
 import { LeagueCard } from "@/shared/components/ui/league-card";
 import { Title } from "@/shared/components/ui/title";
+import { PageLayout } from "@/shared/components/layouts/page-layout";
+import { LeaguesSidebar } from "@/shared/components/ui/leagues-sidebar";
 
 export const Route = createFileRoute("/leagues/")({
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(leagueListQueryOptions()),
@@ -25,7 +27,7 @@ function LeaguesPage() {
   const { data: leagues } = useSuspenseQuery(leagueListQueryOptions());
 
   return (
-    <>
+    <PageLayout sidebar={<LeaguesSidebar leagues={leagues} />}>
       <div className="flex items-center justify-between mb-8">
         <Title title={m['leagues.listTitle']()}/>
 
@@ -34,7 +36,7 @@ function LeaguesPage() {
         </Link>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
         {leagues.map((league) => (
           <LeagueCard
             key={league.id}
@@ -63,6 +65,6 @@ function LeaguesPage() {
           </EmptyContent>
         </Empty>
       )}
-    </>
+    </PageLayout>
   );
 }

@@ -16,16 +16,20 @@ def _build_match_event_description(item: dict) -> str:
     if item.get("athlete_name"):
         parts.append(str(item["athlete_name"]))
     if item.get("minute") is not None:
-        parts.append(f'{item["minute"]}min')
+        parts.append(f"{item['minute']}min")
     if item.get("modality_name"):
         parts.append(str(item["modality_name"]))
     return " · ".join(parts) or "Atualização de partida"
 
 
 def _map_match_event(item: dict) -> ActivityFeedItem:
-    event_type = item["event_type"].value if hasattr(item["event_type"], "value") else str(item["event_type"])
+    event_type = (
+        item["event_type"].value
+        if hasattr(item["event_type"], "value")
+        else str(item["event_type"])
+    )
     return ActivityFeedItem(
-        id=f'match-event-{item["activity_id"]}',
+        id=f"match-event-{item['activity_id']}",
         item_type=ActivityFeedItemType.MATCH_EVENT,
         created_at=item["created_at"],
         title=_build_match_event_title(event_type, item.get("sport_name")),
@@ -50,10 +54,14 @@ def _map_match_event(item: dict) -> ActivityFeedItem:
 
 def _map_match_state_change(item: dict) -> ActivityFeedItem:
     item_type = ActivityFeedItemType(item["item_type"])
-    title = "Partida iniciada" if item_type == ActivityFeedItemType.MATCH_STARTED else "Partida encerrada"
+    title = (
+        "Partida iniciada"
+        if item_type == ActivityFeedItemType.MATCH_STARTED
+        else "Partida encerrada"
+    )
     description = item.get("modality_name") or item.get("sport_name") or "Partida"
     return ActivityFeedItem(
-        id=f'{item_type.value.lower()}-{item["match_id"]}-{item["created_at"].isoformat()}',
+        id=f"{item_type.value.lower()}-{item['match_id']}-{item['created_at'].isoformat()}",
         item_type=item_type,
         created_at=item["created_at"],
         title=title,
@@ -72,12 +80,16 @@ def _map_match_state_change(item: dict) -> ActivityFeedItem:
 
 
 def _map_record(item: dict) -> ActivityFeedItem:
-    description_parts = [item.get("athlete_name"), item.get("delegation_name"), item.get("value")]
+    description_parts = [
+        item.get("athlete_name"),
+        item.get("delegation_name"),
+        item.get("value"),
+    ]
     return ActivityFeedItem(
-        id=f'record-{item["activity_id"]}',
+        id=f"record-{item['activity_id']}",
         item_type=ActivityFeedItemType.RECORD_SET,
         created_at=item["created_at"],
-        title=f'Recorde em {item.get("modality_name") or item.get("sport_name") or "modalidade"}',
+        title=f"Recorde em {item.get('modality_name') or item.get('sport_name') or 'modalidade'}",
         description=" · ".join(str(part) for part in description_parts if part),
         competition_id=item.get("competition_id"),
         competition_number=item.get("competition_number"),
@@ -92,15 +104,50 @@ def _map_record(item: dict) -> ActivityFeedItem:
     )
 
 
-async def list_feed(session: AsyncSession, league_id: int, limit: int) -> list[ActivityFeedItem]:
+async def list_global_feed(session: AsyncSession, limit: int) -> list[ActivityFeedItem]:
     fetch_limit = max(limit * 3, 30)
-    match_events = await activity_repository.list_recent_match_events(session, league_id, fetch_limit)
-    state_changes = await activity_repository.list_recent_match_state_changes(session, league_id, fetch_limit)
-    records = await activity_repository.list_recent_records(session, league_id, fetch_limit)
+    match_events = await activity_repository.list_recent_match_events_global(
+        session, fetch_limit
+    )
+    state_changes = await activity_repository.list_recent_match_state_changes_global(
+        session, fetch_limit
+    )
+    records = await activity_repository.list_recent_records_global(session, fetch_limit)
 
     items = [
         *(_map_match_event(item) for item in match_events),
-        *(_map_match_state_change(item) for item in state_changes if item.get("created_at") is not None),
+        *(
+            _map_match_state_change(item)
+            for item in state_changes
+            if item.get("created_at") is not None
+        ),
+        *(_map_record(item) for item in records),
+    ]
+    items.sort(key=lambda item: item.created_at, reverse=True)
+    return items[:limit]
+
+
+async def list_feed(
+    session: AsyncSession, league_id: int, limit: int
+) -> list[ActivityFeedItem]:
+    fetch_limit = max(limit * 3, 30)
+    match_events = await activity_repository.list_recent_match_events(
+        session, league_id, fetch_limit
+    )
+    state_changes = await activity_repository.list_recent_match_state_changes(
+        session, league_id, fetch_limit
+    )
+    records = await activity_repository.list_recent_records(
+        session, league_id, fetch_limit
+    )
+
+    items = [
+        *(_map_match_event(item) for item in match_events),
+        *(
+            _map_match_state_change(item)
+            for item in state_changes
+            if item.get("created_at") is not None
+        ),
         *(_map_record(item) for item in records),
     ]
     items.sort(key=lambda item: item.created_at, reverse=True)

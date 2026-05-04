@@ -9,7 +9,7 @@ import {
   myLeagueMembershipQueryOptions,
   myLeaguesQueryOptions,
 } from "@/features/leagues/api/queries";
-import { LeagueCard } from "@/shared/components/ui/league-card";
+import { LeagueSideCard } from "@/shared/components/ui/league-side-card";
 
 export const Route = createFileRoute("/_authenticated/my-leagues/")({
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(myLeaguesQueryOptions()),
@@ -52,7 +52,7 @@ function MyLeaguesPage() {
                   {roleLabel[membership.role] ?? membership.role}
                 </Badge>
               )}
-              <LeagueCard
+              <LeagueSideCard
                 id={league.id}
                 name={league.name}
                 logoUrl={league.logo_url}
